@@ -1,0 +1,41 @@
+{
+  "nodes": [
+    {"id": "front-end", "type": "gateway", "description": "Giao diện Web Node.js, tiếp nhận mọi request từ người dùng"},
+    {"id": "catalogue", "type": "backend", "description": "Quản lý danh mục sản phẩm (Go)"},
+    {"id": "catalogue-db", "type": "database", "description": "Database của catalogue (MySQL)"},
+    {"id": "carts", "type": "backend", "description": "Quản lý giỏ hàng (Java/Spring)"},
+    {"id": "carts-db", "type": "database", "description": "Database của carts (MongoDB)"},
+    {"id": "orders", "type": "backend", "description": "Xử lý logic đặt hàng, điều phối giao dịch (Java/Spring)"},
+    {"id": "orders-db", "type": "database", "description": "Database của orders (MongoDB)"},
+    {"id": "payment", "type": "backend", "description": "Xử lý thanh toán giả lập (Go)"},
+    {"id": "user", "type": "backend", "description": "Quản lý tài khoản và xác thực (Go)"},
+    {"id": "user-db", "type": "database", "description": "Database của user (MongoDB)"},
+    {"id": "session-db", "type": "database", "description": "Lưu trữ phiên đăng nhập của người dùng"},
+    {"id": "shipping", "type": "backend", "description": "Dịch vụ tính phí và vận chuyển (Java/Spring)"},
+    {"id": "rabbitmq", "type": "message_queue", "description": "Hàng đợi tin nhắn (Message Broker)"},
+    {"id": "queue-master", "type": "worker", "description": "Tiến trình đọc tin nhắn từ RabbitMQ"}
+  ],
+  "edges": [
+    {"source": "front-end", "target": "session-db", "relation": "HTTP_GET/POST"},
+    {"source": "front-end", "target": "catalogue", "relation": "HTTP_GET"},
+    {"source": "front-end", "target": "carts", "relation": "HTTP_GET/POST/DELETE"},
+    {"source": "front-end", "target": "user", "relation": "HTTP_GET/POST"},
+    {"source": "front-end", "target": "orders", "relation": "HTTP_POST"},
+    
+    {"source": "catalogue", "target": "catalogue-db", "relation": "SQL_QUERY"},
+    
+    {"source": "carts", "target": "carts-db", "relation": "MONGO_QUERY"},
+    
+    {"source": "user", "target": "user-db", "relation": "MONGO_QUERY"},
+    
+    {"source": "orders", "target": "orders-db", "relation": "MONGO_QUERY"},
+    {"source": "orders", "target": "carts", "relation": "HTTP_GET"},
+    {"source": "orders", "target": "user", "relation": "HTTP_GET"},
+    {"source": "orders", "target": "payment", "relation": "HTTP_POST"},
+    {"source": "orders", "target": "shipping", "relation": "HTTP_POST"},
+    
+    {"source": "shipping", "target": "rabbitmq", "relation": "AMQP_PUBLISH"},
+    
+    {"source": "queue-master", "target": "rabbitmq", "relation": "AMQP_CONSUME"}
+  ]
+}

@@ -1,0 +1,7 @@
+pandas
+networkx
+google-cloud-bigquery
+python-dotenv
+jupyter
+matplotlib
+seaborn
