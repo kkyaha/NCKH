@@ -172,6 +172,8 @@ def evaluate_all():
             wl_range_test  = f"{df_test['Workload'].min():.1f}-{df_test['Workload'].max():.1f}"
 
             row_base = {
+                'evaluation_protocol': 'OOD_Gold_Standard (Train Low -> Test High)',
+                'risk_threshold': 'P80_Percentile',
                 'service': svc, 'metric': metric_name, 'unit': unit,
                 'n_train': len(df_train), 'n_test': len(df_test),
                 'wl_train': wl_range_train, 'wl_test': wl_range_test,
@@ -200,7 +202,7 @@ def evaluate_all():
                     r2_v   = r2_score(y_true, preds)
 
                     # Compute F1 Score for Risk Detection (Threshold = P80 of Full Dataset Distribution)
-                    thresh = np.percentile(df_svc['Target'].values * scale, 80)
+                    thresh = np.percentile(df['Target'].values * scale, 80)
                     y_true_bin = (y_true >= thresh).astype(int)
                     y_pred_bin = (preds >= thresh).astype(int)
                     f1_v       = f1_score(y_true_bin, y_pred_bin, zero_division=0)
