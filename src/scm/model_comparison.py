@@ -199,11 +199,11 @@ def evaluate_all():
                     rmse_v = np.sqrt(mean_squared_error(y_true, preds))
                     r2_v   = r2_score(y_true, preds)
 
-                    # Compute F1 Score for Risk Detection (Threshold = Mean_train + 0.5 * Std_train)
-                    thresh = np.mean(df_train['Target'].values * scale) + 0.5 * np.std(df_train['Target'].values * scale)
+                    # Compute F1 Score for Risk Detection (Threshold = P80 of Full Dataset Distribution)
+                    thresh = np.percentile(df_svc['Target'].values * scale, 80)
                     y_true_bin = (y_true >= thresh).astype(int)
                     y_pred_bin = (preds >= thresh).astype(int)
-                    f1_v       = f1_score(y_true_bin, y_pred_bin, average='binary', zero_division=1)
+                    f1_v       = f1_score(y_true_bin, y_pred_bin, zero_division=0)
 
                     elapsed = time.time() - t0
 

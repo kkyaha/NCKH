@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 import networkx as nx
 from dowhy import gcm
-from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, f1_score
+from sklearn.metrics import mean_squared_error, mean_absolute_error, f1_score, r2_score, precision_score, recall_score
 
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
@@ -47,8 +47,8 @@ def run_f1_rmse_benchmark():
 
     for metric_name, metric_col, unit, scale in METRICS:
         print(f"\n  [Chỉ số: {metric_name} ({unit})]")
-        print(f"  {'Dịch Vụ (Service)':<16} | {'RMSE':>10} | {'F1-Score':>10} | {'MAE':>10} | {'MAPE (%)':>10} | {'R²':>8}")
-        print("  " + "-" * 75)
+        print(f"  {'Dịch Vụ (Service)':<16} | {'RMSE':>10} | {'F1-Score':>10} | {'Prec':>8} | {'Recall':>8} | {'PosR%':>7} | {'MAPE(%)':>7}")
+        print("  " + "-" * 85)
 
         for svc in SERVICES:
             df = load_normal_data(svc, metric_col)
@@ -85,11 +85,15 @@ def run_f1_rmse_benchmark():
             mape_v = mape(yt, yp)
             r2_v   = r2_score(yt, yp)
 
-            # Standard Risk Detection F1-Score: Tau = Mean_train + 0.5 * Std_train
-            thresh = np.mean(df_train['Target'].values * scale) + 0.5 * np.std(df_train['Target'].values * scale)
+            # --- CORRECTION: Domain Policy Threshold (P80 of Full Dataset Distribution) ---
+            thresh = np.percentile(df['Target'].values * scale, 80)
             yt_bin = (yt >= thresh).astype(int)
             yp_bin = (yp >= thresh).astype(int)
-            f1_v   = f1_score(yt_bin, yp_bin, average='binary', zero_division=1)
+
+            pos_ratio = yt_bin.mean() * 100.0
+            prec_v = precision_score(yt_bin, yp_bin, zero_division=0)
+            rec_v  = recall_score(yt_bin, yp_bin, zero_division=0)
+            f1_v   = f1_score(yt_bin, yp_bin, zero_division=0)
 
             trained_models[(svc, metric_name)] = {
                 'model': model,
@@ -103,12 +107,15 @@ def run_f1_rmse_benchmark():
                 'unit': unit,
                 'rmse': round(rmse_v, 4),
                 'f1_score': round(f1_v, 3),
+                'precision': round(prec_v, 3),
+                'recall': round(rec_v, 3),
+                'pos_ratio_pct': round(pos_ratio, 1),
                 'mae': round(mae_v, 4),
                 'mape_pct': round(mape_v, 2),
                 'r2': round(r2_v, 3),
             })
 
-            print(f"  {svc:<16} | {rmse_v:>10.4f} | {f1_v:>10.3f} | {mae_v:>10.4f} | {mape_v:>9.1f}% | {r2_v:>8.3f}")
+            print(f"  {svc:<16} | {rmse_v:>10.4f} | {f1_v:>10.3f} | {prec_v:>8.3f} | {rec_v:>8.3f} | {pos_ratio:>7.1f}% | {mape_v:>7.1f}%")
 
     return pd.DataFrame(eval_results), trained_models
 
