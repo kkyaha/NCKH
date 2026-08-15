@@ -33,13 +33,11 @@ os.makedirs(OUT_DIR, exist_ok=True)
 
 SERVICES = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shipping']
 
-# Metrics: (display_name, column_suffix, display_unit, scale_to_unit)
+# Core Resource Capacity Metrics: (display_name, column_suffix, display_unit, scale_to_unit)
 METRICS = [
     ('CPU',        'cpu',        '%',   1.0   ),
     ('Memory',     'mem',        'MB',  1/1e6 ),
     ('Socket',     'socket',     'cnt', 1.0   ),
-    ('Latency_p50','latency-50', 'ms',  1000.0),
-    ('Latency_p90','latency-90', 'ms',  1000.0),
 ]
 
 CALL_CHAINS = {

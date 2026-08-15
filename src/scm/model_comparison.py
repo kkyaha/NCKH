@@ -32,14 +32,8 @@ BASE_DIR = r'c:\NGUYEN KHANH KY\NCKH\mas_architecture_project'
 OUT_DIR  = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 
-SERVICES = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shipping']
-METRICS  = [
-    ('CPU',        'cpu',        '%',   1.0   ),
-    ('Memory',     'mem',        'MB',  1/1e6 ),
-    ('Socket',     'socket',     'cnt', 1.0   ),
-    ('Latency_p50','latency-50', 'ms',  1000.0),
-    ('Latency_p90','latency-90', 'ms',  1000.0),
-]
+from data_processor import load_normal_data, METRICS, SERVICES
+
 N_PROJ = 500
 
 def mape(y_true, y_pred):
@@ -47,39 +41,12 @@ def mape(y_true, y_pred):
     m = (yt != 0) & np.isfinite(yt) & np.isfinite(yp)
     return np.mean(np.abs((yt[m]-yp[m])/yt[m]))*100 if m.sum()>0 else float('nan')
 
-
-# ============================================================
-# DATA LOADER
-# ============================================================
-def load_normal_data(service: str, metric_col: str) -> pd.DataFrame:
-    """Load normal-period data efficiently: [Workload, Target]"""
-    data_dir = os.path.join(BASE_DIR, 'data', 'raw')
-    dfs = []
-    wlc = f'{service}_workload'
-    tgc = f'{service}_{metric_col}'
-
-    for scenario in os.listdir(data_dir):
-        sp = os.path.join(data_dir, scenario)
-        if not os.path.isdir(sp): continue
-        for run_id in os.listdir(sp):
-            rp = os.path.join(sp, run_id)
-            if not os.path.isdir(rp): continue
-            mp = os.path.join(rp, 'simple_metrics.csv')
-            ip = os.path.join(rp, 'inject_time.txt')
-            if not (os.path.exists(mp) and os.path.exists(ip)): continue
-            try:
-                with open(ip) as f: it = int(f.read().strip())
-                cols = pd.read_csv(mp, nrows=0).columns
-                tc = 'imte' if 'imte' in cols else ('time' if 'time' in cols else None)
-                if tc is None or wlc not in cols or tgc not in cols: continue
-
-                df_raw = pd.read_csv(mp, usecols=[tc, wlc, tgc])
-                df = df_raw[[tc, wlc, tgc]].copy()
-                df.columns = [tc, 'Workload', 'Target']
-                dfs.append(df[df[tc] < it].drop(columns=[tc]).dropna())
-            except Exception:
-                continue
-    return pd.concat(dfs, ignore_index=True) if dfs else None
+def smape(y_true, y_pred):
+    yt, yp = np.array(y_true), np.array(y_pred)
+    num = np.abs(yp - yt)
+    den = (np.abs(yt) + np.abs(yp)) / 2.0
+    m = (den != 0) & np.isfinite(yt) & np.isfinite(yp)
+    return np.mean(num[m]/den[m])*100 if m.sum()>0 else float('nan')
 
 
 # ============================================================
@@ -128,10 +95,11 @@ def fit_predict_sklearn(model_name, model, df_train, test_wl_values):
 
 def fit_predict_scm(df_train, test_wl_values):
     """Fit DoWhy SCM and predict via do(Workload) intervention."""
+    df_fit = df_train.sample(min(2000, len(df_train)), random_state=42) if len(df_train) > 2000 else df_train
     g = nx.DiGraph(); g.add_edge('Workload', 'Target')
     m = gcm.InvertibleStructuralCausalModel(g)
-    gcm.auto.assign_causal_mechanisms(m, df_train)
-    gcm.fit(m, df_train)
+    gcm.auto.assign_causal_mechanisms(m, df_fit)
+    gcm.fit(m, df_fit)
     preds = []
     for wlv in test_wl_values:
         wlc = wlv
@@ -197,30 +165,38 @@ def evaluate_all():
                     from sklearn.metrics import f1_score
 
                     mp_val = mape(y_true, preds)
+                    smp_val = smape(y_true, preds)
                     mae_v  = mean_absolute_error(y_true, preds)
                     rmse_v = np.sqrt(mean_squared_error(y_true, preds))
+                    r_range = y_true.max() - y_true.min()
+                    nrmse_v = rmse_v / r_range if r_range != 0 else float('nan')
                     r2_v   = r2_score(y_true, preds)
 
-                    # Compute F1 Score for Risk Detection (Threshold = P80 of Full Dataset Distribution)
-                    thresh = np.percentile(df['Target'].values * scale, 80)
-                    y_true_bin = (y_true >= thresh).astype(int)
-                    y_pred_bin = (preds >= thresh).astype(int)
-                    f1_v       = f1_score(y_true_bin, y_pred_bin, zero_division=0)
+                    # Compute F1 Score for Risk Detection (Threshold = P80 of Train Distribution strictly to avoid data leakage)
+                    thresh = np.percentile(df_train['Target'].values * scale, 80)
+                    yt_cls = (y_true >= thresh).astype(int)
+                    yp_cls = (preds >= thresh).astype(int)
+                    f1_v   = f1_score(yt_cls, yp_cls, zero_division=0)
 
-                    elapsed = time.time() - t0
-
-                    model_results[model_name] = {
-                        'mape': mp_val, 'mae': mae_v, 'rmse': rmse_v, 'f1': f1_v, 'r2': r2_v, 'time_s': elapsed
-                    }
-                    all_records.append({
-                        **row_base, 'model': model_name,
-                        'mape_pct': round(mp_val, 2),
+                    row = row_base.copy()
+                    row.update({
+                        'model': model_name,
+                        'mape_pct': round(mp_val, 2) if not np.isnan(mp_val) else '',
+                        'smape_pct': round(smp_val, 2) if not np.isnan(smp_val) else '',
                         'rmse': round(rmse_v, 4),
+                        'nrmse': round(nrmse_v, 4) if not np.isnan(nrmse_v) else '',
                         'mae': round(mae_v, 4),
                         'f1_score': round(f1_v, 3),
                         'r2': round(r2_v, 3),
-                        'train_time_s': round(elapsed, 2),
+                        'train_time_s': round(time.time() - t0, 2)
                     })
+                    all_records.append(row)
+                    
+                    elapsed = time.time() - t0
+                    model_results[model_name] = {
+                        'mape': mp_val, 'smape': smp_val, 'mae': mae_v, 'rmse': rmse_v, 'nrmse': nrmse_v, 'f1': f1_v, 'r2': r2_v, 'time_s': elapsed
+                    }
+
                 except Exception as e:
                     model_results[model_name] = {'mape': float('nan'), 'rmse': float('nan'), 'f1': float('nan'), 'error': str(e)[:60]}
                     all_records.append({**row_base, 'model': model_name,
@@ -266,7 +242,7 @@ def main():
         best_mape = float('inf')
         best_model = ''
         for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
-            s = sub[sub['model']==mn]['mape_pct']
+            s = pd.to_numeric(sub[sub['model']==mn]['mape_pct'], errors='coerce')
             val = s.mean() if not s.empty else float('nan')
             row += f" | {val:>9.1f}%"
             if not np.isnan(val) and val < best_mape:
@@ -285,7 +261,7 @@ def main():
         best_rmse = float('inf')
         best_model = ''
         for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
-            s = sub[sub['model']==mn]['rmse']
+            s = pd.to_numeric(sub[sub['model']==mn]['rmse'], errors='coerce')
             val = s.mean() if not s.empty else float('nan')
             row += f" | {val:>10.4f}"
             if not np.isnan(val) and val < best_rmse:
@@ -304,7 +280,7 @@ def main():
         best_f1 = -1.0
         best_model = ''
         for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
-            s = sub[sub['model']==mn]['f1_score']
+            s = pd.to_numeric(sub[sub['model']==mn]['f1_score'], errors='coerce')
             val = s.mean() if not s.empty else float('nan')
             row += f" | {val:>10.3f}"
             if not np.isnan(val) and val > best_f1:
@@ -343,8 +319,8 @@ def main():
     }
     for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
         sub = df_all[df_all['model']==mn]
-        avg_mape = sub['mape_pct'].mean()
-        avg_time = sub['train_time_s'].mean() if 'train_time_s' in sub.columns else float('nan')
+        avg_mape = pd.to_numeric(sub['mape_pct'], errors='coerce').mean()
+        avg_time = pd.to_numeric(sub['train_time_s'], errors='coerce').mean() if 'train_time_s' in sub.columns else float('nan')
         interp, causal = model_props.get(mn, ('?', '?'))
         print(f"  {mn:<20} | {avg_mape:>9.1f}% | {avg_time:>11.2f}s | {interp:<14} | {causal}")
 

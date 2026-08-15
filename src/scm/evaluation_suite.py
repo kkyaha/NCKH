@@ -37,7 +37,23 @@ JSON_GRAPH_PATH = os.path.join(BASE_DIR, 'src', 'graph', 'sockshop_agent_graph.j
 
 sys.path.append(os.path.join(BASE_DIR, 'src', 'scm'))
 from request_router import classify_request, get_blast_radius
-from scm_pipeline import load_normal_data, METRICS, SERVICES, mape
+from scm_pipeline import mape
+from data_processor import (
+    load_normal_data, 
+    load_multi_service_data, 
+    split_quantile, 
+    split_random, 
+    split_chronological, 
+    METRICS, 
+    SERVICES
+)
+
+def smape(y_true, y_pred):
+    yt, yp = np.array(y_true), np.array(y_pred)
+    num = np.abs(yp - yt)
+    den = (np.abs(yt) + np.abs(yp)) / 2.0
+    m = (den != 0) & np.isfinite(yt) & np.isfinite(yp)
+    return np.mean(num[m]/den[m])*100 if m.sum()>0 else float('nan')
 
 N_PROJ_STANDARD = 500
 N_PROJ_PROTOCOLS = 300
@@ -57,8 +73,8 @@ def run_f1_rmse_benchmark():
 
     for metric_name, metric_col, unit, scale in METRICS:
         print(f"\n  [Chỉ số: {metric_name} ({unit})]")
-        print(f"  {'Dịch Vụ (Service)':<16} | {'RMSE':>10} | {'F1-Score':>10} | {'Prec':>8} | {'Recall':>8} | {'PosR%':>7} | {'MAPE(%)':>7}")
-        print("  " + "-" * 85)
+        print(f"  {'Dịch Vụ (Service)':<16} | {'RMSE':>10} | {'NRMSE':>8} | {'F1-Score':>10} | {'PosR%':>7} | {'MAPE(%)':>7} | {'SMAPE(%)':>8}")
+        print("  " + "-" * 95)
 
         for svc in SERVICES:
             df = load_normal_data(svc, metric_col)
@@ -90,10 +106,13 @@ def run_f1_rmse_benchmark():
 
             mae_v  = mean_absolute_error(yt, yp)
             rmse_v = np.sqrt(mean_squared_error(yt, yp))
+            r_range = yt.max() - yt.min()
+            nrmse_v = rmse_v / r_range if r_range != 0 else float('nan')
             mape_v = mape(yt, yp)
+            smape_v = smape(yt, yp)
             r2_v   = r2_score(yt, yp)
 
-            thresh = np.percentile(df['Target'].values * scale, 80)
+            thresh = np.percentile(df_train['Target'].values * scale, 80)
             yt_bin = (yt >= thresh).astype(int)
             yp_bin = (yp >= thresh).astype(int)
 
@@ -115,23 +134,61 @@ def run_f1_rmse_benchmark():
                 'metric': metric_name,
                 'unit': unit,
                 'rmse': round(rmse_v, 4),
+                'nrmse': round(nrmse_v, 4) if not np.isnan(nrmse_v) else '',
                 'f1_score': round(f1_v, 3),
                 'precision': round(prec_v, 3),
                 'recall': round(rec_v, 3),
                 'pos_ratio_pct': round(pos_ratio, 1),
                 'mae': round(mae_v, 4),
                 'mape_pct': round(mape_v, 2),
+                'smape_pct': round(smape_v, 2) if not np.isnan(smape_v) else '',
                 'r2': round(r2_v, 3),
             })
 
-            print(f"  {svc:<16} | {rmse_v:>10.4f} | {f1_v:>10.3f} | {prec_v:>8.3f} | {rec_v:>8.3f} | {pos_ratio:>7.1f}% | {mape_v:>7.1f}%")
+            print(f"  {svc:<16} | {rmse_v:>10.4f} | {nrmse_v:>8.3f} | {f1_v:>10.3f} | {pos_ratio:>7.1f}% | {mape_v:>7.1f}% | {smape_v:>8.1f}%")
 
     return pd.DataFrame(eval_results), trained_models
 
-def test_new_features_simulation(trained_models):
+def build_and_train_global_dag(df_data=None):
+    if df_data is None:
+        df_data = load_multi_service_data()
+    if df_data is None or df_data.empty:
+        raise ValueError("Không thể load dữ liệu đa dịch vụ.")
+
+    with open(JSON_GRAPH_PATH, 'r', encoding='utf-8') as f:
+        graph_json = json.load(f)
+
+    g = nx.DiGraph()
+    # 1. Topology edges: Workload -> Workload (Dựa trên kiến trúc gọi API thực tế)
+    for edge in graph_json['edges']:
+        src, tgt = edge['source'], edge['target']
+        if src in SERVICES and tgt in SERVICES:
+            g.add_edge(f"{src}_workload", f"{tgt}_workload")
+
+    # 2. Internal metric edges: Workload -> Metrics
+    for s in SERVICES:
+        for m in [f'{s}_cpu', f'{s}_mem', f'{s}_latency-50']:
+            if f'{s}_workload' in df_data.columns and m in df_data.columns:
+                g.add_edge(f"{s}_workload", m)
+
+    valid_nodes = [n for n in g.nodes() if n in df_data.columns]
+    g_sub = g.subgraph(valid_nodes).copy()
+    df_sub = df_data[valid_nodes].dropna()
+
+    df_fit = df_sub.sample(min(2000, len(df_sub)), random_state=42) if len(df_sub) > 2000 else df_sub
+
+    model = gcm.InvertibleStructuralCausalModel(g_sub)
+    gcm.auto.assign_causal_mechanisms(model, df_fit)
+    gcm.fit(model, df_fit)
+    return model, df_sub, g_sub
+
+def test_new_features_simulation(global_model=None, df_sub=None):
     print("\n" + "=" * 95)
-    print("  PHẦN 2: THỬ NGHIỆM ĐẦU VÀO VÀ MÔ PHỎNG TÍNH NĂNG MỚI (CHƯA CÓ TRÊN SOCKSHOP)")
+    print("  PHẦN 2: THỬ NGHIỆM ĐẦU VÀO VÀ MÔ PHỎNG TÍNH NĂNG MỚI (GLOBAL 28-NODE CAUSAL DAG)")
     print("=" * 95)
+
+    if global_model is None or df_sub is None:
+        global_model, df_sub, _ = build_and_train_global_dag()
 
     test_queries = [
         ("Tính năng: Áp dụng Promo Code", "Áp mã voucher giảm giá 20% khi thanh toán", "APPLY_PROMO_CODE"),
@@ -139,162 +196,146 @@ def test_new_features_simulation(trained_models):
         ("Tính năng: Theo dõi đơn hàng Real-time", "Xem hành trình giao hàng và vị trí đơn hàng real-time", "TRACK_PACKAGE"),
         ("Tính năng: Đánh giá Review sản phẩm", "Viết nhận xét đánh giá 5 sao cho sản phẩm", "WRITE_PRODUCT_REVIEW"),
         ("Baseline: Đặt hàng tiêu chuẩn", "Đặt hàng mua sản phẩm", "PLACE_ORDER"),
+        ("Sự kiện: Sale Cuối Tuần (+50% Load)", "Sự kiện mua sắm cuối tuần tăng tải nhẹ", "PLACE_ORDER"),
         ("Sự kiện: Siêu Flash Sale (+150% Load)", "Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống", "PLACE_ORDER"),
+        ("Sự kiện: Black Friday (+300% Load)", "Sự kiện Black Friday tăng tải cực đại làm sập hệ thống", "PLACE_ORDER"),
     ]
 
     sim_rows = []
+    base_fe_wl = df_sub['front-end_workload'].mean()
+
     for scenario_name, query, expected_rtype in test_queries:
         detected_rtype = classify_request(query)
         blast = get_blast_radius(detected_rtype)
-        affected_svcs = blast['affected_services']
-        delta_pct = blast['expected_delta_pct']
+        
+        if "Black Friday" in query:
+            delta_pct = 300
+        elif "Flash Sale" in query:
+            delta_pct = 150
+        elif "Sale Cuối Tuần" in query:
+            delta_pct = 50
+        else:
+            delta_pct = blast['expected_delta_pct']
+            
         resource_prof = blast['resource_profile']
 
-        if "Flash Sale" in query:
-            delta_pct = 150
+        target_fe_wl = base_fe_wl * (1 + delta_pct / 100)
 
-        print(f"\n  📝 Truy vấn đầu vào: \"{query}\"")
-        print(f"     -> Phân loại: {detected_rtype} (Khớp kỳ vọng: {detected_rtype == expected_rtype})")
-        print(f"     -> Mô tả tính năng: {blast['description']}")
-        print(f"     -> Blast Radius: {' -> '.join(affected_svcs)}")
-        print(f"     -> Can thiệp do(WL) = +{delta_pct}% | Profile: {resource_prof}")
+        # True Interventional Sampling on Global 28-Node DAG
+        samples = gcm.interventional_samples(
+            global_model, 
+            interventions={'front-end_workload': lambda x, w=target_fe_wl: w}, 
+            num_samples_to_draw=N_PROJ_STANDARD
+        )
+
+        print(f"\n  📝 Truy vấn: \"{query}\" ({scenario_name})")
+        print(f"     -> Phân loại: {detected_rtype} | do(front-end_workload) = +{delta_pct}%")
+        print(f"     -> Lan truyền tự nhiên qua Đồ thị 28-Node (Global Causal Inference)")
         print(f"        {'Service':<14} | {'CPU Delta':>12} | {'Memory Delta':>14} | {'Lat_p50 Delta':>14} | {'CẢNH BÁO RỦI RO'}")
         print("        " + "-" * 90)
 
-        for svc in affected_svcs:
-            cpu_key, mem_key, lat_key = (svc, 'CPU'), (svc, 'Memory'), (svc, 'Latency_p50')
-            cpu_chg, mem_chg, lat_chg = "N/A", "N/A", "N/A"
-            c_val, m_val, l_val = 0.0, 0.0, 0.0
+        for svc in SERVICES:
+            ccol, mcol, lcol = f'{svc}_cpu', f'{svc}_mem', f'{svc}_latency-50'
+            
+            c_base = df_sub[ccol].mean() if ccol in df_sub.columns else 1.0
+            c_pred = samples[ccol].mean() if ccol in samples.columns else c_base
+            c_val = ((c_pred - c_base) / abs(c_base)) * 100 if c_base != 0 else 0
 
-            if cpu_key in trained_models:
-                m_info = trained_models[cpu_key]
-                new_wl = m_info['baseline_wl'] * (1 + delta_pct / 100)
-                dp = gcm.interventional_samples(m_info['model'], interventions={'Workload': lambda x, w=new_wl: w}, num_samples_to_draw=N_PROJ_STANDARD)
-                new_val = dp['Target'].mean() * 1.0
-                c_val = (new_val - m_info['baseline_val']) / abs(m_info['baseline_val']) * 100 if m_info['baseline_val'] != 0 else 0
-                cpu_chg = f"{c_val:+.1f}%"
+            m_base = df_sub[mcol].mean() if mcol in df_sub.columns else 1.0
+            m_pred = samples[mcol].mean() if mcol in samples.columns else m_base
+            m_val = ((m_pred - m_base) / abs(m_base)) * 100 if m_base != 0 else 0
 
-            if mem_key in trained_models:
-                m_info = trained_models[mem_key]
-                new_wl = m_info['baseline_wl'] * (1 + delta_pct / 100)
-                dp = gcm.interventional_samples(m_info['model'], interventions={'Workload': lambda x, w=new_wl: w}, num_samples_to_draw=N_PROJ_STANDARD)
-                new_val = dp['Target'].mean() * (1/1e6)
-                m_val = (new_val - m_info['baseline_val']) / abs(m_info['baseline_val']) * 100 if m_info['baseline_val'] != 0 else 0
-                mem_chg = f"{m_val:+.1f}%"
+            l_base = df_sub[lcol].mean() if lcol in df_sub.columns else 1.0
+            l_pred = samples[lcol].mean() if lcol in samples.columns else l_base
+            l_val = ((l_pred - l_base) / abs(l_base)) * 100 if l_base != 0 else 0
 
-            if lat_key in trained_models:
-                m_info = trained_models[lat_key]
-                new_wl = m_info['baseline_wl'] * (1 + delta_pct / 100)
-                dp = gcm.interventional_samples(m_info['model'], interventions={'Workload': lambda x, w=new_wl: w}, num_samples_to_draw=N_PROJ_STANDARD)
-                new_val = dp['Target'].mean() * 1000.0
-                l_val = (new_val - m_info['baseline_val']) / abs(m_info['baseline_val']) * 100 if m_info['baseline_val'] != 0 else 0
-                lat_chg = f"{l_val:+.1f}%"
+            cpu_chg = f"{c_val:+.1f}%"
+            mem_chg = f"{m_val:+.1f}%"
+            lat_chg = f"{l_val:+.1f}%"
 
-            if c_val >= 30.0 or delta_pct >= 100:
+            if c_val >= 30.0 or delta_pct >= 100 or l_val >= 100.0:
                 risk_status = "❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)"
-            elif l_val >= 50.0 or c_val >= 15.0:
+            elif l_val >= 30.0 or c_val >= 15.0:
                 risk_status = "⚠️ CẢNH BÁO: GIẬT LAG MẠNH (SEVERE LATENCY SPIKE)"
             else:
                 risk_status = "✅ AN TOÀN (NORMAL)"
 
             print(f"        {svc:<14} | {cpu_chg:>12} | {mem_chg:>14} | {lat_chg:>14} | {risk_status}")
             sim_rows.append({
-                'scenario_name': scenario_name, 'query': query, 'request_type': detected_rtype, 'feature_resource_profile': resource_prof,
-                'do_workload_delta_pct': delta_pct, 'service': svc, 'cpu_change_pct': cpu_chg,
-                'mem_change_pct': mem_chg, 'lat_p50_change_pct': lat_chg, 'risk_status': risk_status
+                'scenario_name': scenario_name,
+                'query': query,
+                'request_type': detected_rtype,
+                'feature_resource_profile': resource_prof,
+                'do_workload_delta_pct': delta_pct,
+                'service': svc,
+                'cpu_change_pct': cpu_chg,
+                'mem_change_pct': mem_chg,
+                'lat_p50_change_pct': lat_chg,
+                'risk_status': risk_status
             })
 
     return pd.DataFrame(sim_rows)
 
-# =============================================================================
-# PHẦN 3: KIỂM THỬ ĐỒ THỊ NHÂN QUẢ 14 NODE (MULTI-NODE GRAPH)
-# =============================================================================
-
-def load_multi_service_data():
-    merged_df = None
-    for scenario in os.listdir(RAW_DATA_DIR):
-        sp = os.path.join(RAW_DATA_DIR, scenario)
-        if not os.path.isdir(sp): continue
-        for run_id in os.listdir(sp):
-            rp = os.path.join(sp, run_id)
-            if not os.path.isdir(rp): continue
-            mp = os.path.join(rp, 'simple_metrics.csv')
-            ip = os.path.join(rp, 'inject_time.txt')
-            if not os.path.exists(mp) or not os.path.exists(ip): continue
-            try:
-                with open(ip) as f: it = int(f.read().strip())
-                cols = pd.read_csv(mp, nrows=0).columns
-                tc = 'imte' if 'imte' in cols else ('time' if 'time' in cols else None)
-                if tc is None: continue
-                
-                svc_cols = [tc]
-                for s in SERVICES:
-                    wcol, ccol = f'{s}_workload', f'{s}_cpu'
-                    if wcol in cols and ccol in cols:
-                        svc_cols.extend([wcol, ccol])
-                
-                df_run = pd.read_csv(mp, usecols=list(set(svc_cols)))
-                df_run = df_run[df_run[tc] < it].drop(columns=[tc]).dropna()
-                
-                merged_df = df_run if merged_df is None else pd.concat([merged_df, df_run], ignore_index=True)
-            except Exception:
-                continue
-    return merged_df
-
-def test_14_node_causal_graph():
+def test_14_node_causal_graph(global_model=None, df_sub=None):
     print("\n" + "=" * 90)
-    print("  🚀 KIỂM THỬ TRỰC TIẾP ĐỒ THỊ NHÂN QUẢ 14 NODE KIẾN TRÚC SOCKSHOP")
+    print("  🚀 KIỂM THỬ LAN TRUYỀN NHÂN QUẢ 2 TẦNG (7 WORKLOAD + 7 CPU = 14 NODES)")
     print("=" * 90)
 
-    with open(JSON_GRAPH_PATH, 'r', encoding='utf-8') as f:
-        graph_json = json.load(f)
-
-    g = nx.DiGraph()
-    for edge in graph_json['edges']:
-        if edge['source'] in SERVICES and edge['target'] in SERVICES:
-            g.add_edge(f"{edge['source']}_cpu", f"{edge['target']}_cpu")
-    g.add_edge("front-end_workload", "front-end_cpu")
-
-    df_data = load_multi_service_data()
-    if df_data is None or df_data.empty:
-        print("Lỗi: Không thể nạp dữ liệu đa dịch vụ.")
-        return
-
-    graph_nodes = list(g.nodes())
-    valid_cols = [c for c in graph_nodes if c in df_data.columns]
-    df_sub = df_data[valid_cols].dropna().head(1000)
-
-    model = gcm.InvertibleStructuralCausalModel(g)
-    gcm.auto.assign_causal_mechanisms(model, df_sub)
-    gcm.fit(model, df_sub)
+    if global_model is None or df_sub is None:
+        global_model, df_sub, _ = build_and_train_global_dag()
 
     base_wl = df_sub['front-end_workload'].mean()
     target_wl = base_wl * 1.50 
 
-    samples = gcm.interventional_samples(model, interventions={'front-end_workload': lambda x, w=target_wl: w}, num_samples_to_draw=300)
+    samples = gcm.interventional_samples(
+        global_model, 
+        interventions={'front-end_workload': lambda x, w=target_wl: w}, 
+        num_samples_to_draw=300
+    )
 
-    print(f"\n  📊 Kết Quả Lan Truyền Can Thiệp do() Qua Các Tầng Dịch Vụ 14-Node:")
-    print(f"  {'Nút Dịch Vụ (Service Node)':<25} | {'CPU Gốc (%)':>12} | {'CPU Dự Báo do() (%)':>20} | {'Biến Động (%)':>14}")
+    print(f"\n  📊 Kết Quả Lan Truyền Can Thiệp do(front-end_workload = +50%) Qua 2 Tầng Cấu Trúc:")
+    print(f"  {'Tầng & Nút Dịch Vụ':<30} | {'Giá Trị Gốc':>12} | {'Dự Báo do()':>15} | {'Biến Động (%)':>14}")
     print("  " + "-" * 80)
 
     csv_rows = []
-    for node in graph_nodes:
-        if node in df_sub.columns and node in samples.columns:
-            base_val = df_sub[node].mean()
-            pred_val = samples[node].mean()
+    print("  [TẦNG 1: LAN TRUYỀN WORKLOAD GIỮA CÁC DỊCH VỤ]")
+    for s in SERVICES:
+        col = f"{s}_workload"
+        if col in df_sub.columns and col in samples.columns:
+            base_val = df_sub[col].mean()
+            pred_val = samples[col].mean()
             chg = ((pred_val - base_val) / abs(base_val)) * 100 if base_val != 0 else 0
-            print(f"  {node:<25} | {base_val:>12.4f} | {pred_val:>20.4f} | {chg:>+13.1f}%")
+            print(f"    Workload: {s:<18} | {base_val:>12.2f} | {pred_val:>15.2f} | {chg:>+13.1f}%")
             csv_rows.append({
-                'Service_Node': node,
-                'Original_CPU_Pct': round(base_val, 4),
-                'Predicted_do_CPU_Pct': round(pred_val, 4),
+                'Layer': 'Tier_1_Workload_Propagation',
+                'Service': s,
+                'Node': col,
+                'Original_Value': round(base_val, 4),
+                'Predicted_do_Value': round(pred_val, 4),
                 'Change_Pct': round(chg, 2)
             })
-    
+
+    print("  [TẦNG 2: TÁC ĐỘNG TẢI NỘI TẠI LÊN CPU CỤC BỘ]")
+    for s in SERVICES:
+        col = f"{s}_cpu"
+        if col in df_sub.columns and col in samples.columns:
+            base_val = df_sub[col].mean()
+            pred_val = samples[col].mean()
+            chg = ((pred_val - base_val) / abs(base_val)) * 100 if base_val != 0 else 0
+            print(f"    CPU (%):  {s:<18} | {base_val:>12.4f} | {pred_val:>15.4f} | {chg:>+13.1f}%")
+            csv_rows.append({
+                'Layer': 'Tier_2_Local_CPU_Impact',
+                'Service': s,
+                'Node': col,
+                'Original_Value': round(base_val, 4),
+                'Predicted_do_Value': round(pred_val, 4),
+                'Change_Pct': round(chg, 2)
+            })
+
     df_out = pd.DataFrame(csv_rows)
     out_file = os.path.join(OUT_DIR, '14_node_causal_propagation.csv')
     df_out.to_csv(out_file, index=False)
-    print(f"\n  ✅ Đã lưu kết quả lan truyền 14-Node tại: {out_file}")
+    print(f"\n  ✅ Đã lưu kết quả lan truyền 14-Node (7 Workload + 7 CPU) chuẩn xác tại: {out_file}")
 
 # =============================================================================
 # PHẦN 4: KIỂM ĐỊNH Ý NGHĨA THỐNG KÊ
@@ -349,18 +390,6 @@ def run_statistical_significance():
 # PHẦN 5: ĐỐI CHIẾU CÁC PHƯƠNG PHÁP CHIA TẬP TEST (ALTERNATIVE PROTOCOLS)
 # =============================================================================
 
-def split_quantile(df):
-    df_sorted = df.sort_values('Workload').reset_index(drop=True)
-    split = int(len(df_sorted) * 0.67)
-    return df_sorted.iloc[:split], df_sorted.iloc[split:]
-
-def split_random(df):
-    return train_test_split(df, test_size=0.3, random_state=42)
-
-def split_chronological(df):
-    split = int(len(df) * 0.70)
-    return df.iloc[:split], df.iloc[split:]
-
 def run_protocol_evaluation(protocol_name, split_func):
     print(f"\n  📌 CHẠY THỰC NGHIỆM: {protocol_name}")
     print(f"  {'Metric':<10} | {'RMSE':>10} | {'MAPE (%)':>10} | {'F1-Score':>10} | {'Precision':>10} | {'Recall':>10}")
@@ -391,7 +420,7 @@ def run_protocol_evaluation(protocol_name, split_func):
                 y_pred.append(dp['Target'].mean())
 
             yt, yp = np.array(y_true) * scale, np.array(y_pred) * scale
-            thresh = np.percentile(df['Target'].values * scale, 80)
+            thresh = np.percentile(df_train['Target'].values * scale, 80)
             yt_bin, yp_bin = (yt >= thresh).astype(int), (yp >= thresh).astype(int)
 
             rmse_list.append(np.sqrt(mean_squared_error(yt, yp)))
