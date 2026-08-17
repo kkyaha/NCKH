@@ -1,0 +1,5 @@
+comparison,metric,wilcoxon_stat,p_value,significant_p_lt_0.05
+SCM_vs_LinearReg,RMSE,111.0,0.89173,False
+SCM_vs_GradBoost,RMSE,113.0,0.94574,False
+SCM_vs_GaussProc,RMSE,101.0,0.6333,False
+Friedman_4_Models_Overall,RMSE,1.286,0.73253,False

@@ -93,7 +93,7 @@ def load_multi_service_data() -> pd.DataFrame:
     merged_df = None
     cols_to_keep = []
     for s in SERVICES:
-        cols_to_keep.extend([f'{s}_workload', f'{s}_cpu', f'{s}_mem', f'{s}_socket'])
+        cols_to_keep.extend([f'{s}_workload', f'{s}_cpu', f'{s}_mem', f'{s}_socket', f'{s}_latency-50', f'{s}_latency-90', f'{s}_latency-99'])
         
     for scenario in os.listdir(RAW_DATA_DIR):
         sp = os.path.join(RAW_DATA_DIR, scenario)

@@ -1,4 +1,4 @@
-data/
+data/raw/
 credentials/
 .env
 __pycache__/

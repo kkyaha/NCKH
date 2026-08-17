@@ -23,8 +23,12 @@ import pandas as pd
 import networkx as nx
 from scipy import stats
 from dowhy import gcm
+from dowhy.gcm import AdditiveNoiseModel, EmpiricalDistribution
+from dowhy.gcm.ml import SklearnRegressionModel
 from sklearn.metrics import mean_squared_error, mean_absolute_error, f1_score, r2_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.base import BaseEstimator, RegressorMixin
 
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
@@ -149,6 +153,35 @@ def run_f1_rmse_benchmark():
 
     return pd.DataFrame(eval_results), trained_models
 
+class QueueingLatencyRegressor(BaseEstimator, RegressorMixin):
+    def __init__(self):
+        self.model_ = LinearRegression(fit_intercept=True)
+        self.capacity_ = None
+
+    def fit(self, X, y):
+        X = np.array(X)
+        # Ước lượng dung lượng tối đa (Capacity) = Workload lớn nhất * 1.5
+        self.capacity_ = np.max(X, axis=0) * 1.5 
+        self.capacity_[self.capacity_ == 0] = 1.0 
+        
+        # Đặc trưng hàng đợi: X / (C - X) tương tự rho / (1 - rho)
+        X_queue = X / (self.capacity_ - X + 1e-6)
+        X_transformed = np.hstack([X, X_queue])
+        
+        self.model_.fit(X_transformed, y)
+        return self
+
+    def predict(self, X):
+        X = np.array(X)
+        # Khi ngoại suy (Flash Sale), Workload có thể vượt Capacity,
+        # Giới hạn X ở mức 0.99 * C để Latency bùng nổ phi tuyến mà không bị âm hay lỗi chia 0.
+        X_capped = np.minimum(X, self.capacity_ * 0.99)
+        X_queue = X_capped / (self.capacity_ - X_capped + 1e-6)
+        
+        X_transformed = np.hstack([X_capped, X_queue])
+        return self.model_.predict(X_transformed)
+
+
 def build_and_train_global_dag(df_data=None):
     if df_data is None:
         df_data = load_multi_service_data()
@@ -179,6 +212,16 @@ def build_and_train_global_dag(df_data=None):
 
     model = gcm.InvertibleStructuralCausalModel(g_sub)
     gcm.auto.assign_causal_mechanisms(model, df_fit)
+    
+    # 3. Ghi đè Domain-Aware Causal Mechanisms để giải quyết Rủi ro Ngoại suy của Tree-based model
+    for node in g_sub.nodes():
+        if node.endswith('_cpu') or node.endswith('_mem'):
+            # CPU/Mem tỉ lệ tuyến tính với tải
+            model.set_causal_mechanism(node, AdditiveNoiseModel(SklearnRegressionModel(LinearRegression())))
+        elif node.endswith('_latency-50'):
+            # Độ trễ tăng phi tuyến theo đường cong bão hòa
+            model.set_causal_mechanism(node, AdditiveNoiseModel(SklearnRegressionModel(QueueingLatencyRegressor())))
+
     gcm.fit(model, df_fit)
     return model, df_sub, g_sub
 
