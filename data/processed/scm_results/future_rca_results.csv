@@ -1,0 +1,36 @@
+﻿scenario,intervention,ood_confidence,ood_ratio,node,baseline,predicted,change_pct,anomaly_score,shapley_contribution,risk_level,total_anomaly,runtime_s,n_caveats
+Baseline: Tải bình thường (+0%),{'front-end_workload': np.float64(24.167951768893932)},high,0.816,front-end_cpu,4.431304495363064,4.3821569711171175,-1.11,0.1851,0.0,normal,6.5096,29.74,8
+Baseline: Tải bình thường (+0%),{'front-end_workload': np.float64(24.167951768893932)},high,0.816,catalogue_cpu,0.2329484120105537,0.25697760214087834,10.32,4.0174,0.0,critical,6.5096,29.74,8
+Baseline: Tải bình thường (+0%),{'front-end_workload': np.float64(24.167951768893932)},high,0.816,user_cpu,0.9193030761395579,0.9153423430569442,-0.43,0.0182,0.0,normal,6.5096,29.74,8
+Baseline: Tải bình thường (+0%),{'front-end_workload': np.float64(24.167951768893932)},high,0.816,carts_cpu,2.1437801186673773,2.046343108184929,-4.55,0.9014,0.0,normal,6.5096,29.74,8
+Baseline: Tải bình thường (+0%),{'front-end_workload': np.float64(24.167951768893932)},high,0.816,orders_cpu,2.0314715184257963,2.1388961940143947,5.29,0.5361,0.0,normal,6.5096,29.74,8
+Baseline: Tải bình thường (+0%),{'front-end_workload': np.float64(24.167951768893932)},high,0.816,payment_cpu,0.09165532557789874,0.08792224572700977,-4.07,0.1381,0.0,normal,6.5096,29.74,8
+Baseline: Tải bình thường (+0%),{'front-end_workload': np.float64(24.167951768893932)},high,0.816,shipping_cpu,0.6205201157605335,0.6051416223333206,-2.48,0.7133,0.0,normal,6.5096,29.74,8
+Tính năng mới: Promo Code (+20%),{'front-end_workload': np.float64(29.001542122672717)},low,0.98,front-end_cpu,4.431304495363064,4.928999787867511,11.23,0.1324,0.0,normal,2.1034,30.75,9
+Tính năng mới: Promo Code (+20%),{'front-end_workload': np.float64(29.001542122672717)},low,0.98,catalogue_cpu,0.2329484120105537,0.1959953786358963,-15.86,0.1054,0.0,warning,2.1034,30.75,9
+Tính năng mới: Promo Code (+20%),{'front-end_workload': np.float64(29.001542122672717)},low,0.98,user_cpu,0.9193030761395579,0.94234190663814,2.51,0.0131,0.0,normal,2.1034,30.75,9
+Tính năng mới: Promo Code (+20%),{'front-end_workload': np.float64(29.001542122672717)},low,0.98,carts_cpu,2.1437801186673773,2.1732077302071877,1.37,0.8255,0.0,normal,2.1034,30.75,9
+Tính năng mới: Promo Code (+20%),{'front-end_workload': np.float64(29.001542122672717)},low,0.98,orders_cpu,2.0314715184257963,2.303726800600659,13.4,0.374,0.0,normal,2.1034,30.75,9
+Tính năng mới: Promo Code (+20%),{'front-end_workload': np.float64(29.001542122672717)},low,0.98,payment_cpu,0.09165532557789874,0.08709191282556693,-4.98,0.046,0.0,normal,2.1034,30.75,9
+Tính năng mới: Promo Code (+20%),{'front-end_workload': np.float64(29.001542122672717)},low,0.98,shipping_cpu,0.6205201157605335,0.5912869105339681,-4.71,0.607,0.0,normal,2.1034,30.75,9
+Sự kiện: Sale Cuối Tuần (+50%),{'front-end_workload': np.float64(36.2519276533409)},low,1.225,front-end_cpu,4.431304495363064,5.719575051946509,29.07,0.0619,0.0,warning,2.7584,30.06,9
+Sự kiện: Sale Cuối Tuần (+50%),{'front-end_workload': np.float64(36.2519276533409)},low,1.225,catalogue_cpu,0.2329484120105537,0.21209751181728467,-8.95,0.9289,0.0,normal,2.7584,30.06,9
+Sự kiện: Sale Cuối Tuần (+50%),{'front-end_workload': np.float64(36.2519276533409)},low,1.225,user_cpu,0.9193030761395579,0.9818463196041404,6.8,0.006,0.0,normal,2.7584,30.06,9
+Sự kiện: Sale Cuối Tuần (+50%),{'front-end_workload': np.float64(36.2519276533409)},low,1.225,carts_cpu,2.1437801186673773,2.4300045409780324,13.35,0.7093,0.0,normal,2.7584,30.06,9
+Sự kiện: Sale Cuối Tuần (+50%),{'front-end_workload': np.float64(36.2519276533409)},low,1.225,orders_cpu,2.0314715184257963,2.6669700983933526,31.28,0.3257,0.0,critical,2.7584,30.06,9
+Sự kiện: Sale Cuối Tuần (+50%),{'front-end_workload': np.float64(36.2519276533409)},low,1.225,payment_cpu,0.09165532557789874,0.08750914456663582,-4.52,0.0274,0.0,normal,2.7584,30.06,9
+Sự kiện: Sale Cuối Tuần (+50%),{'front-end_workload': np.float64(36.2519276533409)},low,1.225,shipping_cpu,0.6205201157605335,0.6654679310218496,7.24,0.6992,0.0,normal,2.7584,30.06,9
+Sự kiện: Flash Sale (+150%),{'front-end_workload': np.float64(60.41987942223483)},very_low,2.041,front-end_cpu,4.431304495363064,8.19752281895981,84.99,0.2219,0.0,critical,5.752,31.02,9
+Sự kiện: Flash Sale (+150%),{'front-end_workload': np.float64(60.41987942223483)},very_low,2.041,catalogue_cpu,0.2329484120105537,0.24720344807462533,6.12,3.4738,0.0,critical,5.752,31.02,9
+Sự kiện: Flash Sale (+150%),{'front-end_workload': np.float64(60.41987942223483)},very_low,2.041,user_cpu,0.9193030761395579,1.1242113716236992,22.29,0.0243,0.0,warning,5.752,31.02,9
+Sự kiện: Flash Sale (+150%),{'front-end_workload': np.float64(60.41987942223483)},very_low,2.041,carts_cpu,2.1437801186673773,3.5404789704976354,65.15,0.8142,0.0,critical,5.752,31.02,9
+Sự kiện: Flash Sale (+150%),{'front-end_workload': np.float64(60.41987942223483)},very_low,2.041,orders_cpu,2.0314715184257963,4.3988309879752885,116.53,0.4447,0.0,critical,5.752,31.02,9
+Sự kiện: Flash Sale (+150%),{'front-end_workload': np.float64(60.41987942223483)},very_low,2.041,payment_cpu,0.09165532557789874,0.08915306957877174,-2.73,0.1439,0.0,normal,5.752,31.02,9
+Sự kiện: Flash Sale (+150%),{'front-end_workload': np.float64(60.41987942223483)},very_low,2.041,shipping_cpu,0.6205201157605335,0.6435518883436327,3.71,0.6292,0.0,normal,5.752,31.02,9
+Sự kiện: Black Friday (+300%),{'front-end_workload': np.float64(96.67180707557573)},very_low,3.266,front-end_cpu,4.431304495363064,12.117719283743583,173.46,0.1222,0.0,critical,4.2677,29.9,9
+Sự kiện: Black Friday (+300%),{'front-end_workload': np.float64(96.67180707557573)},very_low,3.266,catalogue_cpu,0.2329484120105537,0.22397285851319543,-3.85,1.9038,0.0,normal,4.2677,29.9,9
+Sự kiện: Black Friday (+300%),{'front-end_workload': np.float64(96.67180707557573)},very_low,3.266,user_cpu,0.9193030761395579,1.348493279063771,46.69,0.0672,0.0,critical,4.2677,29.9,9
+Sự kiện: Black Friday (+300%),{'front-end_workload': np.float64(96.67180707557573)},very_low,3.266,carts_cpu,2.1437801186673773,4.947105693351545,130.77,0.7985,0.0,critical,4.2677,29.9,9
+Sự kiện: Black Friday (+300%),{'front-end_workload': np.float64(96.67180707557573)},very_low,3.266,orders_cpu,2.0314715184257963,7.048489160572309,246.96,0.6199,0.0,critical,4.2677,29.9,9
+Sự kiện: Black Friday (+300%),{'front-end_workload': np.float64(96.67180707557573)},very_low,3.266,payment_cpu,0.09165532557789874,0.08938440640251788,-2.48,0.0769,0.0,normal,4.2677,29.9,9
+Sự kiện: Black Friday (+300%),{'front-end_workload': np.float64(96.67180707557573)},very_low,3.266,shipping_cpu,0.6205201157605335,0.6589939956307294,6.2,0.6792,0.0,normal,4.2677,29.9,9

@@ -162,8 +162,6 @@ def evaluate_all():
                         preds_raw, _ = fit_predict_scm(df_train, test_wl)
                         preds = np.array(preds_raw) * scale
 
-                    from sklearn.metrics import f1_score
-
                     mp_val = mape(y_true, preds)
                     smp_val = smape(y_true, preds)
                     mae_v  = mean_absolute_error(y_true, preds)
@@ -172,11 +170,7 @@ def evaluate_all():
                     nrmse_v = rmse_v / r_range if r_range != 0 else float('nan')
                     r2_v   = r2_score(y_true, preds)
 
-                    # Compute F1 Score for Risk Detection (Threshold = P80 of Train Distribution strictly to avoid data leakage)
-                    thresh = np.percentile(df_train['Target'].values * scale, 80)
-                    yt_cls = (y_true >= thresh).astype(int)
-                    yp_cls = (preds >= thresh).astype(int)
-                    f1_v   = f1_score(yt_cls, yp_cls, zero_division=0)
+                    elapsed = time.time() - t0
 
                     row = row_base.copy()
                     row.update({
@@ -186,21 +180,19 @@ def evaluate_all():
                         'rmse': round(rmse_v, 4),
                         'nrmse': round(nrmse_v, 4) if not np.isnan(nrmse_v) else '',
                         'mae': round(mae_v, 4),
-                        'f1_score': round(f1_v, 3),
                         'r2': round(r2_v, 3),
-                        'train_time_s': round(time.time() - t0, 2)
+                        'train_time_s': round(elapsed, 2)
                     })
                     all_records.append(row)
                     
-                    elapsed = time.time() - t0
                     model_results[model_name] = {
-                        'mape': mp_val, 'smape': smp_val, 'mae': mae_v, 'rmse': rmse_v, 'nrmse': nrmse_v, 'f1': f1_v, 'r2': r2_v, 'time_s': elapsed
+                        'mape': mp_val, 'smape': smp_val, 'mae': mae_v, 'rmse': rmse_v, 'nrmse': nrmse_v, 'r2': r2_v, 'time_s': elapsed
                     }
 
                 except Exception as e:
-                    model_results[model_name] = {'mape': float('nan'), 'rmse': float('nan'), 'f1': float('nan'), 'error': str(e)[:60]}
+                    model_results[model_name] = {'mape': float('nan'), 'rmse': float('nan'), 'error': str(e)[:60]}
                     all_records.append({**row_base, 'model': model_name,
-                                        'mape_pct': float('nan'), 'rmse': float('nan'), 'f1_score': float('nan'), 'error': str(e)[:60]})
+                                        'mape_pct': float('nan'), 'rmse': float('nan'), 'error': str(e)[:60]})
 
             # Print summary row
             parts = [f"{svc:<14}"]
@@ -270,21 +262,21 @@ def main():
         print(row + f" | {best_model}")
 
     print("\n" + "="*95)
-    print("  SUMMARY: Average F1-Score (Risk Detection) by Model and Metric")
+    print("  SUMMARY: Average SMAPE (%) by Model and Metric")
     print("="*95)
     print(f"  {'Metric':<14} | {'LinearReg':>10} | {'GradBoost':>10} | {'GaussProc':>10} | {'SCM':>10} | {'WINNER'}")
     print("  " + "-"*85)
     for metric_name, _, unit, _ in METRICS:
         sub = df_all[df_all['metric']==metric_name]
         row = f"  {metric_name:<14}"
-        best_f1 = -1.0
+        best_smape = float('inf')
         best_model = ''
         for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
-            s = pd.to_numeric(sub[sub['model']==mn]['f1_score'], errors='coerce')
+            s = pd.to_numeric(sub[sub['model']==mn]['smape_pct'], errors='coerce')
             val = s.mean() if not s.empty else float('nan')
-            row += f" | {val:>10.3f}"
-            if not np.isnan(val) and val > best_f1:
-                best_f1 = val
+            row += f" | {val:>9.1f}%"
+            if not np.isnan(val) and val < best_smape:
+                best_smape = val
                 best_model = mn
         print(row + f" | {best_model}")
 

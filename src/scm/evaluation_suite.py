@@ -68,7 +68,7 @@ N_PROJ_PROTOCOLS = 300
 
 def run_f1_rmse_benchmark():
     print("=" * 95)
-    print("  PHẦN 1: ĐÁNH GIÁ MÔ HÌNH SCM THEO CHUẨN F1-SCORE VÀ RMSE")
+    print("  PHẦN 1: ĐÁNH GIÁ ĐỘ CHÍNH XÁC DỰ BÁO SCM (CHỈ SỐ HỒI QUY CHUẨN)")
     print("  Gold Standard: Train trên LOW workload (67%) -> Test dự báo trên HIGH workload (33%)")
     print("=" * 95)
 
@@ -77,7 +77,7 @@ def run_f1_rmse_benchmark():
 
     for metric_name, metric_col, unit, scale in METRICS:
         print(f"\n  [Chỉ số: {metric_name} ({unit})]")
-        print(f"  {'Dịch Vụ (Service)':<16} | {'RMSE':>10} | {'NRMSE':>8} | {'F1-Score':>10} | {'PosR%':>7} | {'MAPE(%)':>7} | {'SMAPE(%)':>8}")
+        print(f"  {'Dịch Vụ (Service)':<16} | {'RMSE':>10} | {'MAE':>10} | {'MAPE(%)':>8} | {'SMAPE(%)':>9} | {'NRMSE':>8} | {'R²':>8}")
         print("  " + "-" * 95)
 
         for svc in SERVICES:
@@ -116,15 +116,6 @@ def run_f1_rmse_benchmark():
             smape_v = smape(yt, yp)
             r2_v   = r2_score(yt, yp)
 
-            thresh = np.percentile(df_train['Target'].values * scale, 80)
-            yt_bin = (yt >= thresh).astype(int)
-            yp_bin = (yp >= thresh).astype(int)
-
-            pos_ratio = yt_bin.mean() * 100.0
-            prec_v = precision_score(yt_bin, yp_bin, zero_division=0)
-            rec_v  = recall_score(yt_bin, yp_bin, zero_division=0)
-            f1_v   = f1_score(yt_bin, yp_bin, zero_division=0)
-
             trained_models[(svc, metric_name)] = {
                 'model': model,
                 'baseline_wl': df_train['Workload'].mean(),
@@ -133,23 +124,23 @@ def run_f1_rmse_benchmark():
 
             eval_results.append({
                 'evaluation_protocol': 'OOD_Gold_Standard (Train Low -> Test High)',
-                'risk_threshold': 'P80_Percentile',
                 'service': svc,
                 'metric': metric_name,
                 'unit': unit,
                 'rmse': round(rmse_v, 4),
                 'nrmse': round(nrmse_v, 4) if not np.isnan(nrmse_v) else '',
-                'f1_score': round(f1_v, 3),
-                'precision': round(prec_v, 3),
-                'recall': round(rec_v, 3),
-                'pos_ratio_pct': round(pos_ratio, 1),
                 'mae': round(mae_v, 4),
                 'mape_pct': round(mape_v, 2),
                 'smape_pct': round(smape_v, 2) if not np.isnan(smape_v) else '',
                 'r2': round(r2_v, 3),
+                'n_train': len(df_train),
+                'n_test': len(df_test),
+                'n_test_buckets': len(bkts),
+                'wl_train_range': f"{df_train['Workload'].min():.1f}-{df_train['Workload'].max():.1f}",
+                'wl_test_range': f"{df_test['Workload'].min():.1f}-{df_test['Workload'].max():.1f}",
             })
 
-            print(f"  {svc:<16} | {rmse_v:>10.4f} | {nrmse_v:>8.3f} | {f1_v:>10.3f} | {pos_ratio:>7.1f}% | {mape_v:>7.1f}% | {smape_v:>8.1f}%")
+            print(f"  {svc:<16} | {rmse_v:>10.4f} | {mae_v:>10.4f} | {mape_v:>7.1f}% | {smape_v:>8.1f}% | {nrmse_v:>8.3f} | {r2_v:>8.3f}")
 
     return pd.DataFrame(eval_results), trained_models
 
@@ -399,7 +390,7 @@ def run_statistical_significance():
         return
 
     df = pd.read_csv(CSV_PATH)
-    valid = df.dropna(subset=['rmse', 'mape_pct', 'f1_score'])
+    valid = df.dropna(subset=['rmse', 'mape_pct'])
 
     scm_rmse = valid[valid['model'] == 'SCM_DoWhy']['rmse'].values
     lr_rmse  = valid[valid['model'] == 'LinearReg']['rmse'].values

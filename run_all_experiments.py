@@ -2,10 +2,10 @@
 """
 MASTER EXPERIMENT RUNNER - HỆ THỐNG KIỂM THỬ SCM DỰ BÁO NĂNG LƯỢNG & RỦI RO
 ===========================================================================
-File thực thi tổng hợp chạy toàn bộ các bài thực nghiệm chuẩn NCKH Q1:
-1. Đánh giá độ chính xác SCM (RMSE, F1-Score, Precision, Recall) với ngưỡng P80.
+File thực thi tổng hợp chạy toàn bộ các bài thực nghiệm chuẩn NCKH:
+1. Đánh giá độ chính xác SCM (RMSE, MAE, MAPE, SMAPE, R²) - Chỉ số hồi quy chuẩn.
 2. Benchmark đối chiếu 4 mô hình (LinearReg, GradBoost, GaussProc, SCM).
-3. Kiểm định ý nghĩa thống kê Wilcoxon Signed-Rank Test (p-value < 0.05).
+3. Kiểm định ý nghĩa thống kê Wilcoxon Signed-Rank Test.
 4. Kiểm thử Đồ Thị Nhân Quả 14 Node Toàn Hệ Thống (sockshop_agent_graph.json).
 5. Phân loại Tiếng Việt & Mô phỏng can thiệp do(WL) cho tính năng MỚI + Flash Sale (+150% WL).
 """
@@ -37,8 +37,8 @@ def run_full_suite():
     print(" 🚀 HỆ THỐNG KIỂM THỬ TỔNG HỢP NCKH SCM & DO-CALCULUS (MASTER EXPERIMENT SUITE)")
     print("=" * 95)
 
-    # BƯỚC 1: ĐÁNH GIÁ CHUẨN F1/RMSE & RECALL/PRECISION VỚI NGƯỠNG P80 (TRAIN-ONLY THRESHOLD)
-    print("\n[BƯỚC 1/5] Đang chạy đánh giá mô hình SCM với ngưỡng Percentile P80 (Train-only)...")
+    # BƯỚC 1: ĐÁNH GIÁ ĐỘ CHÍNH XÁC SCM (CHỈ SỐ HỒI QUY CHUẨN: MAPE, RMSE, MAE, SMAPE, R²)
+    print("\n[BƯỚC 1/5] Đang chạy đánh giá mô hình SCM (chỉ số hồi quy chuẩn)...")
     df_eval, trained_models = run_f1_rmse_benchmark()
     df_eval.to_csv(r'c:\NGUYEN KHANH KY\NCKH\mas_architecture_project\data\processed\scm_results\test_f1_rmse_evaluation.csv', index=False)
 
