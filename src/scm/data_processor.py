@@ -20,8 +20,8 @@ import pandas as pd
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = r'c:\NGUYEN KHANH KY\NCKH\mas_architecture_project'
-RAW_DATA_DIR = os.path.join(BASE_DIR, 'data', 'raw')
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+RAW_DATA_DIR = os.path.join(BASE_DIR, 'data', 'raw', 'RE2-SS')
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -85,18 +85,25 @@ def load_normal_data(service: str, metric_col: str) -> pd.DataFrame:
     return pd.concat(dfs, ignore_index=True) if dfs else None
 
 
-def load_multi_service_data() -> pd.DataFrame:
+def load_multi_service_data(data_dir: str = None) -> pd.DataFrame:
     """
     Tải và gộp dữ liệu viễn trắc của toàn bộ 7 dịch vụ vi mô
     cho cả 4 nhóm chỉ số (Workload, CPU, Memory, Socket).
     """
+    if data_dir is None:
+        target_dir = RAW_DATA_DIR
+    elif os.path.isdir(os.path.join(data_dir, 'RE2-SS')):
+        target_dir = os.path.join(data_dir, 'RE2-SS')
+    else:
+        target_dir = data_dir
+
     merged_df = None
     cols_to_keep = []
     for s in SERVICES:
         cols_to_keep.extend([f'{s}_workload', f'{s}_cpu', f'{s}_mem', f'{s}_socket', f'{s}_latency-50', f'{s}_latency-90', f'{s}_latency-99'])
         
-    for scenario in os.listdir(RAW_DATA_DIR):
-        sp = os.path.join(RAW_DATA_DIR, scenario)
+    for scenario in os.listdir(target_dir):
+        sp = os.path.join(target_dir, scenario)
         if not os.path.isdir(sp): continue
         for run_id in os.listdir(sp):
             rp = os.path.join(sp, run_id)

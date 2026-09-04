@@ -15,11 +15,11 @@ from dowhy import gcm
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = r'c:\NGUYEN KHANH KY\NCKH\mas_architecture_project'
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 def run_ground_truth_comparison(scenario='payment_cpu', run_id='1', service='front-end'):
-    csv_path = os.path.join(BASE_DIR, 'data', 'raw', scenario, run_id, 'simple_metrics.csv')
-    inject_path = os.path.join(BASE_DIR, 'data', 'raw', scenario, run_id, 'inject_time.txt')
+    csv_path = os.path.join(BASE_DIR, 'data', 'raw', 'RE2-SS', scenario, run_id, 'simple_metrics.csv')
+    inject_path = os.path.join(BASE_DIR, 'data', 'raw', 'RE2-SS', scenario, run_id, 'inject_time.txt')
     
     with open(inject_path) as f:
         inject_time = int(f.read().strip())

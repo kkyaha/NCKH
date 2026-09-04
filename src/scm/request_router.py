@@ -8,7 +8,7 @@ Based on SockShop architecture and log templates from cluster_info.json.
 import os
 import json
 
-BASE_DIR = r'c:\NGUYEN KHANH KY\NCKH\mas_architecture_project'
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 # Call chain per request type (from SockShop architecture + log template analysis)
 CALL_CHAINS = {
@@ -58,29 +58,29 @@ CALL_CHAINS = {
     # --- NEW HYPOTHETICAL FEATURES (NOT YET IN SOCKSHOP) ---
     'APPLY_PROMO_CODE': {
         'services': ['front-end', 'carts', 'orders', 'payment'],
-        'description': 'TÍNH NĂNG MỚI: Khách hàng áp mã giảm giá / voucher khuyến mãi khi thanh toán',
+        'description': 'NEW FEATURE: Customer applies discount promo code or voucher during checkout',
         'keywords': ['promo', 'discount', 'voucher', 'ap ma', 'giam gia', 'khuyen mai', 'coupon', 'code', 'km', 'ma'],
         'resource_profile': 'cpu-heavy',
         'expected_delta_pct': 20,
     },
     'RECOMMEND_PRODUCTS': {
         'services': ['front-end', 'user', 'catalogue', 'orders'],
-        'description': 'TÍNH NĂNG MỚI: Gợi ý sản phẩm thông minh dựa trên lịch sử mua sắm',
+        'description': 'NEW FEATURE: Smart product recommendations based on shopping history',
         'keywords': ['recommend', 'goi y', 'phu hop', 'recommendation', 'ai'],
         'resource_profile': 'cpu-memory',
         'expected_delta_pct': 30,
     },
     'TRACK_PACKAGE': {
         'services': ['front-end', 'orders', 'shipping'],
-        'description': 'TÍNH NĂNG MỚI: Theo dõi hành trình giao hàng và trạng thái vận chuyển real-time',
-        'keywords': ['track', 'tracking', 'hanh trinh', 'giao hang', 'don hang o dau', 'van chuyen', 'shipping status', 'theo doi', 'vi tri'],
+        'description': 'NEW FEATURE: Real-time package tracking and delivery status',
+        'keywords': ['track', 'package', 'shipping', 'theo doi', 'don hang', 'tinh trang', 'giao hang', 'status', 'vi tri'],
         'resource_profile': 'socket-latency',
         'expected_delta_pct': 15,
     },
     'WRITE_PRODUCT_REVIEW': {
         'services': ['front-end', 'user', 'catalogue'],
-        'description': 'TÍNH NĂNG MỚI: Khách hàng viết đánh giá và chấm điểm sao cho sản phẩm',
-        'keywords': ['review', 'danh gia', 'binh luan', 'nhan xet', 'rating', 'comment'],
+        'description': 'NEW FEATURE: Customer writes a review and rates a purchased product',
+        'keywords': ['review', 'rate', 'danh gia', 'nhan xet', 'rating', 'comment'],
         'resource_profile': 'disk-memory',
         'expected_delta_pct': 10,
     },

@@ -1,6 +1,27 @@
+# Data & Secrets
 data/raw/
 credentials/
 .env
+.env*.local
+
+# Logs
+logs/
+*.log
+
+# Python & Environments
+.venv/
+venv/
+env/
+ENV/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter
 .ipynb_checkpoints/
+
+# macOS
+.DS_Store
+*/.DS_Store
