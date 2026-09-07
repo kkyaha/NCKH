@@ -1,7 +1,27 @@
-pandas
-networkx
-google-cloud-bigquery
-python-dotenv
-jupyter
-matplotlib
-seaborn
+# Core data & numerical processing
+numpy>=2.0.0
+pandas>=2.2.0
+scipy>=1.13.0
+scikit-learn>=1.5.0
+statsmodels>=0.14.0
+networkx>=3.0
+
+# Causal inference & SCM
+dowhy>=0.8
+
+# LLM & Multi-Agent Framework
+langchain-core>=0.3.0
+langchain-google-genai>=2.0.0
+langgraph>=0.2.0
+google-genai>=1.0.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# Visualization & Telemetry
+matplotlib>=3.8.0
+seaborn>=0.13.0
+google-cloud-bigquery>=3.20.0
+tqdm>=4.66.0
+
+# Testing & Quality Assurance
+pytest>=8.0.0

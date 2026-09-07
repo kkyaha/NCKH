@@ -33,8 +33,9 @@ PROJECT_ROOT = os.path.dirname(_SRC_DIR)
 sys.path.insert(0, _SRC_DIR)
 
 from agents.architecture_agent import ArchitectureAgent
-from agents.performance_agent  import PerformanceAgent
+from agents.capacity_agent     import CapacityAgent
 from agents.parser_agent       import ParserAgent
+from agents.performance_agent  import PerformanceAgent
 from agents.simulation_agent   import SimulationAgent
 
 # ==========================================
@@ -43,12 +44,26 @@ from agents.simulation_agent   import SimulationAgent
 from dotenv import load_dotenv
 load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
 
-if not os.environ.get("GOOGLE_API_KEY"):
-    raise RuntimeError(
-        "GOOGLE_API_KEY not set. Vui long them GOOGLE_API_KEY vao file .env hoac export GOOGLE_API_KEY='your-key'."
-    )
-
-llm = ChatGoogleGenerativeAI(model="gemini-3.0-flash", temperature=0.2)
+api_key = os.environ.get("GOOGLE_API_KEY")
+if api_key:
+    llm = ChatGoogleGenerativeAI(model="gemini-3.0-flash", temperature=0.2)
+else:
+    print("[WARNING] GOOGLE_API_KEY chua duoc thiet lap trong .env. Su dung Offline Synthesizer Fallback.")
+    class OfflineLLM:
+        def invoke(self, messages):
+            class Resp:
+                content = (
+                    "### BAO CAO DANH GIA KHA THI (OFFLINE FALLBACK)\n\n"
+                    "**1. TAC DONG KIEN TRUC:**\n"
+                    "Tinh nang moi yeu cau cap nhat tai cac core services va cac API lien doi theo so do blast radius.\n\n"
+                    "**2. PHAN TICH NANG LUC & RUI RO TAI NGUYEN (CapacityAgent ReAct):**\n"
+                    "SCM do-calculus xac nhan tai lan truyen qua cac hop va suy giam cascade. "
+                    "Cac dich vu trong call chain van nam trong nguong an toan, tuy nhien can chu y cac nut bao hoa.\n\n"
+                    "**3. KET LUAN & KHUYEN NGHI:**\n"
+                    "CO THE TRIEN KHAI voi dieu kien ap dung day du cac khuyen nghi ky thuat tu CapacityAgent."
+                )
+            return Resp()
+    llm = OfflineLLM()
 
 # ==========================================
 # 2. KHOI TAO CAC AGENT
@@ -58,30 +73,32 @@ _DATA_DIR   = os.path.join(PROJECT_ROOT, 'data', 'raw')
 
 arch_agent = ArchitectureAgent(_GRAPH_PATH)
 
-perf_agent = PerformanceAgent(
+# CapacityAgent hop nhat ca 2 che do SCM va tich hop buoc ReAct Reasoning
+capacity_agent = CapacityAgent(
+    llm        = llm,
     data_dir   = _DATA_DIR,
+    graph_path = _GRAPH_PATH,
     auto_train = True
 )
 
-sim_agent = SimulationAgent(
-    data_dir   = _DATA_DIR,
-    graph_path = _GRAPH_PATH
-)
-sim_agent.train()
-
 parser_agent = ParserAgent(llm=llm, arch_agent=arch_agent)
+
+# Backward-compatibility aliases
+perf_agent = capacity_agent
+sim_agent  = capacity_agent
 
 # ==========================================
 # 3. DINH NGHIA STATE
 # ==========================================
 class RequirementState(TypedDict):
-    input_requirement:  str    # Yeu cau tu nguoi dung
-    parsed_requirement: dict   # Output cua ParserAgent (ParsedRequirement)
-    core_services:      list   # Services can sua code
-    impact_graph:       dict   # So do tac dong API
-    performance_metrics: dict  # Fast Path: bivariate predictions
-    simulation_result:  dict   # Accurate Path: multi-hop cascade predictions
-    feasibility_report: str    # Bao cao kha thi cuoi cung
+    input_requirement:   str    # Yeu cau tu nguoi dung
+    parsed_requirement:  dict   # Output cua ParserAgent (ParsedRequirement)
+    core_services:       list   # Services can sua code
+    impact_graph:        dict   # So do tac dong API
+    performance_metrics: dict   # Fast Path: bivariate predictions
+    simulation_result:   dict   # Accurate Path: multi-hop cascade predictions
+    capacity_assessment: dict   # ReAct Output: expert analysis & Devil's Advocate
+    feasibility_report:  str    # Bao cao kha thi cuoi cung
 
 # ==========================================
 # 4. CAC NODES
@@ -113,7 +130,6 @@ def map_impact_node(state: RequirementState) -> dict:
     print("\n[Phase 2] Phan tich tac dong day chuyen tren do thi...")
     impact_mapping = {}
 
-    # Uu tien affected_services tu ParsedRequirement (chinh xac hon vi da match CALL_CHAIN)
     affected = state['parsed_requirement'].get('affected_services', [])
     base_services = set(state['core_services']) | set(affected)
 
@@ -131,70 +147,47 @@ def map_impact_node(state: RequirementState) -> dict:
 
 def simulate_node(state: RequirementState) -> dict:
     """
-    Node 3: Chay song song ca 2 path.
-
-    Fast Path (Bivariate — PerformanceAgent):
-      - Ap cung delta doc lap vao 21 bivariate model
-      - Nhanh, khong co cascade effect
-      - Dung cho: quick feasibility check, cross-check
-
-    Accurate Path (Multi-hop Global DAG — SimulationAgent):
-      - do(injection_service_workload = baseline x (1 + delta/100))
-      - SCM tu lan truyen qua call chain, phan anh cascade attenuation
-      - Dung cho: quyet dinh chinh, blast radius chinh xac
+    Node 3: CapacityAgent thuc thi chu trinh ReAct (Act -> Observe -> Reason).
+      - ACT: Chay ca Fast Path (Bivariate) va Accurate Path (Global DAG).
+      - OBSERVE: Sang loc cac service vuot nguong an toan (>70%).
+      - REASON: Phan tich diem nghen va tu phan bien Devil's Advocate.
     """
-    print("\n[Phase 3] Chay Dual-Path SCM Simulation...")
+    print("\n[Phase 3] CapacityAgent thuc thi chu trinh ReAct (Act -> Observe -> Reason)...")
 
-    parsed = state['parsed_requirement']
-    delta  = parsed['injection_delta_pct']
-    inj    = parsed['injection_service']
+    assessment = capacity_agent.assess_capacity(
+        parsed_requirement = state['parsed_requirement'],
+        impact_graph       = state['impact_graph']
+    )
 
-    # Gom service can kiem tra (Core + Blast Radius + Upstream/Downstream)
-    services_to_check = set(parsed.get('affected_services', []))
-    services_to_check.update(state['core_services'])
-    for srv, deps in state['impact_graph'].items():
-        services_to_check.update(deps.get('api_consumers_to_notify', []))
-        services_to_check.update(deps.get('downstream_services_to_check', []))
-
-    # --- FAST PATH ---
-    print(f"  [Fast Path] Ap delta={delta}% vao Bivariate model ({len(services_to_check)} dich vu)...")
-    fast_metrics = {}
-    for srv in services_to_check:
-        m = perf_agent.get_metrics_for_service(srv, workload_delta_pct=delta)
-        if m:
-            fast_metrics[srv] = m
-    print(f"  [Fast Path] Xong: {len(fast_metrics)} dich vu co du lieu.")
-
-    # --- ACCURATE PATH ---
-    print(f"  [Accurate Path] do({inj}_workload +{delta}%) qua Global DAG 28-node...")
-    sim_result = sim_agent.simulate_intervention(inj, delta)
-    print(f"  [Accurate Path] Xong: {len(sim_result)} dich vu trong DAG.")
+    print(f"  -> Trang thai Capacity: {assessment.status}")
+    print(f"  -> Diem nghen bao hoa: {assessment.saturated_services}")
+    print(f"  -> Khuyen nghi ky thuat: {len(assessment.recommendations)} muc")
 
     return {
-        "performance_metrics": fast_metrics,
-        "simulation_result":   sim_result,
+        "performance_metrics": assessment.fast_metrics,
+        "simulation_result":   assessment.simulation_result,
+        "capacity_assessment": asdict(assessment),
     }
 
 
 def generate_report_node(state: RequirementState) -> dict:
     """
-    Node 4: LLM tong hop Bao cao Kha thi tu ca 2 nguon du lieu.
-    Accurate Path (multi-hop) duoc uu tien cho quyet dinh.
-    Fast Path dung de cross-check.
+    Node 4: LLM tong hop Bao cao Kha thi cuoi cung.
+    Duoc tiep suc boi phan tich chuyen gia tu CapacityAgent (Reasoning & Devil's Advocate).
     """
-    print("\n[Phase 4] Tong hop Bao cao Kha thi (LLM)...")
+    print("\n[Phase 4] Tong hop Bao cao Kha thi (Lead Architect LLM)...")
 
     parsed        = state['parsed_requirement']
     delta         = parsed['injection_delta_pct']
-    scm_accuracy  = perf_agent.get_accuracy_summary()
-    dag_summary   = sim_agent.get_dag_summary()
+    cap_eval      = state.get('capacity_assessment', {})
+    expert_assess = cap_eval.get('expert_assessment', 'Danh gia nang luc tai hoan tat.')
+    risk_critique = cap_eval.get('risk_critique', 'Can kiem tra ky co che hang doi.')
+    recs          = cap_eval.get('recommendations', [])
+    status        = cap_eval.get('status', 'SAFE')
 
     system_prompt = """Ban la Ky su Truong (Principal Engineer) chuyen gia Microservices.
-Nhiem vu: danh gia tinh kha thi khi them tinh nang moi vao kien truc vi dich vu.
-Phan tich tren 3 phuong dien:
-  1. Tac dong kien truc (code & API changes).
-  2. Rui ro tai nguyen — dua tren du lieu dinh luong tu 2 mo hinh SCM.
-  3. Ket luan kha thi: CO THE / CAN SCALE TRUOC."""
+Nhiem vu: Tong hop Bao cao Kha thi Toan dien khi them tinh nang moi vao kien truc vi dich vu.
+Dua vao ket qua phan tich chuyen gia tu CapacityAgent va so do tac dong kien truc tu ArchitectureAgent."""
 
     human_prompt = f"""
 === YEU CAU TINH NANG MOI ===
@@ -208,30 +201,34 @@ Phan tich tren 3 phuong dien:
   Confidence: {parsed['confidence']}
   Ly do: {parsed['reasoning']}
 
-=== TAC DONG KIEN TRUC (Do thi API) ===
+=== TAC DONG KIEN TRUC (Do thi API tu ArchitectureAgent) ===
 {state['impact_graph']}
 
-=== DU DOAN TAI NGUYEN — FAST PATH (Bivariate, delta ap deu {delta}%) ===
-{state['performance_metrics']}
-[Luu y: Fast Path KHONG co cascade suy giam — delta ap deu cho moi service]
+=== DANH GIA NANG LUC & PHAN BIEN CHUYEN GIA (CapacityAgent ReAct Output) ===
+  Trang thai he thong: {status}
+  Cac dich vu cham nguong bao hoa: {cap_eval.get('saturated_services', [])}
 
-=== DU DOAN TAI NGUYEN — ACCURATE PATH (Global DAG {dag_summary.get('n_nodes',28)}-node, do-calculus) ===
-{state['simulation_result']}
-[Luu y: Accurate Path phan anh cascade attenuation thuc te — service cang nhieu hop cang nhan it hon]
+  [Phan tich chuyen gia Capacity]:
+  {expert_assess}
 
-=== DO CHINH XAC MO HINH (tu benchmark Q1) ===
-{scm_accuracy}
-[Tieu chi: MAPE <10% = EXCELLENT, 10-25% = FAIR, >25% = POOR]
+  [Tu phan bien rui ro - Devil's Advocate Critique]:
+  {risk_critique}
+
+  [Cac khuyen nghi ky thuat]:
+  {recs}
+
+=== DU LIEU DINH LUONG SCM (Fast Path & Accurate Path) ===
+Fast Path (Bivariate): {state['performance_metrics']}
+Accurate Path (Global DAG): {state['simulation_result']}
 
 === YEU CAU BAO CAO ===
 1. TAC DONG KIEN TRUC: Liet ke API can them/sua, ai goi ai.
-2. PHAN TICH RUI RO TAI NGUYEN:
-   - Uu tien ket qua Accurate Path (cascade thuc te) cho nhan dinh chinh.
-   - Neu Fast Path va Accurate Path chenh nhau lon (>10%) -> giai thich cascade effect.
-   - Chi ra service nao co nguy co qua tai cao nhat.
-3. KET LUAN KHA THI:
-   - CO THE trien khai ngay: neu tat ca service trong blast radius con buffer tai nguyen.
-   - CAN SCALE TRUOC: neu bat ky service nao co du bao CPU/Mem qua 70% baseline.
+2. PHAN TICH RUI RO TAI NGUYEN (Tich hop phan bien Devil's Advocate):
+   - Uu tien ket qua Accurate Path (cascade thuc te) va phan tich chuyen gia cua CapacityAgent.
+   - Nhac lai cac rui ro ngoai sinh tiem an tu phan tu phan bien Devil's Advocate.
+3. KET LUAN KHA THI & LO TRINH TRIEN KHAI:
+   - Ket luan: CO THE trien khai ngay / CAN SCALE TRUOC.
+   - Ke hoach hanh dong dua tren danh sach khuyen nghi cua CapacityAgent.
 """
 
     messages = [
