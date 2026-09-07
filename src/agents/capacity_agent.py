@@ -53,6 +53,7 @@ from data_processor import (
     load_multi_service_data,
     split_quantile,
     SERVICES,
+    TRAINTICKET_SERVICES,
     METRICS
 )
 
@@ -166,12 +167,26 @@ class CapacityAgent:
         llm: Any = None,
         data_dir: str = None,
         graph_path: str = None,
+        system_type: str = 'sockshop',
+        services: List[str] = None,
         auto_train: bool = True
     ):
-        if data_dir is None:
-            data_dir = os.path.join(BASE_DIR, 'data', 'raw')
-        if graph_path is None:
-            graph_path = os.path.join(BASE_DIR, 'src', 'graph', 'sockshop_agent_graph.json')
+        self.system_type = system_type
+        if system_type == 'trainticket' or (data_dir and 'trainticket' in data_dir.lower()):
+            self.system_type = 'trainticket'
+            if data_dir is None:
+                data_dir = os.path.join(BASE_DIR, 'data', 'raw', 'trainticket')
+            if graph_path is None:
+                graph_path = os.path.join(BASE_DIR, 'src', 'graph', 'trainticket_agent_graph.json')
+            self.services = services or TRAINTICKET_SERVICES
+            self.default_injection = 'ts-preserve-service'
+        else:
+            if data_dir is None:
+                data_dir = os.path.join(BASE_DIR, 'data', 'raw')
+            if graph_path is None:
+                graph_path = os.path.join(BASE_DIR, 'src', 'graph', 'sockshop_agent_graph.json')
+            self.services = services or SERVICES
+            self.default_injection = 'front-end'
 
         self.llm        = llm
         self.data_dir   = data_dir
@@ -192,7 +207,7 @@ class CapacityAgent:
 
         self._is_trained = False
 
-        print(f"[CapacityAgent] Khởi tạo. Data dir: {self.data_dir}")
+        print(f"[CapacityAgent] Khởi tạo ({self.system_type}). Data dir: {self.data_dir}")
         if auto_train:
             self.train()
 
@@ -200,15 +215,15 @@ class CapacityAgent:
     # HUẤN LUYỆN SCM TOOLS (CẢ 2 CHẾ ĐỘ)
     # ----------------------------------------------------------
     def train(self):
-        """Huấn luyện đồng thời cả Fast Path (21 Bivariate) và Accurate Path (28-node DAG)."""
+        """Huấn luyện đồng thời cả Fast Path (Bivariate) và Accurate Path (Global DAG)."""
         self.train_fast_path()
         self.train_accurate_path()
         self._is_trained = bool(self.trained_models and self.global_dag_model)
 
     def train_fast_path(self):
-        """Huấn luyện 21 mô hình SCM Bivariate (7 services x 3 metrics)."""
+        """Huấn luyện mô hình SCM Bivariate (N services x 3 metrics)."""
         print("\n" + "=" * 70)
-        print("  [CapacityAgent: Tool 1] HUẤN LUYỆN BIVARIATE SCM (FAST PATH)")
+        print(f"  [CapacityAgent: Tool 1] HUẤN LUYỆN BIVARIATE SCM ({self.system_type.upper()})")
         print("  Phương pháp: Train(LOW workload 67%) -> Test(HIGH workload 33%)")
         print("=" * 70)
 
@@ -217,7 +232,7 @@ class CapacityAgent:
             return
 
         try:
-            df_multi = load_multi_service_data(self.data_dir)
+            df_multi = load_multi_service_data(self.data_dir, system_type=self.system_type)
         except Exception:
             df_multi = None
 
@@ -225,7 +240,7 @@ class CapacityAgent:
 
         for metric_name, metric_col, unit, scale in METRICS:
             print(f"\n  [{metric_name} | don vi: {unit}]")
-            for svc in SERVICES:
+            for svc in self.services:
                 wlc, tgc = f'{svc}_workload', f'{svc}_{metric_col}'
                 if df_multi is not None and wlc in df_multi.columns and tgc in df_multi.columns:
                     df = df_multi[[wlc, tgc]].dropna()
@@ -318,12 +333,12 @@ class CapacityAgent:
         print(f"\n[OK] Đã huấn luyện {len(self.trained_models)} mô hình Bivariate SCM.")
 
     def train_accurate_path(self):
-        """Huấn luyện Siêu Đồ Thị Nhân Quả 28-Node (Global 2-Tier Causal DAG)."""
+        """Huấn luyện Siêu Đồ Thị Nhân Quả (Global 2-Tier Causal DAG)."""
         print("\n" + "=" * 70)
-        print("  [CapacityAgent: Tool 2] HUẤN LUYỆN GLOBAL 28-NODE DAG (ACCURATE PATH)")
+        print(f"  [CapacityAgent: Tool 2] HUẤN LUYỆN GLOBAL CAUSAL DAG ({self.system_type.upper()})")
         print("=" * 70)
 
-        df_data = load_multi_service_data(self.data_dir)
+        df_data = load_multi_service_data(self.data_dir, system_type=self.system_type)
         if df_data is None or df_data.empty:
             print("[WARNING] Không load được dữ liệu đa dịch vụ.")
             return
@@ -339,11 +354,11 @@ class CapacityAgent:
         # Tier 1: Workload -> Workload theo call chain thực tế
         for edge in graph_json.get('edges', []):
             src, tgt = edge['source'], edge['target']
-            if src in SERVICES and tgt in SERVICES:
+            if src in self.services and tgt in self.services:
                 g.add_edge(f"{src}_workload", f"{tgt}_workload")
 
         # Tier 2: Workload -> Metrics nội tại
-        for s in SERVICES:
+        for s in self.services:
             for metric_col in [f'{s}_cpu', f'{s}_mem', f'{s}_latency-50']:
                 if f'{s}_workload' in df_data.columns and metric_col in df_data.columns:
                     g.add_edge(f"{s}_workload", metric_col)
@@ -357,6 +372,11 @@ class CapacityAgent:
         self.df_baseline      = self.global_df_baseline
         self.dag_graph        = g_sub
         self.dag              = self.dag_graph
+
+        # Đảm bảo g_sub là một Causal DAG nghiêm ngặt (không có chu trình)
+        while not nx.is_directed_acyclic_graph(g_sub):
+            cycle = nx.find_cycle(g_sub, orientation='original')
+            g_sub.remove_edge(cycle[-1][0], cycle[-1][1])
 
         df_fit = df_sub.sample(min(2000, len(df_sub)), random_state=42) if len(df_sub) > 2000 else df_sub
 
@@ -387,8 +407,8 @@ class CapacityAgent:
         hops    = {}
         dag     = self.dag_graph if self.dag_graph is not None else self.dag
         if dag is None:
-            return {s: -1 for s in SERVICES}
-        for svc in SERVICES:
+            return {s: -1 for s in self.services}
+        for svc in self.services:
             tgt_col = f"{svc}_workload"
             if inj_col == tgt_col:
                 hops[svc] = 0
@@ -443,12 +463,15 @@ class CapacityAgent:
 
     def simulate_intervention(
         self,
-        injection_service: str = 'front-end',
+        injection_service: str = None,
         delta_pct: float = 25.0,
         n_samples: int = 200,
         **kwargs
     ) -> Dict[str, Any]:
         """Tương thích SimulationAgent.simulate_intervention()."""
+        if injection_service is None:
+            injection_service = self.default_injection
+
         if self.global_dag_model is None or self.df_baseline is None:
             return {}
 
@@ -470,7 +493,7 @@ class CapacityAgent:
         hops = self._compute_hops(injection_service)
 
         results = {}
-        for svc in SERVICES:
+        for svc in self.services:
             entry = {'n_hops': hops.get(svc, -1)}
             for metric_key, col_suffix in [
                 ('cpu_change_pct',     '_cpu'),
@@ -542,7 +565,7 @@ class CapacityAgent:
           3. REASON & CRITIQUE: LLM hoặc Domain Expert Logic phân tích nguyên nhân & phản biện rủi ro.
         """
         delta = float(parsed_requirement.get('injection_delta_pct', 20.0))
-        inj_svc = parsed_requirement.get('injection_service', 'front-end')
+        inj_svc = parsed_requirement.get('injection_service', self.default_injection)
         affected = set(parsed_requirement.get('affected_services', []))
         core_svcs = set(parsed_requirement.get('core_services', []))
 

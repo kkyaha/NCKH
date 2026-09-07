@@ -87,11 +87,67 @@ def load_normal_data(service: str, metric_col: str) -> pd.DataFrame:
     return pd.concat(dfs, ignore_index=True) if dfs else None
 
 
-def load_multi_service_data(data_dir: str = None) -> pd.DataFrame:
+TRAINTICKET_SERVICES = [
+    'ts-admin-basic-info-service', 'ts-admin-travel-service', 'ts-assurance-service',
+    'ts-auth-service', 'ts-basic-service', 'ts-config-service',
+    'ts-consign-price-service', 'ts-consign-service', 'ts-contacts-service',
+    'ts-food-map-service', 'ts-food-service', 'ts-inside-payment-service',
+    'ts-order-other-service', 'ts-order-service', 'ts-payment-service',
+    'ts-preserve-other-service', 'ts-preserve-service', 'ts-price-service',
+    'ts-route-service', 'ts-seat-service', 'ts-security-service',
+    'ts-station-service', 'ts-ticketinfo-service', 'ts-train-service',
+    'ts-travel-service', 'ts-travel2-service', 'ts-ui-dashboard', 'ts-user-service'
+]
+
+
+def load_trainticket_data(data_dir: str = None) -> pd.DataFrame:
     """
-    Tải và gộp dữ liệu viễn trắc của toàn bộ 7 dịch vụ vi mô
+    Tải dữ liệu viễn trắc Train Ticket từ các kịch bản trong data/raw/trainticket/.
+    Lọc bỏ giai đoạn inject fault (chỉ giữ thời gian t < inject_time).
+    """
+    if data_dir is None:
+        data_dir = os.path.join(BASE_DIR, 'data', 'raw', 'trainticket')
+
+    if not os.path.exists(data_dir):
+        return None
+
+    dfs = []
+    scenarios = [d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d)) and d.startswith('re2tt_')]
+    for sc in scenarios:
+        sc_dir = os.path.join(data_dir, sc)
+        mp = os.path.join(sc_dir, 'metrics.parquet')
+        ip = os.path.join(sc_dir, 'inject_time.txt')
+        if not (os.path.exists(mp) and os.path.exists(ip)):
+            continue
+        try:
+            with open(ip, 'r') as f:
+                it = int(f.read().strip())
+            df = pd.read_parquet(mp)
+            tc = 'time' if 'time' in df.columns else None
+            if tc:
+                df_normal = df[df[tc] < it].copy()
+                dfs.append(df_normal)
+        except Exception:
+            continue
+
+    if not dfs:
+        sample_mp = os.path.join(data_dir, 'sample', 'metrics.parquet')
+        if os.path.exists(sample_mp):
+            return pd.read_parquet(sample_mp)
+        return None
+
+    return pd.concat(dfs, ignore_index=True)
+
+
+def load_multi_service_data(data_dir: str = None, system_type: str = 'sockshop') -> pd.DataFrame:
+    """
+    Tải và gộp dữ liệu viễn trắc của toàn bộ các dịch vụ vi mô
     cho cả 4 nhóm chỉ số (Workload, CPU, Memory, Socket).
+    Hỗ trợ cả SockShop (7 dịch vụ) và TrainTicket (28+ dịch vụ).
     """
+    if system_type == 'trainticket' or (data_dir and 'trainticket' in data_dir.lower()):
+        return load_trainticket_data(data_dir)
+
     if data_dir is None:
         target_dir = RAW_DATA_DIR
     elif os.path.isdir(os.path.join(data_dir, 'RE2-SS')):
