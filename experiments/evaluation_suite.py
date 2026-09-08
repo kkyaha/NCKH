@@ -654,30 +654,8 @@ def compare_all_protocols():
 # PHẦN 6: RQ4 — GIÁ TRỊ CỦA LAN TRUYỀN TẦNG 1 (WORKLOAD -> WORKLOAD)
 # =============================================================================
 
-def run_rq4_propagation_value_test(df_data=None):
-    """
-    RQ4: Lan truyền workload qua đồ thị phụ thuộc thật (Tầng 1) có chính xác hơn
-    giả định "delta đều" (naive: mọi downstream service đổi CÙNG % với front-end)
-    hay không?
-
-    Protocol: OOD Gold Standard giống RQ1 — fit Tầng 1 (LinearRegression(positive=True),
-    parent thật theo topology trong sockshop_agent_graph.json) trên 67% front-end_workload
-    THẤP nhất, test trên 33% CAO nhất — dùng CHÍNH GIÁ TRỊ front-end_workload đo được
-    trong tập test (không giả lập do() tổng hợp) để hai phương pháp cùng nhận input,
-    rồi so cả hai với s_workload THẬT đo cùng thời điểm.
-
-    Output: rq4_propagation_value_test.csv
-    """
-    print("\n" + "=" * 95)
-    print("  RQ4: LAN TRUYỀN QUA TẦNG 1 (WORKLOAD→WORKLOAD) VS GIẢ ĐỊNH DELTA ĐỀU (NAIVE)")
-    print("=" * 95)
-
-    if df_data is None:
-        df_data = load_multi_service_data()
-    if df_data is None or df_data.empty:
-        print("  Lỗi: không load được dữ liệu đa dịch vụ.")
-        return pd.DataFrame()
-
+def _build_workload_graph():
+    """Doc topology va tra ve DiGraph cac canh Workload->Workload (Tang 1)."""
     with open(JSON_GRAPH_PATH, 'r', encoding='utf-8') as f:
         graph_json = json.load(f)
     g = nx.DiGraph()
@@ -685,29 +663,32 @@ def run_rq4_propagation_value_test(df_data=None):
         src, tgt = edge['source'], edge['target']
         if src in SERVICES and tgt in SERVICES:
             g.add_edge(f"{src}_workload", f"{tgt}_workload")
+    return g
 
-    wl_cols = [f"{s}_workload" for s in SERVICES if f"{s}_workload" in df_data.columns]
-    df_sub = df_data[wl_cols].dropna()
 
-    # OOD split theo front-end_workload — giống het protocol RQ1
-    df_sub = df_sub.sort_values('front-end_workload').reset_index(drop=True)
-    split_idx = int(len(df_sub) * 0.67)
-    df_train, df_test = df_sub.iloc[:split_idx], df_sub.iloc[split_idx:]
+def _rq4_single_split(df_sub, g, split_ratio):
+    """
+    Chay 1 lan protocol SCM-vs-Naive (Tang 1 propagation) tren 1 nguong chia
+    train/test cu the. Tra ve list dict, moi phan tu la 1 (service, split_ratio).
+    Tach rieng ham nay de tai su dung cho ca ban goc (1 nguong 0.67) lan ban
+    da-nguong (multi-split) ben duoi, tranh viet trung logic.
+    """
+    df_sorted = df_sub.sort_values('front-end_workload').reset_index(drop=True)
+    split_idx = int(len(df_sorted) * split_ratio)
+    df_train, df_test = df_sorted.iloc[:split_idx], df_sorted.iloc[split_idx:]
 
-    results = []
+    rows = []
     for s in SERVICES:
         node = f"{s}_workload"
         parents = [p for p in g.predecessors(node)] if node in g.nodes() else []
         parents = [p for p in parents if p in df_sub.columns]
         if not parents or node not in df_sub.columns:
-            continue  # root node (front-end) hoặc thiếu dữ liệu — không có gì để lan truyền
+            continue  # root node (front-end) hoac thieu du lieu
 
-        # (a) SCM Tier-1: fit LinearRegression(positive=True) parent(s) -> node trên TRAIN
         reg = LinearRegression(positive=True)
         reg.fit(df_train[parents].values, df_train[node].values)
         scm_pred = reg.predict(df_test[parents].values)
 
-        # (b) Naive baseline: gia dinh node doi CUNG % voi front-end_workload
         fe_train_mean = df_train['front-end_workload'].mean()
         node_train_mean = df_train[node].mean()
         fe_test = df_test['front-end_workload'].values
@@ -722,18 +703,58 @@ def run_rq4_propagation_value_test(df_data=None):
                 'mape_pct': float(mape(actual, y_pred)),
             }
 
-        m_scm = _metrics(scm_pred)
-        m_naive = _metrics(naive_pred)
+        m_scm, m_naive = _metrics(scm_pred), _metrics(naive_pred)
 
-        results.append({
-            'service': s, 'node': node, 'parents': str(parents), 'n_test': len(df_test),
+        rows.append({
+            'split_ratio': split_ratio, 'service': s, 'node': node, 'parents': str(parents),
+            'n_train': len(df_train), 'n_test': len(df_test),
             'scm_rmse': round(m_scm['rmse'], 4), 'naive_rmse': round(m_naive['rmse'], 4),
             'scm_mape_pct': round(m_scm['mape_pct'], 2), 'naive_mape_pct': round(m_naive['mape_pct'], 2),
             'scm_better_rmse': m_scm['rmse'] < m_naive['rmse'],
             'scm_better_mape': m_scm['mape_pct'] < m_naive['mape_pct'],
         })
-        print(f"  {s:<12} | parents={str(parents):<45} | SCM MAPE={m_scm['mape_pct']:>7.2f}% | "
-              f"Naive MAPE={m_naive['mape_pct']:>7.2f}% | {'SCM thắng' if m_scm['mape_pct']<m_naive['mape_pct'] else 'Naive thắng'}")
+    return rows
+
+
+def run_rq4_propagation_value_test(df_data=None):
+    """
+    RQ4: Lan truyền workload qua đồ thị phụ thuộc thật (Tầng 1) có chính xác hơn
+    giả định "delta đều" (naive: mọi downstream service đổi CÙNG % với front-end)
+    hay không?
+
+    Protocol: OOD Gold Standard giống RQ1 — fit Tầng 1 (LinearRegression(positive=True),
+    parent thật theo topology trong sockshop_agent_graph.json) trên 67% front-end_workload
+    THẤP nhất, test trên 33% CAO nhất — dùng CHÍNH GIÁ TRỊ front-end_workload đo được
+    trong tập test (không giả lập do() tổng hợp) để hai phương pháp cùng nhận input,
+    rồi so cả hai với s_workload THẬT đo cùng thời điểm.
+
+    LƯU Ý VỀ CỠ MẪU: chỉ có n=6 service không-gốc trong topology SockShop — đây là
+    giới hạn CỐ ĐỊNH của topology, không thể tăng bằng cách gộp thêm điểm dữ liệu
+    thô (làm vậy sẽ vi phạm giả định độc lập của Wilcoxon — pseudo-replication).
+    Muốn có thêm bằng chứng, xem `run_rq4_multisplit_replication()` bên dưới, chạy
+    trên NHIỀU cấu hình thực nghiệm độc lập (nhiều ngưỡng chia train/test) thay vì
+    giả vờ có nhiều dữ liệu hơn từ cùng 1 cấu hình.
+
+    Output: rq4_propagation_value_test.csv
+    """
+    print("\n" + "=" * 95)
+    print("  RQ4: LAN TRUYỀN QUA TẦNG 1 (WORKLOAD→WORKLOAD) VS GIẢ ĐỊNH DELTA ĐỀU (NAIVE)")
+    print("=" * 95)
+
+    if df_data is None:
+        df_data = load_multi_service_data()
+    if df_data is None or df_data.empty:
+        print("  Lỗi: không load được dữ liệu đa dịch vụ.")
+        return pd.DataFrame()
+
+    g = _build_workload_graph()
+    wl_cols = [f"{s}_workload" for s in SERVICES if f"{s}_workload" in df_data.columns]
+    df_sub = df_data[wl_cols].dropna()
+
+    results = _rq4_single_split(df_sub, g, split_ratio=0.67)
+    for r in results:
+        print(f"  {r['service']:<12} | parents={r['parents']:<45} | SCM MAPE={r['scm_mape_pct']:>7.2f}% | "
+              f"Naive MAPE={r['naive_mape_pct']:>7.2f}% | {'SCM thắng' if r['scm_better_mape'] else 'Naive thắng'}")
 
     df_out = pd.DataFrame(results)
     out_path = os.path.join(OUT_DIR, 'rq4_propagation_value_test.csv')
@@ -747,6 +768,97 @@ def run_rq4_propagation_value_test(df_data=None):
 
     print(f"\n  ✅ Đã lưu: {out_path}")
     return df_out
+
+
+def run_rq4_multisplit_replication(df_data=None, split_ratios=(0.60, 0.65, 0.67, 0.70, 0.75), n_bootstrap=10000, seed=42):
+    """
+    RQ4 (mo rong tin cay): lap lai DUNG protocol o tren tren NHIEU nguong chia
+    train/test khac nhau (60/40 .. 75/25) thay vi chi 1 nguong 67/33 — moi nguong
+    la 1 CAU HINH THUC NGHIEM DOC LAP VE THIET KE (diem cat OOD khac nhau), tang so
+    quan sat tu 6 len 6 x len(split_ratios) MOT CACH HOP LE, khong phai bang cach
+    gop diem du lieu tho (tranh pseudo-replication).
+
+    Hai bang chung duoc bao cao SONG SONG, khong thay the nhau:
+      1. Wilcoxon tren toan bo (service x split_ratio) — luu y: cac nguong dung
+         chung 1 nguon du lieu goc nen KHONG hoan toan doc lap nhu i.i.d. thuc su;
+         bao cao ro gioi han nay thay vi coi la n=30 "sach".
+      2. Bootstrap CI 95% tren DUNG 6 chenh lech goc (o nguong 67/33 chinh) —
+         khong gia vo co nhieu du lieu hon 6, chi dinh luong do khong chac chan
+         THAT SU co duoc tu 6 diem do bang resampling.
+
+    Output: rq4_propagation_value_multisplit.csv
+    """
+    print("\n" + "=" * 95)
+    print(f"  RQ4 (MULTI-SPLIT): LAP LAI TREN {len(split_ratios)} NGUONG CHIA TRAIN/TEST DOC LAP")
+    print("=" * 95)
+
+    if df_data is None:
+        df_data = load_multi_service_data()
+    if df_data is None or df_data.empty:
+        print("  Lỗi: không load được dữ liệu đa dịch vụ.")
+        return pd.DataFrame(), {}
+
+    g = _build_workload_graph()
+    wl_cols = [f"{s}_workload" for s in SERVICES if f"{s}_workload" in df_data.columns]
+    df_sub = df_data[wl_cols].dropna()
+
+    all_rows = []
+    for ratio in split_ratios:
+        rows = _rq4_single_split(df_sub, g, split_ratio=ratio)
+        all_rows.extend(rows)
+        n_win = sum(1 for r in rows if r['scm_better_mape'])
+        print(f"  [split={ratio:.2f}] {len(rows)} service | SCM thắng {n_win}/{len(rows)}")
+
+    df_multi = pd.DataFrame(all_rows)
+    out_path = os.path.join(OUT_DIR, 'rq4_propagation_value_multisplit.csv')
+    df_multi.to_csv(out_path, index=False)
+
+    # (1) Wilcoxon tren toan bo (service x split_ratio)
+    a, b = df_multi['scm_mape_pct'].values, df_multi['naive_mape_pct'].values
+    if len(df_multi) >= 2 and not np.allclose(a, b):
+        w_stat, w_p = stats.wilcoxon(a, b)
+    else:
+        w_stat, w_p = float('nan'), float('nan')
+    n_total = len(df_multi)
+    n_win_total = int(df_multi['scm_better_mape'].sum())
+
+    # (2) Bootstrap CI tren DUNG 6 chenh lech goc o nguong chinh (0.67, hoac gan nhat)
+    canonical_ratio = min(split_ratios, key=lambda r: abs(r - 0.67))
+    df_canon = df_multi[df_multi['split_ratio'] == canonical_ratio]
+    diffs = (df_canon['scm_mape_pct'] - df_canon['naive_mape_pct']).values  # am = SCM tot hon
+    rng = np.random.RandomState(seed)
+    n_orig = len(diffs)
+    boot_medians = np.array([
+        np.median(rng.choice(diffs, size=n_orig, replace=True)) for _ in range(n_bootstrap)
+    ]) if n_orig > 0 else np.array([])
+    if len(boot_medians) > 0:
+        ci_low, ci_high = np.percentile(boot_medians, [2.5, 97.5])
+        pct_boot_favor_scm = float((boot_medians < 0).mean() * 100)
+    else:
+        ci_low = ci_high = pct_boot_favor_scm = float('nan')
+
+    summary = {
+        'n_splits': len(split_ratios),
+        'n_total_observations': n_total,
+        'n_scm_wins_total': n_win_total,
+        'wilcoxon_stat_pooled': round(w_stat, 3) if not np.isnan(w_stat) else None,
+        'wilcoxon_p_pooled': round(w_p, 5) if not np.isnan(w_p) else None,
+        'canonical_split_ratio': canonical_ratio,
+        'n_canonical_services': n_orig,
+        'bootstrap_median_diff_ci_low': round(float(ci_low), 3) if not np.isnan(ci_low) else None,
+        'bootstrap_median_diff_ci_high': round(float(ci_high), 3) if not np.isnan(ci_high) else None,
+        'bootstrap_pct_resamples_favor_scm': round(pct_boot_favor_scm, 1) if not np.isnan(pct_boot_favor_scm) else None,
+    }
+    pd.DataFrame([summary]).to_csv(os.path.join(OUT_DIR, 'rq4_multisplit_summary.csv'), index=False)
+
+    print(f"\n  [1] Wilcoxon gop {len(split_ratios)} nguong (n={n_total}, LUU Y: khong hoan toan doc lap): "
+          f"stat={w_stat:.2f}, p={w_p:.5f}" if not np.isnan(w_p) else "\n  [1] Wilcoxon: không đủ khác biệt.")
+    print(f"      SCM thắng {n_win_total}/{n_total} tổ hợp (service x split_ratio).")
+    print(f"  [2] Bootstrap 95% CI cho median(SCM-Naive) tại nguong chinh {canonical_ratio} (n that = {n_orig}):")
+    print(f"      [{ci_low:.2f}, {ci_high:.2f}] | {pct_boot_favor_scm:.1f}% số lần resample nghiêng về SCM")
+    print(f"\n  ✅ Đã lưu: {out_path}")
+    print(f"  ✅ Đã lưu tóm tắt: rq4_multisplit_summary.csv")
+    return df_multi, summary
 
 
 if __name__ == '__main__':

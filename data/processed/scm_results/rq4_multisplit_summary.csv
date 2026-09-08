@@ -1,0 +1,2 @@
+n_splits,n_total_observations,n_scm_wins_total,wilcoxon_stat_pooled,wilcoxon_p_pooled,canonical_split_ratio,n_canonical_services,bootstrap_median_diff_ci_low,bootstrap_median_diff_ci_high,bootstrap_pct_resamples_favor_scm
+5,30,25,40.0,2e-05,0.67,6,-11.38,0.045,96.8

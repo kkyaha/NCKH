@@ -1,0 +1,31 @@
+split_ratio,service,node,parents,n_train,n_test,scm_rmse,naive_rmse,scm_mape_pct,naive_mape_pct,scm_better_rmse,scm_better_mape
+0.6,catalogue,catalogue_workload,['front-end_workload'],38091,25395,0.2894,0.2948,5.29,5.38,True,True
+0.6,user,user_workload,"['front-end_workload', 'orders_workload']",38091,25395,1.5522,2.2691,6.78,12.75,True,True
+0.6,carts,carts_workload,"['front-end_workload', 'orders_workload']",38091,25395,0.861,0.8183,7.83,7.6,False,False
+0.6,orders,orders_workload,['front-end_workload'],38091,25395,0.5205,0.5371,19.68,21.04,True,True
+0.6,payment,payment_workload,['orders_workload'],38091,25395,0.3627,0.4282,9.51,19.87,True,True
+0.6,shipping,shipping_workload,['orders_workload'],38091,25395,0.3517,0.4358,8.4,20.66,True,True
+0.65,catalogue,catalogue_workload,['front-end_workload'],41265,22221,0.2896,0.2954,5.28,5.38,True,True
+0.65,user,user_workload,"['front-end_workload', 'orders_workload']",41265,22221,1.6004,2.2853,6.95,13.12,True,True
+0.65,carts,carts_workload,"['front-end_workload', 'orders_workload']",41265,22221,0.8546,0.8192,7.74,7.56,False,False
+0.65,orders,orders_workload,['front-end_workload'],41265,22221,0.5332,0.552,19.4,21.01,True,True
+0.65,payment,payment_workload,['orders_workload'],41265,22221,0.3797,0.429,9.37,19.62,True,True
+0.65,shipping,shipping_workload,['orders_workload'],41265,22221,0.371,0.4393,8.34,20.65,True,True
+0.67,catalogue,catalogue_workload,['front-end_workload'],42535,20951,0.2882,0.2943,5.25,5.35,True,True
+0.67,user,user_workload,"['front-end_workload', 'orders_workload']",42535,20951,1.6221,2.2821,7.02,13.24,True,True
+0.67,carts,carts_workload,"['front-end_workload', 'orders_workload']",42535,20951,0.8586,0.8223,7.75,7.56,False,False
+0.67,orders,orders_workload,['front-end_workload'],42535,20951,0.5387,0.5585,19.35,21.08,True,True
+0.67,payment,payment_workload,['orders_workload'],42535,20951,0.3877,0.431,9.42,19.76,True,True
+0.67,shipping,shipping_workload,['orders_workload'],42535,20951,0.3796,0.4405,8.35,20.77,True,True
+0.7,catalogue,catalogue_workload,['front-end_workload'],44440,19046,0.2874,0.294,5.25,5.36,True,True
+0.7,user,user_workload,"['front-end_workload', 'orders_workload']",44440,19046,1.6597,2.2936,7.2,13.6,True,True
+0.7,carts,carts_workload,"['front-end_workload', 'orders_workload']",44440,19046,0.8494,0.8209,7.66,7.53,False,False
+0.7,orders,orders_workload,['front-end_workload'],44440,19046,0.5501,0.5711,19.42,21.34,True,True
+0.7,payment,payment_workload,['orders_workload'],44440,19046,0.4016,0.4344,9.49,20.01,True,True
+0.7,shipping,shipping_workload,['orders_workload'],44440,19046,0.3947,0.4427,8.39,21.01,True,True
+0.75,catalogue,catalogue_workload,['front-end_workload'],47614,15872,0.2858,0.293,5.19,5.31,True,True
+0.75,user,user_workload,"['front-end_workload', 'orders_workload']",47614,15872,1.7517,2.3017,7.62,14.25,True,True
+0.75,carts,carts_workload,"['front-end_workload', 'orders_workload']",47614,15872,0.8589,0.8297,7.72,7.58,False,False
+0.75,orders,orders_workload,['front-end_workload'],47614,15872,0.5722,0.5949,19.29,21.55,True,True
+0.75,payment,payment_workload,['orders_workload'],47614,15872,0.4306,0.4374,9.6,20.27,True,True
+0.75,shipping,shipping_workload,['orders_workload'],47614,15872,0.4259,0.4461,8.5,21.29,True,True

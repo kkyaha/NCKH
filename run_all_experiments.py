@@ -35,7 +35,8 @@ from experiments.evaluation_suite import (
     test_new_features_simulation,
     test_14_node_causal_graph,
     run_statistical_significance,
-    run_rq4_propagation_value_test
+    run_rq4_propagation_value_test,
+    run_rq4_multisplit_replication
 )
 from experiments.model_comparison import main as run_model_comparison
 from experiments.parser_benchmark_suite import run_parser_benchmark
@@ -82,6 +83,7 @@ def run_full_suite():
     # RQ4: Gia tri cua lan truyen Tang 1 (Workload->Workload) so voi gia dinh delta deu
     print("\n[RQ4] Đang kiểm tra giá trị của lan truyền qua đồ thị Tầng 1 (vs naive delta đều)...")
     run_rq4_propagation_value_test()
+    run_rq4_multisplit_replication()
 
     # BƯỚC 7: BENCHMARK ĐỐI CHIẾU LLM PARSER & ABLATION STUDY (RQ3)
     # Mặc định gọi LLM THẬT (cần GOOGLE_API_KEY trong .env). Dùng --offline để ép
