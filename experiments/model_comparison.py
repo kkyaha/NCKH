@@ -28,10 +28,11 @@ from sklearn.metrics       import mean_absolute_error, mean_squared_error, r2_sc
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 OUT_DIR  = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 
+sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))  # core scm lib (data_processor)
 from data_processor import load_normal_data, METRICS, SERVICES
 
 N_PROJ = 500

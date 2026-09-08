@@ -89,7 +89,7 @@ nghĩa thực tiễn** (practical significance), một ví dụ điển hình c�
    KHÔNG được dùng để sinh số liệu ở đây) có cùng lỗi bucket-averaging + thiếu GaussianProcess đã
    từng mắc phải ở SockShop trước đợt rà soát này — **không trích dẫn file
    `03_trainticket_scm_evaluation.csv` cũ**, chỉ dùng các file `trainticket_*` mới sinh ra từ
-   `src/scm/trainticket_evaluation.py`.
+   `experiments/trainticket_evaluation.py`.
 3. Chưa kiểm tra ngoại suy cực đoan (do(workload) rất lớn) trên Train Ticket như đã làm ở SockShop
    (mục extrapolation_suspect) — nằm ngoài phạm vi RQ6 lần này, chỉ tập trung câu hỏi tổng quát
    hoá độ chính xác OOD cơ bản.

@@ -35,8 +35,6 @@ sys.path.insert(0, _SRC_DIR)
 from agents.architecture_agent import ArchitectureAgent
 from agents.capacity_agent     import CapacityAgent
 from agents.parser_agent       import ParserAgent
-from agents.performance_agent  import PerformanceAgent
-from agents.simulation_agent   import SimulationAgent
 
 # ==========================================
 # 1. CAU HINH API KEY VA KHOI TAO LLM

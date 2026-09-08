@@ -44,12 +44,13 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 warnings.filterwarnings('ignore')
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 TT_DATA_DIR = os.path.join(BASE_DIR, 'data', 'raw', 'trainticket')
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(__file__))               # experiments/ (sibling: evaluation_suite)
+sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))    # core scm lib (data_processor)
 from data_processor import TRAINTICKET_SERVICES, load_trainticket_data
 from evaluation_suite import mape, smape  # dung LAI dung cong thuc da kiem chung, khong viet lai
 

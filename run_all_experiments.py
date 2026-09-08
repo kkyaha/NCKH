@@ -27,7 +27,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 sys.path.insert(0, os.path.join(BASE_DIR, 'src'))
 
-from src.scm.evaluation_suite import (
+sys.path.insert(0, os.path.join(BASE_DIR, 'experiments'))
+
+from experiments.evaluation_suite import (
     run_f1_rmse_benchmark,
     build_and_train_global_dag,
     test_new_features_simulation,
@@ -35,9 +37,9 @@ from src.scm.evaluation_suite import (
     run_statistical_significance,
     run_rq4_propagation_value_test
 )
-from src.scm.model_comparison import main as run_model_comparison
-from src.scm.parser_benchmark_suite import run_parser_benchmark
-from src.scm.compare_with_ground_truth import run_ground_truth_comparison_all
+from experiments.model_comparison import main as run_model_comparison
+from experiments.parser_benchmark_suite import run_parser_benchmark
+from experiments.compare_with_ground_truth import run_ground_truth_comparison_all
 
 
 def run_full_suite():

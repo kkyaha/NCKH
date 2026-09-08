@@ -1,0 +1,272 @@
+\documentclass[journal, 10pt]{IEEEtran}
+
+% =========================================================
+% PACKAGES
+% =========================================================
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{hyperref}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+% =========================================================
+% TITLE & AUTHORS
+% =========================================================
+\title{Pre-Mortem Feasibility Forecasting for New Software Requirements via Guardrailed LLM Parsing and Causal Intervention Simulation}
+
+\author{
+    \IEEEauthorblockN{Your Name\IEEEauthorrefmark{1}, Co-Author Name\IEEEauthorrefmark{2}} \\
+    \IEEEauthorblockA{\IEEEauthorrefmark{1}Faculty of Information Technology, University of Engineering and Technology, \\
+    Vietnam National University, Hanoi (VNU-UET), Vietnam \\
+    Email: your.email@vnu.edu.vn}
+}
+
+\maketitle
+
+% =========================================================
+% ABSTRACT
+% =========================================================
+\begin{abstract}
+When a customer or product owner requests a new feature during software maintenance, engineering teams must judge whether the running microservice architecture can absorb the resulting workload \emph{before} committing to implementation — a feasibility question that today is answered by heuristic judgment rather than by measurement, since the feature does not exist yet and no historical telemetry for it can exist. Current AIOps approaches instead rely on Root Cause Analysis (RCA), a retrospective diagnosis that operates only after service disruptions occur. While Structural Causal Models (SCMs) support intervention via the $do$-calculus operator, they are predominantly utilized to explain past observational data rather than to forecast the effect of a requirement that has not yet been built. To address this, we reframe microservice analysis toward prospective, requirement-level feasibility forecasting. We introduce a framework combining a Guardrailed Large Language Model (LLM) Parser, which translates a natural-language requirement into a bounded causal intervention, and a Dual-Path SCM simulation that projects its downstream resource impact. To mitigate LLM quantitative hallucination, our Parser functions strictly as a candidate generator bounded by a 5-Guard topological and empirical verification system. These interventions are executed upon a 28-node Directed Acyclic Graph (DAG) integrating a queueing-inspired regressor to model Cascade Attenuation. We evaluate our framework on two independent RCAEval testbeds of different scale (Sock Shop, 7 services; Train Ticket, 28 services) and report per-system results rather than pooled averages, since we find that point-prediction accuracy does not generalize uniformly across topologies. In contrast, the guardrail system's hallucination-elimination effect is confirmed with a live LLM backend on both physical-boundary and gateway-misdirection failure modes. We report these trade-offs transparently, including cases where the causal model does not outperform standard regression baselines, and argue that the primary value of the approach lies in supporting requirement-level $do(x)$ feasibility queries rather than in raw point-accuracy superiority.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Microservices, Requirements Feasibility Analysis, Causal Inference, Large Language Models, Multi-Agent System, Intervention Forecasting, AIOps.
+\end{IEEEkeywords}
+
+% =========================================================
+% I. INTRODUCTION
+% =========================================================
+\section{Introduction}
+\label{sec:introduction}
+
+The rapid adoption of microservice architectures has revolutionized cloud-native development. During ongoing maintenance, however, most new work does not originate from the engineering team itself but from an external \emph{requirement}: a customer request, a product-management ticket, or a design document describing a feature that does not yet exist in the running system. Before committing engineering effort, teams must judge whether the architecture can absorb the workload this requirement will introduce — a question that, by definition, has no historical telemetry to answer it directly.
+
+Despite advancements in AIOps, current methodologies exhibit critical gaps for this setting. First, existing Causal RCA frameworks are inherently observational and retrospective, diagnosing incidents that have already occurred rather than ones a not-yet-built feature might cause. Second, SCMs theoretically support counterfactual reasoning; yet, applied research primarily uses them to solve $P(\text{Cause} \mid \text{Anomaly})$ rather than to project the effect of a hypothetical new requirement. Third, engineers lack a grounded way to turn a natural-language requirement into a quantitative workload assumption at all, relying instead on manual, heuristic estimation.
+
+To bridge these gaps, our framework reframes microservice analysis toward prospective, requirement-level feasibility forecasting: given a natural-language description of a new requirement, project its downstream resource impact and a feasibility verdict \emph{before} implementation. By utilizing Pearl's $do$-calculus, we allow engineers to inject the counterfactual workload a requirement would introduce and observe its simulated propagation.
+
+\textbf{Scope.} We deliberately bound ``new requirement'' to features whose workload behavior can be approximated by an existing calibration archetype within the target system's known request taxonomy (Section~\ref{sec:methodology}) — e.g., a new promotion mechanic is treated as a variant of an existing checkout-discount archetype rather than as an unprecedented category. This is consistent with how the framework is meant to be used in practice: as a decision-support tool for feature requests that extend an already-deployed system's existing request taxonomy, not as an open-ended predictor for arbitrary, never-before-seen application domains. A requirement that matches no known archetype closely is out of scope for a numeric verdict; Section~\ref{sec:discussion} discusses how the current implementation behaves in that case and what a scope-respecting implementation should do instead.
+
+Our main contributions are:
+\begin{enumerate}
+    \item \textbf{Grounded Parameter Estimation via LLM-Modulo:} We introduce a Parser Agent constrained by a 5-Guard defensive system (topological gateway invariance, physical delta bounds, adjustment clamping, service-existence filtering, and similarity-gated fine-tuning). Evaluated with a live LLM backend, this substantially reduces quantitative hallucination relative to an unconstrained LLM parser.
+    \item \textbf{Modeling Cascade Attenuation:} We utilize a 28-node hierarchical SCM that disentangles network-layer propagation from hardware-layer consumption, tracking how workloads decay or amplify across call chains. We further show that, without an explicit monotonicity constraint, this component can produce sign-inverted (physically implausible) predictions under extreme extrapolation, and we report a mitigation and its residual limitations.
+    \item \textbf{Domain-Aware Causal Mechanisms:} We integrate a queueing-inspired regressor into the SCM's structural equations to model non-linear latency bottlenecks, and we evaluate its behavior both in- and out-of-the-training-distribution.
+    \item \textbf{Cross-Topology Evaluation:} We evaluate the full pipeline on two independent microservice topologies of substantially different scale (7 vs. 28 services) using the same protocol, and report where conclusions do and do not transfer between them.
+\end{enumerate}
+
+% =========================================================
+% II. BACKGROUND & RELATED WORK
+% =========================================================
+\section{Background and Related Work}
+\label{sec:background}
+
+\subsection{From Retrospective RCA to Prospective Forecasting}
+Traditional machine learning struggles with confounders. Pearl's SCM \cite{pearl2009causality} resolves this via the $do$-calculus operator. While frameworks leverage SCMs for microservice diagnostics, their application remains retrospective. Our work reframes this approach toward prospective forecasting via hypothetical interventions, implemented on top of the DoWhy-GCM library \cite{blobaum2024dowhy}.
+
+\subsection{Neuro-Symbolic AI and LLM Verification}
+Recent studies highlight that while LLMs possess exceptional semantic reasoning, they exhibit severe deficiencies in deterministic planning \cite{kambhampati2024}. Following the LLM-Modulo and symbolic-feedback frameworks, we position the LLM strictly as a candidate generator, relying on external architectural guardrails to enforce correctness and topological constraints. Our multi-agent orchestration follows the ReAct paradigm of interleaved reasoning and tool-acting \cite{yao2022react}.
+
+\subsection{Benchmarks and Statistical Comparison}
+We evaluate on RCAEval \cite{pham2024rcaeval}, a public microservice RCA benchmark providing fault-injected telemetry for both Sock Shop and Train Ticket topologies. For comparing multiple models across datasets we follow the non-parametric testing methodology of Demšar \cite{demsar2006}, using paired Wilcoxon signed-rank and Friedman tests rather than parametric tests, given the small number of independent services per system.
+
+% =========================================================
+% III. METHODOLOGY
+% =========================================================
+\section{Methodology}
+\label{sec:methodology}
+
+\subsection{System Architecture Overview}
+Our workflow comprises four stages: Requirement Parsing, Topology Mapping, Workload Propagation, and Causal Simulation.
+
+\subsection{Parser Agent: Semantic Bridge and Verification}
+The Parser Agent translates natural language into a quantitative intervention vector $do(X=x)$. It follows a two-tier strategy: a deterministic keyword-similarity match against an empirical calibration table is attempted first (bypassing the LLM entirely when similarity $\geq 0.6$); otherwise the LLM is invoked to propose a request type, affected services, and a bounded adjustment. In both branches, the output passes through five runtime guards before being returned:
+\begin{itemize}
+    \item \textbf{(G1) Gateway Invariance:} enforces that the injection point $do(x)$ is applied at a node with in-degree $= 0$ in the dependency graph; if the LLM proposes an internal node, the system falls back to the nearest valid gateway and downgrades confidence to \textsc{low}.
+    \item \textbf{(G2) Physical Delta Bound:} clamps the proposed workload delta to an empirically justified range $[5\%, 50\%]$.
+    \item \textbf{(G3) Adjustment Clamp:} restricts the LLM's fine-tuning of the calibration anchor to $\pm 10\%$; violations are rejected and the system falls back to the unadjusted anchor value.
+    \item \textbf{(G4) Service Existence Filter:} discards any proposed \texttt{core\_services} entry that does not correspond to a real node in the topology graph, preventing hallucinated services from propagating downstream.
+    \item \textbf{(G5) Similarity-Gated Fine-Tuning:} when keyword similarity to the closest known request type is below 0.6, the LLM's adjustment is forced to zero, i.e. only the calibrated anchor is used.
+\end{itemize}
+Separately, at graph-construction time, the dependency topology is verified to be acyclic (removing any residual cycle before it is used for simulation), which we treat as a structural precondition rather than a per-request guard. We note that additional safeguards described in early design notes for this project (e.g. hard-clamping predicted resource values to $[0,100]$, and an additive-shift rule for simultaneous interventions on ancestor–descendant nodes) were \emph{not} implemented in the evaluated pipeline; Section~\ref{sec:discussion} discusses a concrete failure mode this gap causes and how we mitigated it at the causal-mechanism level instead.
+
+\subsection{Workload Propagation and Causal Simulation}
+The Simulation Agent models degradation using a 28-node DAG (two tiers: cross-service workload propagation, and local workload-to-resource mechanisms), fit with DoWhy's Additive Noise Model framework. Resource-consumption mechanisms (CPU, memory) are fit with coefficient-constrained linear regression to enforce a monotonically non-decreasing response to workload (Section~\ref{sec:discussion}); latency mechanisms use a queueing-inspired regressor whose feature transform $x/(c-x)$ approximates the heavy-traffic behavior $\rho/(1-\rho)$ of an M/M/1 queue as utilization approaches capacity $c$ \cite{kingman1961}, rather than a closed-form derivation from queueing theory.
+
+% =========================================================
+% IV. EXPERIMENTAL SETUP
+% =========================================================
+\section{Experimental Setup}
+\label{sec:setup}
+
+\subsection{Datasets and Testbed}
+We evaluate our framework on RCAEval \cite{pham2024rcaeval}: (i) \textbf{Sock Shop}, 7 microservices, 90 fault-injection scenarios (30 fault types $\times$ 3 runs), used for both the accuracy benchmark and a 90-run ground-truth direct-match validation; (ii) \textbf{Train Ticket}, 28 microservices (up to 384 recorded metric columns), 30 fault-injection scenarios (5 target services $\times$ 6 fault types, 1 run each). Both datasets share the same telemetry schema (per-service workload, CPU, memory, socket count, and $p50$/$p90$ latency, with an explicit fault-injection timestamp separating normal and faulty periods). To prevent pooled averages from obscuring subsystem- and topology-specific variation, we report results on a \textit{per-system} basis rather than a single pooled number.
+
+\subsection{Baselines for Comparison}
+\begin{itemize}
+    \item \textbf{(B0) Rule-Only Parser:} a deterministic keyword-matching classifier with no LLM and no learned adjustment, used as the accuracy floor for requirement parsing.
+    \item \textbf{(B1) Unguarded Zero-Shot LLM:} the same live LLM backend as our proposed parser, prompted directly with no calibration table and no runtime guards.
+    \item \textbf{(B2) Unguarded Few-Shot LLM:} as B1, but with the system topology and calibration table given as in-context examples, still without any runtime guard.
+    \item \textbf{(B3) Non-Causal Regression Baselines:} Linear Regression, Gradient Boosting Regression, and a Gaussian Process Regressor, trained and evaluated under the identical out-of-distribution protocol as the SCM (Section~\ref{sec:results}), used to test whether causal structure yields an accuracy advantage over standard regressors.
+    \item \textbf{(B4) Uniform Delta Injection:} a naive propagation baseline that assumes every downstream service's workload changes by exactly the same percentage as the injected upstream delta, bypassing the dependency-graph propagation entirely.
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+We measure forecasting accuracy using MAPE, RMSE, and $R^2$, computed at full test-set resolution (i.e., on every held-out point rather than on quantile-bucket averages, which we found to substantially understate error \textemdash Section~\ref{sec:results}). For the Parser Agent we additionally report the Physical Boundary Violation Rate (PBVR), Service Hallucination Rate (SHR), and Gateway Misdirection Rate (GMR), plus mean end-to-end inference latency and the fraction of requests resolved without an LLM call (fast-path bypass rate).
+
+% =========================================================
+% V. RESULTS AND EVALUATION
+% =========================================================
+\section{Results and Evaluation}
+\label{sec:results}
+
+\subsection{RQ1: Out-of-Distribution Forecasting Accuracy, Per System}
+We train on the lowest 67\% of observed workload and test on the highest 33\%, forcing genuine extrapolation. We report two resolutions: a legacy 8-bucket quantile average, and full-resolution error computed on every held-out point via the closed-form additive-noise-model prediction $\mathbb{E}[\text{Target} \mid do(\text{Workload}=w)]$ (avoiding Monte Carlo sampling entirely). \textbf{The two resolutions disagree substantially}: bucket-averaging understates error relative to full-resolution scoring in the large majority of service--metric pairs on Sock Shop, so we treat full-resolution as the primary metric.
+
+\begin{table}[h]
+\centering
+\caption{Full-resolution SCM forecasting error, per system (mean $\pm$ range across services)}
+\label{tab:rq1}
+\begin{tabular}{lccc}
+\toprule
+System & Metric & MAPE mean (range) \% & $n$ services \\
+\midrule
+Sock Shop   & CPU    & 35.7 (10.2--67.5) & 7 \\
+Sock Shop   & Memory & 4.6 (1.3--7.9)    & 7 \\
+Sock Shop   & Socket & 15.6 (6.7--26.4)  & 7 \\
+Train Ticket & CPU    & 52.0 (9.7--123.3) & 28 \\
+Train Ticket & Memory & 2.5 (1.0--6.7)    & 28 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+As an independent check that does not reuse the accuracy-benchmark's train/test split, we additionally match SCM predictions directly against real measured values across all fault-injection scenarios, splitting each scenario chronologically (70\%/30\%) rather than pooling across scenarios (Table~\ref{tab:rq1-gt}).
+
+\begin{table}[h]
+\centering
+\caption{Ground-truth direct match (no bucketing, per-scenario chronological split)}
+\label{tab:rq1-gt}
+\begin{tabular}{llccc}
+\toprule
+System & Metric & $n$ points & Mean \%err & Median \%err \\
+\midrule
+Sock Shop    & CPU     & 136{,}496 & 35.1 & 9.1 \\
+Sock Shop    & Memory  & 136{,}674 & 2.3  & 0.4 \\
+Sock Shop    & Latency $p50$ & 134{,}625 & 9.9 & 2.0 \\
+Train Ticket & CPU     & 180{,}683 & 43.6 & 19.2 \\
+Train Ticket & Memory  & 180{,}725 & 0.7  & 0.1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In both systems, mean error is 3--4$\times$ the median, indicating a right-skewed error distribution: most points are forecast well, but a minority of scenarios (typically under active fault injection or extreme load) incur large errors. We report both statistics rather than either alone. On Sock Shop, full-resolution $R^2$ is negative for 19 of 21 service--metric pairs (all 21 under bucket-averaging); the SCM does not explain held-out variance better than a mean predictor under this out-of-distribution protocol, even where absolute error (MAPE) is acceptable for capacity-planning purposes. We report this explicitly rather than omitting it.
+
+\subsection{RQ2: Does Causal Structure Improve Accuracy Over Non-Causal Regressors?}
+We compare the SCM against B3 (Linear Regression, Gradient Boosting, Gaussian Process) under the identical protocol, using paired Wilcoxon and Friedman tests on full-resolution MAPE, computed \emph{separately per metric} (CPU, Memory, Socket use incompatible units and cannot be pooled into a single RMSE-based test without inflating apparent significance).
+
+On \textbf{Sock Shop} ($n=21$ service--metric pairs), the SCM is statistically significantly more accurate than Linear Regression when pooled across metrics ($p=0.0137$, median $\Delta = -0.94$ MAPE points, SCM lower), but is statistically indistinguishable from Gradient Boosting ($p=0.812$) and Gaussian Process ($p=0.421$). By win count, the SCM ties for first place (7/21 service--metric combinations), alongside Gaussian Process (7/21), ahead of Gradient Boosting (6/21) and Linear Regression (1/21).
+
+On \textbf{Train Ticket} ($n=56$ service--metric pairs, $4\times$ larger than Sock Shop), the result does \emph{not} replicate in the SCM's favor: the SCM wins only 4/56 combinations, the fewest of the four models (Gradient Boosting 20/56, Gaussian Process 19/56, Linear Regression 13/56). The one statistically significant pooled comparison on Train Ticket (SCM vs.\ Gradient Boosting, $p=0.0143$) favors Gradient Boosting, though the median difference is negligible in absolute terms (0.005 MAPE points) — a case where statistical significance does not imply practical significance, which we flag explicitly rather than reporting the $p$-value alone.
+
+\textbf{We do not conclude that SCM point-accuracy is superior to standard regressors.} The advantage seen on Sock Shop does not transfer to Train Ticket. We interpret this as evidence that the framework's value should rest on its unique capability — supporting $do(x)$ intervention queries, which the regression baselines cannot answer at all — rather than on raw predictive accuracy, which we find is not stable across topologies of different scale.
+
+\subsection{RQ3: Do Guardrails Improve LLM Calibration? (Live LLM Evaluation)}
+We evaluate 50 hand-authored requirement prompts (In-Distribution, Complex Multi-Hop, Subtle Read-Only, and Adversarial subsets) against four parser configurations, using a live LLM backend (\texttt{gemini-flash-lite-latest}) rather than a scripted stand-in, so that failure modes reflect genuine model behavior rather than an experimenter-authored fixture.
+
+\begin{table}[h]
+\centering
+\caption{Parser reliability, live LLM, 50 prompts, single run}
+\label{tab:rq3}
+\begin{tabular}{lcccc}
+\toprule
+Configuration & PBVR & SHR & GMR & Anchor MAE \\
+\midrule
+Unguarded Zero-Shot (B1) & 38.0\% & 90.0\% & 100.0\% & 272.3\% \\
+Unguarded Few-Shot (B2)  & 14.0\% & 2.0\%  & 82.0\%  & 38.3\%  \\
+Rule-Only (B0)           & 0.0\%  & 0.0\%  & 0.0\%   & 2.8\%   \\
+\textbf{Guarded (Ours)}  & \textbf{0.0\%} & \textbf{0.0\%} & \textbf{0.0\%} & \textbf{2.0\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Without any grounding, the unconstrained LLM misdirects the injection point away from the topology's gateway on \emph{every} prompt (GMR $=100\%$) and hallucinates non-existent services on 90\% of prompts. Adding in-context calibration (B2) substantially reduces hallucination (90\%$\to$2\%) but does not by itself fix gateway misdirection (still 82\%) or eliminate physical-boundary violations (14\%). Only the runtime-guarded configuration reaches 0\% on all three failure modes. The fast-path bypasses the LLM entirely for 34\% of prompts (deterministic keyword match), reducing mean latency relative to the always-LLM configurations. \textbf{Limitation:} due to the LLM API's free-tier daily request quota, this run reflects a single repetition rather than the repeated-trial protocol we intended; we report this as a limitation rather than omitting it, and recommend repeating with $\geq 3$ trials before final submission.
+
+\subsection{RQ4: Does Graph-Based Propagation Outperform Uniform Delta Injection?}
+We compare SCM Tier-1 propagation (a non-negative-coefficient regression over each service's real parent(s) in the dependency graph) against B4 (Uniform Delta Injection) on the six non-root Sock Shop services, under the same out-of-distribution protocol as RQ1.
+
+\begin{table}[h]
+\centering
+\caption{Downstream workload MAPE: graph propagation vs.\ uniform delta}
+\label{tab:rq4}
+\begin{tabular}{lccc}
+\toprule
+Service & SCM (\%) & Uniform (\%) & Winner \\
+\midrule
+Catalogue & 5.3  & 5.4  & SCM \\
+User      & 7.0  & 13.2 & SCM \\
+Carts     & 7.8  & 7.6  & Uniform \\
+Orders    & 19.4 & 21.1 & SCM \\
+Payment   & 9.4  & 19.8 & SCM \\
+Shipping  & 8.4  & 20.8 & SCM \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Graph-based propagation wins on 5/6 services, with a large effect size on three of them (Payment, Shipping, User: roughly half the error of the uniform assumption). A paired Wilcoxon test does not reach significance ($n=6$, $p=0.094$) — the topology fixes the number of independent non-root services, so this test is inherently underpowered; we report the effect sizes rather than relying on the $p$-value alone, and recommend a multi-split-ratio replication to increase $n$ before treating this as conclusive.
+
+\subsection{RQ5: Multi-Agent Coordination Overhead (Not Yet Evaluated)}
+A planned comparison against a single-LLM-call baseline (replacing the Parser Agent / Capacity Agent split with one monolithic prompt) has not yet been implemented or run. We report this honestly as an open item rather than presenting unverified numbers; see Section~\ref{sec:discussion}.
+
+% =========================================================
+% VI. DISCUSSION & THREATS TO VALIDITY
+% =========================================================
+\section{Discussion and Threats to Validity}
+\label{sec:discussion}
+
+\subsection{The Extrapolation-Sign Failure Mode}
+During development we found that, at large synthetic interventions (e.g., $do(\text{workload}) = +150\%$ or $+300\%$), the resource-consumption mechanisms could predict a \emph{decrease} in CPU or memory usage in response to an \emph{increase} in workload — a physically implausible sign inversion caused by unconstrained linear extrapolation compounded across the two-tier graph. This is precisely the failure mode that a hard $[0,100]$ output clamp (an early design goal, see Section~\ref{sec:methodology}) would have masked rather than fixed. We instead constrained every workload-propagation and resource-consumption mechanism to non-negative coefficients, which enforces monotonicity by construction; this reduced, but did not eliminate, sign-inverted predictions at the most extreme interventions (roughly 7--19 of 56 service $\times$ scenario combinations at $+150\%$/$+300\%$, depending on the mechanism-fitting run). We flag every remaining case programmatically (an \texttt{extrapolation\_suspect} indicator) and exclude flagged points from any quantitative claim; results at $+150\%$/$+300\%$ should be read as directional illustrations, not as validated forecasts.
+
+\subsection{Behavior at the Edge of the Declared Scope}
+\label{sec:edge-of-scope}
+Section~\ref{sec:introduction} bounds ``new requirement'' to features approximable by an existing calibration archetype. Two concrete mechanisms enforce — and expose the limits of — this scope in the current implementation. First, when a requirement matches \emph{no} keyword in the rule-based classifier, the current implementation falls back to a default archetype (the lowest-impact category in our taxonomy) rather than emitting an explicit ``no reliable archetype'' signal; this is a silent, not a flagged, out-of-scope case. Second, when the LLM stage is invoked (low keyword similarity), it is explicitly instructed to always select the \emph{closest-matching} known archetype rather than to decline — a deliberate anti-hallucination design choice (Section~\ref{sec:methodology}) that also means the system never reports ``insufficient calibration data'' even when that would be the honest answer. Separately, an out-of-distribution confidence module exists in our codebase (percentile-based against the training distribution) but is currently only exercised in a standalone pre-mortem RCA analysis path and is \emph{not} wired into the main requirement-to-verdict pipeline evaluated in Section~\ref{sec:results}; the confidence score reported end-to-end today reflects only text-parsing certainty, not workload-magnitude extrapolation risk. We report this as a known implementation gap relative to our declared scope, not as a claim that the system safely degrades outside it: a requirement disguised as a familiar one, or a familiar requirement at an extreme projected load, will currently still receive a confident-looking numeric verdict. A scope-respecting implementation should treat both cases as explicit low-confidence or refusal outputs rather than best-effort numeric estimates.
+
+\subsection{Threats to Validity}
+\begin{itemize}
+    \item \textbf{Scalability.} Train Ticket telemetry contains up to 384 metric columns; per-node causal-mechanism fitting is currently independent and linear in the number of nodes, but the two-tier DAG construction and downstream Shapley-based attribution (used for root-cause ranking, not evaluated quantitatively in this paper) scale worse and were not stress-tested beyond 28 services.
+    \item \textbf{Topology dependence.} Our approach depends on the accuracy of the extracted dependency graph; RQ2 shows that even accuracy conclusions, let alone graph structure, do not transfer between topologies of different scale, so results on a third topology cannot be assumed without re-running the full protocol.
+    \item \textbf{Coverage of the Train Ticket evaluation.} We used 30 of the 90 available fault-injection scenarios (single run per fault type) to keep the exploratory evaluation tractable; the full 90-scenario protocol used for Sock Shop has not yet been run on Train Ticket.
+    \item \textbf{Single-model LLM evaluation.} RQ3 uses one LLM backend and one repetition; both the specific failure rates and their variance may differ with other models or repeated sampling at nonzero temperature.
+    \item \textbf{Out-of-scope requirements are not yet safely refused.} As detailed in Section~\ref{sec:edge-of-scope}, the current pipeline always returns a numeric verdict rather than declining when a requirement or workload magnitude falls outside the declared scope; deployment as a decision-support tool should treat any \textsc{low}/\textsc{very\_low}-confidence output as a prompt for manual load-testing, not as a substitute for it.
+\end{itemize}
+
+\subsection{Future Work}
+Beyond the open items above (RQ5 single-agent baseline, multi-split RQ4 replication, RQ3 repeated trials, full-scale Train Ticket run), future iterations will explore dynamic graph updates under auto-scaling and an explicit statistical equivalence test (TOST) for the several RQ2 comparisons that fail to reject the null but should not be read as proof of parity.
+
+\bibliographystyle{IEEEtran}
+\begin{thebibliography}{00}
+\bibitem{pearl2009causality}
+J.~Pearl, \emph{Causality}, 2nd ed. Cambridge Univ. Press, 2009.
+\bibitem{kambhampati2024}
+S. Kambhampati et al., ``LLMs Can't Plan, But Can Help Planning in LLM-Modulo Frameworks,'' in \emph{Proc. AAAI}, 2024.
+\bibitem{yao2022react}
+S. Yao et al., ``ReAct: Synergizing Reasoning and Acting in Language Models,'' in \emph{Proc. ICLR}, 2023.
+\bibitem{blobaum2024dowhy}
+P. Blöbaum et al., ``DoWhy-GCM: An Extension of DoWhy for Causal Inference in Graphical Causal Models,'' \emph{Journal of Machine Learning Research}, vol. 25, no. 147, 2024.
+\bibitem{pham2024rcaeval}
+L. Pham et al., ``RCAEval: A Benchmark for Root Cause Analysis of Microservice Systems,'' 2024.
+\bibitem{demsar2006}
+J. Demšar, ``Statistical Comparisons of Classifiers over Multiple Data Sets,'' \emph{Journal of Machine Learning Research}, vol. 7, pp. 1--30, 2006.
+\bibitem{kingman1961}
+J. F. C. Kingman, ``The Single Server Queue in Heavy Traffic,'' \emph{Mathematical Proceedings of the Cambridge Philosophical Society}, vol. 57, no. 4, 1961.
+\end{thebibliography}
+\end{document}
