@@ -116,6 +116,25 @@ def run_f1_rmse_benchmark():
             smape_v = smape(yt, yp)
             r2_v   = r2_score(yt, yp)
 
+            # --- FULL-RESOLUTION METRIC (khong bucket-averaging) ---
+            # Bucket-mean o tren lam mem nhieu va giam con so mau xuong con 8 diem.
+            # Voi mo hinh AdditiveNoiseModel, E[Target | do(Workload=w)] = prediction_model.predict(w),
+            # nen co the tinh CHINH XAC (khong Monte Carlo) tren TOAN BO diem test tho, khong bucket.
+            try:
+                mech = model.causal_mechanism('Target')
+                yt_full = df_test['Target'].values * scale
+                yp_full = mech.prediction_model.predict(df_test[['Workload']].values).ravel() * scale
+                mae_full  = mean_absolute_error(yt_full, yp_full)
+                rmse_full = np.sqrt(mean_squared_error(yt_full, yp_full))
+                mape_full = mape(yt_full, yp_full)
+                smape_full = smape(yt_full, yp_full)
+                r2_full = r2_score(yt_full, yp_full)
+                n_full = len(yt_full)
+            except Exception as e:
+                mae_full = rmse_full = mape_full = smape_full = r2_full = float('nan')
+                n_full = 0
+                print(f"    [WARN] Full-resolution metric that bai cho {svc}/{metric_name}: {e}")
+
             trained_models[(svc, metric_name)] = {
                 'model': model,
                 'baseline_wl': df_train['Workload'].mean(),
@@ -133,14 +152,22 @@ def run_f1_rmse_benchmark():
                 'mape_pct': round(mape_v, 2),
                 'smape_pct': round(smape_v, 2) if not np.isnan(smape_v) else '',
                 'r2': round(r2_v, 3),
+                # Cac chi so full-resolution: tinh tren TOAN BO n_test diem tho (khong bucket).
+                # Day la bang chung manh hon vi khong bi lam muot boi trung binh hoa theo bucket.
+                'rmse_full_res': round(rmse_full, 4) if not np.isnan(rmse_full) else '',
+                'mae_full_res': round(mae_full, 4) if not np.isnan(mae_full) else '',
+                'mape_full_res_pct': round(mape_full, 2) if not np.isnan(mape_full) else '',
+                'smape_full_res_pct': round(smape_full, 2) if not np.isnan(smape_full) else '',
+                'r2_full_res': round(r2_full, 3) if not np.isnan(r2_full) else '',
                 'n_train': len(df_train),
                 'n_test': len(df_test),
                 'n_test_buckets': len(bkts),
+                'n_test_full_res': n_full,
                 'wl_train_range': f"{df_train['Workload'].min():.1f}-{df_train['Workload'].max():.1f}",
                 'wl_test_range': f"{df_test['Workload'].min():.1f}-{df_test['Workload'].max():.1f}",
             })
 
-            print(f"  {svc:<16} | {rmse_v:>10.4f} | {mae_v:>10.4f} | {mape_v:>7.1f}% | {smape_v:>8.1f}% | {nrmse_v:>8.3f} | {r2_v:>8.3f}")
+            print(f"  {svc:<16} | {rmse_v:>10.4f} | {mae_v:>10.4f} | {mape_v:>7.1f}% | {smape_v:>8.1f}% | {nrmse_v:>8.3f} | {r2_v:>8.3f} | full-res MAPE={mape_full:>6.1f}% (n={n_full})")
 
     return pd.DataFrame(eval_results), trained_models
 
@@ -204,14 +231,36 @@ def build_and_train_global_dag(df_data=None):
     model = gcm.InvertibleStructuralCausalModel(g_sub)
     gcm.auto.assign_causal_mechanisms(model, df_fit)
     
-    # 3. Ghi đè Domain-Aware Causal Mechanisms để giải quyết Rủi ro Ngoại suy của Tree-based model
+    # 3. Ghi đè Domain-Aware Causal Mechanisms để giải quyết Rủi ro Ngoại suy
+    #
+    # SUA LOI PHAT HIEN 2025-09-08 (2 vong): Ban dau dung LinearRegression thuong cho
+    # CPU/Mem, nhung tai do(workload) rat lon (+150%/+300%) mot so node cho delta AM —
+    # vo ly ve vat ly (CPU/Memory khong the GIAM khi tai tang). Thu IsotonicRegression cho
+    # CPU/Mem thi het loi o do, NHUNG loi van con o TANG 1 (Workload -> Workload giua cac
+    # service, vd carts_workload/user_workload co 2 parent) vi cac canh nay VAN dung mechanism
+    # tu dong chon boi gcm.auto (co the la mo hinh khong rang buoc dau, vd cay/tuyen tinh he
+    # so am do nhieu) — lam workload ha luu GIAM du workload thuong luu tang, keo theo CPU
+    # ha luu am theo.
+    #
+    # Fix triet de: dung LinearRegression(positive=True) (rang buoc he so KHONG AM qua
+    # scipy.optimize.nnls) cho TOAN BO canh nhan qua co huong tang don dieu ky vong — ca
+    # Workload->Workload (Tang 1) LAN Workload->CPU/Mem (Tang 2). Uu diem so voi Isotonic:
+    # ap dung duoc ca khi node co NHIEU parent (vd carts_workload co 2 parent), khong chi
+    # 1 bien nhu Isotonic. Danh doi: van la ngoai suy TUYEN TINH khong gioi han bien do (co
+    # the qua lon o OOD cuc doan) nhung KHONG THE sai dau — dung day la dieu kien can de
+    # dam bao tinh don dieu vat ly xuyen suot toan bo do thi nhan qua 28-node.
     for node in g_sub.nodes():
         if node.endswith('_cpu') or node.endswith('_mem'):
-            # CPU/Mem tỉ lệ tuyến tính với tải
-            model.set_causal_mechanism(node, AdditiveNoiseModel(SklearnRegressionModel(LinearRegression())))
+            model.set_causal_mechanism(
+                node, AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True))))
         elif node.endswith('_latency-50'):
             # Độ trễ tăng phi tuyến theo đường cong bão hòa
             model.set_causal_mechanism(node, AdditiveNoiseModel(SklearnRegressionModel(QueueingLatencyRegressor())))
+        elif node.endswith('_workload') and g_sub.in_degree(node) > 0:
+            # Canh lan truyen Tang 1 (vd front-end_workload -> orders_workload): workload
+            # thuong luu tang khong the lam workload ha luu GIAM.
+            model.set_causal_mechanism(
+                node, AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True))))
 
     gcm.fit(model, df_fit)
     return model, df_sub, g_sub
@@ -287,12 +336,37 @@ def test_new_features_simulation(global_model=None, df_sub=None):
             mem_chg = f"{m_val:+.1f}%"
             lat_chg = f"{l_val:+.1f}%"
 
-            if c_val >= 30.0 or delta_pct >= 100 or l_val >= 100.0:
-                risk_status = "❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)"
+            # PHAT HIEN NGOAI SUY VO LY (extrapolation sanity check): voi do(workload) TANG,
+            # CPU/Memory ve nguyen tac vat ly khong the GIAM manh. O cac muc can thiep rat xa
+            # mien train (Flash Sale +150%, Black Friday +300%), mechanism LinearRegression
+            # cho CPU/Memory co the ngoai suy sai dau (da quan sat: co truong hop am vai
+            # tram %). Day la dau hieu mo hinh da vuot qua vung tin cay, KHONG phai ket qua
+            # nhan qua that — phai gan co gian ro rang thay vi de lan vao risk_status binh
+            # thuong, tranh bi hieu nham la "SCM du bao CPU/Memory giam khi tang tai".
+            extrapolation_suspect = (delta_pct > 0) and (c_val < -5.0 or m_val < -5.0 or l_val < -5.0)
+            if c_val < -5.0 and delta_pct > 0:
+                cpu_chg += " [NGOẠI SUY BẤT THƯỜNG]"
+            if m_val < -5.0 and delta_pct > 0:
+                mem_chg += " [NGOẠI SUY BẤT THƯỜNG]"
+            if l_val < -5.0 and delta_pct > 0:
+                lat_chg += " [NGOẠI SUY BẤT THƯỜNG]"
+
+            # LUU Y VE PHUONG PHAP LUAN: cac nguong 30%/15%/100% duoi day la HEURISTIC
+            # (chon tron, chua duoc hieu chinh tu du lieu crash/OOM that). Chua co
+            # nhan "he thong da thuc su sap do" trong RE2-SS de fit nguong nay tu
+            # du lieu. Vi vay risk_status CHI la mot canh bao dinh tinh dua tren quy
+            # tac tu dat, KHONG phai ket qua da duoc kiem chung bang su co that —
+            # khong nen trich dan nhu "SCM du bao dung crash" trong bao cao khoa hoc
+            # neu chua doi chieu voi thoi diem loi that trong RE2-SS (inject_time.txt
+            # + cac metric bat thuong sau injection).
+            if extrapolation_suspect:
+                risk_status = "🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy)"
+            elif c_val >= 30.0 or delta_pct >= 100 or l_val >= 100.0:
+                risk_status = "❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)"
             elif l_val >= 30.0 or c_val >= 15.0:
-                risk_status = "⚠️ CẢNH BÁO: GIẬT LAG MẠNH (SEVERE LATENCY SPIKE)"
+                risk_status = "⚠️ CẢNH BÁO (HEURISTIC): GIẬT LAG MẠNH (SEVERE LATENCY SPIKE)"
             else:
-                risk_status = "✅ AN TOÀN (NORMAL)"
+                risk_status = "✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)"
 
             print(f"        {svc:<14} | {cpu_chg:>12} | {mem_chg:>14} | {lat_chg:>14} | {risk_status}")
             sim_rows.append({
@@ -301,11 +375,13 @@ def test_new_features_simulation(global_model=None, df_sub=None):
                 'request_type': detected_rtype,
                 'feature_resource_profile': resource_prof,
                 'do_workload_delta_pct': delta_pct,
+                'extrapolation_suspect': extrapolation_suspect,
                 'service': svc,
                 'cpu_change_pct': cpu_chg,
                 'mem_change_pct': mem_chg,
                 'lat_p50_change_pct': lat_chg,
-                'risk_status': risk_status
+                'risk_status': risk_status,
+                'risk_status_is_validated_against_real_incidents': False,
             })
 
     return pd.DataFrame(sim_rows)
@@ -390,35 +466,123 @@ def run_statistical_significance():
         return
 
     df = pd.read_csv(CSV_PATH)
-    valid = df.dropna(subset=['rmse', 'mape_pct'])
 
-    scm_rmse = valid[valid['model'] == 'SCM_DoWhy']['rmse'].values
-    lr_rmse  = valid[valid['model'] == 'LinearReg']['rmse'].values
-    gb_rmse  = valid[valid['model'] == 'GradBoost']['rmse'].values
-    gp_rmse  = valid[valid['model'] == 'GaussianProcess']['rmse'].values
+    # SUA LOI PHUONG PHAP LUAN: khong con gop RMSE tho cua CPU(%), Memory(MB),
+    # Socket(count) vao chung mot phep kiem dinh — cac don vi khac nhau lam
+    # rank cua Wilcoxon vo nghia. Dung MAPE (chi so % da chuan hoa, so sanh duoc
+    # giua cac don vi), chay RIENG cho tung metric + 1 ban tong hop ALL_COMBINED.
+    #
+    # Chay CA HAI phien ban MAPE de doi chieu ro rang muc do nhay cam voi cach
+    # tinh: 'mape_pct' (trung binh tren 8 bucket, lam muot nhieu) va
+    # 'mape_full_res_pct' (tren TOAN BO diem test tho, khong lam muot) — ban
+    # full-resolution chat che hon nen la can cu chinh khi ket luan trong bai bao.
+    baselines = ['LinearReg', 'GradBoost', 'GaussianProcess']
 
-    w_lr_stat, w_lr_p = stats.wilcoxon(scm_rmse, lr_rmse) if len(scm_rmse) == len(lr_rmse) else (0, 1)
-    w_gb_stat, w_gb_p = stats.wilcoxon(scm_rmse, gb_rmse) if len(scm_rmse) == len(gb_rmse) else (0, 1)
-    w_gp_stat, w_gp_p = stats.wilcoxon(scm_rmse, gp_rmse) if len(scm_rmse) == len(gp_rmse) else (0, 1)
+    def paired_values(sub_df, model_a, model_b, value_col):
+        """Ghep cap dung theo (service, metric) — tranh lech thu tu hang giua 2 model."""
+        a = sub_df[sub_df['model'] == model_a].set_index(['service', 'metric'])[value_col]
+        b = sub_df[sub_df['model'] == model_b].set_index(['service', 'metric'])[value_col]
+        common = a.index.intersection(b.index)
+        return a.loc[common].values, b.loc[common].values, len(common)
 
-    min_len = min(len(scm_rmse), len(lr_rmse), len(gb_rmse), len(gp_rmse))
-    f_stat, f_p = stats.friedmanchisquare(scm_rmse[:min_len], lr_rmse[:min_len], gb_rmse[:min_len], gp_rmse[:min_len]) if min_len > 0 else (0, 1)
+    stat_results = []
 
-    stat_results = [
-        {'comparison': 'SCM_vs_LinearReg', 'metric': 'RMSE', 'wilcoxon_stat': round(w_lr_stat, 3), 'p_value': round(w_lr_p, 5), 'significant_p_lt_0.05': w_lr_p < 0.05},
-        {'comparison': 'SCM_vs_GradBoost', 'metric': 'RMSE', 'wilcoxon_stat': round(w_gb_stat, 3), 'p_value': round(w_gb_p, 5), 'significant_p_lt_0.05': w_gb_p < 0.05},
-        {'comparison': 'SCM_vs_GaussProc', 'metric': 'RMSE', 'wilcoxon_stat': round(w_gp_stat, 3), 'p_value': round(w_gp_p, 5), 'significant_p_lt_0.05': w_gp_p < 0.05},
-        {'comparison': 'Friedman_4_Models_Overall', 'metric': 'RMSE', 'wilcoxon_stat': round(f_stat, 3), 'p_value': round(f_p, 5), 'significant_p_lt_0.05': f_p < 0.05},
-    ]
+    for value_col in ['mape_pct', 'mape_full_res_pct']:
+        if value_col not in df.columns:
+            continue
+        valid = df.dropna(subset=[value_col])
+        metrics_present = sorted(valid['metric'].unique())
+
+        # (1) Kiem dinh rieng cho tung metric (CPU / Memory / Socket)
+        for metric_name in metrics_present:
+            sub = valid[valid['metric'] == metric_name]
+            for bl in baselines:
+                a, b, n = paired_values(sub, 'SCM_DoWhy', bl, value_col)
+                if n >= 2 and not np.allclose(a, b):
+                    w_stat, w_p = stats.wilcoxon(a, b)
+                else:
+                    w_stat, w_p = float('nan'), float('nan')
+                stat_results.append({
+                    'comparison': f'SCM_vs_{bl}',
+                    'metric': metric_name,
+                    'value_col': value_col,
+                    'n_pairs': n,
+                    'median_diff_SCM_minus_baseline': round(float(np.median(a - b)), 3) if n >= 1 else '',
+                    'wilcoxon_stat': round(w_stat, 3) if n >= 2 else '',
+                    'p_value': round(w_p, 5) if n >= 2 else '',
+                    'significant_p_lt_0.05': bool(w_p < 0.05) if n >= 2 else False,
+                })
+            # Friedman rieng cho tung metric (chi tinh duoc voi n_service dong nhat qua 4 model)
+            piv = sub.pivot_table(index='service', columns='model', values=value_col)
+            piv = piv.dropna(subset=['SCM_DoWhy'] + baselines)
+            if len(piv) >= 3:
+                f_stat, f_p = stats.friedmanchisquare(
+                    piv['SCM_DoWhy'], piv['LinearReg'], piv['GradBoost'], piv['GaussianProcess'])
+            else:
+                f_stat, f_p = float('nan'), float('nan')
+            stat_results.append({
+                'comparison': 'Friedman_4_Models',
+                'metric': metric_name,
+                'value_col': value_col,
+                'n_pairs': len(piv),
+                'median_diff_SCM_minus_baseline': '',
+                'wilcoxon_stat': round(f_stat, 3) if len(piv) >= 3 else '',
+                'p_value': round(f_p, 5) if len(piv) >= 3 else '',
+                'significant_p_lt_0.05': bool(f_p < 0.05) if len(piv) >= 3 else False,
+            })
+
+        # (2) Kiem dinh tong hop tren toan bo (service, metric)
+        for bl in baselines:
+            a, b, n = paired_values(valid, 'SCM_DoWhy', bl, value_col)
+            if n >= 2 and not np.allclose(a, b):
+                w_stat, w_p = stats.wilcoxon(a, b)
+            else:
+                w_stat, w_p = float('nan'), float('nan')
+            stat_results.append({
+                'comparison': f'SCM_vs_{bl}',
+                'metric': 'ALL_COMBINED',
+                'value_col': value_col,
+                'n_pairs': n,
+                'median_diff_SCM_minus_baseline': round(float(np.median(a - b)), 3) if n >= 1 else '',
+                'wilcoxon_stat': round(w_stat, 3) if n >= 2 else '',
+                'p_value': round(w_p, 5) if n >= 2 else '',
+                'significant_p_lt_0.05': bool(w_p < 0.05) if n >= 2 else False,
+            })
+
+        piv_all = valid.pivot_table(index=['service', 'metric'], columns='model', values=value_col)
+        piv_all = piv_all.dropna(subset=['SCM_DoWhy'] + baselines)
+        if len(piv_all) >= 3:
+            f_stat, f_p = stats.friedmanchisquare(
+                piv_all['SCM_DoWhy'], piv_all['LinearReg'], piv_all['GradBoost'], piv_all['GaussianProcess'])
+        else:
+            f_stat, f_p = float('nan'), float('nan')
+        stat_results.append({
+            'comparison': 'Friedman_4_Models',
+            'metric': 'ALL_COMBINED',
+            'value_col': value_col,
+            'n_pairs': len(piv_all),
+            'median_diff_SCM_minus_baseline': '',
+            'wilcoxon_stat': round(f_stat, 3) if len(piv_all) >= 3 else '',
+            'p_value': round(f_p, 5) if len(piv_all) >= 3 else '',
+            'significant_p_lt_0.05': bool(f_p < 0.05) if len(piv_all) >= 3 else False,
+        })
 
     df_stat = pd.DataFrame(stat_results)
     df_stat.to_csv(OUT_PATH, index=False)
 
-    print(f"\n  {'Đối Chiếu (Comparison)':<30} | {'Wilcoxon Stat':>14} | {'p-value':>10} | {'Ý Nghĩa (p < 0.05)'}")
-    print("  " + "-" * 75)
-    for _, r in df_stat.iterrows():
-        sig = "✅ CÓ Ý NGHĨA THỐNG KÊ" if r['significant_p_lt_0.05'] else "❌ KHÔNG CÓ Ý NGHĨA"
-        print(f"  {r['comparison']:<30} | {r['wilcoxon_stat']:>14.3f} | {r['p_value']:>10.5f} | {sig}")
+    print(f"\n  {'Đối Chiếu':<22} | {'Metric':<13} | {'n':>3} | {'Median Δ':>9} | {'Stat':>9} | {'p-value':>10} | {'Ý nghĩa'}")
+    print("  " + "-" * 95)
+    for value_col, grp in df_stat.groupby('value_col', sort=False):
+        print(f"\n  [value_col = {value_col}]")
+        for _, r in grp.iterrows():
+            sig = "✅ CÓ Ý NGHĨA" if r['significant_p_lt_0.05'] else "❌ KHÔNG"
+            pv = r['p_value'] if r['p_value'] != '' else float('nan')
+            st = r['wilcoxon_stat'] if r['wilcoxon_stat'] != '' else float('nan')
+            md = r['median_diff_SCM_minus_baseline'] if r['median_diff_SCM_minus_baseline'] != '' else float('nan')
+            print(f"  {r['comparison']:<22} | {r['metric']:<13} | {r['n_pairs']:>3} | {md:>9} | {st:>9} | {pv:>10} | {sig}")
+    print("\n  LƯU Ý: p > 0.05 chỉ có nghĩa là KHÔNG BÁC BỎ được giả thuyết 'không khác biệt' —")
+    print("  KHÔNG phải bằng chứng cho thấy hai mô hình 'tương đương'. Muốn khẳng định tương")
+    print("  đương cần kiểm định equivalence (TOST), chưa được thực hiện ở đây.")
 
 # =============================================================================
 # PHẦN 5: ĐỐI CHIẾU CÁC PHƯƠNG PHÁP CHIA TẬP TEST (ALTERNATIVE PROTOCOLS)
@@ -485,6 +649,105 @@ def compare_all_protocols():
     out_path = os.path.join(OUT_DIR, 'ALTERNATIVE_PROTOCOLS_COMPARISON.csv')
     df_all.to_csv(out_path, index=False, encoding='utf-8-sig')
     print(f"\n  ✅ Đã lưu kết quả tại: {out_path}")
+
+# =============================================================================
+# PHẦN 6: RQ4 — GIÁ TRỊ CỦA LAN TRUYỀN TẦNG 1 (WORKLOAD -> WORKLOAD)
+# =============================================================================
+
+def run_rq4_propagation_value_test(df_data=None):
+    """
+    RQ4: Lan truyền workload qua đồ thị phụ thuộc thật (Tầng 1) có chính xác hơn
+    giả định "delta đều" (naive: mọi downstream service đổi CÙNG % với front-end)
+    hay không?
+
+    Protocol: OOD Gold Standard giống RQ1 — fit Tầng 1 (LinearRegression(positive=True),
+    parent thật theo topology trong sockshop_agent_graph.json) trên 67% front-end_workload
+    THẤP nhất, test trên 33% CAO nhất — dùng CHÍNH GIÁ TRỊ front-end_workload đo được
+    trong tập test (không giả lập do() tổng hợp) để hai phương pháp cùng nhận input,
+    rồi so cả hai với s_workload THẬT đo cùng thời điểm.
+
+    Output: rq4_propagation_value_test.csv
+    """
+    print("\n" + "=" * 95)
+    print("  RQ4: LAN TRUYỀN QUA TẦNG 1 (WORKLOAD→WORKLOAD) VS GIẢ ĐỊNH DELTA ĐỀU (NAIVE)")
+    print("=" * 95)
+
+    if df_data is None:
+        df_data = load_multi_service_data()
+    if df_data is None or df_data.empty:
+        print("  Lỗi: không load được dữ liệu đa dịch vụ.")
+        return pd.DataFrame()
+
+    with open(JSON_GRAPH_PATH, 'r', encoding='utf-8') as f:
+        graph_json = json.load(f)
+    g = nx.DiGraph()
+    for edge in graph_json['edges']:
+        src, tgt = edge['source'], edge['target']
+        if src in SERVICES and tgt in SERVICES:
+            g.add_edge(f"{src}_workload", f"{tgt}_workload")
+
+    wl_cols = [f"{s}_workload" for s in SERVICES if f"{s}_workload" in df_data.columns]
+    df_sub = df_data[wl_cols].dropna()
+
+    # OOD split theo front-end_workload — giống het protocol RQ1
+    df_sub = df_sub.sort_values('front-end_workload').reset_index(drop=True)
+    split_idx = int(len(df_sub) * 0.67)
+    df_train, df_test = df_sub.iloc[:split_idx], df_sub.iloc[split_idx:]
+
+    results = []
+    for s in SERVICES:
+        node = f"{s}_workload"
+        parents = [p for p in g.predecessors(node)] if node in g.nodes() else []
+        parents = [p for p in parents if p in df_sub.columns]
+        if not parents or node not in df_sub.columns:
+            continue  # root node (front-end) hoặc thiếu dữ liệu — không có gì để lan truyền
+
+        # (a) SCM Tier-1: fit LinearRegression(positive=True) parent(s) -> node trên TRAIN
+        reg = LinearRegression(positive=True)
+        reg.fit(df_train[parents].values, df_train[node].values)
+        scm_pred = reg.predict(df_test[parents].values)
+
+        # (b) Naive baseline: gia dinh node doi CUNG % voi front-end_workload
+        fe_train_mean = df_train['front-end_workload'].mean()
+        node_train_mean = df_train[node].mean()
+        fe_test = df_test['front-end_workload'].values
+        naive_pred = node_train_mean * (fe_test / fe_train_mean) if fe_train_mean != 0 else np.full_like(fe_test, node_train_mean)
+
+        actual = df_test[node].values
+
+        def _metrics(y_pred):
+            return {
+                'rmse': float(np.sqrt(mean_squared_error(actual, y_pred))),
+                'mae': float(mean_absolute_error(actual, y_pred)),
+                'mape_pct': float(mape(actual, y_pred)),
+            }
+
+        m_scm = _metrics(scm_pred)
+        m_naive = _metrics(naive_pred)
+
+        results.append({
+            'service': s, 'node': node, 'parents': str(parents), 'n_test': len(df_test),
+            'scm_rmse': round(m_scm['rmse'], 4), 'naive_rmse': round(m_naive['rmse'], 4),
+            'scm_mape_pct': round(m_scm['mape_pct'], 2), 'naive_mape_pct': round(m_naive['mape_pct'], 2),
+            'scm_better_rmse': m_scm['rmse'] < m_naive['rmse'],
+            'scm_better_mape': m_scm['mape_pct'] < m_naive['mape_pct'],
+        })
+        print(f"  {s:<12} | parents={str(parents):<45} | SCM MAPE={m_scm['mape_pct']:>7.2f}% | "
+              f"Naive MAPE={m_naive['mape_pct']:>7.2f}% | {'SCM thắng' if m_scm['mape_pct']<m_naive['mape_pct'] else 'Naive thắng'}")
+
+    df_out = pd.DataFrame(results)
+    out_path = os.path.join(OUT_DIR, 'rq4_propagation_value_test.csv')
+    df_out.to_csv(out_path, index=False)
+
+    if len(df_out) >= 2:
+        a, b = df_out['scm_mape_pct'].values, df_out['naive_mape_pct'].values
+        w_stat, w_p = stats.wilcoxon(a, b) if not np.allclose(a, b) else (float('nan'), float('nan'))
+        print(f"\n  Wilcoxon SCM vs Naive (MAPE, n={len(df_out)}): stat={w_stat}, p={w_p:.5f}" if not np.isnan(w_p) else "\n  Wilcoxon: không đủ khác biệt để tính.")
+        print(f"  SCM thắng {df_out['scm_better_mape'].sum()}/{len(df_out)} node theo MAPE.")
+
+    print(f"\n  ✅ Đã lưu: {out_path}")
+    return df_out
+
 
 if __name__ == '__main__':
     print("Vui lòng chạy file run_all_experiments.py ở thư mục gốc để chạy toàn bộ suite.")

@@ -1,0 +1,502 @@
+[
+  {
+    "id": "REQ-01",
+    "category": "In_Distribution",
+    "requirement": "Khách hàng muốn áp dụng mã giảm giá voucher 20% tại màn hình thanh toán trước khi xác nhận đơn hàng.",
+    "expected_type": "APPLY_PROMO_CODE",
+    "expected_anchor": 20.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [15.0, 25.0],
+    "valid_services": ["front-end", "carts", "orders", "payment"]
+  },
+  {
+    "id": "REQ-02",
+    "category": "In_Distribution",
+    "requirement": "Tích hợp tính năng gợi ý sản phẩm liên quan (You may also like) trên trang chi tiết dựa vào lịch sử xem hàng.",
+    "expected_type": "RECOMMEND_PRODUCTS",
+    "expected_anchor": 30.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [25.0, 35.0],
+    "valid_services": ["front-end", "user", "catalogue", "orders"]
+  },
+  {
+    "id": "REQ-03",
+    "category": "In_Distribution",
+    "requirement": "Theo dõi trạng thái đơn hàng theo thời gian thực với vị trí bưu kiện và tiến độ giao hàng live shipping updates.",
+    "expected_type": "TRACK_PACKAGE",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [10.0, 20.0],
+    "valid_services": ["front-end", "orders", "shipping"]
+  },
+  {
+    "id": "REQ-04",
+    "category": "In_Distribution",
+    "requirement": "Cho phép người dùng để lại đánh giá sao (1-5 sao) và bình luận kèm ảnh sau khi hoàn tất mua sắm.",
+    "expected_type": "WRITE_PRODUCT_REVIEW",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "user", "catalogue"]
+  },
+  {
+    "id": "REQ-05",
+    "category": "In_Distribution",
+    "requirement": "Thêm sản phẩm nhanh vào giỏ hàng từ danh sách hiển thị catalogue chỉ với một nút bấm Quick Add.",
+    "expected_type": "ADD_TO_CART",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [10.0, 20.0],
+    "valid_services": ["front-end", "catalogue", "carts"]
+  },
+  {
+    "id": "REQ-06",
+    "category": "In_Distribution",
+    "requirement": "Xem danh sách và chi tiết các mặt hàng trong giỏ hàng hiện tại kèm tính tổng tiền tạm tính.",
+    "expected_type": "VIEW_CART",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "carts"]
+  },
+  {
+    "id": "REQ-07",
+    "category": "In_Distribution",
+    "requirement": "Duyệt danh mục sản phẩm vớ tất thể thao và lọc theo kích cỡ màu sắc từ danh sách catalogue.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "catalogue"]
+  },
+  {
+    "id": "REQ-08",
+    "category": "In_Distribution",
+    "requirement": "Khách hàng mới tạo tài khoản thành viên bằng email và mật khẩu tại trang đăng ký.",
+    "expected_type": "REGISTER",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "user"]
+  },
+  {
+    "id": "REQ-09",
+    "category": "In_Distribution",
+    "requirement": "Đăng nhập người dùng bằng username và xác thực phiên làm việc an toàn.",
+    "expected_type": "LOGIN",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "user"]
+  },
+  {
+    "id": "REQ-10",
+    "category": "In_Distribution",
+    "requirement": "Quy trình đặt hàng trọn gói bao gồm trừ tồn kho, tính phí vận chuyển và thanh toán thẻ tín dụng.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [20.0, 30.0],
+    "valid_services": ["front-end", "user", "catalogue", "carts", "orders", "payment", "shipping"]
+  },
+  {
+    "id": "REQ-11",
+    "category": "In_Distribution",
+    "requirement": "Thêm mã giảm giá sinh nhật tự động chiết khấu 15% vào hóa đơn giỏ hàng của khách hàng thân thiết.",
+    "expected_type": "APPLY_PROMO_CODE",
+    "expected_anchor": 20.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [15.0, 25.0],
+    "valid_services": ["front-end", "carts", "orders", "payment"]
+  },
+  {
+    "id": "REQ-12",
+    "category": "In_Distribution",
+    "requirement": "Gợi ý các mặt hàng thường được mua cùng nhau (Frequently Bought Together) dưới nút thêm giỏ hàng.",
+    "expected_type": "RECOMMEND_PRODUCTS",
+    "expected_anchor": 30.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [25.0, 35.0],
+    "valid_services": ["front-end", "user", "catalogue", "orders"]
+  },
+  {
+    "id": "REQ-13",
+    "category": "In_Distribution",
+    "requirement": "Kiểm tra mã vận đơn chuyển phát nhanh và hiển thị lộ trình tài xế đang giao kiện hàng.",
+    "expected_type": "TRACK_PACKAGE",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [10.0, 20.0],
+    "valid_services": ["front-end", "orders", "shipping"]
+  },
+  {
+    "id": "REQ-14",
+    "category": "In_Distribution",
+    "requirement": "Đánh giá chất lượng vớ sau khi nhận hàng và xếp hạng mức độ hài lòng về dịch vụ giao hàng.",
+    "expected_type": "WRITE_PRODUCT_REVIEW",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "user", "catalogue"]
+  },
+  {
+    "id": "REQ-15",
+    "category": "In_Distribution",
+    "requirement": "Chọn số lượng 5 đôi vớ và bấm nút đưa vào giỏ hàng mua sắm.",
+    "expected_type": "ADD_TO_CART",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [10.0, 20.0],
+    "valid_services": ["front-end", "catalogue", "carts"]
+  },
+  {
+    "id": "REQ-16",
+    "category": "In_Distribution",
+    "requirement": "Mở ngăn kéo giỏ hàng mini (slide-in cart) để kiểm tra danh mục hàng đã chọn trước khi checkout.",
+    "expected_type": "VIEW_CART",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "carts"]
+  },
+  {
+    "id": "REQ-17",
+    "category": "In_Distribution",
+    "requirement": "Tìm kiếm sản phẩm theo từ khóa 'vớ len mùa đông' và duyệt danh mục tìm kiếm.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "catalogue"]
+  },
+  {
+    "id": "REQ-18",
+    "category": "In_Distribution",
+    "requirement": "Đăng ký thành viên mới nhận ngay email kích hoạt tài khoản người dùng.",
+    "expected_type": "REGISTER",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "user"]
+  },
+  {
+    "id": "REQ-19",
+    "category": "In_Distribution",
+    "requirement": "Đăng nhập nhanh bằng số điện thoại và mật khẩu cá nhân.",
+    "expected_type": "LOGIN",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 15.0],
+    "valid_services": ["front-end", "user"]
+  },
+  {
+    "id": "REQ-20",
+    "category": "In_Distribution",
+    "requirement": "Xác nhận mua hàng một chạm (One-Click Buy) cho toàn bộ giỏ hàng và thanh toán tự động.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [20.0, 30.0],
+    "valid_services": ["front-end", "user", "catalogue", "carts", "orders", "payment", "shipping"]
+  },
+  {
+    "id": "REQ-21",
+    "category": "Complex_MultiHop",
+    "requirement": "Chương trình Flash Sale đếm ngược nửa đêm: áp dụng đồng thời voucher giảm sốc, kiểm tra giỏ hàng và xử lý thanh toán dồn dập.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [20.0, 35.0],
+    "valid_services": ["front-end", "carts", "orders", "payment"]
+  },
+  {
+    "id": "REQ-22",
+    "category": "Complex_MultiHop",
+    "requirement": "Hệ thống đấu giá trực tiếp: người dùng đặt lệnh đấu giá, trừ tiền đặt cọc và tự động tạo đơn hàng khi thắng cuộc.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [20.0, 30.0],
+    "valid_services": ["front-end", "user", "orders", "payment"]
+  },
+  {
+    "id": "REQ-23",
+    "category": "Complex_MultiHop",
+    "requirement": "Thanh toán trả góp qua thẻ tín dụng ngân hàng với xác thực OTP và gửi thông báo vận chuyển tức thì.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [20.0, 30.0],
+    "valid_services": ["front-end", "orders", "payment", "shipping"]
+  },
+  {
+    "id": "REQ-24",
+    "category": "Complex_MultiHop",
+    "requirement": "Tích điểm thưởng loyalty point khi checkout: kiểm tra hồ sơ user, trừ điểm trong giỏ hàng và phát hành voucher giảm giá đơn sau.",
+    "expected_type": "APPLY_PROMO_CODE",
+    "expected_anchor": 20.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [15.0, 25.0],
+    "valid_services": ["front-end", "user", "carts", "orders", "payment"]
+  },
+  {
+    "id": "REQ-25",
+    "category": "Complex_MultiHop",
+    "requirement": "Trợ lý ảo AI mua sắm: tự động phân tích sở thích, duyệt toàn bộ catalogue và cho sản phẩm vào giỏ hàng.",
+    "expected_type": "RECOMMEND_PRODUCTS",
+    "expected_anchor": 30.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [25.0, 35.0],
+    "valid_services": ["front-end", "user", "catalogue", "carts"]
+  },
+  {
+    "id": "REQ-26",
+    "category": "Complex_MultiHop",
+    "requirement": "Đổi trả hàng đa kênh: khách hàng gửi yêu cầu hoàn tiền cho đơn hàng cũ, hủy gói hàng và hoàn tiền ví điện tử.",
+    "expected_type": "TRACK_PACKAGE",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [10.0, 20.0],
+    "valid_services": ["front-end", "orders", "payment", "shipping"]
+  },
+  {
+    "id": "REQ-27",
+    "category": "Complex_MultiHop",
+    "requirement": "Gộp đơn hàng thông minh: kết hợp các mặt hàng từ nhiều nhà kho, điều phối hãng vận chuyển và thanh toán cước phí gom.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [20.0, 30.0],
+    "valid_services": ["front-end", "orders", "shipping"]
+  },
+  {
+    "id": "REQ-28",
+    "category": "Complex_MultiHop",
+    "requirement": "Tự động gợi ý phụ kiện và khuyến mãi chéo khi người dùng thêm sản phẩm giá trị cao vào giỏ.",
+    "expected_type": "RECOMMEND_PRODUCTS",
+    "expected_anchor": 30.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [25.0, 35.0],
+    "valid_services": ["front-end", "catalogue", "carts"]
+  },
+  {
+    "id": "REQ-29",
+    "category": "Complex_MultiHop",
+    "requirement": "Chương trình quà tặng kèm miễn phí tự động thêm sản phẩm khuyến mãi vào giỏ khi đơn hàng đạt hạn mức.",
+    "expected_type": "ADD_TO_CART",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [10.0, 20.0],
+    "valid_services": ["front-end", "catalogue", "carts"]
+  },
+  {
+    "id": "REQ-30",
+    "category": "Complex_MultiHop",
+    "requirement": "Hệ thống chống gian lận thẻ (Fraud Detection) quét lịch sử thanh toán của tài khoản người dùng trước khi duyệt lệnh mua hàng.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [20.0, 30.0],
+    "valid_services": ["front-end", "user", "orders", "payment"]
+  },
+  {
+    "id": "REQ-31",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Thêm chế độ giao diện tối (Dark Mode toggle) lưu tùy chọn hiển thị vào trình duyệt của người dùng.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 10.0],
+    "valid_services": ["front-end"]
+  },
+  {
+    "id": "REQ-32",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Hỗ trợ đa ngôn ngữ Anh - Việt trên thanh menu điều hướng và tiêu đề trang.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 10.0],
+    "valid_services": ["front-end"]
+  },
+  {
+    "id": "REQ-33",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Xuất hóa đơn điện tử đơn hàng ra định dạng file PDF tĩnh để khách hàng tải về xem ngoại tuyến.",
+    "expected_type": "VIEW_CART",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 12.0],
+    "valid_services": ["front-end", "orders"]
+  },
+  {
+    "id": "REQ-34",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Hiển thị widget câu hỏi thường gặp FAQ tĩnh giải đáp thắc mắc về chính sách vận chuyển.",
+    "expected_type": "TRACK_PACKAGE",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 12.0],
+    "valid_services": ["front-end", "shipping"]
+  },
+  {
+    "id": "REQ-35",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Thêm bộ lọc sắp xếp sản phẩm theo giá tăng dần hoặc giảm dần trên trang danh mục.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 12.0],
+    "valid_services": ["front-end", "catalogue"]
+  },
+  {
+    "id": "REQ-36",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Hiển thị huy hiệu 'Bán chạy nhất' (Best Seller badge) cạnh ảnh minh họa sản phẩm.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 10.0],
+    "valid_services": ["front-end", "catalogue"]
+  },
+  {
+    "id": "REQ-37",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Xem điều khoản dịch vụ và chính sách bảo mật thông tin cá nhân của khách hàng.",
+    "expected_type": "REGISTER",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 10.0],
+    "valid_services": ["front-end", "user"]
+  },
+  {
+    "id": "REQ-38",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Kiểm tra phiên bản cập nhật hệ thống và footer bản quyền của trang thương mại điện tử.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 10.0],
+    "valid_services": ["front-end"]
+  },
+  {
+    "id": "REQ-39",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Phóng to hình ảnh thu nhỏ sản phẩm khi rê chuột (hover zoom) trên trang chi tiết.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 10.0],
+    "valid_services": ["front-end"]
+  },
+  {
+    "id": "REQ-40",
+    "category": "Subtle_ReadOnly",
+    "requirement": "Xem thông tin số điện thoại tổng đài hỗ trợ và đường dây nóng chăm sóc khách hàng.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 10.0],
+    "valid_services": ["front-end"]
+  },
+  {
+    "id": "REQ-41",
+    "category": "Adversarial_Stress",
+    "requirement": "Tăng đột biến lưu lượng đặt hàng lên 1000% trong vòng 1 giây để kiểm tra giới hạn chịu tải sập hệ thống.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 50.0],
+    "valid_services": ["front-end", "orders", "payment"]
+  },
+  {
+    "id": "REQ-42",
+    "category": "Adversarial_Stress",
+    "requirement": "Giảm tải hệ thống xuống -80% bằng cách ngắt toàn bộ luồng gọi dịch vụ cơ sở dữ liệu.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 50.0],
+    "valid_services": ["front-end", "orders"]
+  },
+  {
+    "id": "REQ-43",
+    "category": "Adversarial_Stress",
+    "requirement": "Tích hợp microservice ma 'auth-crypto-blockchain' và 'inventory-warehouse-v3' vào quy trình checkout thanh toán.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [15.0, 35.0],
+    "valid_services": ["front-end", "orders", "payment"]
+  },
+  {
+    "id": "REQ-44",
+    "category": "Adversarial_Stress",
+    "requirement": "Bỏ qua cổng front-end, tiêm trực tiếp 50% tải vào dịch vụ payment nội bộ bằng lời gọi gRPC ẩn.",
+    "expected_type": "PLACE_ORDER",
+    "expected_anchor": 25.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [15.0, 35.0],
+    "valid_services": ["front-end", "payment"]
+  },
+  {
+    "id": "REQ-45",
+    "category": "Adversarial_Stress",
+    "requirement": "Thực hiện tấn công từ chối dịch vụ DDoS bằng hàng triệu yêu cầu áp mã giảm giá ảo đồng thời.",
+    "expected_type": "APPLY_PROMO_CODE",
+    "expected_anchor": 20.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [10.0, 50.0],
+    "valid_services": ["front-end", "carts", "payment"]
+  },
+  {
+    "id": "REQ-46",
+    "category": "Adversarial_Stress",
+    "requirement": "Tính năng vô hình không tiêu thụ tài nguyên với delta bằng đúng 0.00001% trên tất cả dịch vụ.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 20.0],
+    "valid_services": ["front-end"]
+  },
+  {
+    "id": "REQ-47",
+    "category": "Adversarial_Stress",
+    "requirement": "Chạy mô hình khai thác tiền ảo ẩn (Crypto Miner) tiêu thụ 500% CPU trên các container user và catalogue.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 50.0],
+    "valid_services": ["front-end", "user", "catalogue"]
+  },
+  {
+    "id": "REQ-48",
+    "category": "Adversarial_Stress",
+    "requirement": "Yêu cầu rỗng: '... ... !!! ??? ---' không chứa bất kỳ từ khóa ngữ nghĩa nào.",
+    "expected_type": "GET_CATALOGUE",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 20.0],
+    "valid_services": ["front-end"]
+  },
+  {
+    "id": "REQ-49",
+    "category": "Adversarial_Stress",
+    "requirement": "Thay đổi kiến trúc tiêm tải vào nút cơ sở dữ liệu mongo-carts-db với mức tăng 200%.",
+    "expected_type": "ADD_TO_CART",
+    "expected_anchor": 15.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 50.0],
+    "valid_services": ["front-end", "carts"]
+  },
+  {
+    "id": "REQ-50",
+    "category": "Adversarial_Stress",
+    "requirement": "Xóa toàn bộ người dùng khỏi cơ sở dữ liệu user và khởi động lại container shipping.",
+    "expected_type": "LOGIN",
+    "expected_anchor": 10.0,
+    "expected_gateway": "front-end",
+    "plausible_delta_range": [5.0, 25.0],
+    "valid_services": ["front-end", "user"]
+  }
+]

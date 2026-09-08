@@ -46,7 +46,7 @@ load_dotenv(os.path.join(PROJECT_ROOT, '.env'))
 
 api_key = os.environ.get("GOOGLE_API_KEY")
 if api_key:
-    llm = ChatGoogleGenerativeAI(model="gemini-3.0-flash", temperature=0.2)
+    llm = ChatGoogleGenerativeAI(model="gemini-3.6-flash", temperature=0.2)
 else:
     print("[WARNING] GOOGLE_API_KEY chua duoc thiet lap trong .env. Su dung Offline Synthesizer Fallback.")
     class OfflineLLM:

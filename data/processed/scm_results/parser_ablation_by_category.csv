@@ -1,0 +1,17 @@
+model,category,n_prompts,pbvr_pct,shr_pct,gmr_pct,mae_pct
+Unguarded_ZeroShot_LLM,Adversarial_Stress,10,80.0,50.0,100.0,680.0
+Unguarded_ZeroShot_LLM,Complex_MultiHop,10,40.0,100.0,100.0,564.0
+Unguarded_ZeroShot_LLM,In_Distribution,20,30.0,100.0,100.0,54.0
+Unguarded_ZeroShot_LLM,Subtle_ReadOnly,10,10.0,100.0,100.0,9.5
+Unguarded_FewShot_LLM,Adversarial_Stress,10,60.0,0.0,100.0,180.5
+Unguarded_FewShot_LLM,Complex_MultiHop,10,0.0,0.0,90.0,3.5
+Unguarded_FewShot_LLM,In_Distribution,20,0.0,5.0,95.0,2.5
+Unguarded_FewShot_LLM,Subtle_ReadOnly,10,10.0,0.0,30.0,2.5
+Rule_Only,Adversarial_Stress,10,0.0,0.0,0.0,2.5
+Rule_Only,Complex_MultiHop,10,0.0,0.0,0.0,4.5
+Rule_Only,In_Distribution,20,0.0,0.0,0.0,2.5
+Rule_Only,Subtle_ReadOnly,10,0.0,0.0,0.0,2.0
+Guarded_Hybrid_Parser,Adversarial_Stress,10,0.0,0.0,0.0,0.5
+Guarded_Hybrid_Parser,Complex_MultiHop,10,0.0,0.0,0.0,3.5
+Guarded_Hybrid_Parser,In_Distribution,20,0.0,0.0,0.0,2.0
+Guarded_Hybrid_Parser,Subtle_ReadOnly,10,0.0,0.0,0.0,2.0

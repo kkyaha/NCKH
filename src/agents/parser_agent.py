@@ -201,18 +201,23 @@ class ParserAgent:
         print(f"  [Parser] Rule-based: {rb_request_type} | similarity={rb_similarity:.2f}")
 
         if rb_similarity >= SIMILARITY_THRESHOLD:
-            # Match ro: dung rule-based, chi goi LLM de lay core_services + adjustment
+            # Match ro: dung thang bang hieu chinh, KHONG goi LLM (fast-path that su,
+            # dung dung mo ta trong docstring module: "Neu match ro -> dung ket qua ngay").
             request_type    = rb_request_type
             template_delta  = rb_template_info.get('expected_delta_pct', 20.0)
             affected        = rb_template_info.get('services', ['front-end'])
             similarity_score = rb_similarity
 
-            # LLM chi xac dinh core_services + adjustment (khong xac dinh request_type)
-            core_svcs, adjustment, llm_reasoning, llm_conf = self._llm_get_core_and_delta(
-                requirement, request_type, template_delta
+            core_svcs      = list(affected)
+            adjustment     = 0.0
+            llm_conf       = "HIGH"
+            llm_reasoning  = (
+                f"[FAST-PATH] Keyword similarity={rb_similarity:.2f} >= "
+                f"{SIMILARITY_THRESHOLD} -> dung truc tiep bang hieu chinh thuc nghiem, "
+                f"khong goi LLM."
             )
-            llm_called = True
-            print(f"  [Parser] LLM adjustment: {adjustment:+.1f}% | confidence: {llm_conf}")
+            llm_called = False
+            print(f"  [Parser] Fast-path (no LLM call): anchor={template_delta}%")
 
         else:
             # Khong match: LLM xac dinh ca request_type

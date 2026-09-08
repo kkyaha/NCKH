@@ -150,6 +150,9 @@ def evaluate_all():
             models_def = get_models()
             model_results = {}
 
+            y_true_full = (df_test['Target'] * scale).values
+            wl_full = df_test['Workload'].values
+
             for model_name, mdef in models_def.items():
                 t0 = time.time()
                 try:
@@ -158,9 +161,16 @@ def evaluate_all():
                         m_clone = copy.deepcopy(mdef['model'])
                         preds = fit_predict_sklearn(model_name, m_clone, df_train, test_wl)
                         preds = np.array(preds) * scale
+                        # Da fit trong fit_predict_sklearn -> tai su dung de du bao TOAN BO
+                        # diem test tho (khong bucket-averaging).
+                        preds_full = m_clone.predict(wl_full.reshape(-1, 1)) * scale
                     else:  # SCM
-                        preds_raw, _ = fit_predict_scm(df_train, test_wl)
+                        preds_raw, scm_fitted = fit_predict_scm(df_train, test_wl)
                         preds = np.array(preds_raw) * scale
+                        # Voi AdditiveNoiseModel: E[Target|do(Workload=w)] = prediction_model.predict(w)
+                        # -> tinh CHINH XAC (khong Monte Carlo) tren toan bo diem test tho.
+                        mech = scm_fitted.causal_mechanism('Target')
+                        preds_full = mech.prediction_model.predict(wl_full.reshape(-1, 1)).ravel() * scale
 
                     mp_val = mape(y_true, preds)
                     smp_val = smape(y_true, preds)
@@ -169,6 +179,12 @@ def evaluate_all():
                     r_range = y_true.max() - y_true.min()
                     nrmse_v = rmse_v / r_range if r_range != 0 else float('nan')
                     r2_v   = r2_score(y_true, preds)
+
+                    # Chi so full-resolution (tren toan bo n_test diem, khong bucket)
+                    mp_full  = mape(y_true_full, preds_full)
+                    mae_full = mean_absolute_error(y_true_full, preds_full)
+                    rmse_full = np.sqrt(mean_squared_error(y_true_full, preds_full))
+                    r2_full = r2_score(y_true_full, preds_full)
 
                     elapsed = time.time() - t0
 
@@ -181,6 +197,11 @@ def evaluate_all():
                         'nrmse': round(nrmse_v, 4) if not np.isnan(nrmse_v) else '',
                         'mae': round(mae_v, 4),
                         'r2': round(r2_v, 3),
+                        'mape_full_res_pct': round(mp_full, 2) if not np.isnan(mp_full) else '',
+                        'mae_full_res': round(mae_full, 4) if not np.isnan(mae_full) else '',
+                        'rmse_full_res': round(rmse_full, 4) if not np.isnan(rmse_full) else '',
+                        'r2_full_res': round(r2_full, 3) if not np.isnan(r2_full) else '',
+                        'n_test_full_res': len(y_true_full),
                         'train_time_s': round(elapsed, 2)
                     })
                     all_records.append(row)

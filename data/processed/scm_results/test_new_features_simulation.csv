@@ -1,57 +1,57 @@
-scenario_name,query,request_type,feature_resource_profile,do_workload_delta_pct,service,cpu_change_pct,mem_change_pct,lat_p50_change_pct,risk_status
-Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,front-end,+12.2%,-5.2%,-0.2%,✅ AN TOÀN (NORMAL)
-Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,catalogue,+16.0%,-2.1%,-0.1%,⚠️ CẢNH BÁO: GIẬT LAG MẠNH (SEVERE LATENCY SPIKE)
-Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,user,+2.3%,-1.1%,+8.6%,✅ AN TOÀN (NORMAL)
-Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,carts,+6.9%,-0.3%,-54.8%,✅ AN TOÀN (NORMAL)
-Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,orders,+22.3%,+0.4%,+8.8%,⚠️ CẢNH BÁO: GIẬT LAG MẠNH (SEVERE LATENCY SPIKE)
-Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,payment,-3.8%,+0.3%,-0.7%,✅ AN TOÀN (NORMAL)
-Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,shipping,-1.9%,+0.1%,-6.9%,✅ AN TOÀN (NORMAL)
-Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,front-end,+18.1%,-7.7%,+21.6%,⚠️ CẢNH BÁO: GIẬT LAG MẠNH (SEVERE LATENCY SPIKE)
-Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,catalogue,-7.8%,-2.0%,+0.0%,✅ AN TOÀN (NORMAL)
-Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,user,+4.1%,-2.5%,+0.7%,✅ AN TOÀN (NORMAL)
-Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,carts,+10.0%,-0.5%,+32.6%,⚠️ CẢNH BÁO: GIẬT LAG MẠNH (SEVERE LATENCY SPIKE)
-Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,orders,+13.6%,+0.8%,-15.8%,✅ AN TOÀN (NORMAL)
-Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,payment,-5.2%,-0.5%,-0.3%,✅ AN TOÀN (NORMAL)
-Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,shipping,-0.4%,-0.1%,-6.5%,✅ AN TOÀN (NORMAL)
-Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,front-end,+8.8%,-3.3%,-5.0%,✅ AN TOÀN (NORMAL)
-Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,catalogue,-16.2%,-1.4%,-0.1%,✅ AN TOÀN (NORMAL)
-Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,user,+3.4%,-0.5%,+9.3%,✅ AN TOÀN (NORMAL)
-Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,carts,+7.8%,-0.6%,-75.0%,✅ AN TOÀN (NORMAL)
-Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,orders,+9.7%,+0.5%,-21.4%,✅ AN TOÀN (NORMAL)
-Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,payment,-2.6%,-0.7%,+1.0%,✅ AN TOÀN (NORMAL)
-Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,shipping,+0.8%,-0.2%,-7.2%,✅ AN TOÀN (NORMAL)
-Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,front-end,+5.7%,-3.7%,-6.0%,✅ AN TOÀN (NORMAL)
-Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,catalogue,-19.3%,-1.6%,-0.1%,✅ AN TOÀN (NORMAL)
-Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,user,+2.0%,-0.3%,+0.2%,✅ AN TOÀN (NORMAL)
-Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,carts,+5.9%,-0.7%,-66.5%,✅ AN TOÀN (NORMAL)
-Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,orders,+7.6%,-0.2%,+6.0%,✅ AN TOÀN (NORMAL)
-Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,payment,-0.9%,+0.1%,-0.8%,✅ AN TOÀN (NORMAL)
-Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,shipping,+0.7%,-0.3%,-4.0%,✅ AN TOÀN (NORMAL)
-Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,front-end,+14.3%,-6.3%,+7.3%,✅ AN TOÀN (NORMAL)
-Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,catalogue,+36.9%,-2.1%,-0.1%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,user,+3.5%,-1.9%,+2.0%,✅ AN TOÀN (NORMAL)
-Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,carts,+3.1%,-0.4%,-12.4%,✅ AN TOÀN (NORMAL)
-Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,orders,+13.9%,+1.4%,-22.3%,✅ AN TOÀN (NORMAL)
-Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,payment,-4.0%,+0.3%,-1.0%,✅ AN TOÀN (NORMAL)
-Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,shipping,-2.6%,+0.6%,-4.5%,✅ AN TOÀN (NORMAL)
-Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,front-end,+5.0%,-3.1%,-5.7%,✅ AN TOÀN (NORMAL)
-Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,catalogue,-6.3%,-1.7%,-0.2%,✅ AN TOÀN (NORMAL)
-Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,user,+0.7%,-0.8%,+7.8%,✅ AN TOÀN (NORMAL)
-Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,carts,-5.7%,-0.5%,-59.4%,✅ AN TOÀN (NORMAL)
-Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,orders,+2.6%,+0.2%,-17.0%,✅ AN TOÀN (NORMAL)
-Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,payment,-1.7%,-0.0%,+0.8%,✅ AN TOÀN (NORMAL)
-Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,shipping,-7.2%,+0.1%,-6.6%,✅ AN TOÀN (NORMAL)
-Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,front-end,+85.9%,-39.9%,+8276.2%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,catalogue,+83.9%,-10.9%,+56.6%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,user,+23.2%,-10.8%,+502.7%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,carts,+60.8%,-4.3%,+162431.7%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,orders,+115.7%,+3.4%,-129.3%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,payment,-2.9%,-0.2%,-0.5%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,shipping,+11.2%,+0.1%,-2.6%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,front-end,+173.2%,-81.5%,+8277.1%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,catalogue,+161.0%,-21.7%,+56.6%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,user,+47.1%,-21.8%,+3823.4%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,carts,+130.8%,-8.0%,+162405.2%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,orders,+235.4%,+6.6%,-235.0%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,payment,-3.4%,-1.0%,+0.2%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
-Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,shipping,+9.5%,+0.2%,-3.6%,❌ CẢNH BÁO: NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH)
+scenario_name,query,request_type,feature_resource_profile,do_workload_delta_pct,extrapolation_suspect,service,cpu_change_pct,mem_change_pct,lat_p50_change_pct,risk_status,risk_status_is_validated_against_real_incidents
+Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,False,front-end,+9.8%,-0.4%,+1.8%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,False,catalogue,+43.0%,-0.0%,+0.0%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,False,user,+3.2%,-0.0%,+3.3%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,True,carts,+6.9%,-0.2%,-84.7% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,False,orders,+11.3%,+0.3%,-4.0%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,True,payment,-5.8% [NGOẠI SUY BẤT THƯỜNG],-0.3%,+0.1%,🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Áp dụng Promo Code,Áp mã voucher giảm giá 20% khi thanh toán,APPLY_PROMO_CODE,cpu-heavy,20,True,shipping,-1.4%,+0.0%,-5.3% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,False,front-end,+15.3%,-0.6%,+26.1%,⚠️ CẢNH BÁO (HEURISTIC): GIẬT LAG MẠNH (SEVERE LATENCY SPIKE),False
+Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,False,catalogue,+63.9%,-0.7%,+0.3%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,False,user,+4.9%,+0.9%,+24.0%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,True,carts,+11.8%,-0.1%,-24.7% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,True,orders,+23.2%,+0.2%,-25.9% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,True,payment,-7.4% [NGOẠI SUY BẤT THƯỜNG],-0.2%,+14.9%,🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: AI Gợi ý sản phẩm,Gợi ý các sản phẩm tất thông minh cho tôi,RECOMMEND_PRODUCTS,cpu-memory,30,False,shipping,+7.7%,-0.2%,+47.6%,⚠️ CẢNH BÁO (HEURISTIC): GIẬT LAG MẠNH (SEVERE LATENCY SPIKE),False
+Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,False,front-end,+7.2%,+1.2%,-3.8%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,False,catalogue,-1.8%,-0.6%,+0.1%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,False,user,+2.9%,-0.5%,+1.5%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,True,carts,+6.8%,+0.2%,-103.1% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,True,orders,+15.3%,+0.1%,-9.7% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,False,payment,-4.8%,+0.4%,+1.4%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Theo dõi đơn hàng Real-time,Xem hành trình giao hàng và vị trí đơn hàng real-time,TRACK_PACKAGE,socket-latency,15,True,shipping,+4.4%,-0.2%,-6.2% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,True,front-end,+3.6%,-0.2%,-5.6% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,True,catalogue,-13.4% [NGOẠI SUY BẤT THƯỜNG],-1.0%,-0.1%,🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,False,user,+1.7%,+0.2%,+0.1%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,True,carts,+9.8%,+0.0%,-82.8% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,False,orders,+10.1%,+0.4%,+2.2%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,True,payment,-6.2% [NGOẠI SUY BẤT THƯỜNG],-0.1%,+0.9%,🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Tính năng: Đánh giá Review sản phẩm,Viết nhận xét đánh giá 5 sao cho sản phẩm,WRITE_PRODUCT_REVIEW,disk-memory,10,True,shipping,-3.5%,+0.2%,-5.3% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,False,front-end,+12.8%,+1.0%,+10.6%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,False,catalogue,+35.3%,-1.1%,+0.2%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,False,user,+3.9%,+0.2%,+1.4%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,True,carts,+6.2%,+0.0%,-36.1% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,True,orders,+15.6%,-0.2%,-10.8% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,True,payment,-6.2% [NGOẠI SUY BẤT THƯỜNG],-0.4%,+1.0%,🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Baseline: Đặt hàng tiêu chuẩn,Đặt hàng mua sản phẩm,PLACE_ORDER,cpu-heavy,25,True,shipping,-0.6%,-0.1%,-5.2% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,True,front-end,+4.4%,+0.5%,-5.8% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,False,catalogue,+26.3%,-0.9%,+0.4%,⚠️ CẢNH BÁO (HEURISTIC): GIẬT LAG MẠNH (SEVERE LATENCY SPIKE),False
+Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,False,user,-0.1%,+0.4%,+8.3%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,True,carts,+9.2%,+0.3%,-72.9% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,True,orders,+13.2%,-0.7%,-16.1% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,True,payment,-5.7% [NGOẠI SUY BẤT THƯỜNG],-0.2%,+4.2%,🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Sale Cuối Tuần (+50% Load),Sự kiện mua sắm cuối tuần tăng tải nhẹ,GET_CATALOGUE,cpu,10,False,shipping,+0.8%,+0.8%,+11.1%,"✅ AN TOÀN (HEURISTIC, chưa đối chiếu sự cố thật)",False
+Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,False,front-end,+79.5%,+1.5%,+11360.0%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,False,catalogue,+213.1%,-0.9%,+34.1%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,False,user,+28.3%,-0.4%,+365.5%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,False,carts,+64.4%,-0.1%,+109506.5%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,True,orders,+88.0%,+1.4%,-104.3% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,True,payment,-5.3% [NGOẠI SUY BẤT THƯỜNG],-0.5%,+2.3%,🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Siêu Flash Sale (+150% Load),Sự kiện Flash Sale giảm giá 90% siêu lớn toàn hệ thống,APPLY_PROMO_CODE,cpu-heavy,150,False,shipping,+18.8%,+0.2%,+12.0%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,False,front-end,+158.6%,+1.0%,+11360.9%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,False,catalogue,+406.7%,-0.8%,+34.1%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,False,user,+56.5%,-0.2%,+3183.8%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,False,carts,+115.8%,+0.2%,+109519.6%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,True,orders,+142.4%,+1.3%,-159.9% [NGOẠI SUY BẤT THƯỜNG],🚫 NGOẠI SUY BẤT THƯỜNG — KHÔNG ĐÁNG TIN (mô hình vượt vùng tin cậy),False
+Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,False,payment,-2.7%,-0.1%,+21.7%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False
+Sự kiện: Black Friday (+300% Load),Sự kiện Black Friday tăng tải cực đại làm sập hệ thống,GET_CATALOGUE,cpu,300,False,shipping,+10.0%,-0.1%,+152.6%,❌ CẢNH BÁO (HEURISTIC): NGUY CƠ QUÁ TẢI SỤP ĐỔ (CRITICAL OVERLOAD CRASH),False

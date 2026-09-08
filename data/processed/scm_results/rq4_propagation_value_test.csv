@@ -1,0 +1,7 @@
+service,node,parents,n_test,scm_rmse,naive_rmse,scm_mape_pct,naive_mape_pct,scm_better_rmse,scm_better_mape
+catalogue,catalogue_workload,['front-end_workload'],20951,0.2882,0.2943,5.25,5.35,True,True
+user,user_workload,"['front-end_workload', 'orders_workload']",20951,1.6221,2.2821,7.02,13.24,True,True
+carts,carts_workload,"['front-end_workload', 'orders_workload']",20951,0.8586,0.8223,7.75,7.56,False,False
+orders,orders_workload,['front-end_workload'],20951,0.5387,0.5585,19.35,21.08,True,True
+payment,payment_workload,['orders_workload'],20951,0.3877,0.431,9.42,19.76,True,True
+shipping,shipping_workload,['orders_workload'],20951,0.3796,0.4405,8.35,20.77,True,True
