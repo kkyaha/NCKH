@@ -175,7 +175,41 @@ def generate_report_node(state: RequirementState) -> dict:
     """
     print("\n[Phase 4] Tong hop Bao cao Kha thi (Lead Architect LLM)...")
 
-    parsed        = state['parsed_requirement']
+    parsed = state['parsed_requirement']
+
+    # G6 short-circuit: neu ParserAgent da danh dau is_out_of_scope=True (khong
+    # archetype nao trung khop du 1 tu khoa), TU CHOI tong hop mot bao cao kha
+    # thi dinh luong. Day la buoc quyet dinh (khong phai chi mot ghi chu trong
+    # prompt) de tranh truong hop LLM tong hop "lam min" canh bao refusal thanh
+    # mot ket luan nghe co ve chac chan. Xem Section "Scope" / muc "Behavior at
+    # the Edge of the Declared Scope" trong paper.
+    if parsed.get('is_out_of_scope'):
+        print("  [Phase 4] G6 TRIGGERED: tu choi tong hop bao cao dinh luong.")
+        refusal_report = f"""### BAO CAO: KHONG DU DU LIEU HIEU CHINH (OUT-OF-TAXONOMY)
+
+**Yeu cau**: "{state['input_requirement']}"
+
+**Ket luan**: He thong KHONG tim thay archetype hieu chinh nao (trong
+CALL_CHAINS) chia se du 1 tu khoa voi yeu cau nay — ke ca lua chon "gan nhat"
+ma LLM da thu de xuat. Day la tin hieu ro rang requirement nam NGOAI pham vi
+taxonomy da hieu chinh cua he thong (xem Scope trong tai lieu thiet ke).
+
+**KHONG dua ra phan quyet kha thi dinh luong** (CO THE trien khai / CAN SCALE)
+cho truong hop nay, vi bat ky con so workload delta nao duoc tao ra deu chi la
+gia tri fallback khong co co so thuc nghiem, khong phai du bao dang tin cay.
+
+**Khuyen nghi**:
+1. Load-test thu cong tinh nang nay truoc khi trien khai san xuat.
+2. Neu tinh nang thuc su gan voi mot nghiep vu da biet, hay dien dat lai yeu
+   cau ro rang hon (nhac ten nghiep vu/service lien quan) de he thong co the
+   tra ve mot uoc luong co can cu.
+3. Bo sung archetype hieu chinh moi (CALL_CHAINS) neu day la mot loai tinh
+   nang se lap lai trong tuong lai.
+
+**Ly do chi tiet tu ParserAgent**: {parsed['reasoning']}
+"""
+        return {"feasibility_report": refusal_report}
+
     delta         = parsed['injection_delta_pct']
     cap_eval      = state.get('capacity_assessment', {})
     expert_assess = cap_eval.get('expert_assessment', 'Danh gia nang luc tai hoan tat.')

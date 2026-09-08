@@ -16,6 +16,10 @@ Guards (bat buoc, kiem tra TRUOC khi tra ket qua):
   G3: adjustment phai trong [-MAX_ADJ, +MAX_ADJ], vuot -> fallback ve anchor
   G4: core_services chi chua service ton tai trong graph
   G5: low similarity -> siet adjustment = 0
+  G6: similarity == 0 voi MOI archetype (ke ca lua chon cua LLM) -> REFUSED,
+      danh dau is_out_of_scope=True thay vi am tham tra ve mot con so binh
+      thuong. Day la co che tu choi tuong minh cho yeu cau nam ngoai taxonomy
+      da hieu chinh (xem muc "Scope" trong paper).
 
 Phu hop Q1 paper: "Grounded LLM Estimation anchored to empirical calibration table"
 """
@@ -53,9 +57,8 @@ SIMILARITY_THRESHOLD = 0.6   # nguong match keyword: duoi nay -> siet adjustment
 @dataclass
 class ParsedRequirement:
     """
-    Output chuan cua ParserAgent. Tuong thich voi ca 2 path:
-      - PerformanceAgent.get_metrics_for_service(srv, injection_delta_pct)
-      - SimulationAgent.simulate_intervention(injection_service, injection_delta_pct)
+    Output chuan cua ParserAgent. Duoc CapacityAgent.get_metrics_for_service()
+    va CapacityAgent.simulate_intervention() tieu thu (Fast/Accurate path).
     """
     # Core fields — dung cho ca 2 path
     request_type:         str         # "APPLY_PROMO_CODE" | "UNKNOWN"
@@ -66,12 +69,17 @@ class ParsedRequirement:
 
     # Explainability — cho paper
     reasoning:            str
-    confidence:           str         # "HIGH" | "MEDIUM" | "LOW"
+    confidence:           str         # "HIGH" | "MEDIUM" | "LOW" | "REFUSED"
     matched_template:     str         # template duoc chon lam anchor
     template_delta:       float       # anchor goc (chua dieu chinh)
     adjustment:           float       # delta_actual - template_delta (sau clamp)
     similarity_score:     float       # keyword match score [0, 1]
     llm_was_called:       bool        # True neu goi LLM (cho efficiency metric)
+    is_out_of_scope:      bool = False  # G6: True neu KHONG archetype nao trung khop —
+                                         # injection_delta_pct van co gia tri (de khong vo
+                                         # pipeline) nhung KHONG duoc coi la dang tin cay;
+                                         # noi tieu thu (vd report generation) phai kiem tra
+                                         # co nay va tu choi dua ra phan quyet dinh luong.
 
 
 # ============================================================
@@ -228,7 +236,12 @@ class ParserAgent:
             template_info  = CALL_CHAINS.get(request_type, rb_template_info)
             template_delta = template_info.get('expected_delta_pct', 20.0)
             affected       = template_info.get('services', ['front-end'])
-            similarity_score = rb_similarity
+            # G6 can DUNG similarity cua chinh archetype LLM da chon (khong phai
+            # chi rb_similarity ban dau) — LLM luon bi ep chon 1 loai "gan nhat",
+            # nhung neu loai do CUNG khong chia se tu khoa nao voi requirement,
+            # do la tin hieu that su khong co archetype dang tin cay.
+            llm_pick_similarity = _compute_similarity(requirement, request_type)
+            similarity_score = max(rb_similarity, llm_pick_similarity)
             llm_called     = True
             print(f"  [Parser] LLM full parse: {request_type} | conf: {llm_conf}")
 
@@ -258,6 +271,26 @@ class ParserAgent:
             llm_conf      = "LOW"
             llm_reasoning += f" [GATEWAY FALLBACK: dung {inj_svc}]"
 
+        # G6: Out-of-taxonomy refusal. Neu similarity_score == 0.0, khong mot
+        # archetype nao (ke ca lua chon "gan nhat" cua LLM) chia se du 1 tu khoa
+        # voi requirement — day la tin hieu manh rang yeu cau nam NGOAI taxonomy
+        # da hieu chinh (Section "Scope" trong paper). Truoc day pipeline se am
+        # tham dua ra mot con so binh thuong (vd rơi ve GET_CATALOGUE hoac LLM tu
+        # chon dai khai) ma khong canh bao — G6 buoc phai gan confidence=REFUSED
+        # va ghi ro trong reasoning, de tang tieu thu (report generation) khong
+        # duoc phep trinh bay day nhu mot phan quyet dang tin cay.
+        is_out_of_scope = (similarity_score == 0.0)
+        if is_out_of_scope:
+            llm_conf      = "REFUSED"
+            llm_reasoning += (
+                " [G6 OUT-OF-TAXONOMY: khong tim thay tu khoa trung khop voi bat ky "
+                "archetype da hieu chinh nao trong CALL_CHAINS, ke ca lua chon gan "
+                "nhat cua LLM. KHONG du du lieu hieu chinh de dua ra con so dang tin "
+                "cay — day chi la gia tri fallback, khuyen nghi load-test thu cong "
+                "truoc khi trien khai thay vi dung so lieu du bao nay lam can cu "
+                "quyet dinh."
+            )
+
         result = ParsedRequirement(
             request_type        = request_type,
             injection_service   = inj_svc,
@@ -271,6 +304,7 @@ class ParserAgent:
             adjustment          = adj_clamped,
             similarity_score    = similarity_score,
             llm_was_called      = llm_called,
+            is_out_of_scope     = is_out_of_scope,
         )
 
         print(f"  [Parser] -> delta={delta_clamped}% | core={core_svcs} | conf={llm_conf}")
