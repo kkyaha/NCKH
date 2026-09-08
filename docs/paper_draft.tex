@@ -12,6 +12,8 @@
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, fit, backgrounds}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -87,9 +89,41 @@ We evaluate on RCAEval \cite{pham2024rcaeval}, a public microservice RCA benchma
 \label{sec:methodology}
 
 \subsection{System Architecture Overview}
-Our workflow comprises four stages: Requirement Parsing, Topology Mapping, Workload Propagation, and Causal Simulation.
+The system is implemented as a four-node LangGraph state machine (Fig.~\ref{fig:architecture}) executed sequentially for every incoming requirement: \emph{(i)} \textbf{Parse Requirement} — the Parser Agent (Section~\ref{sec:parser-agent}) turns natural-language text into a bounded intervention $do(X{=}x)$; \emph{(ii)} \textbf{Map Impact} — the Architecture Agent performs a breadth-first traversal of the dependency graph from the injection gateway to determine the blast radius of affected services; \emph{(iii)} \textbf{Simulate} — the Capacity Agent projects downstream resource consumption along two paths, a fast per-service bivariate SCM and an accurate 28-node global DAG that propagates the intervention through both the cross-service workload tier and the local resource-consumption tier (Section~\ref{sec:workload-propagation}); \emph{(iv)} \textbf{Generate Report} — an LLM synthesizes the projected metrics, the Capacity Agent's bottleneck analysis, and a self-critique (``Devil's Advocate'') pass into a natural-language \texttt{FeasibilityReport}. Only the first and third nodes involve the causal/LLM machinery evaluated in Section~\ref{sec:results}; the second is a deterministic graph traversal and the fourth is a text-synthesis step not evaluated quantitatively in this paper.
+
+\begin{figure}[t]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    font=\footnotesize,
+    node distance = 5mm and 8mm,
+    stage/.style = {draw, rounded corners, fill=blue!6, align=center, text width=3.5cm, minimum height=10mm, inner sep=2mm},
+    io/.style = {draw, rounded corners, fill=gray!10, align=center, text width=3.2cm, minimum height=6mm, inner sep=1.5mm},
+    guardbox/.style = {draw, dashed, rounded corners, fill=red!4, align=left, text width=3.9cm, inner sep=1.5mm, font=\scriptsize},
+    arrow/.style = {-{Stealth[length=2mm]}, thick}
+]
+    \node[io] (input) {Natural-language requirement\\ \emph{e.g. ``add a checkout promo-code discount''}};
+    \node[stage, below=of input] (parser) {\textbf{1. Parser Agent}\\ \footnotesize 2-tier: keyword fast-path (sim.\ $\geq0.6$) or LLM $\rightarrow$ $do(X{=}x)$};
+    \node[guardbox, right=of parser, xshift=2mm] (guards) {\textbf{5 Runtime Guards}\\ G1 Gateway invariance\\ G2 Physical delta bound\\ G3 Adjustment clamp\\ G4 Service-existence filter\\ G5 Similarity-gated tuning};
+    \node[stage, below=of parser] (arch) {\textbf{2. Architecture Agent}\\ \footnotesize Graph BFS from gateway $\rightarrow$ blast radius};
+    \node[stage, below=of arch] (capacity) {\textbf{3. Capacity Agent}\\ \footnotesize Fast path: bivariate SCM\\ Accurate path: 28-node DAG, $do(x)$ propagation (Tier 1 $\rightarrow$ Tier 2)};
+    \node[stage, below=of capacity] (report) {\textbf{4. Report Synthesis}\\ \footnotesize LLM: bottleneck analysis + self-critique};
+    \node[io, below=of report] (output) {\texttt{FeasibilityReport}\\ verdict, confidence, reasoning};
+
+    \draw[arrow] (input) -- (parser);
+    \draw[arrow] (parser) -- (arch) node[midway, left, font=\scriptsize] {ParsedRequirement};
+    \draw[arrow] (guards.west) -- (parser.east);
+    \draw[arrow] (arch) -- (capacity) node[midway, left, font=\scriptsize] {affected services};
+    \draw[arrow] (capacity) -- (report) node[midway, left, font=\scriptsize] {projected $\Delta$CPU/Mem/Lat};
+    \draw[arrow] (report) -- (output);
+\end{tikzpicture}%
+}
+\caption{System pipeline: a four-node LangGraph state machine from natural-language requirement to feasibility verdict. Only nodes 1 and 3 (solid arrows into causal/LLM machinery) are quantitatively evaluated in Section~\ref{sec:results}; node 2 is a deterministic graph traversal and node 4 is unevaluated text synthesis.}
+\label{fig:architecture}
+\end{figure}
 
 \subsection{Parser Agent: Semantic Bridge and Verification}
+\label{sec:parser-agent}
 The Parser Agent translates natural language into a quantitative intervention vector $do(X=x)$. It follows a two-tier strategy: a deterministic keyword-similarity match against an empirical calibration table is attempted first (bypassing the LLM entirely when similarity $\geq 0.6$); otherwise the LLM is invoked to propose a request type, affected services, and a bounded adjustment. In both branches, the output passes through five runtime guards before being returned:
 \begin{itemize}
     \item \textbf{(G1) Gateway Invariance:} enforces that the injection point $do(x)$ is applied at a node with in-degree $= 0$ in the dependency graph; if the LLM proposes an internal node, the system falls back to the nearest valid gateway and downgrades confidence to \textsc{low}.
@@ -101,6 +135,7 @@ The Parser Agent translates natural language into a quantitative intervention ve
 Separately, at graph-construction time, the dependency topology is verified to be acyclic (removing any residual cycle before it is used for simulation), which we treat as a structural precondition rather than a per-request guard. We note that additional safeguards described in early design notes for this project (e.g. hard-clamping predicted resource values to $[0,100]$, and an additive-shift rule for simultaneous interventions on ancestor–descendant nodes) were \emph{not} implemented in the evaluated pipeline; Section~\ref{sec:discussion} discusses a concrete failure mode this gap causes and how we mitigated it at the causal-mechanism level instead.
 
 \subsection{Workload Propagation and Causal Simulation}
+\label{sec:workload-propagation}
 The Simulation Agent models degradation using a 28-node DAG (two tiers: cross-service workload propagation, and local workload-to-resource mechanisms), fit with DoWhy's Additive Noise Model framework. Resource-consumption mechanisms (CPU, memory) are fit with coefficient-constrained linear regression to enforce a monotonically non-decreasing response to workload (Section~\ref{sec:discussion}); latency mechanisms use a queueing-inspired regressor whose feature transform $x/(c-x)$ approximates the heavy-traffic behavior $\rho/(1-\rho)$ of an M/M/1 queue as utilization approaches capacity $c$ \cite{kingman1961}, rather than a closed-form derivation from queueing theory.
 
 % =========================================================
@@ -156,6 +191,7 @@ As an independent check that does not reuse the accuracy-benchmark's train/test 
 \centering
 \caption{Ground-truth direct match (no bucketing, per-scenario chronological split)}
 \label{tab:rq1-gt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{llccc}
 \toprule
 System & Metric & $n$ points & Mean \%err & Median \%err \\
@@ -166,7 +202,8 @@ Sock Shop    & Latency $p50$ & 134{,}625 & 9.9 & 2.0 \\
 Train Ticket & CPU     & 180{,}683 & 43.6 & 19.2 \\
 Train Ticket & Memory  & 180{,}725 & 0.7  & 0.1 \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 In both systems, mean error is 3--4$\times$ the median, indicating a right-skewed error distribution: most points are forecast well, but a minority of scenarios (typically under active fault injection or extreme load) incur large errors. We report both statistics rather than either alone. On Sock Shop, full-resolution $R^2$ is negative for 19 of 21 service--metric pairs (all 21 under bucket-averaging); the SCM does not explain held-out variance better than a mean predictor under this out-of-distribution protocol, even where absolute error (MAPE) is acceptable for capacity-planning purposes. We report this explicitly rather than omitting it.
@@ -187,6 +224,7 @@ We evaluate 50 hand-authored requirement prompts (In-Distribution, Complex Multi
 \centering
 \caption{Parser reliability, live LLM, 50 prompts, single run}
 \label{tab:rq3}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Configuration & PBVR & SHR & GMR & Anchor MAE \\
@@ -196,7 +234,8 @@ Unguarded Few-Shot (B2)  & 14.0\% & 2.0\%  & 82.0\%  & 38.3\%  \\
 Rule-Only (B0)           & 0.0\%  & 0.0\%  & 0.0\%   & 2.8\%   \\
 \textbf{Guarded (Ours)}  & \textbf{0.0\%} & \textbf{0.0\%} & \textbf{0.0\%} & \textbf{2.0\%} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
 
 Without any grounding, the unconstrained LLM misdirects the injection point away from the topology's gateway on \emph{every} prompt (GMR $=100\%$) and hallucinates non-existent services on 90\% of prompts. Adding in-context calibration (B2) substantially reduces hallucination (90\%$\to$2\%) but does not by itself fix gateway misdirection (still 82\%) or eliminate physical-boundary violations (14\%). Only the runtime-guarded configuration reaches 0\% on all three failure modes. The fast-path bypasses the LLM entirely for 34\% of prompts (deterministic keyword match), reducing mean latency relative to the always-LLM configurations. \textbf{Limitation:} due to the LLM API's free-tier daily request quota, this run reflects a single repetition rather than the repeated-trial protocol we intended; we report this as a limitation rather than omitting it, and recommend repeating with $\geq 3$ trials before final submission.
@@ -252,7 +291,7 @@ Section~\ref{sec:introduction} bounds ``new requirement'' to features approximab
 \end{itemize}
 
 \subsection{Future Work}
-Beyond the open items above (RQ5 single-agent baseline, multi-split RQ4 replication, RQ3 repeated trials, full-scale Train Ticket run), future iterations will explore dynamic graph updates under auto-scaling and an explicit statistical equivalence test (TOST) for the several RQ2 comparisons that fail to reject the null but should not be read as proof of parity.
+Beyond the open items above (RQ5 single-agent baseline, RQ3 repeated trials, full-scale Train Ticket run, and a topology with more non-root services to further power RQ4), future iterations will explore dynamic graph updates under auto-scaling and an explicit statistical equivalence test (TOST) for the several RQ2 comparisons that fail to reject the null but should not be read as proof of parity.
 
 \bibliographystyle{IEEEtran}
 \begin{thebibliography}{00}
