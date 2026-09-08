@@ -20,10 +20,16 @@ python run_all_experiments.py
 python -c "import sys; sys.argv=['x','--offline']; from src.scm.parser_benchmark_suite import run_parser_benchmark; run_parser_benchmark()"
 ```
 
-`run_all_experiments.py` chạy tuần tự 7 bước — xem docstring đầu file để biết chi tiết
-từng bước. Ba bước 1, 5, 6 tạo ra **3 nguồn bằng chứng độc lập** về độ chính xác SCM
-(bucket-average OOD, kiểm định thống kê theo %, và so khớp điểm-thật không bucket trên
-toàn bộ 90 run) — nên đối chiếu cả ba khi viết kết luận.
+`run_all_experiments.py` chạy tuần tự các bước cho **SockShop** — xem docstring đầu file để biết
+chi tiết. Các bước tạo ra **nhiều nguồn bằng chứng độc lập** về độ chính xác SCM (bucket-average
+OOD, kiểm định thống kê theo %, so khớp điểm-thật không bucket trên toàn bộ 90 run, và giá trị
+của lan truyền Tầng 1 vs naive) — nên đối chiếu tất cả khi viết kết luận.
+
+```bash
+# Đánh giá trên hệ thống thứ hai (Train Ticket, 28 microservices) cho RQ6 — cần tải dữ liệu trước:
+python src/scm/download_trainticket_data.py            # 30 kịch bản (thêm --all cho 90)
+python src/scm/trainticket_evaluation.py                # chạy full pipeline tương đương SockShop
+```
 
 ---
 
@@ -42,6 +48,12 @@ toàn bộ 90 run) — nên đối chiếu cả ba khi viết kết luận.
 | `parser_ablation_by_category.csv` | RQ3 breakdown theo 4 nhóm prompt (In-Distribution/Complex/Subtle/Adversarial) | như trên |
 | `future_rca_results.csv` | Pre-mortem RCA (OOD guard + Shapley attribution) cho các kịch bản tăng tải | `future_rca.py` |
 | `01_system_telemetry_train_test.csv`, `02_system_test_cases_catalog.csv` | Dữ liệu viễn trắc gộp + danh mục test case | `data_processor.py` |
+| `rq4_propagation_value_test.csv` | RQ4: SCM lan truyền Tầng 1 (Workload→Workload theo topology thật) vs giả định "delta đều" | `evaluation_suite.run_rq4_propagation_value_test` |
+| `trainticket_f1_rmse_evaluation.csv`, `trainticket_model_comparison.csv`, `trainticket_p_value_statistical_test.csv`, `trainticket_ground_truth_direct_match_summary.csv` | RQ6: cùng pipeline đánh giá như SockShop nhưng chạy trên Train Ticket (28 service) | `src/scm/trainticket_evaluation.py` |
+
+⚠️ File `03_trainticket_scm_evaluation.csv` (từ nhánh `TrainTicket` gốc) và script
+`run_trainticket_benchmark.py` đã bị xoá — cùng lỗi bucket-averaging/thiếu baseline đã sửa ở
+SockShop. Chỉ dùng các file `trainticket_*` liệt kê ở trên.
 
 ⚠️ Trước khi trích dẫn `parser_ablation_benchmark.csv` trong bài báo, kiểm tra cột
 `llm_backend`: nếu bắt đầu bằng `SYNTHETIC_` nghĩa là chạy bằng bộ giả lập offline
@@ -50,8 +62,11 @@ toàn bộ 90 run) — nên đối chiếu cả ba khi viết kết luận.
 ---
 
 ## 📖 TÀI LIỆU (`docs/`)
-- `RQ3_LLM_PARSER_BENCHMARK_REPORT.md` — sinh **tự động** từ `parser_ablation_benchmark.csv` (không viết tay số liệu), có mục giới hạn phương pháp luận.
-- `table_rq3_parser_ablation.tex` — bảng LaTeX cho bài báo, sinh tự động cùng lúc.
+Mỗi RQ có 1 báo cáo riêng, **sinh tự động từ CSV** (không viết tay số liệu):
+- `RQ1_SCM_ACCURACY_REPORT.md`, `RQ2_MODEL_COMPARISON_REPORT.md`,
+  `RQ3_LLM_PARSER_BENCHMARK_REPORT.md`, `RQ4_PROPAGATION_VALUE_REPORT.md`,
+  `RQ6_TRAINTICKET_GENERALIZATION_REPORT.md`, `RQ5_RQ6_STATUS.md` (trạng thái RQ5 + tóm tắt RQ6).
+- `table_rq3_parser_ablation.tex` — bảng LaTeX cho bài báo, sinh tự động cùng RQ3.
 - `UNIFIED_REFERENCE_DOC.md` — tài liệu theo dõi tiến độ nghiên cứu theo từng RQ.
 
 Các báo cáo tổng hợp trước đây (`COMPREHENSIVE_PAPER_DRAFT.md`, `FULL_SCM_EXPERIMENT_REPORT.md`,
@@ -79,6 +94,8 @@ NCKH/
 │   │   ├── parser_benchmark_suite.py  # RQ3: ablation LLM parser (LLM thật)
 │   │   ├── future_rca.py              # Pre-mortem RCA (OOD guard + Shapley)
 │   │   ├── request_router.py          # Phân loại request + bảng hiệu chỉnh CALL_CHAINS
+│   │   ├── trainticket_evaluation.py  # RQ6: cùng methodology RQ1/RQ2 áp cho Train Ticket
+│   │   ├── download_trainticket_data.py # Tải dữ liệu Train Ticket thật từ Hugging Face
 │   │   └── scm_pipeline.py
 │   ├── agents/
 │   │   ├── parser_agent.py            # 2-tier: fast-path bảng hiệu chỉnh + LLM có guard
