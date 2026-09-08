@@ -1,0 +1,819 @@
+{
+  "system": "TrainTicket",
+  "total_nodes": 68,
+  "total_edges": 94,
+  "nodes": [
+    {
+      "id": "ts-admin-basic-info-service",
+      "type": "backend",
+      "description": "Microservice ts-admin-basic-info-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-admin-order-service",
+      "type": "backend",
+      "description": "Microservice ts-admin-order-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-admin-route-service",
+      "type": "backend",
+      "description": "Microservice ts-admin-route-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-admin-travel-service",
+      "type": "backend",
+      "description": "Microservice ts-admin-travel-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-admin-user-service",
+      "type": "backend",
+      "description": "Microservice ts-admin-user-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-assurance-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-assurance-mongo"
+    },
+    {
+      "id": "ts-assurance-service",
+      "type": "backend",
+      "description": "Microservice ts-assurance-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-auth-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-auth-mongo"
+    },
+    {
+      "id": "ts-auth-service",
+      "type": "backend",
+      "description": "Microservice ts-auth-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-avatar-service",
+      "type": "backend",
+      "description": "Microservice ts-avatar-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-basic-service",
+      "type": "backend",
+      "description": "Microservice ts-basic-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-cancel-service",
+      "type": "backend",
+      "description": "Microservice ts-cancel-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-config-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-config-mongo"
+    },
+    {
+      "id": "ts-config-service",
+      "type": "backend",
+      "description": "Microservice ts-config-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-consign-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-consign-mongo"
+    },
+    {
+      "id": "ts-consign-price-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-consign-price-mongo"
+    },
+    {
+      "id": "ts-consign-price-service",
+      "type": "backend",
+      "description": "Microservice ts-consign-price-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-consign-service",
+      "type": "backend",
+      "description": "Microservice ts-consign-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-contacts-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-contacts-mongo"
+    },
+    {
+      "id": "ts-contacts-service",
+      "type": "backend",
+      "description": "Microservice ts-contacts-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-execute-service",
+      "type": "backend",
+      "description": "Microservice ts-execute-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-food-map-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-food-map-mongo"
+    },
+    {
+      "id": "ts-food-map-service",
+      "type": "backend",
+      "description": "Microservice ts-food-map-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-food-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-food-mongo"
+    },
+    {
+      "id": "ts-food-mysql",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-food-mysql"
+    },
+    {
+      "id": "ts-food-service",
+      "type": "backend",
+      "description": "Microservice ts-food-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-inside-payment-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-inside-payment-mongo"
+    },
+    {
+      "id": "ts-inside-payment-service",
+      "type": "backend",
+      "description": "Microservice ts-inside-payment-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-news-service",
+      "type": "backend",
+      "description": "Microservice ts-news-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-notification-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-notification-mongo"
+    },
+    {
+      "id": "ts-notification-service",
+      "type": "backend",
+      "description": "Microservice ts-notification-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-order-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-order-mongo"
+    },
+    {
+      "id": "ts-order-other-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-order-other-mongo"
+    },
+    {
+      "id": "ts-order-other-service",
+      "type": "backend",
+      "description": "Microservice ts-order-other-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-order-service",
+      "type": "backend",
+      "description": "Microservice ts-order-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-payment-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-payment-mongo"
+    },
+    {
+      "id": "ts-payment-service",
+      "type": "backend",
+      "description": "Microservice ts-payment-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-preserve-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-preserve-mongo"
+    },
+    {
+      "id": "ts-preserve-other-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-preserve-other-mongo"
+    },
+    {
+      "id": "ts-preserve-other-service",
+      "type": "backend",
+      "description": "Microservice ts-preserve-other-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-preserve-service",
+      "type": "backend",
+      "description": "Microservice ts-preserve-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-price-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-price-mongo"
+    },
+    {
+      "id": "ts-price-service",
+      "type": "backend",
+      "description": "Microservice ts-price-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-rebook-service",
+      "type": "backend",
+      "description": "Microservice ts-rebook-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-route-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-route-mongo"
+    },
+    {
+      "id": "ts-route-plan-service",
+      "type": "backend",
+      "description": "Microservice ts-route-plan-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-route-service",
+      "type": "backend",
+      "description": "Microservice ts-route-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-seat-service",
+      "type": "backend",
+      "description": "Microservice ts-seat-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-security-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-security-mongo"
+    },
+    {
+      "id": "ts-security-service",
+      "type": "backend",
+      "description": "Microservice ts-security-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-station-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-station-mongo"
+    },
+    {
+      "id": "ts-station-service",
+      "type": "backend",
+      "description": "Microservice ts-station-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-ticket-office-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-ticket-office-mongo"
+    },
+    {
+      "id": "ts-ticket-office-service",
+      "type": "backend",
+      "description": "Microservice ts-ticket-office-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-ticketinfo-service",
+      "type": "backend",
+      "description": "Microservice ts-ticketinfo-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-train-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-train-mongo"
+    },
+    {
+      "id": "ts-train-service",
+      "type": "backend",
+      "description": "Microservice ts-train-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-travel-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-travel-mongo"
+    },
+    {
+      "id": "ts-travel-plan-service",
+      "type": "backend",
+      "description": "Microservice ts-travel-plan-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-travel-service",
+      "type": "backend",
+      "description": "Microservice ts-travel-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-travel2-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-travel2-mongo"
+    },
+    {
+      "id": "ts-travel2-service",
+      "type": "backend",
+      "description": "Microservice ts-travel2-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-ui-dashboard",
+      "type": "gateway",
+      "description": "Web UI & API Gateway tiếp nhận yêu cầu từ người dùng"
+    },
+    {
+      "id": "ts-user-mongo",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-user-mongo"
+    },
+    {
+      "id": "ts-user-service",
+      "type": "backend",
+      "description": "Microservice ts-user-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-verification-code-service",
+      "type": "backend",
+      "description": "Microservice ts-verification-code-service (Java/Spring Boot)"
+    },
+    {
+      "id": "ts-voucher-mysql",
+      "type": "database",
+      "description": "Cơ sở dữ liệu của ts-voucher-mysql"
+    },
+    {
+      "id": "ts-voucher-service",
+      "type": "backend",
+      "description": "Microservice ts-voucher-service (Java/Spring Boot)"
+    }
+  ],
+  "edges": [
+    {
+      "source": "ts-admin-basic-info-service",
+      "target": "ts-config-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-admin-basic-info-service",
+      "target": "ts-price-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-admin-travel-service",
+      "target": "ts-travel-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-admin-travel-service",
+      "target": "ts-travel2-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-assurance-service",
+      "target": "ts-assurance-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-auth-service",
+      "target": "ts-auth-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-basic-service",
+      "target": "ts-price-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-basic-service",
+      "target": "ts-route-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-basic-service",
+      "target": "ts-station-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-basic-service",
+      "target": "ts-train-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-config-service",
+      "target": "ts-config-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-consign-price-service",
+      "target": "ts-consign-price-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-consign-service",
+      "target": "ts-consign-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-consign-service",
+      "target": "ts-consign-price-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-contacts-service",
+      "target": "ts-contacts-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-food-map-service",
+      "target": "ts-food-map-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-food-service",
+      "target": "ts-food-map-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-food-service",
+      "target": "ts-food-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-food-service",
+      "target": "ts-food-mysql",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-food-service",
+      "target": "ts-station-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-food-service",
+      "target": "ts-travel-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-inside-payment-service",
+      "target": "ts-inside-payment-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-inside-payment-service",
+      "target": "ts-order-other-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-inside-payment-service",
+      "target": "ts-order-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-inside-payment-service",
+      "target": "ts-payment-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-notification-service",
+      "target": "ts-notification-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-order-other-service",
+      "target": "ts-order-other-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-order-other-service",
+      "target": "ts-station-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-order-service",
+      "target": "ts-order-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-order-service",
+      "target": "ts-station-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-payment-service",
+      "target": "ts-payment-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-assurance-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-contacts-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-food-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-order-other-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-preserve-other-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-seat-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-security-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-station-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-ticketinfo-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-travel2-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-other-service",
+      "target": "ts-user-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-assurance-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-contacts-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-food-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-order-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-preserve-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-seat-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-security-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-station-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-ticketinfo-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-travel-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-preserve-service",
+      "target": "ts-user-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-price-service",
+      "target": "ts-price-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-route-service",
+      "target": "ts-route-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-seat-service",
+      "target": "ts-config-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-seat-service",
+      "target": "ts-order-other-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-seat-service",
+      "target": "ts-order-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-security-service",
+      "target": "ts-order-other-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-security-service",
+      "target": "ts-order-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-security-service",
+      "target": "ts-security-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-station-service",
+      "target": "ts-station-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-ticket-office-service",
+      "target": "ts-ticket-office-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-ticketinfo-service",
+      "target": "ts-basic-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-train-service",
+      "target": "ts-train-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-travel-service",
+      "target": "ts-order-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel-service",
+      "target": "ts-route-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel-service",
+      "target": "ts-seat-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel-service",
+      "target": "ts-ticketinfo-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel-service",
+      "target": "ts-train-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel-service",
+      "target": "ts-travel-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-travel2-service",
+      "target": "ts-order-other-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel2-service",
+      "target": "ts-route-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel2-service",
+      "target": "ts-seat-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel2-service",
+      "target": "ts-ticketinfo-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel2-service",
+      "target": "ts-train-service",
+      "relation": "REST_CALL"
+    },
+    {
+      "source": "ts-travel2-service",
+      "target": "ts-travel2-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-admin-basic-info-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-admin-travel-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-cancel-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-consign-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-contacts-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-execute-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-food-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-inside-payment-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-order-other-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-order-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-preserve-other-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-preserve-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-travel-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-travel2-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-ui-dashboard",
+      "target": "ts-user-service",
+      "relation": "HTTP_GATEWAY"
+    },
+    {
+      "source": "ts-user-service",
+      "target": "ts-user-mongo",
+      "relation": "DB_QUERY"
+    },
+    {
+      "source": "ts-voucher-service",
+      "target": "ts-voucher-mysql",
+      "relation": "DB_QUERY"
+    }
+  ]
+}
