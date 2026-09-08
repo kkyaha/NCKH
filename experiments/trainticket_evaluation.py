@@ -57,6 +57,7 @@ from evaluation_suite import mape, smape  # dung LAI dung cong thuc da kiem chun
 TT_METRICS = [
     ('CPU', 'cpu', '%', 1.0),
     ('Memory', 'mem', 'MB', 1 / 1e6),
+    ('Socket', 'socket', 'cnt', 1.0),
 ]
 N_PROJ = 300
 MIN_ROWS = 300

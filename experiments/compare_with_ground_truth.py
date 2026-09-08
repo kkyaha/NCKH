@@ -47,6 +47,7 @@ SERVICES = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shi
 METRICS = [
     ('CPU', 'cpu', LinearRegression),
     ('Memory', 'mem', LinearRegression),
+    ('Socket', 'socket', LinearRegression),
     ('Latency_p50', 'latency-50', QueueingLatencyRegressor),
 ]
 MIN_ROWS = 60  # can du du lieu de tach 70/30 co y nghia

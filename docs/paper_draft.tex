@@ -146,7 +146,7 @@ The Simulation Agent models degradation using a 28-node DAG (two tiers: cross-se
 \label{sec:setup}
 
 \subsection{Datasets and Testbed}
-We evaluate our framework on RCAEval \cite{pham2024rcaeval}: (i) \textbf{Sock Shop}, 7 microservices, 90 fault-injection scenarios (30 fault types $\times$ 3 runs), used for both the accuracy benchmark and a 90-run ground-truth direct-match validation; (ii) \textbf{Train Ticket}, 28 microservices (up to 384 recorded metric columns), 30 fault-injection scenarios (5 target services $\times$ 6 fault types, 1 run each). Both datasets share the same telemetry schema (per-service workload, CPU, memory, socket count, and $p50$/$p90$ latency, with an explicit fault-injection timestamp separating normal and faulty periods). To prevent pooled averages from obscuring subsystem- and topology-specific variation, we report results on a \textit{per-system} basis rather than a single pooled number.
+We evaluate our framework on RCAEval \cite{pham2024rcaeval}: (i) \textbf{Sock Shop}, 7 microservices, 90 fault-injection scenarios (30 fault types $\times$ 3 runs), used for both the accuracy benchmark and a 90-run ground-truth direct-match validation; (ii) \textbf{Train Ticket}, 28 microservices (up to 384 recorded metric columns), 30 fault-injection scenarios (5 target services $\times$ 6 fault types, 1 run each). Both datasets share the same telemetry schema (per-service workload, CPU, memory, socket count, and $p50$/$p90$ latency, with an explicit fault-injection timestamp separating normal and faulty periods), and RQ1/RQ2 evaluate all three of CPU, Memory, and Socket on both systems (Tables~\ref{tab:rq1}, \ref{tab:rq1-gt}); Latency is excluded from the 4-model MAPE comparison on both systems for the reason given in Section~\ref{sec:workload-propagation} (standard regressors do not model its saturating behavior), not because of a schema difference between the two testbeds. To prevent pooled averages from obscuring subsystem- and topology-specific variation, we report results on a \textit{per-system} basis rather than a single pooled number.
 
 \subsection{Baselines for Comparison}
 \begin{itemize}
@@ -180,8 +180,9 @@ System & Metric & MAPE mean (range) \% & $n$ services \\
 Sock Shop   & CPU    & 35.7 (10.2--67.5) & 7 \\
 Sock Shop   & Memory & 4.6 (1.3--7.9)    & 7 \\
 Sock Shop   & Socket & 15.6 (6.7--26.4)  & 7 \\
-Train Ticket & CPU    & 52.0 (9.7--123.3) & 28 \\
-Train Ticket & Memory & 2.5 (1.0--6.7)    & 28 \\
+Train Ticket & CPU    & 53.0 (9.7--121.9) & 28 \\
+Train Ticket & Memory & 2.7 (1.0--8.1)    & 28 \\
+Train Ticket & Socket & 15.0 (2.2--49.0)  & 28 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -199,9 +200,11 @@ System & Metric & $n$ points & Mean \%err & Median \%err \\
 \midrule
 Sock Shop    & CPU     & 136{,}496 & 35.1 & 9.1 \\
 Sock Shop    & Memory  & 136{,}674 & 2.3  & 0.4 \\
+Sock Shop    & Socket  & 136{,}674 & 5.7  & 2.8 \\
 Sock Shop    & Latency $p50$ & 134{,}625 & 9.9 & 2.0 \\
-Train Ticket & CPU     & 180{,}683 & 43.6 & 19.2 \\
+Train Ticket & CPU     & 180{,}683 & 43.5 & 19.2 \\
 Train Ticket & Memory  & 180{,}725 & 0.7  & 0.1 \\
+Train Ticket & Socket  & 180{,}725 & 9.2  & 6.0 \\
 \bottomrule
 \end{tabular}%
 }
@@ -214,7 +217,7 @@ We compare the SCM against B3 (Linear Regression, Gradient Boosting, Gaussian Pr
 
 On \textbf{Sock Shop} ($n=21$ service--metric pairs), the SCM is statistically significantly more accurate than Linear Regression when pooled across metrics ($p=0.0137$, median $\Delta = -0.94$ MAPE points, SCM lower), but is statistically indistinguishable from Gradient Boosting ($p=0.812$) and Gaussian Process ($p=0.421$). By win count, the SCM ties for first place (7/21 service--metric combinations), alongside Gaussian Process (7/21), ahead of Gradient Boosting (6/21) and Linear Regression (1/21).
 
-On \textbf{Train Ticket} ($n=56$ service--metric pairs, $4\times$ larger than Sock Shop), the result does \emph{not} replicate in the SCM's favor: the SCM wins only 4/56 combinations, the fewest of the four models (Gradient Boosting 20/56, Gaussian Process 19/56, Linear Regression 13/56). The one statistically significant pooled comparison on Train Ticket (SCM vs.\ Gradient Boosting, $p=0.0143$) favors Gradient Boosting, though the median difference is negligible in absolute terms (0.005 MAPE points) — a case where statistical significance does not imply practical significance, which we flag explicitly rather than reporting the $p$-value alone.
+On \textbf{Train Ticket} ($n=84$ service--metric pairs across CPU, Memory, and Socket — $4\times$ larger than Sock Shop), the result does \emph{not} replicate in the SCM's favor: the SCM wins only 11/84 combinations, the fewest of the four models (Gaussian Process 29/84, Gradient Boosting 27/84, Linear Regression 17/84). Pooled across metrics, the SCM \emph{is} significantly more accurate than Linear Regression here too ($p=0.00094$, median $\Delta=-0.14$), driven mainly by a large CPU-specific effect (median $\Delta=-9.72$, $p=0.0063$); but it is significantly \emph{less} accurate than Gaussian Process ($p=0.0192$, median $\Delta=+0.035$, negligible in absolute terms) and statistically indistinguishable from Gradient Boosting ($p=0.993$). The pattern that recurs on both systems — SCM beating the simplest baseline (Linear Regression) while failing to separate from the two more flexible ones — is consistent with the SCM's own mechanisms being close to linear-regression-equivalent in structure (Section~\ref{sec:workload-propagation}); we flag this rather than only reporting whichever $p$-value looks most favorable.
 
 \textbf{We do not conclude that SCM point-accuracy is superior to standard regressors.} The advantage seen on Sock Shop does not transfer to Train Ticket. We interpret this as evidence that the framework's value should rest on its unique capability — supporting $do(x)$ intervention queries, which the regression baselines cannot answer at all — rather than on raw predictive accuracy, which we find is not stable across topologies of different scale.
 
