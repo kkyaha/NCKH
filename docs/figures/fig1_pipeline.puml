@@ -1,0 +1,105 @@
+@startuml fig1_pipeline
+'============================================================
+' Fig. 1 - System pipeline (four-node LangGraph state machine)
+' Carries over the fixes agreed in the redesign discussion:
+'  - evaluated (1, 3) vs. not-evaluated (2, 4) nodes are
+'    color/border coded, not just described in the caption
+'  - Capacity Agent's fast/accurate paths are an explicit fork
+'  - guards shown as a note attached to the Parser Agent, not
+'    a same-weight fifth stage
+'  - arrow label includes Socket (RQ1/RQ2 now evaluate it)
+'
+' Render (pick one):
+'   plantuml fig1_pipeline.puml -tsvg   # needs a JRE
+'   VS Code "PlantUML" extension -> "Export Current Diagram"
+'   https://www.plantuml.com/plantuml   # paste this source
+' Then embed in LaTeX:
+'   \includegraphics[width=\linewidth]{figures/fig1_pipeline.pdf}
+'   (export -tpdf or -teps for a vector figure; avoid -tpng in a
+'   camera-ready draft)
+'============================================================
+
+skinparam backgroundColor transparent
+skinparam defaultFontName "Helvetica"
+skinparam defaultFontSize 12
+skinparam ArrowColor #5B6472
+skinparam ArrowFontColor #5B6472
+skinparam ArrowFontSize 11
+
+skinparam activity {
+  BackgroundColor<<eval>> #E3ECFB
+  BorderColor<<eval>> #2E5AAC
+  FontColor<<eval>> #1F3E75
+  BackgroundColor<<noeval>> #F7F9FB
+  BorderColor<<noeval>> #9AA3B2
+  BorderStyle<<noeval>> dashed
+  FontColor<<noeval>> #444444
+  BackgroundColor<<io>> #FFFFFF
+  BorderColor<<io>> #C3CADA
+  FontColor<<io>> #1B2430
+  DiamondBackgroundColor #E3ECFB
+  DiamondBorderColor #2E5AAC
+}
+skinparam partition {
+  BorderColor #C3CADA
+  FontColor #1B2430
+  FontStyle bold
+}
+skinparam note {
+  BackgroundColor #FBECEA
+  BorderColor #B3402E
+  FontColor #8C3222
+  FontSize 10
+}
+
+start
+:Natural-language requirement;
+note right: e.g. "add a checkout\npromo-code discount"
+
+partition "1 · Parser Agent" <<eval>> {
+  :2-tier: keyword fast-path (sim >= 0.6)\nor LLM --> do(X = x);
+  note right
+    **6 runtime guards** (validate before forwarding)
+    G1 Gateway invariance
+    G2 Physical Δ bound
+    G3 Adjustment clamp
+    G4 Service-existence filter
+    G5 Similarity-gated tuning
+    G6 Out-of-taxonomy refusal
+  end note
+}
+
+:ParsedRequirement;
+
+partition "2 · Architecture Agent" <<noeval>> {
+  :Graph BFS from gateway --> blast radius;
+}
+
+:affected services;
+
+partition "3 · Capacity Agent" <<eval>> {
+  fork
+    :**Fast path**\nbivariate SCM;
+  fork again
+    :**Accurate path**\n28-node DAG, do(x) propagation\n(Tier 1 workload --> Tier 2 resource);
+  end fork
+}
+
+:projected ΔCPU / Mem / Socket / Lat;
+
+partition "4 · Report Synthesis" <<noeval>> {
+  :LLM: bottleneck analysis + self-critique;
+}
+
+:FeasibilityReport;
+note right: verdict, confidence, reasoning
+stop
+
+legend right
+  |= |= style |
+  | <back:#E3ECFB>  </back> | quantitatively evaluated (§Results) |
+  | <back:#F7F9FB>  </back> | not evaluated (deterministic / text synthesis) |
+  | <back:#FBECEA>  </back> | runtime validation guards |
+endlegend
+
+@enduml
