@@ -58,6 +58,7 @@ class NodeRisk:
     baseline_value: float
     predicted_value: float
     change_pct: float
+    z_score: float          # |predicted - baseline| / training-period std
     anomaly_score: float
     shapley_contribution: float
     risk_level: str  # "normal", "warning", "critical"
@@ -321,32 +322,51 @@ class FutureRCAEngine:
             baseline = self.train_data[col].mean()
             predicted = samples[col].mean() if col in samples.columns else baseline
             change_pct = ((predicted - baseline) / abs(baseline)) * 100 if baseline != 0 else 0
-            
+
+            # Absolute-scale companion to change_pct. A pure-percentage threshold
+            # spuriously fires on low-baseline metrics (e.g. catalogue_cpu,
+            # baseline ~0.23): a small, purely-Monte-Carlo absolute deviation
+            # reads as a huge relative swing. Expressing the deviation in units
+            # of the node's OWN training-period std (a z-score) fixes this
+            # without hardcoding a unit-specific absolute number that would not
+            # transfer across metrics/services with very different scales.
+            train_std = self.train_data[col].std()
+            z_score = (abs(predicted - baseline) / train_std) if train_std > 0 else 0.0
+
             # Get anomaly score
             a_score = 0.0
             if col in anomaly_scores:
                 vals = anomaly_scores[col]
                 a_score = float(vals[0]) if len(vals) > 0 else 0.0
-            
+
             # Get shapley contribution (sum of all upstream contributions)
             s_contribution = 0.0
             if col in shapley_results and shapley_results[col] is not None:
                 for upstream_node, contrib_array in shapley_results[col].items():
                     s_contribution += abs(float(contrib_array[0])) if len(contrib_array) > 0 else 0.0
-            
-            # Determine risk level
-            if abs(change_pct) >= 30.0 or a_score >= 3.0:
+
+            # Determine risk level. RQ6's null-condition check (20 independent
+            # repeats, zero real intervention) found that gating only the
+            # percentage path on z_score still left the IT-score path
+            # (a_score) firing "critical" on catalogue_cpu in ~50% of
+            # repeats, at z_score as low as 0.005 — i.e. gcm.anomaly_scores()
+            # itself, not just change_pct, can read a node as anomalous with
+            # an essentially negligible actual deviation for this specific
+            # fitted mechanism. z_score is therefore required as a gate for
+            # BOTH paths, not only the percentage one.
+            if z_score >= 2.0 and (abs(change_pct) >= 30.0 or a_score >= 3.0):
                 risk_level = "critical"
-            elif abs(change_pct) >= 15.0 or a_score >= 2.0:
+            elif z_score >= 1.0 and (abs(change_pct) >= 15.0 or a_score >= 2.0):
                 risk_level = "warning"
             else:
                 risk_level = "normal"
-            
+
             node_risks.append(NodeRisk(
                 node=col,
                 baseline_value=baseline,
                 predicted_value=predicted,
                 change_pct=round(change_pct, 2),
+                z_score=round(z_score, 4),
                 anomaly_score=round(a_score, 4),
                 shapley_contribution=round(s_contribution, 4),
                 risk_level=risk_level
@@ -444,6 +464,7 @@ def export_future_rca_csv(results: List[FutureRCAResult], output_path: str):
                 'baseline': nr.baseline_value,
                 'predicted': nr.predicted_value,
                 'change_pct': nr.change_pct,
+                'z_score': nr.z_score,
                 'anomaly_score': nr.anomaly_score,
                 'shapley_contribution': nr.shapley_contribution,
                 'risk_level': nr.risk_level,

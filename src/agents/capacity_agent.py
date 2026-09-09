@@ -383,17 +383,35 @@ class CapacityAgent:
         model = gcm.InvertibleStructuralCausalModel(g_sub)
         gcm.auto.assign_causal_mechanisms(model, df_fit)
 
-        # Gán cơ chế chuyên biệt: CPU/Mem (Linear), Latency (Queueing phi tuyến)
+        # Gán cơ chế chuyên biệt: CPU/Mem + Tier-1 Workload->Workload (Linear,
+        # rang buoc he so KHONG AM), Latency (Queueing phi tuyến).
+        #
+        # DONG BO VOI evaluation_suite.build_and_train_global_dag() (Sock Shop):
+        # ban dau o day chi co _cpu/_mem dung LinearRegression() THUONG (khong
+        # positive=True), va canh Tier-1 (Workload->Workload) khong duoc gan
+        # rang buoc gi ca — tuc la CHINH XAC bug sign-inversion ma Section
+        # "Extrapolation-Sign Failure Mode" cua paper mo ta da "fix" (nhung
+        # fix do truoc day chi nam o evaluation_suite.py, mot script rieng
+        # cho RQ4, KHONG nam trong CapacityAgent — class nay moi la code that
+        # duoc orchestrator.py dung cho ca Sock Shop LAN Train Ticket). Ap
+        # dung dung mot rang buoc cho ca 2 he thong o day de ket qua giua
+        # Sock Shop va Train Ticket (vd RQ6 Part A.3) khong con lech nhau vi
+        # mot confound ve quy trinh fit, chi con lech vi ban chat du lieu.
         for node in g_sub.nodes():
             if node.endswith('_cpu') or node.endswith('_mem'):
                 model.set_causal_mechanism(
                     node,
-                    AdditiveNoiseModel(SklearnRegressionModel(LinearRegression()))
+                    AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True)))
                 )
             elif node.endswith('_latency-50'):
                 model.set_causal_mechanism(
                     node,
                     AdditiveNoiseModel(SklearnRegressionModel(QueueingLatencyRegressor()))
+                )
+            elif node.endswith('_workload') and g_sub.in_degree(node) > 0:
+                model.set_causal_mechanism(
+                    node,
+                    AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True)))
                 )
 
         gcm.fit(model, df_fit)

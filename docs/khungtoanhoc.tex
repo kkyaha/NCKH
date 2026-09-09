@@ -1,0 +1,507 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=red,
+    urlcolor=teal
+}
+
+\title{\textbf{Khung Toán Học Cho Phương Pháp Future RCA\\ và Phân Tích Nhân Quả Vi Dịch Vụ \\ (Bản Luận Giải Khoa Học Chặt Chẽ - Phiên Bản v4)}}
+\author{\textbf{Đề Xuất Nghiên Cứu Học Thuật - Phiên Bản v4}}
+\date{\today}
+
+\newtheorem{theorem}{Định lý}
+\newtheorem{definition}{Định nghĩa}
+\newtheorem{lemma}{Bổ đề}
+\newtheorem{proposition}{Mệnh đề}
+
+\makeatletter
+\def\UTFviii@undefined@err#1{\relax}
+\makeatother
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Giới thiệu Khung Lý Thuyết Nhân Quả}
+
+Nền tảng toán học kế thừa từ công trình nghiên cứu cốt lõi của Janzing, Budhathoki, Minorics và Blöbaum (2019), \textit{``Causal structure based root cause analysis of outliers''}, công bố tại Hội nghị Quốc tế về Học máy (ICML 2019). Khung lý thuyết này thiết lập một phương pháp luận toán học chặt chẽ để phân tích sự cố dựa trên mô hình cấu trúc nhân quả, dịch chuyển hoàn toàn khỏi các phương pháp thống kê tương quan truyền thống.
+
+\subsection{Đồ thị có hướng phi chu trình (DAG) và Mô hình Nhân quả Hàm số (FCM)}
+
+Trong một hệ thống gồm $n$ biến quan sát được $X_1, \dots, X_n$, cấu trúc nhân quả giữa chúng được biểu diễn bởi một Đồ thị có hướng phi chu trình (Directed Acyclic Graph - DAG), ký hiệu là $G$. Sự phân rã phân phối xác suất đồng thời $P(X_1, \dots, X_n)$ tuân thủ nghiêm ngặt \textbf{Điều kiện Markov Nhân quả} (Causal Markov Condition), cho phép biểu diễn hàm mật độ liên hợp dưới dạng tích các phân phối có điều kiện:
+\begin{equation}
+p(x_1, \dots, x_n) = \prod_{j=1}^n p(x_j \mid pa_j)
+\end{equation}
+Trong đó $pa_j$ đại diện cho các giá trị thực nghiệm thu được từ tập hợp các nút cha trực tiếp $PA_j$ của nút $X_j$ trên đồ thị $G$.
+
+Để mô tả chi tiết hơn cơ chế sinh dữ liệu động tại mỗi nút, Janzing et al. (2019) sử dụng \textbf{Mô hình Nhân quả Hàm số} (Functional Causal Models - FCM).
+
+Mô hình nhân quả cấu trúc dạng hàm số (FCM) được nhóm tác giả phát biểu nguyên bản trong nghiên cứu như sau:
+\begin{quote}
+\itshape
+``Each variable is given by a function of its parents and an unobserved noise variable: $X_j = f_j(PA_j, N_j)$, where the noise variables $N_1, \dots, N_n$ are jointly statistically independent.'' (Janzing et al., 2019, p. 2)
+\end{quote}
+
+Ý nghĩa học thuật và phân tích bản chất cơ chế vận hành hệ thống:
+\begin{equation}
+X_j = f_j(PA_j, N_j)
+\end{equation}
+Trong đó:
+\begin{itemize}
+    \item $f_j$ là cơ chế nhân quả (hàm số xác định).
+    \item $N_j$ là biến nhiễu nội tại đại diện cho tính ngẫu nhiên cục bộ không quan sát được của riêng nút $X_j$.
+    \item Các biến nhiễu $N_1, \dots, N_n$ độc lập thống kê đồng thời với nhau ($N_1 \perp \!\!\! \perp N_2 \perp \!\!\! \perp \dots \perp \!\!\! \perp N_n$).
+\end{itemize}
+
+\paragraph{Biểu diễn Đồ thị 2 Tầng cho Hệ Vi Dịch Vụ (Two-Tier Cascade Propagation DAG).}
+\label{sec:two-tier-dag}
+\textit{(Bổ sung mới, v4 -- đặc thù hóa DAG tổng quát ở trên cho bối cảnh vi dịch vụ.)}
+Trong triển khai thực nghiệm của chúng tôi, tập nút $V$ của đồ thị $G$ được phân hoạch thành hai tầng rời nhau, phản ánh đúng cấu trúc vật lý của một kiến trúc vi dịch vụ:
+\begin{equation}
+V = V_W \cup V_R, \qquad V_W \cap V_R = \emptyset,
+\end{equation}
+trong đó $V_W = \{W_1, \dots, W_m\}$ là tập nút \textbf{Tầng 1 -- Workload liên dịch vụ} (mỗi $W_i$ là lưu lượng yêu cầu đo tại dịch vụ $i$), và $V_R = \{R_1, \dots, R_m\}$ là tập nút \textbf{Tầng 2 -- Tài nguyên nội tại dịch vụ} (CPU, Memory, Socket, Latency của cùng dịch vụ $i$).
+
+Cấu trúc cạnh của $G$ bị ràng buộc chỉ gồm hai loại:
+\begin{align}
+\text{Tầng 1 (liên dịch vụ):} \quad & W_j = f_j\big(PA_{W_j}\big) + N_{W_j}, \qquad PA_{W_j} \subseteq V_W, \label{eq:tier1}\\
+\text{Tầng 2 (nội tại dịch vụ):} \quad & R_j = g_j(W_j) + N_{R_j}. \label{eq:tier2}
+\end{align}
+Nói cách khác, nút tài nguyên $R_j$ của dịch vụ $j$ chỉ có \emph{đúng một} cha là $W_j$ (workload của chính dịch vụ đó) -- không có cạnh $R \to R$ hay $R \to W$ nào trong đồ thị. Đây là điểm khác biệt cấu trúc quan trọng so với FCM tổng quát ở phương trình (2): việc tách bạch tường minh cơ chế \emph{lan truyền qua mạng lưới gọi API} (\ref{eq:tier1}) khỏi cơ chế \emph{chuyển hóa workload thành tiêu thụ tài nguyên} (\ref{eq:tier2}) cho phép:
+\begin{enumerate}
+    \item Diễn giải trực tiếp hiện tượng \textbf{Suy giảm/Khuếch đại theo tầng} (Cascade Attenuation): một can thiệp $do(W_{\text{gateway}} = w^*)$ chỉ lan truyền qua các cạnh $W \to W$ của Tầng 1, được khuếch đại hoặc suy giảm ở mỗi hop theo hệ số của $f_j$, trước khi mới được chuyển hóa sang tài nguyên qua $g_j$ tại từng dịch vụ.
+    \item Cô lập rõ ràng \emph{loại} nguyên nhân khi phân rã Shapley (Mục~\ref{sec:forward-shapley}): đóng góp của một nút $R_j$ có nguồn gốc từ chính cơ chế nội tại $g_j$ (lỗi ứng dụng, memory leak) hay từ lan truyền workload $W_j$ đến từ thượng nguồn -- hai giả thuyết nguyên nhân gốc rễ hoàn toàn khác nhau về mặt vận hành.
+\end{enumerate}
+
+\subsection{Vai trò của Giả định Độc lập Nhiễu}
+
+Giả định độc lập đồng thời của các biến nhiễu ẩn đóng vai trò là xương sống toán học của toàn bộ thuật toán nhờ ba tính chất quyết định:
+\begin{enumerate}
+    \item \textbf{Tính chất cô lập xung lực ngoại lệ (Outlier Decoupling):} Nó khẳng định rằng mọi biến động bất thường phát sinh cục bộ tại mỗi thực thể (nhiễu nội tại $N_j$) đều độc lập về mặt vật lý (ví dụ: lỗi code, Garbage Collection Pause, hoặc Memory Leak). Sự bất thường chỉ có thể lan truyền dọc theo đồ thị thông qua các cạnh có hướng của cấu trúc hàm $f_j(PA_j)$.
+    \item \textbf{Bảo chứng cho Định lý Tích chập (Theorem 1):} Sự độc lập của các biến nhiễu kéo theo sự độc lập của các điểm ngoại lệ thành phần, cho phép xây dựng phép tích chập điểm số chuẩn hóa.
+    \item \textbf{Hội tụ của Phép phân rã Shapley (Theorem 3):} Đảm bảo phép toán lấy mẫu Monte Carlo khi cố định một nhóm biến nhiễu lỗi $n_T^*$ không làm thay đổi phân phối baseline của các biến nhiễu còn lại.
+\end{enumerate}
+
+\section{Thước đo Ngoại lệ và Phép Tích chập Hệ thống}
+
+\subsection{Thước đo Ngoại lệ Lý thuyết Thông tin (IT Outlier Score)}
+
+Để lượng hóa mức độ bất thường của một quan sát mà không phụ thuộc vào thứ nguyên vật lý hay dạng phân phối xác suất cụ thể của biến số, Janzing et al. (2019) định nghĩa thước đo ngoại lệ dựa trên lượng tin Shannon:
+
+Thước đo lượng tin ngoại lệ (IT Outlier Score) được định nghĩa chính thức trong bài báo dưới dạng tiếng Anh như sau:
+\begin{quote}
+\itshape
+``Let $X$ be a random variable with values in $\mathcal{X}$ and distribution $P_X$. An information theoretic (IT) outlier score is a measurable function $S_X : \mathcal{X} \to \mathbb{R}^+_0$ such that:
+\begin{equation*}
+P\{S_X(X) \ge c\} \le e^{-c} \quad \forall c \in \mathbb{R}^+_0
+\end{equation*}
+and
+\begin{equation*}
+P\{S_X(X) \ge S_X(x)\} = e^{-S_X(x)}
+\end{equation*}
+for $P_X$-almost all $x \in \mathcal{X}$.'' (Janzing et al., 2019, p. 2)
+\end{quote}
+
+Ý nghĩa khoa học và phân tích các thuộc tính toán học liên quan:
+\begin{definition}[Information Theoretic Scores]
+Cho $X$ là biến ngẫu nhiên nhận giá trị trong không gian $\mathcal{X}$ với phân phối xác suất $P_X$. Một điểm ngoại lệ lý thuyết thông tin (IT Outlier Score) là một hàm đo lường được $S_X : \mathcal{X} \to \mathbb{R}^+_0$ sao cho:
+\begin{equation}
+P\{S_X(X) \ge c\} \le e^{-c} \quad \forall c \in \mathbb{R}^+_0
+\end{equation}
+và
+\begin{equation}
+P\{S_X(X) \ge S_X(x)\} = e^{-S_X(x)}
+\end{equation}
+cho $P_X$-hầu hết mọi $x \in \mathcal{X}$.
+\end{definition}
+
+Từ định nghĩa này, tác giả chứng minh hai bổ đề quan trọng bảo chứng cho tính chất toán học của thước đo:
+\begin{lemma}[Phân phối của điểm số]
+Đối với bất kỳ điểm số IT Outlier Score chuẩn hóa $S$, phân phối của $S(X)$ trên miền dương $[0, \infty)$ có hàm mật độ xác suất chính xác là $p(s) = e^{-s}$.
+\end{lemma}
+
+\begin{lemma}[Biểu diễn dựa trên hàm số]
+Mọi IT Outlier Score đều có thể biểu diễn dưới dạng log-quantile nghịch đảo thông qua một hàm đo lường $f(x)$ bất kỳ:
+\begin{equation}
+S_f(x) := -\log P\{f(X) \ge f(x)\}
+\end{equation}
+\end{lemma}
+
+Bất kể biến nguyên bản $X$ tuân theo phân phối phức tạp hay phi tuyến nào, việc áp dụng hàm log-quantile nghịch đảo sẽ đồng nhất hóa toàn bộ không gian xác suất về không gian phân phối mũ tiêu chuẩn (Standard Exponential Space).
+
+\subsection{Định lý Tích chập Điểm số (Convolution Score)}
+
+Khi đánh giá mức độ bất thường đồng thời của một hệ thống đa biến gồm nhiều thực thể độc lập, việc cộng trực tiếp các điểm số đơn lẻ sẽ tích lũy sai số và gây ra hiện tượng bão báo động. Janzing et al. (2019) giải quyết bài toán đa kiểm thử này bằng phép tích chập điểm số:
+
+Để kiểm soát tỷ lệ báo động giả, Định lý 1 (Theorem 1) về phép tích chập điểm số được phát biểu nguyên bản như sau:
+\begin{quote}
+\itshape
+``Let $P$ be a product distribution on $\mathcal{X} := \mathcal{X}_1 \times \dots \times \mathcal{X}_n$. Let $S_1, \dots, S_n$ be surjective information theoretic outlier scores. Then:
+\begin{equation*}
+(S_1 * \dots * S_n)(x_1, \dots, x_n) = \sum_{j=1}^n S_j(x_j) - \log \sum_{i=0}^{n-1} \frac{\left(\sum_{j=1}^n S_j(x_j)\right)^i}{i!}
+\end{equation*}'' (Janzing et al., 2019, p. 3)
+\end{quote}
+
+Dịch nghĩa học thuật và phép chứng minh toán học chi tiết:
+\begin{theorem}[Multiple Convolution]
+Let $P$ be a product distribution on $\mathcal{X} := \mathcal{X}_1 \times \dots \times \mathcal{X}_n$. Let $S_1, \dots, S_n$ be surjective information theoretic outlier scores. Then:
+\begin{equation}
+(S_1 * \dots * S_n)(x_1, \dots, x_n) = \sum_{j=1}^n S_j(x_j) - \log \sum_{i=0}^{n-1} \frac{\left(\sum_{j=1}^n S_j(x_j)\right)^i}{i!}
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Vì các điểm số thành phần $S_j(x_j)$ độc lập thống kê và tuân theo phân phối mũ tiêu chuẩn $e^{-s_j}$, hàm mật độ xác suất liên hợp trên góc phần tư dương của không gian $\mathbb{R}^n$ là $p(s_1, \dots, s_n) = e^{-\sum_{j=1}^n s_j}$. Xác suất để tổng các điểm số vượt quá một ngưỡng $s$ bất kỳ được tính bằng tích phân lớp trên miền đơn hình (simplex) $\sum_{j=1}^n s_j \ge s$:
+\begin{equation}
+P\left\{\sum_{j=1}^n S_j(X_j) \ge s\right\} = \int_{\sum s_j \ge s} e^{-\sum_{j=1}^n s_j} ds_1 \dots ds_n
+\end{equation}
+Thực hiện phép thế biến sang tọa độ đơn hình $\mathbb{R}^{n-1}$ có kích thước $s'$, tích phân chuyển dịch về dạng:
+\begin{equation}
+\int_s^{\infty} e^{-s'} \frac{(s')^{n-1}}{(n-1)!} ds' = e^{-s} \sum_{i=0}^{n-1} \frac{s^i}{i!}
+\end{equation}
+Lấy trừ logarit tự nhiên ($-\log$) của xác suất đuôi này, ta thu được chính xác biểu thức toán học của định lý.
+\end{proof}
+
+Lượng trừ logarit vế phải đóng vai trò như một \textbf{bộ hiệu chỉnh cho việc kiểm thử đa giả thuyết} (correction term for multihypothesis testing). Nó triệt tiêu hiện tượng tăng điểm số ảo do quy mô biến số lớn, đảm bảo điểm tích chập của hệ thống vẫn là một IT score chuẩn mực.
+
+\section{Cô lập Lỗi bằng Điểm Ngoại lệ Có Điều Kiện}
+
+Để chẩn đoán xem một trạng thái bất thường tại một nút con $Y$ là do chính nó tự sinh hay do lây lan từ thượng nguồn (cha trực tiếp $X$), tác giả thiết lập khái niệm điểm ngoại lệ có điều kiện dựa trên cơ chế nhân quả:
+
+Định nghĩa 4 (Definition 4) về mô hình FCM cho điểm ngoại lệ có điều kiện được phát biểu nguyên bản dưới dạng:
+\begin{quote}
+\itshape
+``A conditional IT outlier score $S_{Y|X}$ is said to have an FCM if there is an FCM $Y = f(X,N)$ with range $\mathcal{N}$ for $P_{Y|X}$ and an IT score $S_N(N)$ such that $N$ is a function of $(X,Y)$ and:
+\begin{equation*}
+S_{Y|X}(Y,X) = S_N(N)
+\end{equation*}
+if and only if $X \perp \!\!\! \perp S_{Y|X}(Y|X)$.'' (Janzing et al., 2019, p. 4)
+\end{quote}
+
+Ý nghĩa khoa học và phân tích các thuộc tính toán học liên quan:
+\begin{definition}[FCM for Conditional Score]
+Một điểm ngoại lệ có điều kiện $S_{Y|X}$ được gọi là có mô hình FCM nếu tồn tại một mô hình nhân quả cấu trúc $Y = f(X, N)$ cho phân phối điều kiện $P_{Y|X}$ và một điểm số ngoại lệ IT của biến nhiễu $S_N(N)$ sao cho $N$ là một hàm số của $(X, Y)$ và:
+\begin{equation}
+S_{Y|X}(Y, X) = S_N(N)
+\end{equation}
+nếu và chỉ nếu $X \perp \!\!\! \perp S_{Y|X}(Y|X)$.
+\end{definition}
+
+\subsection{Cơ chế lọc nhân quả (Causal Filtering)}
+
+Sự tồn tại của mô hình nhân quả ANM ($Y = f(X) + N_Y$) đóng vai trò như một bộ lọc thông tin. Khi hệ thống tính toán điểm ngoại lệ có điều kiện $S(y \mid x)$, nó thực hiện phép tính ngược để cô lập biến nhiễu nội tại:
+\begin{equation}
+n_y^* = y - f(x)
+\end{equation}
+Khi đó, xác suất điều kiện của biến quan sát được rút gọn trực tiếp về xác suất của biến nhiễu độc lập:
+\begin{equation}
+P\{Y \ge y \mid X = x\} = P\{f(x) + N_Y \ge y\} = P\{N_Y \ge y - f(x)\} = P\{N_Y \ge n_y^*\}
+\end{equation}
+Lấy trừ logarit tự nhiên ($-\log$) hai vế, ta thu được đẳng thức:
+\begin{equation}
+S_{Y \mid X}(y, x) = S_{N_Y}(n_y^*)
+\end{equation}
+
+\begin{itemize}
+    \item \textbf{Trường hợp 1 (Nút con vô tội):} Lỗi từ cha $X$ truyền xuống khiến $Y$ bị vọt lớn, nhưng hiệu số $n_y^* = y - f(x) \approx 0$. So với phân phối baseline, trị số này rất phổ biến, dẫn đến điểm ngoại lệ $S_{N_Y}(n_y^*) \approx 0$. Hệ thống kết luận nút con vô tội.
+    \item \textbf{Trường hợp 2 (Nút con lỗi tự sinh):} Dù cha $X$ hoạt động bình thường, nút con $Y$ vẫn chậm vọt lên, khiến $n_y^* = y - f(x) \gg 0$. Trị số nhiễu này cực kỳ hiếm gặp, khiến điểm ngoại lệ $S_{N_Y}(n_y^*)$ bùng nổ rất cao. Hệ thống kết luận nút con chính là nguyên nhân gốc rễ.
+\end{itemize}
+
+\subsection{Cơ chế Nhân quả Tùy chỉnh theo Miền (Domain-Aware Mechanism Design)}
+\label{sec:domain-aware}
+\textit{(Bổ sung mới, v4 -- đặc thù hóa $f$/$g_j$ ở Mục 1.1 cho hai loại nút thường gặp nhất trong Tầng 2 của đồ thị vi dịch vụ: Latency và tài nguyên rời rạc CPU/Memory. Cơ chế lọc nhân quả ở Mục 3.1 chỉ đúng khi $f$ được ước lượng đủ tốt so với cơ chế vật lý thật -- với hai lớp nút này, một hồi quy tuyến tính không ràng buộc là không đủ, vì hai lý do vật lý khác nhau trình bày dưới đây.)}
+
+\paragraph{(a) Mô hình Độ trễ Phi tuyến (Queueing-Inspired Regressor).}
+Độ trễ (Latency) của một dịch vụ không tăng tuyến tính theo workload $W$: khi $W$ tiến gần một ngưỡng sức chứa $c$ của dịch vụ, độ trễ bùng nổ tiệm cận. Hiện tượng này được mô tả chính xác bởi hành vi tải nặng (heavy-traffic behavior) của hàng đợi M/M/1 (Kingman, 1961): nếu $\rho = \lambda/\mu$ là hệ số sử dụng (utilization), thời gian chờ kỳ vọng tỉ lệ với
+\begin{equation}
+\mathbb{E}[\text{Wait}] \propto \frac{\rho}{1-\rho}.
+\end{equation}
+Để đưa tính chất bùng nổ tiệm cận này vào một mô hình hồi quy tuyến tính có thể fit được từ dữ liệu (thay vì suy diễn dạng đóng từ lý thuyết hàng đợi thuần túy), chúng tôi định nghĩa một phép biến đổi đặc trưng (feature transform) đóng vai trò tương tự $\rho/(1-\rho)$:
+\begin{definition}[Phép biến đổi đặc trưng hàng đợi]
+Cho $c > 0$ là ngưỡng sức chứa đã ước lượng của dịch vụ (thực nghiệm: $c \approx 1.5 \times \max(W_{\text{train}})$). Với $W < c$, định nghĩa
+\begin{equation}
+g(W) := \frac{W}{c - W}.
+\end{equation}
+\end{definition}
+Cơ chế nhân quả Tầng 2 (\ref{eq:tier2}) cho nút Latency khi đó là một mô hình tuyến tính \emph{trên đặc trưng đã biến đổi}, không phải trên $W$ thô:
+\begin{equation}
+R_j^{\text{Latency}} = \beta \cdot g(W_j) + \beta_0 + N_{R_j}, \qquad \beta \geq 0.
+\end{equation}
+Khi $W_j \to c^-$, ta có $g(W_j) \to +\infty$, do đó $R_j^{\text{Latency}} \to +\infty$ -- tái tạo đúng hành vi bùng nổ tiệm cận của $\rho/(1-\rho)$ mà không cần suy diễn dạng đóng đầy đủ của lý thuyết hàng đợi (một xấp xỉ hành vi bão hòa, không phải một suy diễn M/M/1 chặt chẽ -- xem thêm Mục~\ref{sec:ood-refusal}).
+
+\paragraph{(b) Ràng buộc Đơn điệu Không âm (Non-Negative Monotonicity Constraint).}
+Với các nút tài nguyên rời rạc (CPU, Memory), cơ chế Tầng 2 là hồi quy tuyến tính chuẩn: $R_j = \sum_i \beta_i \cdot pa_i + \beta_0 + N_{R_j}$. Khi ước lượng bình phương tối thiểu không ràng buộc (OLS) trên dữ liệu ngoại suy xa miền huấn luyện, hệ số $\beta_i$ có thể nhận giá trị âm do nhiễu/đa cộng tuyến -- dẫn đến một dự báo về mặt vật lý phi lý: $\partial R_j / \partial pa_i < 0$, tức CPU/Memory \emph{giảm} khi workload thượng nguồn \emph{tăng}. Chúng tôi gọi đây là \textbf{hiện tượng đảo dấu (sign-inversion failure mode)}, và loại bỏ nó bằng cách ràng buộc bài toán ước lượng hệ số về miền không âm, giải bằng Non-Negative Least Squares (NNLS):
+\begin{equation}
+\boldsymbol{\beta}^* = \operatorname*{argmin}_{\boldsymbol{\beta} \geq \mathbf{0}} \; \lVert \mathbf{y} - X\boldsymbol{\beta} \rVert_2^2.
+\end{equation}
+\begin{proposition}[Đảm bảo tính đơn điệu bằng ràng buộc miền hệ số]
+Nếu $\boldsymbol{\beta}^* \geq \mathbf{0}$ theo nghiệm NNLS ở trên, thì với mọi $pa_i \geq 0$, hàm $f_j(pa) = \sum_i \beta_i^* pa_i + \beta_0$ thỏa $\partial f_j / \partial pa_i = \beta_i^* \geq 0$ -- tức $f_j$ đơn điệu không giảm theo mọi biến cha, loại trừ hoàn toàn khả năng đảo dấu tại điểm dự báo (không loại trừ được sai số biên độ khi ngoại suy cực xa, xem Mục~\ref{sec:ood-refusal}).
+\end{proposition}
+Ràng buộc này được áp dụng đồng nhất cho \emph{mọi} cạnh có hướng tăng-đơn-điệu kỳ vọng trong đồ thị hai tầng -- cả cạnh Tầng 1 ($W \to W$, \ref{eq:tier1}) lẫn cạnh Tầng 2 ($W \to \text{CPU/Mem}$, \ref{eq:tier2}) -- để đảm bảo tính đơn điệu vật lý xuyên suốt toàn đồ thị, không chỉ tại một tầng riêng lẻ.
+
+\section{Quy trình Định vị và Phân bổ Lỗi 4 Bước}
+
+Quy trình tìm lỗi (outlier attribution) của Janzing et al. (2019) được thực hiện qua 4 pha chặt chẽ:
+
+\subsection{Bước 1: Khớp mô hình nhân quả nền (Fitting Phase)}
+Huấn luyện đồ thị DAG, học các hàm dự báo $f_j$ và phân phối của các biến nhiễu độc lập $P(N_j)$ từ dữ liệu lịch sử bình thường (baseline):
+\begin{equation}
+X_j = f_j(PA_j, N_j) \quad \text{với} \quad N_j \sim P(N_j)
+\end{equation}
+
+\subsection{Bước 2: Tái dựng biến nhiễu lỗi (Noise Reconstruction Phase)}
+Khi xảy ra sự cố tại một thời điểm cụ thể với vector lỗi thực tế quan sát được $x^* = (x_1^*, \dots, x_n^*)$, thực hiện phép tính ngược toán học để bóc tách trị số nhiễu lỗi thực tế:
+\begin{equation}
+n_j^* = x_j^* - f_j(pa_j^*)
+\end{equation}
+
+\subsection{Bước 3: Mô phỏng bối cảnh kịch bản điều kiện (Conditioning Phase)}
+
+Công thức xác định đóng góp biên của một nút vào liên minh được mô tả nguyên văn tại Section 5 của nghiên cứu:
+\begin{quote}
+\itshape
+``First, we define the contribution of $j$, given some set $T \subset \{1, \dots, n\} =: U$ not containing $j$, by:
+\begin{equation*}
+c_x(j \mid T) := \log P\{S(X_n) \ge S(x_n) \mid n_{T \cup \{j\}}\} - \log P\{S(X_n) \ge S(x_n) \mid n_T\}
+\end{equation*}'' (Janzing et al., 2019, p. 5)
+\end{quote}
+
+Ý nghĩa học thuật và phân tích cơ chế tính toán thực tế:
+Để định lượng mức đóng góp của từng nút $j$ khi tham gia vào liên minh $T$ (các nút đã được cố định giá trị nhiễu lỗi $n_T^*$), ta tính giá trị đóng góp biên (marginal contribution) thông qua Equation (7):
+\begin{equation}
+c_x(j \mid T) := \log P\{S(X_n) \ge S(x_n) \mid n_{T \cup \{j\}}\} - \log P\{S(X_n) \ge S(x_n) \mid n_T\}
+\end{equation}
+Xác suất đuôi có điều kiện $P\{S(X_n) \ge S(x_n) \mid n_T\}$ được ước lượng bằng \textbf{Mô phỏng Monte Carlo} trên đồ thị FCM: khóa cứng $N_k = n_k^*$ với $k \in T$, lấy mẫu ngẫu nhiên $N_m \sim P(N_m)$ với $m \notin T$, và chạy lan truyền xuôi dòng.
+
+\subsection{Bước 4: Phân rã Shapley và quy đổi trách nhiệm (Aggregation Phase)}
+\label{sec:step4}
+
+Định lý 3 (Theorem 3) bảo chứng toán học cho tính chất phân rã hoàn hảo điểm lỗi được phát biểu nguyên bản:
+\begin{quote}
+\itshape
+``The outlier score of any variable decomposes into the contribution of each of its ancestors:
+\begin{equation*}
+S(x_n) = \sum_{j=1}^n cSh_x(j)
+\end{equation*}'' (Janzing et al., 2019, p. 5)
+\end{quote}
+
+Bên cạnh đó, cơ chế và ý nghĩa của việc đóng góp biên nhận trị số âm được tác giả biện giải nguyên văn như sau:
+\begin{quote}
+\itshape
+``Note that this contribution can be negative which makes perfectly sense: one value being extreme can certainly weaken the outlier of the target, that is, a more common value at that node would have made the outlier even stronger.'' (Janzing et al., 2019, p. 6)
+\end{quote}
+
+Ý nghĩa khoa học và phân tích bản chất hệ thống:
+Áp dụng giá trị Shapley để lấy trung bình trọng số đóng góp biên trên mọi hoán vị tổ hợp liên minh:
+\begin{equation}
+cSh_x (j) := \sum_{T \subset U \setminus \{j\}} \frac{1}{n} \binom{n-1}{|T|}^{-1} c_x(j \mid T)
+\end{equation}
+\begin{theorem}[Decomposition of Target Outlier Score]
+Điểm ngoại lệ của bất kỳ biến mục tiêu nào cũng được phân rã hoàn hảo thành tổng đóng góp của từng nút tổ tiên trực hệ của nó:
+\begin{equation}
+S(x_n) = \sum_{j=1}^n cSh_x(j)
+\end{equation}
+\end{theorem}
+
+\paragraph{Phân rã Shapley Xuôi dòng (Forward/Prospective Shapley Attribution).}
+\label{sec:forward-shapley}
+\textit{(Bổ sung mới, v4.)} Toàn bộ phần trên vận hành theo chiều \textbf{hồi cứu} (retrospective): điểm khởi đầu $x^*$ là một vector lỗi \emph{đã thực sự xảy ra} và được đo đạc. Chúng tôi định nghĩa một biến thể vận hành theo chiều \textbf{dự phóng} (prospective), thay $x^*$ bằng một điểm giả lập sinh ra từ can thiệp $do(\cdot)$, chưa từng xảy ra trong thực tế:
+
+\begin{definition}[Điểm giả lập dự phóng]
+Cho một can thiệp $do(W_{\text{gateway}} = w^*)$ trên nút workload cổng vào. Định nghĩa điểm giả lập dự phóng
+\begin{equation}
+\tilde{x} := \mathbb{E}\big[X \mid do(W_{\text{gateway}} = w^*)\big],
+\end{equation}
+ước lượng bằng trung bình của $N$ mẫu Monte Carlo lấy từ phân phối can thiệp $P(X \mid do(W_{\text{gateway}}=w^*))$ (thực thi qua lan truyền xuôi dòng trên đồ thị hai tầng, \ref{eq:tier1}--\ref{eq:tier2}).
+\end{definition}
+
+Áp dụng nguyên vẹn Định nghĩa 1 (IT outlier score) và cơ chế Bước 2--4 ở trên lên $\tilde{x}$ thay vì $x^*$ -- dùng \emph{cùng} $P(N_j)$ đã khớp ở Bước 1 làm phân phối tham chiếu (baseline) -- ta thu được:
+\begin{equation}
+S(\tilde{x}) = \sum_{j=1}^{n} cSh_{\tilde{x}}(j).
+\end{equation}
+Tính hợp lệ toán học của phép thay thế này -- rằng đẳng thức phân rã vẫn đúng khi $\tilde{x}$ sinh ra từ một can thiệp thay vì một quan sát thật -- được chứng minh hình thức ở Luận điểm 3 (Mục~\ref{sec:invariance-forward}).
+
+\textbf{Ý nghĩa đặc thù trong miền vi dịch vụ (Bottleneck Attribution).} Nhờ cấu trúc hai tầng (Mục~\ref{sec:two-tier-dag}), mỗi số hạng $cSh_{\tilde{x}}(j)$ định lượng chính xác mức đóng góp biên của dịch vụ hạ nguồn $j$ vào rủi ro nghẽn cổ chai được dự phóng tại một dịch vụ mục tiêu, \emph{trước khi} can thiệp $do(w^*)$ từng được áp dụng lên hệ thống thật. Đây là điểm khác biệt bản chất so với một mô hình hồi quy hộp đen bất kỳ (Linear Regression, Gradient Boosting, Gaussian Process,\dots): mô hình hộp đen chỉ trả về một số vô hướng $\hat{y}$ không có cấu trúc nội tại -- nó chưa từng được cho biết đồ thị nhân quả $G$, nên không thể trả lời câu hỏi ``dịch vụ nào, cơ chế nào (lan truyền Tầng 1 hay tiêu thụ Tầng 2) chịu trách nhiệm cho bao nhiêu phần trăm của con số đó''. Phép phân rã $\{cSh_{\tilde{x}}(j)\}_j$ trả lời trực tiếp câu hỏi này bằng cấu trúc, không phải bằng suy luận hậu kiểm.
+
+\textbf{Lưu ý về giới hạn thực nghiệm.} Tính hợp lệ toán học ở trên là một phát biểu \emph{điều kiện} -- nó đúng \emph{nếu} SCM đã khớp phản ánh đúng cơ chế vật lý thật và ước lượng Monte Carlo đã hội tụ đủ. Xem Mục~\ref{sec:scale} để biết bằng chứng thực nghiệm cho thấy khoảng cách giữa tính hợp lệ trong mô hình (in-model validity) và độ tin cậy thực nghiệm có thể đáng kể khi quy mô đồ thị tăng.
+
+\section{Chứng minh Toán học cho Đề xuất Dự phóng (Future RCA)}
+
+\subsection{Phát biểu Phạm vi Hẹp của Nghiên cứu (Scope Definition)}
+Trước khi đi vào chi tiết toán học, chúng tôi phát biểu rõ ràng phạm vi ứng dụng thực tế của phương pháp này. Nghiên cứu tập trung duy nhất vào bài toán \textbf{``SCM-based pre-mortem RCA''} (Tìm nguyên nhân gốc rễ chủ động dựa trên mô hình nhân quả cấu trúc) trong bối cảnh vi dịch vụ. Đây không phải là một chứng minh toán học tổng quát cho mọi lớp đồ thị DAG liên tục, mà được giới hạn nghiêm ngặt trong lớp mô hình \textbf{Additive Noise Model (ANM)} phi tuyến hoặc tuyến tính có thể học được từ dữ liệu thực tế. Khung phương pháp luận này giả định đồ thị nhân quả đã được xác định trước bởi các kỹ sư hệ thống hoặc học từ các công cụ khám phá nhân quả tin cậy.
+
+\subsection{Khung Toán học và Ranh giới cho Parser Agent (LLM-Modulo Bounded Projection)}
+\label{sec:llm-modulo}
+\textit{(Bổ sung mới, v4 -- đặt trước Luận điểm 1, vì đây là bước \emph{trước} khi một truy vấn $do(x)$ được hình thành, không phải một hệ luận của Truncated Factorization.)}
+
+Các luận điểm ở phần dưới của Mục 5 giả định véc-tơ can thiệp $do(X_i = x_i^*)$ \emph{đã} sẵn có ở dạng số. Trong ứng dụng thực tế, véc-tơ này phải được suy ra từ một yêu cầu ngôn ngữ tự nhiên $r$ do con người viết -- một bước không hề tầm thường về mặt toán học, vì bản thân LLM không phải một hàm số xác định. Chúng tôi hình thức hóa bước này theo nguyên lý \textbf{LLM-Modulo} (Kambhampati et al., 2024): LLM chỉ đóng vai trò \emph{Bộ sinh Ứng viên} (Candidate Generator) ngẫu nhiên, và một \textbf{Toán tử Chiếu Ranh giới} (Bounded Projection Operator) tất định, độc lập với LLM, mới là thành phần chịu trách nhiệm đảm bảo tính đúng đắn cấu trúc.
+
+\begin{definition}[Bộ sinh Ứng viên]
+Gọi $\Sigma^*$ là không gian chuỗi ký tự (yêu cầu ngôn ngữ tự nhiên) và $\mathcal{C} := T \times \mathbb{R} \times 2^V$ là không gian ứng viên chưa kiểm chứng, với $T$ là tập loại yêu cầu đã hiệu chỉnh (taxonomy), $\mathbb{R}$ là miền $\delta$ (delta workload đề xuất), và $2^V$ là tập con của tập dịch vụ $V$ (đồ thị $G$). LLM là một ánh xạ ngẫu nhiên (không tất định)
+\begin{equation}
+L : \Sigma^* \to \mathcal{C}, \qquad L(r) = (t, \delta, S) \quad \text{(phân phối theo nhiệt độ lấy mẫu $>0$).}
+\end{equation}
+\end{definition}
+
+\begin{definition}[Toán tử Chiếu Ranh giới]
+Toán tử chiếu ranh giới $\Pi : \mathcal{C} \to \mathcal{C}_{\text{valid}}$ là hợp thành tất định của 6 phép chiếu con $G_1, \dots, G_6$ (Runtime Guards), mỗi phép chiếu tác động lên một hoặc nhiều thành phần của ứng viên $(t, \delta, S)$:
+\end{definition}
+
+\begin{align}
+G_1 \text{ (Gateway Invariance):} \quad & \text{inj}'  = \begin{cases} \text{inj} & \text{nếu } \operatorname{indeg}_G(\text{inj}) = 0 \\ g_0 & \text{ngược lại, } g_0 \in \{v \in V : \operatorname{indeg}_G(v)=0\} \end{cases} \\
+G_2 \text{ (Physical Delta Bound):} \quad & \delta' = \operatorname{clamp}_{[5,\,50]}(\delta) := \max\big(5,\ \min(50,\ \delta)\big) \\
+G_3 \text{ (Adjustment Clamp):} \quad & adj' = \begin{cases} adj & \text{nếu } |adj| \leq 10 \\ 0 & \text{ngược lại (bác bỏ, dùng anchor gốc)} \end{cases} \\
+G_4 \text{ (Service Existence):} \quad & S' = \begin{cases} S \cap V & \text{nếu } S \cap V \neq \emptyset \\ \{v_{\text{default}}\} & \text{ngược lại} \end{cases} \\
+G_5 \text{ (Similarity-Gated):} \quad & adj'' = adj' \cdot \mathbb{1}\big[\operatorname{Sim}(r, t) \geq 0.6\big] \\
+G_6 \text{ (Out-of-Taxonomy Refusal):} \quad & \texttt{is\_out\_of\_scope} = \mathbb{1}\Big[\max\big(\operatorname{Sim}(r, t_{\text{rule}}),\ \operatorname{Sim}(r, t_{\text{llm}})\big) = 0\Big]
+\end{align}
+trong đó $\operatorname{Sim} : \Sigma^* \times T \to [0,1]$ là hàm tương đồng từ khóa thực nghiệm giữa yêu cầu thô $r$ và bộ từ khóa hiệu chỉnh của loại yêu cầu $t$; $t_{\text{rule}}$ và $t_{\text{llm}}$ lần lượt là loại yêu cầu do bộ phân loại quy tắc và do LLM đề xuất.
+
+\begin{proposition}[Tính đúng đắn cấu trúc của phép chiếu]
+Với mọi ứng viên thô $c = L(r) \in \mathcal{C}$ do LLM sinh ra (bất kể chất lượng/độ tin cậy của $L$), đầu ra $\Pi(c) = (G_1(\text{inj}), G_4 \circ G_5 \circ G_3 \circ G_2(\delta, adj), G_4(S))$ luôn thỏa mãn đồng thời: (i) điểm tiêm nằm tại một gateway hợp lệ ($\operatorname{indeg}_G = 0$); (ii) $\delta' \in [5, 50]$; (iii) $S' \subseteq V$. Tính chất này không phụ thuộc vào việc $L$ có bị ảo giác (hallucinate) hay không -- $\Pi$ là một bộ lọc \textbf{tất định, độc lập với phân phối của $L$}, đúng theo tinh thần ``generate--test'' của LLM-Modulo.
+\end{proposition}
+
+Guard $G_6$ đóng vai trò khác biệt về bản chất so với $G_1$--$G_5$: thay vì \emph{sửa} ứng viên về miền hợp lệ, nó \emph{từ chối phát hành một phán quyết định lượng}, chuyển hệ thống sang một trạng thái đầu ra riêng (xem thêm Mục~\ref{sec:ood-refusal}, nơi $G_6$ được đặt cạnh guard $G_7$ đề xuất -- mở rộng tiêu chí từ chối sang cả biên độ ngoại suy, không chỉ tư cách thành viên taxonomy).
+
+\subsection{Luận điểm 1: Định lý Phân rã Cắt cụt (Truncated Factorization Theorem)}
+
+Định lý Phân rã cắt cụt (Truncated Factorization Theorem) của Judea Pearl được định nghĩa nguyên bản như sau:
+\begin{quote}
+\itshape
+``$P(x_1, \dots, x_n \mid do(X_i = x_i^*)) = \prod_{j \notin I} P(x_j \mid pa_j) \Big|_{X_i = x_i^*}$'' (Pearl, 2009, Chapter 3, Eq. 3.10)
+\end{quote}
+
+Biện giải toán học và lập luận về tính nhận dạng (Identifiability):
+Theo Pearl (2009), phân phối can thiệp được xác định chính xác bằng công thức phân rã cắt cụt:
+\begin{equation}
+P(x_1, \dots, x_n \mid do(X_i = x_i^*)) = \prod_{j \neq i} P(x_j \mid pa_j) \Big|_{X_i = x_i^*}
+\end{equation}
+Công thức trên chứng minh rằng đối với tất cả các nút hạ nguồn $X_j$ ($j \neq i$), phân phối có điều kiện $P(X_j \mid PA_j)$ hoàn toàn trùng khớp và bất biến dưới tác động của can thiệp.
+
+\textbf{Lưu ý quan trọng về tính Nhận dạng và sự Giới hạn của từ ``Tuyệt đối''}:
+Trong các công trình trước đây, việc đánh giá tác động can thiệp đòi hỏi phải chạy các thuật toán nhận dạng (identifiability algorithms) phức tạp bằng cách áp dụng 3 quy tắc do-calculus của Pearl (1995). Việc chứng minh tính đầy đủ (completeness) của hệ thống do-calculus này đã được thực hiện chính thức bởi Huang và Valtorta (2006) trong bài báo đoạt giải Best Student Paper tại hội nghị UAI 2006 (``Pearl's Calculus of Intervention Is Complete''). Nghiên cứu này chỉ ra rằng nếu một hiệu ứng nhân quả là có thể nhận dạng được (identifiable), luôn tồn tại một chuỗi hữu hạn các phép biến đổi do-calculus để đưa nó về dạng chỉ chứa các đại lượng quan sát được.
+
+Trong phương pháp Future RCA, việc giả định đã sở hữu một Mô hình Nhân quả cấu trúc (SCM) đầy đủ giúp chúng ta nới lỏng rào cản này: các truy vấn can thiệp và phản thực tế trở nên \textbf{tầm thường về mặt tính toán} (computationally trivial) vì ta có thể trực tiếp chạy lan truyền mô phỏng mà không cần chạy thuật toán do-calculus để tìm dạng tường minh. Tuy nhiên, điều này \textbf{không đồng nghĩa với việc kết quả dự phóng sẽ giữ nguyên tính đúng đắn tuyệt đối trong thế giới thực}. Độ đúng đắn của dữ liệu giả lập phụ thuộc hoàn toàn vào mức độ trùng khớp giữa hàm $f_j$ đã fit và phân phối nhiễu $P(N_j)$ với cơ chế vật lý thật của hệ thống. Nếu SCM bị lệch cấu trúc hoặc thiếu các biến ẩn quan trọng (confounders), kết quả dự phóng sẽ bị sai lệch nghiêm trọng.
+
+\subsection{Luận điểm 2: Sự bảo toàn tính độc lập của các nguồn nhiễu}
+
+Tính chất Mô-đun (Modularity) của cơ chế nhân quả được Blöbaum et al. định nghĩa nguyên bản trong tài liệu công cụ:
+\begin{quote}
+\itshape
+``These mechanisms are assumed to be modular, i.e., we can independently change the causal mechanism of one variable without affecting the causal mechanisms of other variables in the system.'' (Blöbaum et al., 2022, p. 1)
+\end{quote}
+
+Ý nghĩa lý thuyết và lập luận khoa học:
+Phép can thiệp $do(X_i = x_i^*)$ chỉ thay thế cơ chế tại nút $X_i$ thành hằng số, cắt bỏ các cạnh đi vào từ $PA_i$. Dựa trên thuộc tính \textbf{Mô-đun (Modularity)} (Peters et al., 2017), việc can thiệp này hoàn toàn không làm thay đổi các biến nhiễu nội tại $N_j$ ($j \neq i$) tại hạ nguồn. Do đó, các biến nhiễu tiếp tục duy trì thuộc tính độc lập thống kê đồng thời ($N_j \perp \!\!\! \perp N_k$). Điều này đảm bảo điều kiện tiên quyết của Theorem 1 và Theorem 3 luôn được thỏa mãn trên dữ liệu giả lập.
+
+\subsection{Luận điểm 3: Tính bất biến cấu trúc hàm mục tiêu và sự hội tụ của Theorem 3}
+\label{sec:invariance-forward}
+Biến đích ở hạ nguồn $X_n$ luôn có thể biểu diễn dưới dạng một hàm xác định của các biến nhiễu tổ tiên:
+\begin{equation}
+X_n = \psi(N_1, \dots, N_n)
+\end{equation}
+Dưới tác động của toán tử can thiệp $do(X_k = x_k^*)$, phương trình này chuyển dịch thành:
+\begin{equation}
+X_n = \psi'(N_1, \dots, N_{k-1}, N_{k+1}, \dots, N_n \mid x_k^*)
+\end{equation}
+Vì hàm mới $\psi'$ vẫn là một hàm xác định và nhận đầu vào là các biến nhiễu hoàn toàn độc lập thống kê $N_{j \neq k}$, nên theo đúng chứng minh của Theorem 3 (Janzing et al., 2019), tổng điểm ngoại lệ của nút đích dưới kịch bản can thiệp vẫn phân rã hoàn hảo tuyệt đối:
+\begin{equation}
+S(x_n \mid do(X_k = x_k^*)) = \sum_{j \neq k} cSh_{x^*}(j)
+\end{equation}
+
+\textit{(Ghi chú bổ sung, v4.)} Đẳng thức trên chính là căn cứ toán học hình thức cho Phép phân rã Shapley Xuôi dòng đã trình bày ở Mục~\ref{sec:forward-shapley}: khi $x_n$ trong biểu thức trên được thay bằng điểm giả lập dự phóng $\tilde{x}$ (sinh từ can thiệp $do(w^*)$ thay vì một quan sát thật), đẳng thức phân rã vẫn giữ nguyên hiệu lực toán học -- \emph{với điều kiện} $\psi'$ được suy ra từ đúng cấu trúc FCM đã khớp ở Bước 1. Đây là một khẳng định về \textbf{tính hợp lệ trong mô hình} (in-model validity), không phải một bảo chứng về độ chính xác thực nghiệm của mô hình đã khớp so với hệ thống thật -- hai điều này là khác nhau, và Mục~\ref{sec:scale} trình bày bằng chứng thực nghiệm cho thấy khoảng cách giữa chúng có thể đáng kể khi quy mô đồ thị tăng.
+
+\subsection{Luận điểm 4: Rào cản an toàn hệ thống thông qua Bổ đề 3 (Lemma 3)}
+
+Bổ đề 3 (Lemma 3) cùng lập luận của tác giả về giới hạn an toàn của sự lây lan bất thường được phát biểu nguyên văn:
+\begin{quote}
+\itshape
+``For any $\Delta \in \mathbb{R}^+_0$ we have:
+\begin{equation*}
+P\{S(Y) \ge c + \Delta \mid S(X) \ge c\} \le e^{-\Delta}
+\end{equation*}
+Plugging an outlier $x$ with $S(x) \ge c$ into any causal mechanism $P_{Y|X}$ is unlikely to cause an effect $y$ whose outlier score is significantly larger than $c$.'' (Janzing et al., 2019, p. 4)
+\end{quote}
+
+Ý nghĩa toán học và lập luận bảo chứng hệ thống:
+Để đảm bảo việc mô phỏng tải cực Surge không làm phép tính toán bị mất ổn định dẫn đến các cảnh báo giả, bổ đề 3 thiết lập một rào cản an toàn:
+\begin{lemma}[Janzing et al., 2019, p. 4]
+Với mọi $\Delta \in \mathbb{R}^+_0$, ta luôn có giới hạn xác suất sau:
+\begin{equation}
+P\{S(Y) \ge c + \Delta \mid S(X) \ge c\} \le e^{-\Delta}
+\end{equation}
+\end{lemma}
+Bổ đề này chứng minh rằng một ngoại lệ nhẹ ở thượng nguồn (trễ nhẹ do tính năng mới gây ra) rất khó có thể tự động khuếch đại thành một sự cố nghiêm trọng (sập hệ thống) ở hạ nguồn, do xác suất bị chặn trên bởi hàm mũ giảm cực nhanh $e^{-\Delta}$.
+
+\section{Cảnh báo Học thuật và Thách thức Thực tế (Limitations \& Risks)}
+
+Để đảm bảo tính khách quan khoa học, nghiên cứu này chủ động khai báo các rào cản lý thuyết, điểm mù ngoại suy và rủi ro chồng tầng suy luận khi ứng dụng phương pháp Future RCA vào thực tế.
+
+\subsection{Rủi ro chồng ba tầng suy luận (Triple-Decker Inference Risk)}
+Khác với các phương pháp chẩn đoán lỗi bị động thông thường, phương pháp Future RCA lồng ghép liên tục ba tầng suy luận thống kê và nhân quả, tạo ra một chuỗi tích lũy sai số (error propagation):
+\begin{enumerate}
+    \item \textbf{Tầng 1 - Học cấu trúc (Structure Learning):} Xác định đồ thị DAG $G$ từ dữ liệu quan sát. Bất kỳ sai lệch nào về hướng của cạnh nhân quả hoặc sự thiếu hụt nút do nhiễu loạn đều làm sai lệch cấu trúc của toàn bộ hệ thống hạ nguồn.
+    \item \textbf{Tầng 2 - Học cơ chế nhân quả (Mechanism Fitting):} Ước lượng các hàm số $f_j$ và khớp phân phối nhiễu nội tại $P(N_j)$. Sai số từ việc xấp xỉ hàm (ví dụ: dùng hồi quy tuyến tính cho quan hệ phi tuyến) sẽ tích lũy trực tiếp vào các biến nhiễu tái dựng.
+    \item \textbf{Tầng 3 - Giả lập phản thực tế \& Phân rã Shapley (Counterfactual Aggregation):} Chạy lan truyền xuôi dòng và tính điểm đóng góp Shapley qua hàng ngàn kịch bản Monte Carlo.
+\end{enumerate}
+Vì sai số của tầng trước sẽ làm bùng nổ sai số ở tầng sau, chúng tôi khuyến cáo các kỹ sư hệ thống không nên kỳ vọng một độ chính xác tuyệt đối mà cần xem đây là một công cụ hỗ trợ định hướng rủi ro tương đối.
+
+\subsection{Cảnh báo ngoại suy ngoài miền phân phối (OOD Extrapolation Failure) và Cơ chế Từ chối Toán học}
+\label{sec:ood-refusal}
+Như đã phân tích tại Mục~\ref{sec:domain-aware}, các mô hình phản thực tế học từ dữ liệu lịch sử thường trở nên kém tin cậy hoặc hoàn toàn sụp đổ khi hệ thống hoạt động ở các vùng biên cực hạn chưa từng có trong tập huấn luyện (Nagalapatti, 2025).
+\begin{itemize}
+    \item Các mô hình học máy phức tạp dạng cây (như Random Forest, GBDT) có điểm mù chí mạng là \textbf{không thể ngoại suy OOD}, chúng sẽ trả về các giá trị hằng số biên khi nhận mức tải giả lập quá lớn.
+    \item Do đó, nghiên cứu này khuyến cáo bắt buộc phải sử dụng các mô hình có cấu trúc toán học ổn định như \textbf{Linear ANM} (ràng buộc $\boldsymbol\beta \geq \mathbf 0$, Mục~\ref{sec:domain-aware}) cho các nút tài nguyên để tận dụng xu hướng ngoại suy tuyến tính, và các mô hình dựa trên \textbf{Lý thuyết hàng đợi (Queueing Theory)} như $QueueingLatencyRegressor$ cho các nút độ trễ để phản ánh đúng hiện tượng bão hòa nghẽn cổ chai vật lý.
+\end{itemize}
+
+\textit{(Bổ sung mới, v4 -- công thức xác định vùng biên từ chối, hoàn thiện lời khuyến cáo định tính ở trên bằng một tiêu chí tính được.)} Định nghĩa hàm phân phối tích lũy thực nghiệm $F_W$ của workload huấn luyện tại nút tiêm, và mức tin cậy OOD rời rạc $\kappa$:
+\begin{equation}
+\kappa(w^*) := \begin{cases}
+\textsc{high} & w^* \leq P_{90}(F_W) \\
+\textsc{medium} & P_{90}(F_W) < w^* \leq P_{95}(F_W) \\
+\textsc{low} & P_{95}(F_W) < w^* \leq 2 \max(W_{\text{train}}) \\
+\textsc{very\_low} & w^* > 2 \max(W_{\text{train}})
+\end{cases}
+\end{equation}
+Kết hợp với điều kiện từ chối theo tư cách thành viên taxonomy đã hình thức hóa ở $G_6$ (Mục~\ref{sec:llm-modulo}), chúng tôi định nghĩa vùng biên từ chối tổng quát:
+\begin{definition}[Vùng biên từ chối tổng quát]
+Một yêu cầu $(r, w^*)$ bị gắn cờ \texttt{is\_out\_of\_scope} nếu:
+\begin{equation}
+\underbrace{\max\big(\operatorname{Sim}(r, t_{\text{rule}}),\ \operatorname{Sim}(r, t_{\text{llm}})\big) = 0}_{G_6: \text{ ngoài taxonomy}} \quad \lor \quad \underbrace{\kappa(w^*) = \textsc{very\_low}}_{G_7 \text{ (đề xuất): ngoại suy cực hạn}}
+\end{equation}
+Khi cờ này được bật, hệ thống xuất báo cáo từ chối tường minh (khuyến nghị load-test thủ công) thay vì cố tính toán và trình bày một con số dự báo không có cơ sở thực nghiệm.
+\end{definition}
+Nhánh $G_6$ đã được triển khai và kiểm chứng trực tuyến (live) trong hệ thống đánh giá. Nhánh $G_7$ hiện là đề xuất kiến trúc chưa nối vào pipeline sản phẩm -- mức tin cậy $\kappa$ hiện chỉ được tính trong module chẩn đoán độc lập, chưa được dùng để quyết định phát hành/từ chối phán quyết cuối cùng.
+
+\subsection{Độ nhạy đối với kích thước hệ thống (Scale Sensitivity)}
+\label{sec:scale}
+Các thực nghiệm độc lập chỉ ra rằng hiệu năng của các phương pháp định vị nguyên nhân gốc rễ SCM nhạy cảm rất mạnh với kích thước của hệ thống phần mềm:
+\begin{itemize}
+    \item \textbf{On system small (như Sock Shop - 28 nút DAG đã khớp):} Thuật toán chẩn đoán và dự phóng đạt độ chính xác cực kỳ cao, do đồ thị nhân quả dễ xác lập chuẩn xác và tương tác giữa các service ít phi tuyến đan xen phức tạp.
+    \item \textbf{On system large (như Train Ticket - 112 nút DAG đã khớp):} Rủi ro sai lệch đồ thị (graph mismatch) tăng lên đáng kể do số lượng liên kết bùng nổ. Thời gian tính toán cho việc lặp qua $2^n$ liên minh Shapley cũng tăng theo cấp số nhân, đòi hỏi phải áp dụng các kỹ thuật xấp xỉ Shapley (như Shapley sampling) để tối ưu thời gian chạy.
+\end{itemize}
+
+\textit{(Cập nhật thực nghiệm, v4 -- chuyển từ cảnh báo lý thuyết sang bằng chứng đo được.)} Chúng tôi đã kiểm chứng trực tiếp cảnh báo lý thuyết ở trên bằng một phép thử độc lập với chất lượng khớp đồ thị: trên Train Ticket (112 nút), thứ hạng Shapley của các dịch vụ theo mức đóng góp dự phóng \textbf{không phân biệt được thống kê} so với xếp hạng ngẫu nhiên đối với cấu trúc reachability thật của đồ thị (Precision@17 $=60.6\%$, mức nền ngẫu nhiên $63.0\%$, đo qua 10 lần lặp độc lập ở can thiệp $+150\%$) -- ngay cả sau khi áp dụng đúng ràng buộc $\boldsymbol\beta \geq \mathbf 0$ (Mục~\ref{sec:domain-aware}) đồng nhất với đồ thị nhỏ để loại trừ khả năng đồ thị lớn chỉ đơn thuần được khớp kém chặt chẽ hơn. Ngược lại, cùng phép thử trên Sock Shop (28 nút) cho tỷ lệ báo động giả đúng $0.0\%$ qua 20 lần lặp độc lập ở điều kiện null. Đây là bằng chứng thực nghiệm cụ thể, không chỉ là suy đoán lý thuyết, cho mục cảnh báo \emph{Scale Sensitivity} ở trên -- và là lý do chúng tôi khuyến cáo \textbf{không nên tin tưởng} kết quả phân rã Shapley dự phóng ở quy mô lớn hơn Sock Shop cho đến khi nguyên nhân của khoảng cách này được xác định.
+
+\subsection{Không có phương pháp nhân quả nào chiến thắng trong mọi tình huống}
+Chúng tôi thẳng thắn thừa nhận và công bố kết quả thực nghiệm khách quan: Mô hình Nhân quả cấu trúc (SCM/FCM) là công cụ mạnh mẽ nhất trong việc chẩn đoán phi tuyến và giả lập phản thực tế, nhưng nó không phải là chìa khóa vạn năng giải quyết mọi sự cố. Trong các thực nghiệm so sánh đa dạng (như trên các tập benchmark RCAEval công khai), SCM giành chiến thắng thuyết phục trong khoảng \textbf{33.3\% (7/21 kịch bản sự cố)} trên hệ nhỏ (Sock Shop), nhưng chỉ \textbf{13.1\% (11/84 kịch bản, thấp nhất trong 4 mô hình đối chiếu)} trên hệ lớn hơn (Train Ticket, $4\times$ quy mô) -- trong khi các phương pháp thống kê truyền thống hoặc học máy phi nhân quả vẫn có ưu thế trong các lỗi dạng nhiễu trắng đơn giản hoặc hệ thống tuyến tính thuần túy, và ưu thế này càng rõ khi quy mô hệ thống tăng.
+
+Do đó, việc báo cáo cả độ chính xác (Accuracy) lẫn thời gian huấn luyện và thời gian suy diễn (Inference/Train Time) dưới dạng một \textbf{Ma trận Đánh đổi (Trade-off Matrix)} là cực kỳ cần thiết để người vận hành đưa ra quyết định lựa chọn công cụ phù hợp với hạ tầng thực tế.
+
+\end{document}

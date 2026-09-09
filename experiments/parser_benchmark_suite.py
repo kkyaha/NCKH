@@ -525,6 +525,10 @@ Rates are mean""" + (r"$\pm$std" if n_repeats > 1 else "") + f""" over {n_repeat
         cfg = r['Model Configuration'].replace('_', r'\_')
         cell_vals = [r['PBVR (%)'], r['SHR (%)'], r['GMR (%)'], r['Anchor MAE (%)'],
                      r['Adversarial PBVR (%)'], r['Mean Latency (ms)']]
+        # Escape raw '%' for LaTeX (fmt() above produces plain '%'/' ms' suffixes
+        # meant for console/markdown display, not LaTeX — an un-escaped '%'
+        # starts a comment and truncates the rest of the table row).
+        cell_vals = [v.replace('%', r'\%') for v in cell_vals]
         is_ours = 'Guarded' in cfg
         name_cell = ('\\textbf{' + cfg + ' (Ours)}') if is_ours else cfg
         data_cells = [('\\textbf{' + v + '}') if is_ours else v for v in cell_vals]

@@ -1,0 +1,5 @@
+label,scenario,n,accuracy_pct
+SockShop,tier1_driven,60,60.0
+SockShop,tier2_driven,60,100.0
+TrainTicket,tier1_driven,40,17.5
+TrainTicket,tier2_driven,40,100.0
