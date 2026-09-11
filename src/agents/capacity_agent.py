@@ -272,7 +272,20 @@ class CapacityAgent:
                 g = nx.DiGraph()
                 g.add_edge('Workload', 'Target')
                 model = gcm.InvertibleStructuralCausalModel(g)
-                gcm.auto.assign_causal_mechanisms(model, df_train)
+
+                # Ép dùng LinearRegression(positive=True) thay vì gcm.auto
+                # tự chọn — đồng bộ với Global DAG (train_accurate_path).
+                # Bằng chứng: experiments/nonlinear_mechanism_trial.py cho
+                # thấy linear_pos thắng auto_gcm rõ rệt ở protocol quantile
+                # (MAPE 12.9% vs 20.8%, win 10/21 vs 4/21 cặp), đúng chế
+                # độ agent thực sự gọi model (new_wl = base*(1+delta%) —
+                # luôn ngoại suy nhẹ so với baseline huấn luyện).
+                model.set_causal_mechanism(
+                    'Workload', EmpiricalDistribution())
+                model.set_causal_mechanism(
+                    'Target',
+                    AdditiveNoiseModel(SklearnRegressionModel(
+                        LinearRegression(positive=True))))
                 gcm.fit(model, df_train)
 
                 df_test['bkt'] = pd.qcut(

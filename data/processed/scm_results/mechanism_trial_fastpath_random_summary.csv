@@ -1,0 +1,4 @@
+mechanism,mape_pct,rmse,r2,f1_threshold_cross,n_pairs
+auto_gcm,7.1414,876040.1548,-15.5957,0.8571,21
+hgbr_mono,7.1755,375647.704,-0.5519,0.9524,21
+linear_pos,8.5939,466981.9458,-1.1051,0.9524,21
