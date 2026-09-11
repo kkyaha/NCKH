@@ -30,6 +30,7 @@ Academic Evaluation Metrics:
 
 import os
 import sys
+import csv
 import time
 import json
 import re
@@ -310,7 +311,7 @@ class GuardedHybridRunner:
 # ============================================================
 # 3. BENCHMARK EXECUTION ENGINE
 # ============================================================
-def run_parser_benchmark(use_live_api=True):
+def run_parser_benchmark(use_live_api=True, models_to_run=None):
     """
     Chay ablation benchmark RQ3.
 
@@ -322,6 +323,16 @@ def run_parser_benchmark(use_live_api=True):
     deterministic. Ket qua duoc tong hop dang mean +/- std qua cac lan lap thay vi
     1 con so diem duy nhat. Dieu chinh qua bien moi truong PARSER_BENCH_REPEATS
     hoac co --repeats=N tren dong lenh.
+
+    models_to_run: neu chi dinh (danh sach ten model con trong 4 config), CHI goi
+    live LLM/re-run cho cac model do; cac model KHONG duoc chon se lay lai dung
+    nguyen dong da co trong parser_ablation_benchmark.csv (khong re-run, khong
+    tao du lieu gia). Dung khi mot ban sua code CHI anh huong 1 config cu the
+    (vd sua ParserAgent chi anh huong Guarded_Hybrid_Parser, khong anh huong
+    Rule_Only/Unguarded_* vi cac config nay dung code hoan toan khac/khong dung
+    ParserAgent) -- tranh ton quota re-run lai nhung gi khong the doi, va tranh
+    lam le tuong dong bo gia (b0-b2 cu + guarded moi) khi that ra day la dung
+    dan boi vi code cua b0-b2 khong doi.
     """
     if '--live-llm' in sys.argv:
         use_live_api = True
@@ -355,21 +366,47 @@ def run_parser_benchmark(use_live_api=True):
         print("  dua vao bao cao/bai bao khoa hoc nhu bang chung ve hanh vi LLM.")
         print("!" * 75 + "\n")
 
+    all_model_names = ['Unguarded_ZeroShot_LLM', 'Unguarded_FewShot_LLM', 'Rule_Only', 'Guarded_Hybrid_Parser']
+    run_selected = models_to_run if models_to_run else all_model_names
+    csv_path = os.path.join(OUTPUT_DIR, 'parser_ablation_benchmark.csv')
+
+    reused_results = []
+    if models_to_run and os.path.exists(csv_path):
+        old_df = pd.read_csv(csv_path)
+        skipped = [m for m in all_model_names if m not in run_selected]
+        reused_results = old_df[old_df['model'].isin(skipped)].to_dict('records')
+        print(f"[REUSE] Keeping {len(reused_results)} existing rows for unaffected "
+              f"configuration(s) {skipped} (not re-run — code path unchanged for these).")
+
     all_results = []
     run_timestamp = pd.Timestamp.now().isoformat()
 
+    # Write incrementally (row-by-row, flushed) so a mid-run quota exhaustion
+    # never loses already-completed rows -- lesson learned the hard way earlier
+    # in this project's history.
+    fieldnames = ['repeat_id', 'llm_backend', 'run_timestamp', 'model', 'prompt_id',
+                  'category', 'requirement', 'expected_anchor', 'pred_delta', 'abs_error',
+                  'injection_service', 'core_services', 'physical_boundary_violation',
+                  'service_hallucination', 'gateway_misdirection', 'hallucinated_items',
+                  'latency_ms', 'llm_called']
+    incremental_path = os.path.join(OUTPUT_DIR, 'parser_ablation_benchmark_INPROGRESS.csv')
+    f_incremental = open(incremental_path, 'w', newline='', encoding='utf-8')
+    incremental_writer = csv.DictWriter(f_incremental, fieldnames=fieldnames)
+    incremental_writer.writeheader()
+
     print(f"\nEvaluating across {len(prompts)} test scenarios x {n_repeats} repeats "
-          f"(backend={llm_backend})...")
+          f"(backend={llm_backend}) for configuration(s): {run_selected}...")
     for repeat_id in range(1, n_repeats + 1):
         # Tao lai cac model moi lan lap de tranh state ro ri giua cac repeat
         # (vi du ParserAgent khong giu state giua cac call nen an toan tao lai).
         guarded_parser = ParserAgent(llm=llm, arch_agent=arch)
-        models = {
+        all_models = {
             'Unguarded_ZeroShot_LLM': UnguardedZeroShotParser(llm),
             'Unguarded_FewShot_LLM':  UnguardedFewShotParser(llm),
             'Rule_Only':              RuleOnlyParser(),
             'Guarded_Hybrid_Parser':  GuardedHybridRunner(guarded_parser)
         }
+        models = {k: v for k, v in all_models.items() if k in run_selected}
 
         for model_name, runner in models.items():
             print(f"  [repeat {repeat_id}/{n_repeats}] Testing configuration: [{model_name}]...")
@@ -402,7 +439,7 @@ def run_parser_benchmark(use_live_api=True):
                 # Metric 4: Anchor Absolute Error
                 ae = abs(delta - exp_anchor)
 
-                all_results.append({
+                row = {
                     'repeat_id': repeat_id,
                     'llm_backend': llm_backend,
                     'run_timestamp': run_timestamp,
@@ -421,12 +458,18 @@ def run_parser_benchmark(use_live_api=True):
                     'hallucinated_items': str(hallucinated_svcs),
                     'latency_ms': latency_ms,
                     'llm_called': llm_called
-                })
+                }
+                all_results.append(row)
+                incremental_writer.writerow(row)
+                f_incremental.flush()
 
-    df = pd.DataFrame(all_results)
-    csv_path = os.path.join(OUTPUT_DIR, 'parser_ablation_benchmark.csv')
+    f_incremental.close()
+    os.remove(incremental_path)  # merge succeeded -- no longer needed as a recovery copy
+
+    df = pd.DataFrame(all_results + reused_results)
     df.to_csv(csv_path, index=False, encoding='utf-8')
-    print(f"\n[OK] Raw ablation results saved to: {csv_path}")
+    print(f"\n[OK] Raw ablation results saved to: {csv_path} "
+          f"({len(all_results)} freshly run + {len(reused_results)} reused = {len(df)} total)")
 
     # ============================================================
     # 4. STATISTICAL SYNTHESIS ACROSS MODELS (mean +/- std qua N_REPEATS)
@@ -527,8 +570,10 @@ Rates are mean""" + (r"$\pm$std" if n_repeats > 1 else "") + f""" over {n_repeat
                      r['Adversarial PBVR (%)'], r['Mean Latency (ms)']]
         # Escape raw '%' for LaTeX (fmt() above produces plain '%'/' ms' suffixes
         # meant for console/markdown display, not LaTeX — an un-escaped '%'
-        # starts a comment and truncates the rest of the table row).
-        cell_vals = [v.replace('%', r'\%') for v in cell_vals]
+        # starts a comment and truncates the rest of the table row). Likewise
+        # fmt() emits a literal Unicode '±' (fine in a terminal or Markdown),
+        # which is not valid LaTeX math -- convert to '$\pm$' for this table.
+        cell_vals = [v.replace('%', r'\%').replace('±', r'$\pm$') for v in cell_vals]
         is_ours = 'Guarded' in cfg
         name_cell = ('\\textbf{' + cfg + ' (Ours)}') if is_ours else cfg
         data_cells = [('\\textbf{' + v + '}') if is_ours else v for v in cell_vals]
@@ -634,4 +679,8 @@ Thời điểm chạy: `{run_timestamp}` | Số lần lặp: `{n_repeats}` | Bac
 
 
 if __name__ == '__main__':
-    run_parser_benchmark()
+    only = None
+    for arg in sys.argv:
+        if arg.startswith('--only='):
+            only = arg.split('=', 1)[1].split(',')
+    run_parser_benchmark(models_to_run=only)

@@ -217,6 +217,18 @@ gia tri fallback khong co co so thuc nghiem, khong phai du bao dang tin cay.
     recs          = cap_eval.get('recommendations', [])
     status        = cap_eval.get('status', 'SAFE')
 
+    # G7: OOD-confidence guard (magnitude of extrapolation, orthogonal to G6's
+    # taxonomy-membership check). Unlike G6, a requirement that trips this is
+    # still a legitimate archetype match -- it just projects one or more
+    # downstream nodes outside their own training envelope (see
+    # CapacityAgent._classify_ood_confidence, experiments/g7_ood_guard_test.py).
+    # We do not refuse the numeric verdict; we deterministically attach the
+    # caveat below regardless of what the synthesis LLM chooses to mention,
+    # for the same reason G6 short-circuits at the code level rather than
+    # relying on an instruction the LLM could smooth over.
+    ood_confidence = cap_eval.get('ood_confidence', 'high')
+    ood_flagged    = cap_eval.get('ood_flagged_nodes', [])
+
     system_prompt = """Ban la Ky su Truong (Principal Engineer) chuyen gia Microservices.
 Nhiem vu: Tong hop Bao cao Kha thi Toan dien khi them tinh nang moi vao kien truc vi dich vu.
 Dua vao ket qua phan tich chuyen gia tu CapacityAgent va so do tac dong kien truc tu ArchitectureAgent."""
@@ -253,6 +265,10 @@ Dua vao ket qua phan tich chuyen gia tu CapacityAgent va so do tac dong kien tru
 Fast Path (Bivariate): {state['performance_metrics']}
 Accurate Path (Global DAG): {state['simulation_result']}
 
+=== G7: DO TIN CAY NGOAI SUY (OOD-confidence, doc lap voi confidence taxonomy) ===
+  Muc do tin cay: {ood_confidence}
+  Node vuot P95 phan phoi huan luyen: {ood_flagged if ood_flagged else 'Khong co'}
+
 === YEU CAU BAO CAO ===
 1. TAC DONG KIEN TRUC: Liet ke API can them/sua, ai goi ai.
 2. PHAN TICH RUI RO TAI NGUYEN (Tich hop phan bien Devil's Advocate):
@@ -269,7 +285,30 @@ Accurate Path (Global DAG): {state['simulation_result']}
     ]
 
     response = llm.invoke(messages)
-    return {"feasibility_report": response.content}
+    report = response.content
+
+    # G7 short-circuit: force the OOD caveat onto the report regardless of
+    # whether the synthesis LLM chose to surface it -- a code-level
+    # guarantee, not a prompt instruction (same rationale as G6, Section
+    # "Behavior at the Edge of the Declared Scope" in the paper).
+    if ood_confidence in ("low", "very_low"):
+        report += f"""
+
+---
+**[G7 -- CANH BAO NGOAI SUY (OOD), tu dong chen boi guard, khong phai LLM]**
+Muc do tin cay ngoai suy: **{ood_confidence.upper()}**. Cac node sau co gia tri
+du phong VUOT NGOAI khoang P95 cua phan phoi du lieu huan luyen (SCM van tra
+ve mot con so, nhung con so nay it duoc kiem chung boi du lieu thuc te hon
+cac truong hop thong thuong):
+{chr(10).join(f'  - {n}' for n in ood_flagged) if ood_flagged else '  (khong xac dinh duoc node cu the)'}
+
+Day KHONG phai loi do requirement sai taxonomy (xem G6) -- day la mot yeu cau
+hop le nhung day muc do tac dong toi ria (hoac vuot ria) vung du lieu da
+tung quan sat. Khuyen nghi: doi chieu voi load-test thuc te truoc khi xem
+ket luan phia tren la bao chung cuoi cung.
+"""
+
+    return {"feasibility_report": report}
 
 
 # ==========================================

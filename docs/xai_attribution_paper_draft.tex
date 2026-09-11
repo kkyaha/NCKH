@@ -1,0 +1,232 @@
+\documentclass[journal, 10pt]{IEEEtran}
+
+% =========================================================
+% PACKAGES
+% =========================================================
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+% =========================================================
+% TITLE (DRAFT -- WORKING TITLE ONLY)
+% =========================================================
+\title{Does Interventional Shapley Attribution Explain Microservice Capacity Forecasts Faithfully? A Controlled, Ground-Truth Evaluation Across Scale}
+
+\author{
+    \IEEEauthorblockN{Your Name\IEEEauthorrefmark{1}, Co-Author Name\IEEEauthorrefmark{2}} \\
+    \IEEEauthorblockA{\IEEEauthorrefmark{1}Faculty of Information Technology, University of Engineering and Technology, \\
+    Vietnam National University, Hanoi (VNU-UET), Vietnam \\
+    Email: your.email@vnu.edu.vn}
+}
+
+\maketitle
+
+% =========================================================
+% NOTE TO SELF -- REMOVE BEFORE SUBMISSION
+% =========================================================
+% This is a WORKING EXTRACTION, not a finished paper. It was split out of
+% "Pre-Mortem Feasibility Forecasting..." (docs/paper_draft.tex) because that
+% paper's RQ6 had grown into a self-contained explainability (XAI) evaluation
+% thread -- four distinct experiments testing whether an interventional
+% Shapley-attribution mechanism is a FAITHFUL explanation of projected
+% capacity changes -- which is a different research question (does the
+% EXPLANATION track the true cause?) from the parent paper's core question
+% (is the FORECAST accurate?, RQ1/RQ2/RQ4) or its LLM-reliability question
+% (RQ3). Bundling both under one paper diluted depth on this thread and made
+% the parent paper's central thesis harder to state in one sentence.
+%
+% What is DONE and can be dropped in directly:
+%   - Section~\ref{sec:results}: all four experiments, full narrative and
+%     numbers, copied verbatim from paper_draft.tex's former RQ6.
+%   - The mathematical foundation this rests on (Janzing/Budhathoki et al.'s
+%     IT outlier score, Multiple Convolution theorem, Shapley decomposition,
+%     the interventional/prospective extension, and the domain-specific
+%     two-tier DAG + monotonicity-constrained mechanisms) is already fully
+%     written up in docs/khungtoanhoc.tex -- reuse Sections 1-5 of that
+%     document as this paper's Section~\ref{sec:background} almost verbatim
+%     (it was written as a standalone theoretical framework precisely so it
+%     could be shared between the two papers).
+%
+% What is STILL MISSING before this is submission-ready:
+%   - A proper Abstract, Introduction, and Related Work section positioning
+%     this explicitly against the XAI evaluation literature (Doshi-Velez &
+%     Kim 2017's functionally-/human-/application-grounded taxonomy; this
+%     paper's four experiments are functionally-grounded only -- say so).
+%   - A Methodology section describing the shared infrastructure (Sock Shop
+%     / Train Ticket DAGs, RCAEval data, the two-tier DAG and monotonicity
+%     constraint) -- can largely be copied from paper_draft.tex Sections
+%     III-A/III-C and khungtoanhoc.tex Section 1, trimmed to only what this
+%     paper's own experiments depend on.
+%   - The human-grounded and/or application-grounded evaluation this paper
+%     currently lacks entirely (see Discussion stub below) -- this is the
+%     single highest-value addition to make the paper's own XAI claim solid
+%     rather than only functionally-grounded.
+%   - A naive-baseline comparison (e.g. attribute by hop-distance or by raw
+%     magnitude of change instead of Shapley) to show the machinery earns
+%     its complexity over a simple heuristic -- not yet run anywhere.
+%   - Proper \label/\ref wiring once this has real section numbers (the
+%     text below still references "Section~\ref{sec:workload-propagation}"
+%     etc. by the parent paper's labels in a couple of places; these are
+%     marked with \todo-style comments for now instead of silently left
+%     dangling).
+
+\begin{abstract}
+\textbf{[TODO --- STUB]:} Draft abstract. Core claim: the same interventional Shapley-attribution
+mechanism (Budhathoki et al., ICML 2022, run forward on $do(x)$ samples
+instead of backward on observed outliers) that a companion systems paper
+argues gives causal capacity forecasting an explanatory advantage over
+black-box regression is only faithful along one of its two claimed axes.
+Across four controlled experiments on two microservice DAGs of different
+scale (Sock Shop, 28 fitted nodes; Train Ticket, 112), the mechanism is a
+reliable, zero-false-positive detector of \emph{local} (Tier-2) resource
+anomalies but an unreliable -- and, at Train Ticket's scale, worse-than-chance
+-- attributor of \emph{propagated} (Tier-1) network-driven ones. We report
+this asymmetry with a ground-truth-by-construction methodology throughout,
+including a controlled test that rules out a specific confound (an
+inconsistently-applied monotonicity constraint) before accepting the
+negative result as real.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Explainable AI, Structural Causal Models, Root Cause Analysis, Shapley Values, Faithfulness Evaluation, Microservices.
+\end{IEEEkeywords}
+
+% =========================================================
+% I. INTRODUCTION (STUB)
+% =========================================================
+\section{Introduction}
+\label{sec:introduction}
+\textbf{[TODO --- STUB]:} Draft introduction. Motivate from the companion paper's own hedge:
+a causal SCM's point-accuracy does not reliably beat standard regression
+baselines across topologies of different scale (that paper's RQ2) -- so its
+argued value instead rests on a capability regression cannot offer at all:
+decomposing a projected change into which upstream service and which
+mechanism (network propagation vs. local resource consumption) drives it,
+via the same Shapley-value machinery Budhathoki et al.\ \cite{budhathoki2022rootcause}
+use for retrospective outlier root-cause attribution, run forward on
+interventional samples instead of backward on observed ones. That capability
+was asserted but never tested. This paper tests it directly, with a
+ground-truth-by-construction methodology (Section~\ref{sec:results}) rather
+than the plausible-looking qualitative examples common in applied XAI work,
+and reports what survives contact with a controlled test and what does not.
+
+\textbf{Contributions.}
+\begin{enumerate}
+    \item A controlled, ground-truth-by-construction protocol for testing
+    Shapley-attribution faithfulness in a causal microservice DAG, covering
+    four complementary facets: null-condition false-positive rate,
+    dose-response monotonicity, cross-service topology respect, and
+    within-node tier decomposition (Section~\ref{sec:results}).
+    \item An asymmetric faithfulness result: local (Tier-2) attribution is
+    reliable (100\% accuracy, both testbeds); propagation (Tier-1)
+    attribution is not (60.0\% on a 28-node DAG, 17.5\% -- worse than chance
+    -- on a 112-node DAG).
+    \item A confound ruled out by direct test rather than left as a caveat:
+    we verified the Train Ticket result is not explained by an
+    inconsistently-applied monotonicity constraint, by re-fitting both DAGs
+    identically and re-running the check.
+\end{enumerate}
+
+% =========================================================
+% II. BACKGROUND (STUB -- REUSE khungtoanhoc.tex)
+% =========================================================
+\section{Background: Interventional Shapley Attribution}
+\label{sec:background}
+\textbf{[TODO --- STUB]:} Reuse docs/khungtoanhoc.tex Sections 1--5 here (IT outlier score
+Definition~1, Multiple Convolution Theorem, conditional-score causal
+filtering, the 4-step outlier-attribution algorithm, the Shapley
+decomposition Theorem, and Section~5's forward/prospective extension with
+its formal validity argument via Pearl's Truncated Factorization Theorem and
+the Modularity property). That document was written as a standalone
+theoretical framework specifically so it could be shared between this paper
+and the companion systems paper without duplication of proof text -- pull
+its LaTeX source in directly and trim citations to match this paper's
+reference list.
+
+\subsection{The Two-Tier DAG This Paper's Experiments Rely On}
+\textbf{[TODO --- STUB]:} Reuse khungtoanhoc.tex's Two-Tier Cascade Propagation DAG subsection
+(node partition $V = V_W \cup V_R$, Tier-1 workload-propagation and Tier-2
+resource-conversion structural equations) and paper\_draft.tex
+Section~III-C's monotonicity-constrained fitting procedure ($\boldsymbol\beta^*
+= \operatorname*{argmin}_{\boldsymbol\beta\ge\mathbf 0}\lVert \mathbf y - X\boldsymbol\beta\rVert_2^2$,
+applied uniformly to both tiers on both testbeds as of this paper). This
+partition is what makes "Tier 1 vs.\ Tier 2" attribution in
+Section~\ref{sec:tier} a well-posed question in the first place.
+
+% =========================================================
+% III. RESULTS -- moved verbatim from the companion paper's former RQ6
+% =========================================================
+\section{Results: Four Faithfulness Experiments}
+\label{sec:results}
+
+Section~\ref{sec:background} argues that a projected $do(x)$ outcome can be \emph{decomposed} -- attributed to specific downstream services and mechanisms -- via the same Shapley-value machinery Budhathoki et al.\ \cite{budhathoki2022rootcause} use for outlier root-cause attribution, run forward instead of backward. This capability is implemented (\texttt{gcm.attribute\_anomalies} on interventional samples, in a module separate from the production capacity-forecasting agent evaluated in the companion systems paper) but had not been checked for basic trustworthiness before this study. We run four validity checks -- three on Sock Shop's 28-node DAG (one shared with Train Ticket), one on Train Ticket's larger graph -- none of which requires an LLM API, so all four are cheap to reproduce and re-run.
+
+\subsection{Null-Condition False-Positive Rate}
+\label{sec:null-fp}
+We run $do(\text{front-end\_workload} = \bar{w}_{\text{train}})$ -- i.e.\ no real change -- 20 independent times (Monte Carlo draws differ only by seed) and check how often the existing risk-level heuristic (a fixed percentage-change threshold, or an IT-score threshold from \texttt{gcm.anomaly\_scores}) flags a node ``warning'' or ``critical'' anyway. \textbf{This uncovered a real calibration bug}: at $85\%$ scenario-level (i.e.\ at least one false alarm in 17/20 runs), concentrated almost entirely in one node (\texttt{catalogue\_cpu}, flagged in 85\% of runs). The cause is a small-denominator artifact: \texttt{catalogue\_cpu}'s baseline value is small (${\sim}0.23$ in its native units), so a purely Monte Carlo absolute deviation reads as a percentage swing as large as $+118\%$ under a condition with no real change at all. We fixed this by requiring every risk-level trigger -- both the percentage-change path and the IT-score path -- to also clear a z-score gate ($|{\text{predicted}-\text{baseline}}| / \sigma_{\text{train}} \geq 1$ for warning, $\geq 2$ for critical), computed against each node's own training-period noise rather than a fixed cross-node number. A first fix that gated only the percentage path reduced the false-positive rate to $65\%$; gating the IT-score path as well eliminated it, at $0.0\%$ across all 20 repeats. We report both the bug and the two-step fix rather than only the final number, since the intermediate result shows the bug was not a single trivial typo.
+
+\subsection{Dose-Response Monotonicity}
+\label{sec:dose-response}
+For the node most directly downstream of the injection point (\texttt{front-end\_cpu}), we ran 5 independent repeats at each of 5 intervention levels ($0\%$ to $+300\%$) and computed the Spearman correlation between intervention magnitude and (i) the raw IT-based anomaly score and (ii) the Shapley contribution, across three independent executions of this exact experiment (before and after the calibration fix in Section~\ref{sec:null-fp}, which does not itself change either quantity -- only which repeats it retroactively would have flagged). \textbf{The two diverge sharply.} Shapley contribution's correlation with intervention magnitude was stable and strong across all three runs ($0.90$, $1.00$, $1.00$) and, in the post-fix run, translates into a sensible decision boundary: $0$--$20\%$ load stays \textsc{normal}, $50\%$ consistently triggers \textsc{warning} ($z\approx2.0$), and $150$--$300\%$ consistently triggers \textsc{critical} ($z\approx6$--$12$), with zero false alarms at $0\%$ across 5 repeats. The raw anomaly score's correlation, by contrast, was unstable and at one point \emph{negative} across the same three runs ($-0.50$, $0.50$, $0.60$) -- it is not reliably monotonic run-to-run. \textbf{We flag this explicitly}: the Shapley-based attribution this paper evaluates behaves like a trustworthy signal under this check, but the raw per-node anomaly score it is partly built from does not, and should not be read as validated by this result.
+
+\subsection{Topology Respect (Train Ticket)}
+\label{sec:topology}
+Sock Shop's 7-service graph is too small and too densely reachable from its single gateway for a clean negative-control test -- nearly every node is downstream of \texttt{front-end}. Train Ticket's fitted accurate-path DAG is not: from the natural gateway \texttt{ts-preserve-service}, 17 of the 27 other services are reachable (hops 1--3) and \textbf{10 are genuinely unreachable} (no path exists in the fitted graph at all), giving a principled test -- attribution should not meaningfully favor unreachable services over reachable ones. We intervened at $+150\%$ for 10 independent repeats and ranked all service CPU nodes by Shapley contribution each time. \textbf{The result is negative}: Precision@17 (the fraction of the top-17 Shapley-ranked services that are genuinely reachable) was $60.0\%$, statistically indistinguishable from the $63.0\%$ expected by topology-blind chance alone; mean Shapley contribution was in fact slightly \emph{higher} for unreachable services ($0.179$) than for reachable ones ($0.143$). The raw magnitude of predicted change did point the right direction (reachable services showed a larger mean $|\text{change\_pct}|$ than unreachable ones, $6.9\%$ vs.\ $3.9\%$), but this signal was too weak relative to Shapley's noise to produce a topology-respecting ranking.
+
+We had one specific, testable hypothesis for this result: the Train Ticket DAG used here lacked the non-negative-coefficient (monotonicity) constraint the Sock Shop DAG used in the two checks above already had on its Tier-1 workload-propagation edges. \textbf{We tested this directly rather than only flagging it}: we applied the identical constraint used for Sock Shop to Train Ticket's Tier-1 and Tier-2 mechanisms alike and re-ran the exact same check. Precision@17 moved from $60.0\%$ to $60.6\%$ -- statistically unchanged, and mean Shapley contribution remained higher for unreachable services ($0.169$) than reachable ones ($0.125$). \textbf{This rules out the monotonicity-fit confound as the explanation}: the negative result is not an artifact of Train Ticket's DAG being fit less carefully than Sock Shop's -- the two are now fit identically, and the gap persists. We therefore report this as a genuine, unexplained negative result on Shapley attribution's reliability at Train Ticket's scale (112 fitted nodes vs.\ Sock Shop's 28), and leave identifying its actual cause -- Monte Carlo approximation error at this graph size, or confounding shared across services independent of the fitted causal edges -- as an open diagnostic question (Section~\ref{sec:discussion}).
+
+\subsection{Tier-1 vs.\ Tier-2 Decomposition}
+\label{sec:tier}
+Section~\ref{sec:background} makes a more specific claim than any check above tests: that Shapley attribution can decompose a projected change at \emph{one} target node into how much comes from Tier-1 network propagation versus Tier-2 local resource conversion. Neither the dose-response check (Section~\ref{sec:dose-response}; its target, the injection node itself, has no Tier-1 ancestor to separate from) nor the topology check (Section~\ref{sec:topology}; which compares totals \emph{across} services, not tiers \emph{within} one) actually exercises this. We test it directly with a ground-truth-by-construction design: for each of several downstream targets, we construct a \emph{Tier-1-driven} anomaly (a real $do(\text{gateway\_workload} = 2.5\times)$ intervention, target's own value left to the fitted mechanism) and a \emph{Tier-2-driven} anomaly (no real workload change, but the target's own resource value manually perturbed by $+5\sigma$ -- simulating a local inefficiency independent of traffic). \texttt{gcm.attribute\_anomalies} returns a per-ancestor contribution dict that already separates every \texttt{*\_workload} ancestor (Tier 1) from the target's own key (Tier 2); we check whether the tier with the larger $|{\text{contribution}}|$ matches the known true cause, over 10 independent repeats $\times$ 6 Sock Shop targets and 10 repeats $\times$ 4 Train Ticket targets.
+
+\textbf{The result is asymmetric and, on Train Ticket, poor.} Tier-2 (local) attribution is essentially perfect on both systems -- $100.0\%$ accuracy, 120/120 and 80/80 trials. Tier-1 (propagation) attribution is unreliable even on Sock Shop ($60.0\%$, 36/60) and \emph{worse than chance} on Train Ticket ($17.5\%$, 7/40) -- a $-32.5$ percentage-point gap from a 50\% coin flip, meaning the mechanism actively mis-attributes network-driven anomalies to the target's own node more often than it gets them right at this scale. The Sock Shop failures are not uniform across targets: direct children of the injection gateway (\texttt{carts}, \texttt{orders}, \texttt{user}) score $100\%$, while two-hop descendants reached only through an intermediate service (\texttt{payment}, \texttt{shipping}, both parented by \texttt{orders\_workload} rather than \texttt{front-end\_workload} directly) score $0\%$ -- the mechanism appears to lose the propagation signal specifically across an intermediate hop, not uniformly. \textbf{We revise the claim accordingly}: attributing a resource anomaly to the target's own local mechanism is a validated capability; attributing it to upstream network propagation, at more than one hop or beyond Sock Shop's scale, is not.
+
+% =========================================================
+% IV. DISCUSSION (STUB)
+% =========================================================
+\section{Discussion and Threats to Validity}
+\label{sec:discussion}
+\textbf{[TODO --- STUB]:} Draft discussion. Key points to cover:
+\begin{itemize}
+    \item \textbf{Evaluation tier (Doshi-Velez \& Kim, 2017).} All four experiments here are \emph{functionally-grounded}: faithfulness is checked against a synthetic, self-constructed ground truth, not against a human's judgment of whether the explanation is useful or against an operator's actual scale/no-scale decision. Neither human-grounded nor application-grounded evaluation has been attempted. State this as the paper's primary limitation, not an afterthought.
+    \item \textbf{Confound in Section~\ref{sec:tier}'s own design.} In the Tier-1-driven scenario, the target's resource value is left to the fitted mechanism's own prediction rather than held to a known-clean value -- so residual model misfit (not a real local anomaly) could itself register as spurious Tier-2 contribution, potentially explaining part of why Tier-1 accuracy is $<100\%$ even on Sock Shop. A follow-up should separate "attribution mechanism is wrong" from "the underlying regression fit is imperfect."
+    \item \textbf{No naive-baseline comparison yet.} Section~\ref{sec:topology}'s $63.0\%$ chance baseline shows Shapley is not \emph{better} than random at Train Ticket scale, but no experiment here compares Shapley against a simple non-causal heuristic (e.g. attribute by hop-distance, or by raw $|\Delta|$) that requires no SCM at all -- needed to argue the machinery's added complexity earns its keep even where it beats chance.
+    \item \textbf{Scale sensitivity.} All three of the checks run on both testbeds degrade, or fail outright, moving from Sock Shop (28 nodes) to Train Ticket (112 nodes) -- consistent across independent experimental designs (ranking-based and construction-based), which strengthens confidence this is a real scale effect and not an artifact of one specific test.
+\end{itemize}
+
+\subsection{Threats to Validity}
+\begin{itemize}
+    \item \textbf{Two testbeds only}, of one architectural style (RCAEval's fault-injected microservice benchmarks); generalization to other topologies or fault-injection regimes is untested.
+    \item \textbf{Perturbation magnitude in Section~\ref{sec:tier} is large by design} ($+5\sigma$), chosen to give the mechanism its best chance; smaller, more realistic local anomalies have not been tested and may fare worse.
+    \item \textbf{The mechanism validated here is not the one deployed}: the companion systems paper's production capacity-forecasting agent uses a simpler fixed-threshold heuristic for its own bottleneck ranking, not this attribution mechanism -- wiring them together and re-validating end-to-end remains open.
+\end{itemize}
+
+% =========================================================
+% V. CONCLUSION (STUB)
+% =========================================================
+\section{Conclusion}
+\textbf{[TODO --- STUB]:} Draft conclusion once Sections~\ref{sec:introduction}--\ref{sec:discussion} above are filled in.
+
+\bibliographystyle{IEEEtran}
+\begin{thebibliography}{00}
+\bibitem{budhathoki2022rootcause}
+K. Budhathoki, L. Minorics, P. Blöbaum, and D. Janzing, ``Causal Structure-Based Root Cause Analysis of Outliers,'' in \emph{Proc. ICML}, PMLR vol. 162, pp. 2357--2369, 2022.
+\bibitem{blobaum2024dowhy}
+P. Blöbaum et al., ``DoWhy-GCM: An Extension of DoWhy for Causal Inference in Graphical Causal Models,'' \emph{Journal of Machine Learning Research}, vol. 25, no. 147, 2024.
+\bibitem{pearl2009causality}
+J.~Pearl, \emph{Causality}, 2nd ed. Cambridge Univ. Press, 2009.
+\bibitem{doshivelez2017rigorous}
+F. Doshi-Velez and B. Kim, ``Towards A Rigorous Science of Interpretable Machine Learning,'' \emph{arXiv preprint arXiv:1702.08608}, 2017.
+\bibitem{pham2024rcaeval}
+L. Pham et al., ``RCAEval: A Benchmark for Root Cause Analysis of Microservice Systems,'' 2024.
+\end{thebibliography}
+\end{document}

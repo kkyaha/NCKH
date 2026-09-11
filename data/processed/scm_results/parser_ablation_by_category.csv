@@ -11,7 +11,7 @@ Rule_Only,Adversarial_Stress,10,0.0,0.0,0.0,2.5
 Rule_Only,Complex_MultiHop,10,0.0,0.0,0.0,4.5
 Rule_Only,In_Distribution,20,0.0,0.0,0.0,2.5
 Rule_Only,Subtle_ReadOnly,10,0.0,0.0,0.0,2.0
-Guarded_Hybrid_Parser,Adversarial_Stress,10,0.0,0.0,0.0,2.17
-Guarded_Hybrid_Parser,Complex_MultiHop,10,0.0,0.0,0.0,3.5
+Guarded_Hybrid_Parser,Adversarial_Stress,10,0.0,0.0,0.0,0.5
+Guarded_Hybrid_Parser,Complex_MultiHop,10,0.0,0.0,0.0,4.33
 Guarded_Hybrid_Parser,In_Distribution,20,0.0,0.0,0.0,2.0
-Guarded_Hybrid_Parser,Subtle_ReadOnly,10,0.0,0.0,0.0,2.17
+Guarded_Hybrid_Parser,Subtle_ReadOnly,10,0.0,0.0,0.0,2.0

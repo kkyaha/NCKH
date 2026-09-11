@@ -147,6 +147,10 @@ class CapacityAssessment:
     risk_critique: str                  # Tự phản biện Devil's Advocate (rủi ro tiềm ẩn)
     recommendations: List[str]          # Các khuyến nghị kỹ thuật cụ thể
     confidence: str = "MEDIUM"          # "HIGH" | "MEDIUM" | "LOW"
+    ood_confidence: str = "high"        # G7: "high"|"medium"|"low"|"very_low" — mức tin cậy
+                                         # ngoại suy của *độ lớn* workload dự phóng, độc lập
+                                         # với `confidence` (vốn chỉ đo taxonomy-membership).
+    ood_flagged_nodes: List[str] = field(default_factory=list)  # node nào rơi ngoài P95 train
 
 
 # ============================================================
@@ -203,6 +207,11 @@ class CapacityAgent:
         self.global_df_baseline: pd.DataFrame = None
         self.df_baseline      = None
         self.dag_graph: nx.DiGraph = None
+
+        # G7 state (see simulate_intervention / _classify_ood_confidence)
+        self._ood_stats_cache = None
+        self._last_ood_confidence = "high"
+        self._last_ood_flagged: List[str] = []
         self.dag              = None
 
         self._is_trained = False
@@ -479,6 +488,78 @@ class CapacityAgent:
 
         return result
 
+    # ----------------------------------------------------------
+    # G7: OOD-CONFIDENCE GUARD (magnitude-of-extrapolation check)
+    # ----------------------------------------------------------
+    # G6 (parser_agent.py) refuses when a requirement matches NO calibrated
+    # archetype at all. G2 (parser_agent.py) separately clamps the injection
+    # delta itself to [5%, 50%]. Neither protects against a downstream node
+    # -- reached via Tier-1 propagation or Tier-2 conversion, not the
+    # injection point itself -- landing outside ITS OWN training envelope
+    # even when the injection delta is fully within G2's legal range (see
+    # experiments/g7_ood_guard_test.py and Section "Extrapolation-Sign
+    # Failure Mode" in the paper). G7 measures that gap directly: it is a
+    # read-only classification over already-computed `samples`, not a
+    # re-simulation, so it adds negligible latency to the accurate path.
+    _OOD_CONF_ORDER = {'high': 0, 'medium': 1, 'low': 2, 'very_low': 3}
+
+    def _ood_train_stats(self) -> Dict[str, Dict[str, float]]:
+        """Per-node training-distribution percentiles, cached on first use."""
+        if getattr(self, '_ood_stats_cache', None) is not None:
+            return self._ood_stats_cache
+        stats = {}
+        if self.global_df_baseline is not None:
+            for col in self.global_df_baseline.columns:
+                vals = self.global_df_baseline[col].dropna().values
+                if len(vals) > 0:
+                    stats[col] = {
+                        'max': float(np.max(vals)),
+                        'p90': float(np.percentile(vals, 90)),
+                        'p95': float(np.percentile(vals, 95)),
+                        'p99': float(np.percentile(vals, 99)),
+                    }
+        self._ood_stats_cache = stats
+        return stats
+
+    def _classify_ood_confidence(self, samples: pd.DataFrame, injection_node: str = None) -> Tuple[str, List[str]]:
+        """Compare each DOWNSTREAM node's projected mean against ITS OWN
+        training percentiles. Returns (worst_confidence, flagged_node_labels).
+        `samples` is the DataFrame `simulate_intervention` already computed
+        via `gcm.interventional_samples` -- no extra SCM call is made here.
+
+        `injection_node` is excluded from the check by construction: a do(x)
+        query is meant to explore values beyond what the injected node has
+        historically taken, so flagging it against its OWN training envelope
+        is close to tautological and carries no information about whether an
+        UNINTENDED downstream effect occurred -- exactly the distinction this
+        guard's own description (Section "Workload Propagation" in the paper)
+        draws. An earlier version of this method omitted this exclusion and
+        flagged the injection node on effectively every non-trivial delta,
+        discovered when 150/150 real RQ3-parsed cases came back 'low'
+        (data/processed/scm_results/g7_rq3_scale_evaluation.csv) -- see
+        Section "Discussion" for the corrected, still-imperfect result."""
+        stats = self._ood_train_stats()
+        worst = 'high'
+        flagged = []
+        for node in samples.columns:
+            if node not in stats or node == injection_node:
+                continue
+            s = stats[node]
+            val = float(samples[node].mean())
+            if val <= s['p90']:
+                conf = 'high'
+            elif val <= s['p95']:
+                conf = 'medium'
+            elif val <= s['p99'] or val <= 2 * s['max']:
+                conf = 'low'
+            else:
+                conf = 'very_low'
+            if conf != 'high':
+                flagged.append(f"{node} (P95={s['p95']:.2f}, projected={val:.2f})")
+            if self._OOD_CONF_ORDER[conf] > self._OOD_CONF_ORDER[worst]:
+                worst = conf
+        return worst, flagged
+
     def simulate_intervention(
         self,
         injection_service: str = None,
@@ -487,6 +568,11 @@ class CapacityAgent:
         **kwargs
     ) -> Dict[str, Any]:
         """Tương thích SimulationAgent.simulate_intervention()."""
+        # Reset G7 state up front so an early return below (no model / unknown
+        # column) can never leak a stale confidence level from a PRIOR call.
+        self._last_ood_confidence = "high"
+        self._last_ood_flagged = []
+
         if injection_service is None:
             injection_service = self.default_injection
 
@@ -507,6 +593,11 @@ class CapacityAgent:
             interventions={injection_col: lambda x, w=target_wl: w},
             num_samples_to_draw=n_samples
         )
+
+        # G7: classify extrapolation risk on the samples we already have --
+        # stashed on self, read by assess_capacity() right after this call.
+        self._last_ood_confidence, self._last_ood_flagged = self._classify_ood_confidence(
+            samples, injection_node=injection_col)
 
         hops = self._compute_hops(injection_service)
 
@@ -644,7 +735,9 @@ class CapacityAgent:
             expert_assessment  = expert_assessment,
             risk_critique      = risk_critique,
             recommendations    = recommendations,
-            confidence         = parsed_requirement.get('confidence', 'MEDIUM')
+            confidence         = parsed_requirement.get('confidence', 'MEDIUM'),
+            ood_confidence     = self._last_ood_confidence,
+            ood_flagged_nodes  = self._last_ood_flagged,
         )
 
     # ----------------------------------------------------------

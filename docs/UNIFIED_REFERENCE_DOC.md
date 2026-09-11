@@ -21,13 +21,13 @@ Requirement (raw_text, + business_context_hint / design_doc / code_diff nếu c�
         ▼
 ┌─────────────────────────────────────────────┐
 │ AGENT 1 — Parser Agent                        │  Perception + Reasoning + Action (ReAct)
-│  Regex → Calibration Table → Similarity-search│  Guard rail G4-G7
+│  Regex → Calibration Table → Similarity-search│  3-Layer Verification (Scope Gate, Entity Grounding, Bounded Projection Π)
 └─────────────────────────────────────────────┘
         │  ParsedRequirement{injection_service, injection_delta{low,mean,high}, confidence, reasoning}
         ▼
 ┌─────────────────────────────────────────────┐
 │ TOOL — Workload Propagation (Tầng 1)          │  SCM biến Workload, do() lan truyền qua depends_on
-│                                                │  Guard rail G8 (additive shift nếu multi-injection)
+│                                                │  Post-Simulation UQ Annotation (percentile-based OOD caveat)
 └─────────────────────────────────────────────┘
         │  workload cục bộ từng node
         ▼
@@ -74,9 +74,9 @@ Bảng cơ sở lý thuyết được chuẩn hóa và phân theo 4 trụ cột 
 | CausalPlan — SCM ràng buộc LLM trong Multi-Agent | arXiv:2508.13721 (2025) | Cơ chế kiểm soát LLM bằng mô hình hình thức |
 | CAMEF — Văn bản sự kiện kết hợp Causal cho dự báo | Zhang et al. (2025, KDD) | Chuyển đổi ngữ nghĩa sự kiện thành delta can thiệp |
 | Text2TimeSeries & Bounded Adjustment | Kurisinkel et al. (2024) | Parser Agent: Bảng hiệu chuẩn Calibration Table |
-| Context as Boundary Adjustment (không dùng làm số chính) | Multi-Modal Time-Series (2024/2025) | Guard G6: Giới hạn tinh chỉnh LLM $\le \pm 10\%$ quanh anchor |
+| Context as Boundary Adjustment (không dùng làm số chính) | Multi-Modal Time-Series (2024/2025) | Layer 3 (Bounded Projection): Inner Clamp giới hạn tinh chỉnh LLM $\le \pm 10\%$ quanh anchor |
 | CAPTime — Đầu ra phân phối xác suất thay vì điểm đơn lẻ | arXiv:2505.10774 (2025) | Định dạng delta: `{low, mean, high}` của Parser |
-| Synthetic Method of Analogues (Cosine Similarity Anchor) | Murph et al. (2025, PLoS Comp Biol) | Guard G7: Ngưỡng tương đồng $\ge 0.6$ với template |
+| Synthetic Method of Analogues (Cosine Similarity Anchor) | Murph et al. (2025, PLoS Comp Biol) | Cost–accuracy parameter τ = 0.6: Ngưỡng tương đồng với template (fast-path gate) |
 | Function Point Analysis (FPA) | Albrecht (1979) | Parser Agent Chế độ A.5 (Ước lượng từ Design Doc) |
 | Just-In-Time Defect Prediction Features | Kamei et al. (2013); PyDriller | Parser Agent Chế độ B (Trích xuất từ Code Diff) |
 
@@ -92,18 +92,30 @@ Bảng cơ sở lý thuyết được chuẩn hóa và phân theo 4 trụ cột 
 
 ---
 
-## 4. Guard rails (validation rules)
+## 4. Three-Layer Symbolic Verification Architecture
 
-| # | Nội dung |
-|---|---|
-| G1 | `0 <= cpu_usage, memory_usage <= 100` |
-| G2 | `depends_on` phải là DAG |
-| G3 | `verdict=NOT_FEASIBLE` => phải có `evidence_refs` |
-| G4 | `confidence_score` trần theo chế độ Parser Agent (A<=0.6, A+<=0.8, A.5<=0.75, B không giới hạn) |
-| G5 | `injection_service` phải ∈ node có in-degree=0, sai -> fallback + confidence=LOW |
-| G6 | `abs(adjustment) > 10%` => clamp về `template_delta`, confidence=LOW |
-| G7 | Similarity với template < 0.6 => không cho phép adjustment |
-| G8 | Không `do()` đồng thời lên node tổ tiên–hậu duệ; dùng additive local shift |
+### Kiến trúc mới (thay thế danh sách G1–G8 cũ)
+
+| Layer | Tên | Mục đích toán học | Cơ chế trong code |
+|---|---|---|---|
+| **L1** | **Scope Gate** (Selective Abstention) | Từ chối trả lời khi yêu cầu ngoài taxonomy đã hiệu chuẩn | `similarity_score == 0.0` → `confidence = REFUSED`, `is_out_of_scope = True` |
+| **L2** | **Entity Grounding** (Graph-Membership) | Ràng buộc mọi entity do LLM đề xuất phải tồn tại trong đồ thị | Gateway Invariance: `in-degree == 0`; Service Existence: `core_services ⊆ KNOWN_SERVICES` |
+| **L3** | **Bounded Projection Π** (Nested Clamp) | Chiếu delta vào khoảng an toàn thực nghiệm | Outer: `clamp(δ, 5%, 50%)`; Inner: `clamp(adj, -10%, +10%)` |
+
+### Các cơ chế đã hạ cấp / chuyển vị trí
+
+| Cơ chế cũ | Quyết định mới | Lý do |
+|---|---|---|
+| G5 (Similarity-Gated Fine-Tuning) | **Design parameter τ** — không phải guard | Sweep τ ∈ [0.3, 0.8] không thay đổi PBVR/SHR/MAE; chỉ ảnh hưởng fast-path bypass rate |
+| G7 (OOD-Confidence) | **Post-Simulation UQ Annotation** — chuyển sang Capacity Agent | Chạy sau SCM simulation, không thuộc parsing; fire rate 80% → mất tính chọn lọc |
+| G8 (Additive shift multi-injection) | **Chưa implement** — out of scope | Pipeline chỉ hỗ trợ single-intervention |
+
+### Preconditions (không phải per-request verification)
+
+| Kiểm tra | Thời điểm | Mô tả |
+|---|---|---|
+| DAG acyclicity | Graph construction | `depends_on` phải là DAG, loại bỏ cycle trước khi dùng |
+| Resource range [0, 100] | **Chưa implement** — thay bằng non-negative coefficients | Mitigated ở mức causal mechanism thay vì output clamp |
 
 ---
 
@@ -130,7 +142,7 @@ Bảng cơ sở lý thuyết được chuẩn hóa và phân theo 4 trụ cột 
 | 2 | Ngưỡng F1 dùng percentile trên `df` gộp cả train+test -> rò rỉ nhẹ | dùng `df_train` hoặc Policy cố định |
 | 3 | Gộp `PerformanceAgent` + `SimulationAgent` -> `CapacityAgent`, thêm bước Reasoning sinh `reasoning_trace` thật | `src/agents/` |
 | 4 | `KNOWN_GATEWAYS` hardcode string -> nên suy từ in-degree=0 | `parser_agent.py` |
-| 5 | Thiếu guard cứng cho `injection_delta_pct`/`adjustment` (G6, G7) | `parser_agent.py` |
+| 5 | ~~Thiếu guard cứng cho delta/adjustment~~ — **ĐÃ XONG**: Bounded Projection Π (Layer 3) | `parser_agent.py` |
 | 6 | `classify_blast_radius()` (G8) chưa có | `request_router.py` |
 | 7 | Làm rõ đang dùng bivariate hay 28-node multi-hop trong mô tả "lan truyền qua call chain" | tài liệu + code comment |
 
