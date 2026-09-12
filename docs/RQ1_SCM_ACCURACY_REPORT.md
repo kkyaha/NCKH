@@ -6,6 +6,16 @@
 Tài liệu này sinh **tự động** từ `test_f1_rmse_evaluation.csv` và
 `ground_truth_direct_match_summary.csv` — không gõ tay số liệu.
 
+> **Cập nhật:** cơ chế hồi quy Bivariate dùng để sinh 2 file CSV trên đã đổi từ
+> `gcm.auto.assign_causal_mechanisms` (tự chọn mô hình) sang
+> `LinearRegression(positive=True)` tường minh — đồng bộ với cơ chế Global DAG và
+> Fast Path production (`capacity_agent.py`), đúng claim "uniformly" của paper ở
+> Section "Extrapolation-Sign Failure Mode". Số liệu dưới đây đã được **chạy lại**
+> với cơ chế mới; nhìn chung MAPE full-resolution CPU/Socket **tăng** so với bản
+> trước (đổi lại là đảm bảo không còn sign-inversion khi ngoại suy) — xem
+> `experiments/nonlinear_mechanism_trial.py` và `docs/paper_draft.tex` mục
+> "Extrapolation-Sign Failure Mode" để biết bối cảnh đầy đủ.
+
 ---
 
 ## 1. Thiết lập thực nghiệm
@@ -28,32 +38,38 @@ Tài liệu này sinh **tự động** từ `test_f1_rmse_evaluation.csv` và
 
 | Service | Metric | MAPE bucket (%) | MAPE full-res (%) | R² bucket | R² full-res |
 |---|---|---|---|---|---|
-| front-end | CPU | 0.75 | 10.19 | -0.294 | -0.001 |
-| catalogue | CPU | 27.36 | 11.17 | -0.949 | -0.002 |
-| user | CPU | 2.28 | 15.65 | -1.943 | -0.034 |
-| carts | CPU | 15.82 | 67.53 | -13.633 | -0.038 |
-| orders | CPU | 14.35 | 66.62 | -0.237 | -0.003 |
-| payment | CPU | 10.17 | 12.39 | -0.255 | -0.000 |
-| shipping | CPU | 9.04 | 66.64 | -0.543 | -0.004 |
-| front-end | Memory | 2.27 | 4.99 | -12.269 | -0.034 |
-| catalogue | Memory | 0.63 | 3.29 | -5.744 | -0.007 |
-| user | Memory | 1.39 | 7.92 | -3.162 | -0.011 |
-| carts | Memory | 3.70 | 4.97 | -89.426 | -0.149 |
-| orders | Memory | 3.05 | 4.97 | -2.135 | -0.066 |
-| payment | Memory | 1.21 | 4.41 | -4.098 | -0.024 |
-| shipping | Memory | 0.44 | 1.34 | -3.487 | -0.001 |
-| front-end | Socket | 15.35 | 19.03 | -52.462 | -0.174 |
-| catalogue | Socket | 9.86 | 11.73 | -65.052 | -0.014 |
-| user | Socket | 2.03 | 17.64 | -0.774 | -0.000 |
-| carts | Socket | 8.95 | 26.41 | -2.489 | -0.013 |
-| orders | Socket | 4.85 | 12.09 | -9.629 | -0.011 |
-| payment | Socket | 2.20 | 15.45 | -4.643 | -0.012 |
-| shipping | Socket | 0.66 | 6.69 | -0.366 | -0.002 |
+| front-end | CPU | 1.65 | 10.16 | -5.275 | -0.022 |
+| catalogue | CPU | 43.22 | 51.11 | -1.694 | -0.001 |
+| user | CPU | 12.27 | 20.37 | -42.947 | -0.522 |
+| carts | CPU | 11.73 | 62.43 | -7.035 | -0.017 |
+| orders | CPU | 21.40 | 81.34 | 0.305 | 0.111 |
+| payment | CPU | 16.52 | 19.92 | -0.032 | -0.000 |
+| shipping | CPU | 11.05 | 81.97 | -0.195 | 0.002 |
+| front-end | Memory | 1.81 | 4.70 | -10.994 | -0.011 |
+| catalogue | Memory | 3.52 | 3.51 | -422.491 | -0.079 |
+| user | Memory | 0.96 | 7.92 | -1.204 | -0.010 |
+| carts | Memory | 0.57 | 2.94 | -2.110 | -0.003 |
+| orders | Memory | 0.95 | 2.26 | -0.115 | 0.001 |
+| payment | Memory | 2.42 | 4.96 | -20.366 | -0.131 |
+| shipping | Memory | 0.35 | 1.33 | -1.332 | -0.001 |
+| front-end | Socket | 43.42 | 52.96 | -399.137 | -2.908 |
+| catalogue | Socket | 1.62 | 13.72 | -0.935 | -0.004 |
+| user | Socket | 1.86 | 17.85 | -0.314 | -0.000 |
+| carts | Socket | 43.67 | 60.76 | -72.303 | -0.712 |
+| orders | Socket | 10.47 | 18.06 | -48.265 | -0.241 |
+| payment | Socket | 2.39 | 15.39 | -5.528 | -0.016 |
+| shipping | Socket | 5.82 | 8.27 | -77.786 | -0.379 |
 
 **Nhận xét**: MAPE full-resolution thường **cao hơn đáng kể** so với bucket-average — ví dụ rõ
-nhất trong Bảng 1: `carts` CPU đi từ 15.82% (bucket)
-lên 67.53% (full-res). Bucket-average từng làm sai số trông tốt
+nhất trong Bảng 1: `shipping` CPU đi từ 11.05% (bucket)
+lên 81.97% (full-res). Bucket-average từng làm sai số trông tốt
 hơn thực tế; nên trích dẫn cột full-resolution làm số liệu chính trong bài báo.
+
+So với bản trước khi ép `LinearRegression(positive=True)` (thay cho `gcm.auto`), MAPE
+full-resolution của CPU/Socket ở phần lớn service **tăng** (ví dụ `carts` CPU: 67.53% →
+62.43% giảm nhẹ, nhưng `shipping` CPU: 66.64% → 81.97% tăng mạnh) — mô hình ràng buộc đơn
+điệu khớp kém hơn cục bộ so với mô hình `gcm.auto` tự do lựa chọn, đổi lại đảm bảo không có
+sign-inversion. Memory hầu như không đổi (quan hệ với workload đã gần tuyến tính sẵn).
 
 R² (cả hai cách tính) phổ biến ở mức âm nhẹ đến trung bình ở nhiều service/metric — SCM
 không giải thích được phần lớn phương sai ngoài mẫu so với một baseline "đoán trung bình",
@@ -66,9 +82,10 @@ khía cạnh này, không chỉ trích MAPE.
 
 | Metric | n điểm | Mean \|err\|% | Median \|err\|% | P90 \|err\|% |
 |---|---|---|---|---|
-| CPU | 136,496 | 35.07% | 9.09% | 77.41% |
+| CPU | 136,496 | 33.45% | 9.05% | 77.76% |
 | Latency_p50 | 134,625 | 9.88% | 2.03% | 12.58% |
-| Memory | 136,674 | 2.30% | 0.38% | 5.01% |
+| Memory | 136,674 | 2.30% | 0.38% | 4.94% |
+| Socket | 136,674 | 5.81% | 2.82% | 16.23% |
 
 **Đây là bằng chứng OOD độc lập, không dùng lại tập train/test của Bảng 1.** Với mọi metric,
 mean > median (đôi khi gấp 2-4 lần) — nghĩa là phân phối sai số lệch phải rõ rệt: đa số điểm dự

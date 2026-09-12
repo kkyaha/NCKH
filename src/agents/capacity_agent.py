@@ -385,6 +385,96 @@ class CapacityAgent:
                 if f'{s}_workload' in df_data.columns and metric_col in df_data.columns:
                     g.add_edge(f"{s}_workload", metric_col)
 
+        # Tier 2.5: canh "backpressure" tu CPU cua caller sang CPU cua callee —
+        # danh sach RIENG cho tung he thong, moi canh da duoc kiem dinh bang du
+        # lieu that (KHONG dong loat/mo rong tuy y cho toan bo node) qua 3 buoc:
+        #   1) experiments/{call_chain_neighbor,tt_call_chain_neighbor}_diagnostic.py
+        #      — R2 tang khi them CPU caller lam parent thu 2 (nguong gain>0.03
+        #      cho Train Ticket; Sock Shop chon thu cong 3 canh manh nhat).
+        #   2) experiments/replace_vs_add_edge_test.py — xac nhan phai THEM (giu
+        #      ca workload rieng LAN caller_cpu), khong duoc THAY: thay se lam
+        #      mat kha nang phan ung voi mot can thiep do() rieng le tai chinh
+        #      callee (vd do(shipping_workload=+30%) voi orders_cpu giu nguyen ->
+        #      mo hinh REPLACE du bao +0.00%, sai ro rang).
+        #   3) experiments/{backpressure,tt_backpressure}_edge_accuracy_test.py —
+        #      xac nhan tren du lieu HELD-OUT (protocol OOD Gold Standard giong
+        #      RQ1, khong phai R2 in-sample): Sock Shop ca 3/3 canh cai thien
+        #      MAPE/R2/F1; Train Ticket 49/50 canh giam MAPE, 47/50 tang R2/F1.
+        #   4) experiments/{backpressure,tt_backpressure}_edge_ood_safety_test.py —
+        #      quet delta +5%..+300%, dem so ca sign-inversion: Sock Shop giam
+        #      hoi toan (30->24, sua duoc 2 loi co san); Train Ticket giam rong
+        #      (35->26) nhung TANG nhe o dung +300% (8->11, cac node bi anh huong
+        #      hau het KHONG phai 1-hop tu canh moi — nhieu kha nang la do do
+        #      mong manh von co cua rang buoc tuyen tinh o cuc bien, khong rieng
+        #      do canh nay) — nam trong pham vi +150%/+300% ma paper da tu gioi
+        #      han la "minh hoa dinh huong, khong phai du bao da kiem chung"
+        #      (Section "Extrapolation-Sign Failure Mode"), khong che giau caveat
+        #      nay.
+        if self.system_type == 'sockshop':
+            BACKPRESSURE_EDGES = [
+                ('orders_cpu', 'shipping_cpu'),
+                ('orders_cpu', 'carts_cpu'),
+                ('front-end_cpu', 'user_cpu'),
+            ]
+        elif self.system_type == 'trainticket':
+            BACKPRESSURE_EDGES = [
+                ('ts-ticketinfo-service_cpu', 'ts-basic-service_cpu'),
+                ('ts-travel2-service_cpu', 'ts-train-service_cpu'),
+                ('ts-travel2-service_cpu', 'ts-seat-service_cpu'),
+                ('ts-seat-service_cpu', 'ts-config-service_cpu'),
+                ('ts-basic-service_cpu', 'ts-train-service_cpu'),
+                ('ts-travel2-service_cpu', 'ts-ticketinfo-service_cpu'),
+                ('ts-travel2-service_cpu', 'ts-order-other-service_cpu'),
+                ('ts-basic-service_cpu', 'ts-price-service_cpu'),
+                ('ts-travel-service_cpu', 'ts-seat-service_cpu'),
+                ('ts-seat-service_cpu', 'ts-order-other-service_cpu'),
+                ('ts-basic-service_cpu', 'ts-route-service_cpu'),
+                ('ts-travel-service_cpu', 'ts-train-service_cpu'),
+                ('ts-travel-service_cpu', 'ts-ticketinfo-service_cpu'),
+                ('ts-travel2-service_cpu', 'ts-route-service_cpu'),
+                ('ts-food-service_cpu', 'ts-travel-service_cpu'),
+                ('ts-travel-service_cpu', 'ts-route-service_cpu'),
+                ('ts-food-service_cpu', 'ts-food-map-service_cpu'),
+                ('ts-seat-service_cpu', 'ts-order-service_cpu'),
+                ('ts-travel-service_cpu', 'ts-order-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-security-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-seat-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-contacts-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-ticketinfo-service_cpu'),
+                ('ts-admin-basic-info-service_cpu', 'ts-price-service_cpu'),
+                ('ts-admin-basic-info-service_cpu', 'ts-config-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-user-service_cpu'),
+                ('ts-basic-service_cpu', 'ts-station-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-travel-service_cpu'),
+                ('ts-order-other-service_cpu', 'ts-station-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-security-service_cpu'),
+                ('ts-consign-service_cpu', 'ts-consign-price-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-user-service_cpu'),
+                ('ts-security-service_cpu', 'ts-order-other-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-assurance-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-food-service_cpu'),
+                ('ts-admin-travel-service_cpu', 'ts-travel2-service_cpu'),
+                ('ts-admin-travel-service_cpu', 'ts-travel-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-travel2-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-seat-service_cpu'),
+                ('ts-security-service_cpu', 'ts-order-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-assurance-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-contacts-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-ticketinfo-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-order-other-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-order-service_cpu'),
+                ('ts-preserve-other-service_cpu', 'ts-food-service_cpu'),
+                ('ts-food-service_cpu', 'ts-station-service_cpu'),
+                ('ts-order-service_cpu', 'ts-station-service_cpu'),
+                ('ts-inside-payment-service_cpu', 'ts-payment-service_cpu'),
+                ('ts-preserve-service_cpu', 'ts-station-service_cpu'),
+            ]
+        else:
+            BACKPRESSURE_EDGES = []
+        for caller_cpu_node, callee_cpu_node in BACKPRESSURE_EDGES:
+            if caller_cpu_node in df_data.columns and callee_cpu_node in df_data.columns:
+                g.add_edge(caller_cpu_node, callee_cpu_node)
+
         valid_nodes = [n for n in g.nodes() if n in df_data.columns]
         g_sub = g.subgraph(valid_nodes).copy()
         df_sub = df_data[valid_nodes].dropna()

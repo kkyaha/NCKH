@@ -44,24 +44,29 @@ sys.path.insert(0, os.path.dirname(__file__))
 from evaluation_suite import QueueingLatencyRegressor  # cung mechanism voi Global DAG chinh
 
 SERVICES = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shipping']
+# SUA: cac factory duoi day truoc day goi LinearRegression() KHONG co positive=True,
+# mau thuan voi chinh docstring cua _fit_mechanism ("dung DUNG mechanism nhu Global
+# DAG chinh") — Global DAG (capacity_agent.py, evaluation_suite.py) dung
+# LinearRegression(positive=True). Sua de dong bo that su, phu hop voi claim
+# "uniformly" cua Section "Extrapolation-Sign Failure Mode" trong paper.
 METRICS = [
-    ('CPU', 'cpu', LinearRegression),
-    ('Memory', 'mem', LinearRegression),
-    ('Socket', 'socket', LinearRegression),
+    ('CPU', 'cpu', lambda: LinearRegression(positive=True)),
+    ('Memory', 'mem', lambda: LinearRegression(positive=True)),
+    ('Socket', 'socket', lambda: LinearRegression(positive=True)),
     ('Latency_p50', 'latency-50', QueueingLatencyRegressor),
 ]
 MIN_ROWS = 60  # can du du lieu de tach 70/30 co y nghia
 
 
-def _fit_mechanism(df_train, target_col, regressor_cls):
+def _fit_mechanism(df_train, target_col, regressor_factory):
     """Fit 1 SCM bivariate Workload -> target_col, dung DUNG mechanism nhu Global DAG chinh
-    (LinearRegression cho CPU/Memory, QueueingLatencyRegressor cho Latency) thay vi
-    gcm.auto (vua cham vua co the chon mechanism khac nhau giua cac lan chay)."""
+    (LinearRegression(positive=True) cho CPU/Memory/Socket, QueueingLatencyRegressor cho
+    Latency) thay vi gcm.auto (vua cham vua co the chon mechanism khac nhau giua cac lan chay)."""
     g = nx.DiGraph()
     g.add_edge('Workload', target_col)
     m = gcm.InvertibleStructuralCausalModel(g)
     m.set_causal_mechanism('Workload', gcm.EmpiricalDistribution())
-    m.set_causal_mechanism(target_col, AdditiveNoiseModel(SklearnRegressionModel(regressor_cls())))
+    m.set_causal_mechanism(target_col, AdditiveNoiseModel(SklearnRegressionModel(regressor_factory())))
     gcm.fit(m, df_train[['Workload', target_col]])
     return m
 

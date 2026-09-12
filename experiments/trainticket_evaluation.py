@@ -73,9 +73,27 @@ def _load_tt_pair(df_all, service, metric_col):
 
 
 def _fit_scm_bivariate(df_train):
+    """Dung cho RQ2-tuong-duong (run_tt_model_comparison, SCM_DoWhy): gcm.auto tu
+    chon mechanism tot nhat, GIU NGUYEN de khong lam sai lech cau hoi nghien cuu
+    "cau truc nhan qua co giup gi hon regressor khong" — khong lien quan fix RQ1."""
     g = nx.DiGraph([('Workload', 'Target')])
     m = gcm.InvertibleStructuralCausalModel(g)
     gcm.auto.assign_causal_mechanisms(m, df_train)
+    gcm.fit(m, df_train)
+    return m
+
+
+def _fit_scm_bivariate_constrained(df_train):
+    """Dung cho RQ1-tuong-duong + ground-truth direct match: ep
+    LinearRegression(positive=True) thay vi gcm.auto — dong bo voi
+    capacity_agent.py (production) va evaluation_suite.py::run_f1_rmse_benchmark
+    (Sock Shop RQ1), theo dung claim "uniformly" cua Section "Extrapolation-Sign
+    Failure Mode" trong paper. CHỈ ap dung cho RQ1, KHONG dung cho RQ2 (xem
+    _fit_scm_bivariate o tren) de khong lam sai lech ket luan "SCM vs baseline"."""
+    g = nx.DiGraph([('Workload', 'Target')])
+    m = gcm.InvertibleStructuralCausalModel(g)
+    m.set_causal_mechanism('Target', AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True))))
+    gcm.auto.assign_causal_mechanisms(m, df_train)  # override_models=False -> chi dien Workload (root)
     gcm.fit(m, df_train)
     return m
 
@@ -105,7 +123,7 @@ def run_tt_f1_rmse_benchmark(df_all=None):
             if len(df_test) < 30 or df_train['Workload'].nunique() < 3:
                 continue
 
-            model = _fit_scm_bivariate(df_train)
+            model = _fit_scm_bivariate_constrained(df_train)
             mech = model.causal_mechanism('Target')
 
             # Full-resolution: cong thuc dong, khong Monte Carlo, tren TOAN BO diem test
@@ -305,7 +323,7 @@ def run_tt_ground_truth_match():
                 if len(df_test) < 10 or df_train['Workload'].nunique() < 3:
                     continue
                 try:
-                    model = _fit_scm_bivariate(df_train.rename(columns={tgc: 'Target'}))
+                    model = _fit_scm_bivariate_constrained(df_train.rename(columns={tgc: 'Target'}))
                     mech = model.causal_mechanism('Target')
                     y_true = df_test[tgc].values
                     y_pred = mech.prediction_model.predict(df_test[['Workload']].values).ravel()

@@ -92,7 +92,16 @@ def run_f1_rmse_benchmark():
 
             g = nx.DiGraph(); g.add_edge('Workload', 'Target')
             model = gcm.InvertibleStructuralCausalModel(g)
-            gcm.auto.assign_causal_mechanisms(model, df_train)
+            # Dong bo voi capacity_agent.py::train_fast_path (production) va
+            # build_and_train_global_dag (Global DAG): ep LinearRegression(positive=True)
+            # thay vi gcm.auto tu chon — thuc nghiem nonlinear_mechanism_trial.py cho
+            # thay o dung protocol (train LOW -> test HIGH) linear_pos thang auto_gcm ro
+            # ret (MAPE 12.9% vs 20.8%, win 10/21 vs 4/21 cap), va Section "Extrapolation-
+            # Sign Failure Mode" cua paper claim rang buoc nay ap dung "uniformly" — truoc
+            # ban sua nay claim do khong dung voi RQ1 benchmark.
+            model.set_causal_mechanism('Workload', EmpiricalDistribution())
+            model.set_causal_mechanism(
+                'Target', AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True))))
             gcm.fit(model, df_train)
 
             df_test['bkt'] = pd.qcut(df_test['Workload'], q=min(8, df_test['Workload'].nunique()), duplicates='drop')
@@ -221,6 +230,15 @@ def build_and_train_global_dag(df_data=None):
         for m in [f'{s}_cpu', f'{s}_mem', f'{s}_latency-50']:
             if f'{s}_workload' in df_data.columns and m in df_data.columns:
                 g.add_edge(f"{s}_workload", m)
+
+    # 2.5. Canh backpressure (caller CPU -> callee CPU) -- DONG BO voi
+    # capacity_agent.py::train_accurate_path. Xem comment day du + trich dan
+    # 3 script kiem dinh o do; o day chi lap lai dung 3 canh da xac nhan
+    # (accuracy + decision-quality + OOD-sign-safety, khong dong loat).
+    for caller_cpu, callee_cpu in [('orders_cpu', 'shipping_cpu'), ('orders_cpu', 'carts_cpu'),
+                                    ('front-end_cpu', 'user_cpu')]:
+        if caller_cpu in df_data.columns and callee_cpu in df_data.columns:
+            g.add_edge(caller_cpu, callee_cpu)
 
     valid_nodes = [n for n in g.nodes() if n in df_data.columns]
     g_sub = g.subgraph(valid_nodes).copy()

@@ -1,0 +1,8 @@
+service,n_test,has_backpressure,baseline_mape,ext_mape,baseline_r2,ext_r2,baseline_f1,ext_f1
+front-end,1320,False,10.49,10.51,-0.0752,-0.0802,0.538,0.536
+catalogue,1320,False,77.76,88.66,-0.0128,-0.0143,0.0,0.0
+user,1320,True,16.32,16.23,-0.0275,-0.0157,0.393,0.39
+carts,1320,True,48.57,49.53,-0.0032,0.0007,0.424,0.438
+orders,1320,False,60.21,58.82,-0.0019,0.0924,0.0,0.118
+payment,1320,False,12.46,12.46,-0.0025,-0.0025,0.0,0.0
+shipping,1320,True,55.93,57.13,0.2834,0.2573,0.386,0.318
