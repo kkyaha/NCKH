@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-ĐÁNH GIÁ SCM TRÊN HỆ THỐNG THỨ HAI: TRAIN TICKET (RQ6 — GENERALIZATION)
+ĐÁNH GIÁ SCM TRÊN HỆ THỐNG THỨ HAI: TRAIN TICKET (RQ1/RQ2, PER-SYSTEM)
 ========================================================================
 Ap dung DUNG methodology da sua/kiem chung cho SockShop (RQ1/RQ2) sang
 Train Ticket (28 microservices, RCAEval), thay vi dung lai script cu trong
 nhanh TrainTicket (von con loi bucket-averaging + thieu GaussianProcess +
-khong co ground-truth direct match + khong kiem dinh thong ke — xem
-docs/RQ6_TRAINTICKET_GENERALIZATION_REPORT.md muc gioi han).
+khong co ground-truth direct match + khong kiem dinh thong ke).
 
-Muc dich: RQ6 — SCM co tong quat hoa duoc sang mot he thong Microservices
-khac (topology, quy mo khac SockShop) hay khong, dung CUNG mot chuan danh
-gia (full-resolution metric, 4-model comparison, kiem dinh theo tung
-metric, ground-truth direct match) de so sanh cong bang voi SockShop.
+Muc dich: RQ1/RQ2 bao cao theo TUNG he thong (xem paper_draft.tex, Section V) —
+SCM co tong quat hoa duoc sang mot he thong Microservices khac (topology, quy
+mo khac SockShop) hay khong, dung CUNG mot chuan danh gia (full-resolution
+metric, 4-model comparison, kiem dinh theo tung metric, ground-truth direct
+match) de so sanh cong bang voi SockShop.
 
 Output:
   data/processed/scm_results/trainticket_f1_rmse_evaluation.csv

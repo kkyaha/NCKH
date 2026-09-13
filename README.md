@@ -34,10 +34,8 @@ NCKH/
 │   │   └── architecture_agent.py       # Topology mapping / blast-radius (graph BFS)
 │   ├── scm/                            # Thư viện lõi dùng trực tiếp bởi agents
 │   │   ├── data_processor.py               # Load/split dữ liệu, danh mục METRICS/SERVICES
-│   │   ├── request_router.py               # CALL_CHAINS: bảng hiệu chỉnh SockShop (viết tay,
-│   │   │                                     #   xem "Giới hạn đã biết" #1 — CHƯA tham số hóa)
-│   │   └── trainticket_router.py           # KHÔNG còn được dùng ở đâu (0 tham chiếu) — giữ lại
-│   │                                         #   làm tài liệu tham khảo, có thể xóa an toàn
+│   │   └── request_router.py               # CALL_CHAINS: bảng hiệu chỉnh SockShop (viết tay,
+│   │                                         #   xem "Giới hạn đã biết" #1 — CHƯA tham số hóa)
 │   └── graph/
 │       ├── sockshop_agent_graph.json       # Topology 7 service SockShop
 │       ├── trainticket_agent_graph.json    # Topology 28 service Train Ticket
@@ -186,7 +184,7 @@ ghi chú chung:
   riêng khỏi bài chính, **tạm gác lại**.
 - `khungtoanhoc.tex` — khung toán học nền tảng (ngoài phạm vi công việc hiện tại).
 - `table_rq3_parser_ablation.tex` — bảng LaTeX RQ3, sinh tự động bởi `parser_benchmark_suite.py`.
-- `RQ*_REPORT.md`, `RQ5_RQ6_STATUS.md` — báo cáo tự động sinh từ CSV cho từng RQ.
+- `RQ*_REPORT.md` — báo cáo tự động sinh từ CSV cho từng RQ.
 - `RQ6_ATTRIBUTION_VALIDITY_REPORT.md` — báo cáo nhánh XAI (Part A/B), phục vụ bài đồng hành.
 - `UNIFIED_REFERENCE_DOC.md` — nhật ký quyết định thiết kế qua các giai đoạn.
 

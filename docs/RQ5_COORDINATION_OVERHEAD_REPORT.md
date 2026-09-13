@@ -7,7 +7,7 @@ Tài liệu này được **sinh tự động** từ `rq5_coordination_overhead.
 
 > ✅ Backend: **LLM thật** (`LIVE_gemini-flash-lite-latest`), 3 lần lặp độc lập.
 
-Thời điểm chạy: `2026-09-09T17:55:13.264042` | Số lần lặp: `3` | Backend: `LIVE_gemini-flash-lite-latest`
+Thời điểm chạy: `2026-09-13T14:21:11.285028` | Số lần lặp: `3` | Backend: `LIVE_gemini-flash-lite-latest`
 
 ---
 
@@ -30,7 +30,7 @@ guard), nên không có cách nào phân biệt được hai trường hợp đ�
 | Configuration | PBVR (%) | SHR (%) | GMR (%) | Anchor MAE (%) | LLM calls/prompt | LLM latency (ms)/prompt |
 |---|---|---|---|---|---|---|
 | `Single_LLM_Call` | 27.33±1.15% | 1.33±1.15% | 2.00±0.00% | 53.55±1.01% | 1.00±0.00 | 1683.62±603.12 ms |
-| `Guarded_MAS_Pipeline` | 0.00±0.00% | 0.00±0.00% | 0.00±0.00% | 2.27±0.06% | 1.52±0.00 | 4053.55±1190.01 ms |
+| `Guarded_MAS_Pipeline` | 0.00±0.00% | 0.00±0.00% | 0.00±0.00% | 1.90±0.20% | 1.91±0.02 | 6586.27±3913.85 ms |
 
 *Ghi chú*: `Single_LLM_Call` phải tự đoán CẢ phần capacity assessment trong CÙNG một
 lần gọi — đây là cấu hình khó hơn B1/B2 của RQ3 (vốn chỉ phải làm mỗi việc parse).
@@ -39,17 +39,17 @@ lần gọi — đây là cấu hình khó hơn B1/B2 của RQ3 (vốn chỉ ph�
 
 ## 🤝 2. STATUS AGREEMENT (Single_LLM_Call so với phán quyết SCM $do(x)$ thật)
 
-Tổng thể: **46.51%** (n=129 prompt trong phạm vi taxonomy,
+Tổng thể: **47.06%** (n=136 prompt trong phạm vi taxonomy,
 loại các prompt bị G6 từ chối ở nhánh Guarded_MAS vì không có status để đối chiếu).
 
 Theo nhóm:
 
 | Category | Status Agreement (%) |
 |---|---|
-| Adversarial_Stress | 22.22 |
-| Complex_MultiHop | 70.0 |
-| In_Distribution | 41.67 |
-| Subtle_ReadOnly | 47.62 |
+| Adversarial_Stress | 30.43 |
+| Complex_MultiHop | 43.48 |
+| In_Distribution | 51.67 |
+| Subtle_ReadOnly | 53.33 |
 
 
 ---

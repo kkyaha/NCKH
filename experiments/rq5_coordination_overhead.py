@@ -285,7 +285,16 @@ class GuardedMASRunner:
 # ============================================================
 # 4. BENCHMARK EXECUTION ENGINE
 # ============================================================
-def run_rq5_benchmark(use_live_api=True):
+def run_rq5_benchmark(use_live_api=True, configs_to_run=None):
+    """
+    configs_to_run: neu chi dinh (vd ['Guarded_MAS_Pipeline']), CHI chay lai
+    cac config nay bang LLM that; config con lai duoc TAI SU DUNG tu CSV cu
+    (khong tra API) -- dung khi mot ban sua code CHI anh huong 1 nhanh (vd
+    sua ParserAgent/Scope Gate chi anh huong Guarded_MAS_Pipeline, khong
+    anh huong Single_LLM_Call vi nhanh do khong dung ParserAgent), giong
+    pattern --only= cua parser_benchmark_suite.py. Tranh ton quota re-run
+    lai nhung gi khong the doi.
+    """
     if '--live-llm' in sys.argv:
         use_live_api = True
     if '--offline' in sys.argv:
@@ -295,6 +304,8 @@ def run_rq5_benchmark(use_live_api=True):
     for arg in sys.argv:
         if arg.startswith('--repeats='):
             n_repeats = int(arg.split('=', 1)[1])
+        if arg.startswith('--only='):
+            configs_to_run = arg.split('=', 1)[1].split(',')
 
     print("=" * 75)
     print("   RUNNING RQ5: MULTI-AGENT COORDINATION OVERHEAD vs SINGLE-LLM-CALL")
@@ -331,6 +342,8 @@ def run_rq5_benchmark(use_live_api=True):
     )
     mas_runner = GuardedMASRunner(parser_agent, arch_agent, capacity_agent)
 
+    all_model_configs = ['Single_LLM_Call', 'Guarded_MAS_Pipeline']
+    run_selected = configs_to_run if configs_to_run else all_model_configs
     all_results = []
     run_timestamp = pd.Timestamp.now().isoformat()
 
@@ -347,12 +360,26 @@ def run_rq5_benchmark(use_live_api=True):
         'llm_calls', 'llm_latency_ms',
     ]
     csv_path = os.path.join(OUTPUT_DIR, 'rq5_coordination_overhead.csv')
+
+    reused_rows = []
+    if configs_to_run and os.path.exists(csv_path):
+        old_df = pd.read_csv(csv_path)
+        skipped = [c for c in all_model_configs if c not in run_selected]
+        reused_rows = old_df[old_df['config'].isin(skipped)].to_dict('records')
+        print(f"[REUSE] Keeping {len(reused_rows)} existing rows for unaffected "
+              f"configuration(s) {skipped} (not re-run -- code path unchanged for these).")
+
     csv_file = open(csv_path, 'w', newline='', encoding='utf-8')
     csv_writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
     csv_writer.writeheader()
+    for row in reused_rows:
+        row = {k: row.get(k) for k in fieldnames}
+        all_results.append(row)
+        csv_writer.writerow(row)
+    csv_file.flush()
 
     print(f"\nEvaluating across {len(prompts)} scenarios x {n_repeats} repeats "
-          f"x 2 configurations (backend={llm_backend})...")
+          f"x configuration(s) {run_selected} (backend={llm_backend})...")
     try:
         for repeat_id in range(1, n_repeats + 1):
             for p in prompts:
@@ -363,6 +390,8 @@ def run_rq5_benchmark(use_live_api=True):
                     ('Single_LLM_Call', single_call),
                     ('Guarded_MAS_Pipeline', mas_runner),
                 ]:
+                    if config_name not in run_selected:
+                        continue
                     print(f"  [repeat {repeat_id}/{n_repeats}] [{config_name}] {p_id}...")
                     counting_llm.reset()
                     out = runner.run(req)
@@ -406,8 +435,10 @@ def run_rq5_benchmark(use_live_api=True):
         csv_file.close()
 
     df = pd.DataFrame(all_results)
+    expected_total = len(reused_rows) + len(prompts) * n_repeats * len(run_selected)
     print(f"\n[OK] Raw RQ5 results saved incrementally to: {csv_path} "
-          f"({len(df)}/{len(prompts) * n_repeats * 2} rows completed)")
+          f"({len(df)}/{expected_total} rows: {len(reused_rows)} reused + "
+          f"{len(prompts) * n_repeats * len(run_selected)} freshly run)")
 
     # ============================================================
     # 5. STATUS AGREEMENT (Single_LLM_Call vs Guarded_MAS, khop theo prompt+repeat)

@@ -169,7 +169,7 @@ In both branches, the output passes through a \textbf{three-layer symbolic verif
     \node[review, below=2mm of ref, anchor=north west] (rev) {\textsc{needs\_human\_review}\\ \footnotesize $\tau_{\text{pass}} \leq s(x) < \tau_{\text{refuse}}$};
     \node[layer, below=of l1] (l2) {\textbf{Layer 2 --- Entity Grounding} (\S\ref{sec:entity-grounding})\\ \footnotesize gateway invariance: in-deg$(v){=}0$ or fallback; service filter: drop $s\notin\mathcal{G}$};
     \node[layer, below=of l2] (l3) {\textbf{Layer 3 --- Bounded Projection $\Pi$} (\S\ref{sec:bounded-projection})\\ \footnotesize outer clamp $\delta\in[5,50]$ around inner-clamped adjustment $\in[-10,10]$};
-    \node[good, below=of l3] (out) {Verified $do(X{=}x)$, confidence $\in\{$high, medium, low, refused$\}$};
+    \node[good, below=of l3] (out) {Verified $do(X{=}x)$, confidence $\in\{$high, medium, low, refused, needs\_review$\}$};
 
     \draw[arrow] (in) -- (l1);
     \draw[arrow] (l1) -- (l2) node[midway, left, font=\scriptsize] {$s(x)<\tau_{\text{pass}}$};
@@ -439,15 +439,16 @@ We compare the full Guarded MAS pipeline (Parser Agent $\to$ Architecture Agent 
 Configuration & PBVR & SHR & GMR & Anchor MAE & LLM calls & Latency (ms) \\
 \midrule
 Single-LLM-Call & 27.3$\pm$1.2\% & 1.3$\pm$1.2\% & 2.0$\pm$0.0\% & 53.6$\pm$1.0\% & 1.00 & 1684$\pm$603 \\
-\textbf{Guarded MAS (Ours)} & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{2.3$\pm$0.1\%} & \textbf{1.52} & \textbf{4054$\pm$1190} \\
+\textbf{Guarded MAS (Ours)} & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{1.9$\pm$0.2\%} & \textbf{1.91} & \textbf{6586$\pm$3914} \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
+\noindent\emph{As in Table~\ref{tab:rq3}: of these 150 Guarded MAS calls, $14$ ($9.3\%$, Wilson CI $[5.6,15.1]\%$) were \textsc{refused} and $17$ ($11.3\%$, CI $[7.2,17.4]\%$) returned \texttt{NEEDS\_HUMAN\_REVIEW}, leaving $119$ ($79.3\%$) with a numeric verdict.}
 
-Structural correctness replicates RQ3's pattern: despite the same calibration context as B2, the single call still violates the physical delta bound on $27.3\%$ of prompts and is off by a mean of $53.6\%$ --- $23{\times}$ the guarded pipeline's $2.3\%$ --- consistent with having B2's context but strictly more to do in one shot (parsing \emph{and} guessing capacity status together). Coordination overhead remains bounded: $1.52{\times}$ the LLM calls and $2.4{\times}$ the latency, kept down by the fast-path bypass (Section~\ref{sec:parser-agent}).
+Structural correctness replicates RQ3's pattern: despite the same calibration context as B2, the single call still violates the physical delta bound on $27.3\%$ of prompts and is off by a mean of $53.6\%$ --- $28{\times}$ the guarded pipeline's $1.9\%$ --- consistent with having B2's context but strictly more to do in one shot (parsing \emph{and} guessing capacity status together). Coordination overhead is $1.91{\times}$ the LLM calls and $3.9{\times}$ the latency: every prompt reaches the parser (no fast-path bypass, Section~\ref{sec:parser-agent}), and only a \textsc{refused} verdict ($9.3\%$ of prompts) short-circuits the report-synthesis node's own LLM call (Section~\ref{sec:edge-of-scope}), so the remaining $90.7\%$ incur the full two-call cost. This latency is a direct, quantified cost of the Scope Gate's false-refusal rate, not a regression to explain away.
 
-\textbf{Status agreement} (whether the single call's self-reported SAFE/WARNING/CRITICAL status matches the SCM-grounded status, on the $129$ prompts neither configuration refused) was $46.5\%$ -- under half; this is agreement with a causally-simulated reference, not accuracy against ground truth, which does not exist for a hypothetical requirement's future impact. Agreement was lowest on \texttt{Adversarial\_Stress} ($22.2\%$) and highest on \texttt{Complex\_MultiHop} ($70.0\%$), suggesting the two diverge most where an ungrounded guess is least likely to reflect real cascade dynamics -- the closest this paper comes to direct evidence that the SCM machinery changes the resulting verdict, not just the guard compliance rate.
+\textbf{Status agreement} (whether the single call's self-reported SAFE/WARNING/CRITICAL status matches the SCM-grounded status, on the $136$ prompts the Guarded MAS pipeline did not \textsc{refuse} -- \texttt{NEEDS\_HUMAN\_REVIEW} prompts are included here, since the underlying script does not yet special-case that outcome) was $47.1\%$ -- under half; this is agreement with a causally-simulated reference, not accuracy against ground truth, which does not exist for a hypothetical requirement's future impact. Agreement was lowest on \texttt{Adversarial\_Stress} ($30.4\%$) and highest on \texttt{Subtle\_ReadOnly} ($53.3\%$), suggesting the two diverge most where an ungrounded guess is least likely to reflect real cascade dynamics -- the closest this paper comes to direct evidence that the SCM machinery changes the resulting verdict, not just the guard compliance rate.
 
 % =========================================================
 % VI. DISCUSSION & THREATS TO VALIDITY
@@ -494,7 +495,7 @@ RQ1's CPU error is not one failure but at least three distinct ones (Fig.~\ref{f
 
 We tested two further covariates this diagnosis suggested, and both failed under the same held-out protocol RQ1 uses, despite looking promising under naive in-distribution cross-validation -- a methodological lesson in its own right: adding each service's own memory and socket count as additional regressors lowers cross-validated in-distribution error substantially, but under the actual train-low/test-high protocol this improvement mostly evaporates or reverses (Sock Shop CPU MAPE moves from $40.25\%$ to $41.91\%$; Train Ticket improves on only $15$ of $28$ nodes, $51.1\%\to49.04\%$) -- the covariate's own extrapolated value compounds error rather than adding information. A second candidate, using a hub service's downstream callees' own CPU to explain the hub's, is structurally blocked outright: for the specific hubs where it looked most promising, every candidate edge already exists in the opposite direction as a validated backpressure edge (Section~\ref{sec:backpressure-edge}), and adding the reverse would create a two-node cycle -- confirming this was the same correlation already exploited, read backwards, not new information. An in-distribution accuracy estimate, in other words, does not by itself predict deployable out-of-distribution improvement.
 
-None of this is uniform across metrics. Memory forecasts at $2$--$4\%$ MAPE on both testbeds throughout this paper (Table~\ref{tab:rq1}), with none of the three CPU failure modes above. The ceiling is a property of CPU specifically -- driven by garbage collection, OS scheduling, and background health-check work no request-count metric observes -- not a property of the pipeline. This is also consistent with why prior SCM-based microservice work stays retrospective (Section~\ref{sec:background}): attributing an already-observed deviation to its ancestors is a relative comparison a noisy target still supports; forecasting its absolute future value is not.
+None of this is uniform across metrics. Memory forecasts at $2$--$4\%$ MAPE on both testbeds throughout this paper (Table~\ref{tab:rq1}), with none of the three CPU failure modes above. The ceiling is a property of CPU specifically -- driven by garbage collection, OS scheduling, and background health-check work no request-count metric observes -- not a property of the pipeline. CPU's difficulty is not unique to this pipeline: an unrelated retrospective method solving a different problem (attributing an already-observed anomaly rather than forecasting a future one) independently reports the same CPU-vs-memory asymmetry on the same benchmark \cite{nguyen2024baro,pham2024rcaeval} -- suggestive context on the signal itself, not evidence for our mechanism specifically. This is also consistent with why prior SCM-based microservice work stays retrospective (Section~\ref{sec:background}): attributing an already-observed deviation to its ancestors is a relative comparison a noisy target still supports; forecasting its absolute future value is not.
 
 \subsection{Behavior at the Edge of the Declared Scope}
 \label{sec:edge-of-scope}
@@ -624,5 +625,7 @@ L. Wang, N. Yang, X. Huang, L. Yang, R. Majumder, and F. Wei, ``Multilingual E5 
 A. N. Angelopoulos and S. Bates, ``Conformal Prediction: A Gentle Introduction,'' \emph{Foundations and Trends in Machine Learning}, vol. 16, no. 4, pp. 494--591, 2023.
 \bibitem{chen2025rts}
 K. Chen, Y. Chen, X. Yu, and N. Koudas, ``Reliable Text-to-SQL with Adaptive Abstention,'' \emph{arXiv:2501.10858}, 2025.
+\bibitem{nguyen2024baro}
+L. Nguyen, L. Pham, et al., ``BARO: Robust Root Cause Analysis for Microservices via Multivariate Bayesian Online Change Point Detection,'' in \emph{Proc. FSE}, 2024.
 \end{thebibliography}
 \end{document}

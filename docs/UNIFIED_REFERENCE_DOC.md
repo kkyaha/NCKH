@@ -123,14 +123,14 @@ Bảng cơ sở lý thuyết được chuẩn hóa và phân theo 4 trụ cột 
 
 | RQ | Câu hỏi | Đo bằng | Trạng thái |
 |---|---|---|---|
-| RQ1 | SCM+do-calculus dự đoán đúng đến mức nào? | MAPE/RMSE bucket + full-resolution + ground-truth direct match (không bucket) | Đã chạy (2025-09-08). Số liệu THẬT nằm trong CSV, không chép tay vào tài liệu này — xem README bảng "Kết quả thực nghiệm". Kết luận sơ bộ: sai số full-resolution cao hơn đáng kể so với bản bucket-average trước đây; KHÔNG chép lại con số "Memory MAPE 1.4%" cũ, đã lỗi thời. |
-| RQ2 | Causal có vượt trội tương quan/hộp đen không, đặc biệt vùng OOD? | Wilcoxon/Friedman TÁCH theo từng metric trên `mape_pct` (đã sửa lỗi gộp đơn vị RMSE) | Đã chạy lại (2025-09-08). Đa số so sánh KHÔNG có ý nghĩa thống kê (p>0.05); 2 so sánh có ý nghĩa (Memory vs GaussianProcess, Socket vs GradBoost) đều nghiêng về BASELINE, không phải SCM — cần diễn giải trung thực trong bài báo, không claim SCM vượt trội độ chính xác. |
+| RQ1 | SCM+do-calculus dự đoán đúng đến mức nào, trên từng hệ thống? | MAPE/RMSE/R² full-resolution + ground-truth direct match (không bucket) | Đã chạy đầy đủ trên **cả Sock Shop và Train Ticket** (paper §V-A, Table `tab:rq1`/`tab:rq1-gt`). Có thêm "RQ1 Follow-up" (mở rộng Backpressure) đã kiểm chứng và triển khai production trên cả 2 hệ. Số liệu THẬT nằm trong CSV — không chép tay vào tài liệu này. |
+| RQ2 | Causal có vượt trội tương quan/hộp đen không, đặc biệt vùng OOD? | Wilcoxon/Friedman TÁCH theo từng metric trên MAPE full-resolution | Đã chạy trên cả 2 hệ thống (paper §V-B). Sock Shop: SCM đồng hạng nhất (7/21, có ý nghĩa vs LinearReg p=0.0137). Train Ticket: SCM thắng ÍT NHẤT (12/84) — kết quả KHÔNG lặp lại. Kết luận trung thực: KHÔNG claim SCM vượt trội độ chính xác điểm; giá trị nằm ở toán tử do(x). |
 | RQ3 | Parser Agent neo dữ liệu có chính xác hơn LLM tự do không? | MAE, PBVR, SHR, GMR — LLM THẬT (gemini-flash-lite-latest), N lần lặp | Đã chạy với LLM thật (không còn dùng bộ giả lập offline). Xem `docs/RQ3_LLM_PARSER_BENCHMARK_REPORT.md` (sinh tự động từ CSV). |
-| RQ4 | Workload Propagation có chính xác hơn gán đều delta không? | So RMSE có/không Tầng 1 | Cần dựng baseline |
-| RQ5 | Kiến trúc đa tác tử (Parser+Capacity Agent, ReAct) có vượt trội single-LLM-call không? | So F1/MAPE | Cần dựng baseline, định nghĩa Agent đã rõ ràng hơn sau khi gộp |
-| RQ6 | Generalize sang Online Boutique/Train Ticket không cần đổi kiến trúc? | Lặp lại RQ1-3 | Chưa chạy |
+| RQ4 | Workload Propagation có chính xác hơn gán đều delta không? | So MAPE có/không Tầng 1, đối chứng Uniform Delta Injection | Đã chạy (paper §V, RQ4): SCM thắng 5/6 service, nhất quán qua 5 tỷ lệ split (pooled Wilcoxon p=2×10⁻⁵); đơn split n=6 chưa có ý nghĩa (p=0.094). Xem `docs/RQ4_PROPAGATION_VALUE_REPORT.md`. |
+| RQ5 | Kiến trúc đa tác tử (Parser+Capacity Agent) có vượt trội single-LLM-call không? | So PBVR/SHR/GMR/MAE + LLM calls/latency — LLM THẬT | Đã chạy với LLM thật (paper §V, RQ5): Guarded MAS đưa PBVR 27.3%→0%, Anchor MAE 53.6%→1.9%, đổi lấy 1.91× LLM calls và 3.9× latency; Status Agreement với phán quyết SCM = 47.1%. Xem `docs/RQ5_COORDINATION_OVERHEAD_REPORT.md`. |
+| RQ6 (đã gộp) | Generalize sang Train Ticket không cần đổi kiến trúc? | — | **Không còn là 1 RQ riêng.** Đánh giá Train Ticket đã gộp thẳng vào RQ1/RQ2 làm so sánh theo-từng-hệ-thống (paper §IV "Datasets and Testbed", §V-A/B). Nhánh XAI/attribution (RQ6 cũ trong code, `rq6_*.py`) tách riêng sang bài đồng hành `xai_attribution_paper_draft.tex`, tạm gác lại. |
 
-**Ưu tiên**: RQ1, RQ2, RQ3 bắt buộc -> RQ4, RQ5 nên có -> RQ6 sau cùng.
+**Ưu tiên**: RQ1-RQ5 đã có số liệu đầy đủ trong `paper_draft.tex`; RQ6 (dạng câu hỏi riêng) không còn được theo dõi độc lập.
 
 ---
 
