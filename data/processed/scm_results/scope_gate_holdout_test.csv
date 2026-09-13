@@ -1,0 +1,21 @@
+i,category,true_should_refuse,scope_gate_score,old_rule_refuse,old_rule_correct,new_rule_refuse,new_rule_correct,requirement
+0,legitimate,False,0.22418604063096956,False,True,False,True,Add a wishlist feature so customers can save items for later without adding them to the cart.
+1,legitimate,False,0.09452265368310583,False,True,False,True,Allow customers to filter products by price range on the catalogue page.
+2,legitimate,False,0.7034886091664211,True,False,True,False,Send an email notification to the customer when their order status changes to shipped.
+3,legitimate,False,0.14798041026708358,False,True,False,True,Add a 'buy now' button that skips the cart and goes straight to checkout.
+4,legitimate,False,0.059038311393644634,False,True,False,True,Let customers reset their password via a link sent to their email.
+5,legitimate,False,0.09452265368310583,False,True,False,True,Show the estimated delivery date on the product page before purchase.
+6,legitimate,False,0.09452265368310583,False,True,False,True,Add a loyalty points system that rewards customers for every purchase they make.
+7,legitimate,False,0.14798041026708358,False,True,False,True,Allow customers to leave a star rating without writing a text review.
+8,legitimate,False,0.08647893910362212,False,True,False,True,Add a live chat widget so customers can ask questions before checking out.
+9,legitimate,False,0.08647893910362212,False,True,False,True,Let customers save multiple shipping addresses to their account profile.
+10,out_of_scope_easy,True,0.5877987520293526,True,True,True,True,Migrate our internal CI/CD pipeline from Jenkins to GitHub Actions.
+11,out_of_scope_easy,True,0.5877987520293526,True,True,True,True,Set up a new VPN so remote employees can access the internal network.
+12,out_of_scope_easy,True,0.5877987520293526,True,True,True,True,Write a script to back up the production database nightly to S3.
+13,out_of_scope_adversarial,True,0.6826946776983561,True,True,True,True,Rate-limit our public API to prevent abuse from bots.
+14,out_of_scope_adversarial,True,0.7034886091664211,True,True,True,True,Add code comments and refactor the checkout module for readability.
+15,out_of_scope_adversarial,True,0.7034886091664211,True,True,True,True,Track employee login attempts for a security audit dashboard.
+16,out_of_scope_adversarial,True,0.5877987520293526,True,True,True,True,Reorder the CI pipeline stages so linting runs before the test suite.
+17,out_of_scope_adversarial,True,0.7034886091664211,True,True,True,True,Review the code diff before merging the pull request into main.
+18,out_of_scope_adversarial,True,0.7034886091664211,True,True,True,True,Recommend a new caching library for reducing our database load.
+19,out_of_scope_adversarial,True,0.6826946776983561,True,True,True,True,Comment out the deprecated authentication endpoint before removing it.

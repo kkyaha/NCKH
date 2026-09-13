@@ -56,11 +56,36 @@
 %     (it was written as a standalone theoretical framework precisely so it
 %     could be shared between the two papers).
 %
+% ---------------------------------------------------------------------
+% UPDATE (2026-09-13): Section~\ref{sec:results} was regenerated against
+% the CURRENT capacity_agent.py DAG, which now includes the validated
+% backpressure (R->R) edges added to both testbeds after the numbers
+% below were first drafted (paper_draft.tex commit "feat: add SCM
+% backpressure..."). Two consequences for anyone reconciling this file
+% with an older copy:
+%   (i) Section~\ref{sec:topology}'s Precision@17 moved from the
+%       previously-recorded 60.0% to 75.9% -- still not confidently
+%       distinguishable from the ~63% chance baseline, but no longer
+%       reading as *below* chance. We do not know with certainty whether
+%       this shift is caused by the backpressure edges or is ordinary
+%       Monte Carlo variance across independent 10-repeat runs (both
+%       runs used only 10 repeats); we report the current number as
+%       authoritative and flag the discrepancy rather than silently
+%       overwrite it.
+%   (ii) Section~\ref{sec:tier} was re-run, found to have its own
+%       classification bug (backpressure-edge contributors were being
+%       silently merged into neither tier -- see \ref{sec:tier-v2}), was
+%       corrected, and was then extended with three follow-up diagnostics
+%       (hop-distance, per-node NNLS coefficient inspection, true-signal
+%       propagation) that together explain *why* Tier-1 attribution is
+%       unreliable rather than just *that* it is. This is new material
+%       beyond the original four-experiment scope.
+%
 % What is STILL MISSING before this is submission-ready:
 %   - A proper Abstract, Introduction, and Related Work section positioning
 %     this explicitly against the XAI evaluation literature (Doshi-Velez &
 %     Kim 2017's functionally-/human-/application-grounded taxonomy; this
-%     paper's four experiments are functionally-grounded only -- say so).
+%     paper's experiments are functionally-grounded only -- say so).
 %   - A Methodology section describing the shared infrastructure (Sock Shop
 %     / Train Ticket DAGs, RCAEval data, the two-tier DAG and monotonicity
 %     constraint) -- can largely be copied from paper_draft.tex Sections
@@ -70,9 +95,19 @@
 %     currently lacks entirely (see Discussion stub below) -- this is the
 %     single highest-value addition to make the paper's own XAI claim solid
 %     rather than only functionally-grounded.
-%   - A naive-baseline comparison (e.g. attribute by hop-distance or by raw
-%     magnitude of change instead of Shapley) to show the machinery earns
-%     its complexity over a simple heuristic -- not yet run anywhere.
+%   - DONE (2026-09-13): a naive-baseline comparison against BARO (Nguyen
+%     et al., FSE'24 -- a non-causal, RobustScaler/max-z-score statistical
+%     RCA method, its exact published ranking rule reused verbatim from
+%     RCAEval's own e2e/baro.py) was run on the two most informative
+%     tier-decomposition targets (Section~\ref{sec:baro}). Only 2 of the
+%     10 tier-decomposition targets were checked this way -- extending to
+%     the full target set remains open. A second, complementary BARO run
+%     (Section~\ref{sec:baro-real}) was done in BARO's own native setting
+%     (real inject_time, real RCAEval Sock Shop incidents, whole-system
+%     scan) rather than the matched/scoped synthetic setting of
+%     Section~\ref{sec:baro} -- it answers a different question (how hard
+%     is real-incident localization for BARO in this benchmark) and should
+%     not be conflated with Section~\ref{sec:baro}'s matched comparison.
 %   - Proper \label/\ref wiring once this has real section numbers (the
 %     text below still references "Section~\ref{sec:workload-propagation}"
 %     etc. by the parent paper's labels in a couple of places; these are
@@ -85,15 +120,34 @@ mechanism (Budhathoki et al., ICML 2022, run forward on $do(x)$ samples
 instead of backward on observed outliers) that a companion systems paper
 argues gives causal capacity forecasting an explanatory advantage over
 black-box regression is only faithful along one of its two claimed axes.
-Across four controlled experiments on two microservice DAGs of different
-scale (Sock Shop, 28 fitted nodes; Train Ticket, 112), the mechanism is a
-reliable, zero-false-positive detector of \emph{local} (Tier-2) resource
-anomalies but an unreliable -- and, at Train Ticket's scale, worse-than-chance
--- attributor of \emph{propagated} (Tier-1) network-driven ones. We report
-this asymmetry with a ground-truth-by-construction methodology throughout,
-including a controlled test that rules out a specific confound (an
-inconsistently-applied monotonicity constraint) before accepting the
-negative result as real.
+Across a battery of controlled experiments on two microservice DAGs of
+different scale (Sock Shop, 28 fitted nodes; Train Ticket, 112), the
+mechanism is a reliable, zero-false-positive detector of \emph{local}
+(Tier-2) resource anomalies but an unreliable attributor of
+\emph{propagated} (Tier-1) network-driven ones -- accuracy ranging
+$0$--$80\%$ across individual Train Ticket nodes at one causal hop from the
+injection point, recovering to $90$--$92.5\%$ at two-to-three hops once
+credit correctly flowing through validated backpressure (cross-service
+$R{\to}R$) edges is counted as ``upstream'' rather than silently dropped.
+We do not stop at reporting this asymmetry: three follow-up diagnostics
+trace it to a specific, mechanistic cause rather than leaving it as an
+unexplained scale effect -- per-node NNLS coefficient inspection shows the
+target's own fitted mechanism assigns only $1.5$--$10.8\%$ of explained
+variance to direct workload propagation regardless of node, and a direct
+measurement of the true propagated signal (how far a $do(x)$ intervention
+actually moves each target's own workload node, in units of that node's own
+training standard deviation) shows this varies by a factor of two across
+nodes at identical hop-distance, explaining part -- but not all -- of which
+specific nodes fail. A scoped comparison against BARO (Nguyen et al.,
+FSE'24), a non-causal statistical RCA baseline, on the two most diagnostic
+nodes shows neither method dominates: BARO outperforms Shapley on the node
+where Shapley fails worst, and underperforms it on the node where Shapley
+succeeds -- evidence that attributing network-propagated causes correctly
+is a task both approaches find genuinely hard at this scale, not a defect
+unique to interventional Shapley. We report every negative result,
+including two of our own analysis bugs found and corrected mid-study
+(a backpressure-edge misclassification, and a parent-column ordering error),
+with a ground-truth-by-construction methodology throughout.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -127,13 +181,29 @@ and reports what survives contact with a controlled test and what does not.
     dose-response monotonicity, cross-service topology respect, and
     within-node tier decomposition (Section~\ref{sec:results}).
     \item An asymmetric faithfulness result: local (Tier-2) attribution is
-    reliable (100\% accuracy, both testbeds); propagation (Tier-1)
-    attribution is not (60.0\% on a 28-node DAG, 17.5\% -- worse than chance
-    -- on a 112-node DAG).
+    reliable (100\% accuracy, both testbeds, 200/200 trials); propagation
+    (Tier-1) attribution is not, and -- once a backpressure-edge
+    classification bug is corrected (Section~\ref{sec:tier-v2}) -- is shown
+    to depend on hop-distance in a \emph{non-monotonic} way: $40.0\%$
+    accuracy at one hop from the injection point, recovering to
+    $90$--$92.5\%$ at two-to-three hops (Section~\ref{sec:hop-distance}).
     \item A confound ruled out by direct test rather than left as a caveat:
-    we verified the Train Ticket result is not explained by an
-    inconsistently-applied monotonicity constraint, by re-fitting both DAGs
-    identically and re-running the check.
+    we verified the Train Ticket topology-respect result is not explained by
+    an inconsistently-applied monotonicity constraint, by re-fitting both
+    DAGs identically and re-running the check (Section~\ref{sec:topology}).
+    \item A mechanistic explanation, not just a symptom, for the one-hop
+    weakness: per-node inspection of the fitted NNLS mechanism's own
+    coefficients (Section~\ref{sec:mechanism}) and of the true propagated
+    signal magnitude reaching each target's workload node
+    (Section~\ref{sec:propagation}) together show why specific nodes
+    (e.g.\ \texttt{ts-travel-service\_cpu}) fail while others at the same
+    hop-distance (e.g.\ \texttt{ts-user-service\_cpu}) do not.
+    \item A scoped comparison against a non-causal RCA baseline (BARO,
+    Nguyen et al., FSE'24) on the two most diagnostic nodes
+    (Section~\ref{sec:baro}), showing the one-hop weakness is not unique to
+    interventional Shapley -- the two methods trade wins node-for-node,
+    neither dominating -- reframing the finding as a property of the task
+    at this topology scale rather than a defect specific to this mechanism.
 \end{enumerate}
 
 % =========================================================
@@ -180,15 +250,53 @@ For the node most directly downstream of the injection point (\texttt{front-end\
 
 \subsection{Topology Respect (Train Ticket)}
 \label{sec:topology}
-Sock Shop's 7-service graph is too small and too densely reachable from its single gateway for a clean negative-control test -- nearly every node is downstream of \texttt{front-end}. Train Ticket's fitted accurate-path DAG is not: from the natural gateway \texttt{ts-preserve-service}, 17 of the 27 other services are reachable (hops 1--3) and \textbf{10 are genuinely unreachable} (no path exists in the fitted graph at all), giving a principled test -- attribution should not meaningfully favor unreachable services over reachable ones. We intervened at $+150\%$ for 10 independent repeats and ranked all service CPU nodes by Shapley contribution each time. \textbf{The result is negative}: Precision@17 (the fraction of the top-17 Shapley-ranked services that are genuinely reachable) was $60.0\%$, statistically indistinguishable from the $63.0\%$ expected by topology-blind chance alone; mean Shapley contribution was in fact slightly \emph{higher} for unreachable services ($0.179$) than for reachable ones ($0.143$). The raw magnitude of predicted change did point the right direction (reachable services showed a larger mean $|\text{change\_pct}|$ than unreachable ones, $6.9\%$ vs.\ $3.9\%$), but this signal was too weak relative to Shapley's noise to produce a topology-respecting ranking.
+Sock Shop's 7-service graph is too small and too densely reachable from its single gateway for a clean negative-control test -- nearly every node is downstream of \texttt{front-end}. Train Ticket's fitted accurate-path DAG is not: from the natural gateway \texttt{ts-preserve-service}, 17 of the 27 other services are reachable (hops 1--3) and \textbf{10 are genuinely unreachable} (no path exists in the fitted graph at all), giving a principled test -- attribution should not meaningfully favor unreachable services over reachable ones. We intervened at $+150\%$ for 10 independent repeats and ranked all service CPU nodes by Shapley contribution each time.
 
-We had one specific, testable hypothesis for this result: the Train Ticket DAG used here lacked the non-negative-coefficient (monotonicity) constraint the Sock Shop DAG used in the two checks above already had on its Tier-1 workload-propagation edges. \textbf{We tested this directly rather than only flagging it}: we applied the identical constraint used for Sock Shop to Train Ticket's Tier-1 and Tier-2 mechanisms alike and re-ran the exact same check. Precision@17 moved from $60.0\%$ to $60.6\%$ -- statistically unchanged, and mean Shapley contribution remained higher for unreachable services ($0.169$) than reachable ones ($0.125$). \textbf{This rules out the monotonicity-fit confound as the explanation}: the negative result is not an artifact of Train Ticket's DAG being fit less carefully than Sock Shop's -- the two are now fit identically, and the gap persists. We therefore report this as a genuine, unexplained negative result on Shapley attribution's reliability at Train Ticket's scale (112 fitted nodes vs.\ Sock Shop's 28), and leave identifying its actual cause -- Monte Carlo approximation error at this graph size, or confounding shared across services independent of the fitted causal edges -- as an open diagnostic question (Section~\ref{sec:discussion}).
+\textbf{Current result (re-run against the DAG's present state, which now includes the validated backpressure edges of Section~\ref{sec:tier-v2}): Precision@17 $= 75.9\%$}, against a $63.0\%$ chance baseline -- directionally correct but not a strong margin. Grouped by topological role: mean Shapley contribution is $0.161$ (injection node's own CPU), $0.242$ (reachable services), $0.191$ (unreachable services) -- reachable services do score higher than unreachable ones on average, though the gap is modest relative to the per-service spread, and the injection node's own CPU is, perhaps counter-intuitively, not the highest-scoring group.
+
+An earlier pass of this same check (recorded in this document before the backpressure-edge extension of Section~\ref{sec:tier-v2} was added to both testbeds) had found Precision@17 $=60.0\%$ -- \emph{below} chance -- and, after ruling out an inconsistently-applied monotonicity constraint as the cause (re-fitting both DAGs identically moved the number only to $60.6\%$), reported this as an open, unexplained negative result. \textbf{We flag rather than quietly overwrite the discrepancy}: we do not have direct evidence disentangling whether the shift from $60.0\%$ to $75.9\%$ reflects the backpressure edges changing the fitted DAG, or ordinary Monte Carlo variance between two independent 10-repeat runs (a sample size too small to rule out $\pm15$ points of run-to-run noise on its own). What both runs agree on is the qualitative conclusion: Shapley's topology-respecting signal at Train Ticket's scale is real but weak, sitting close enough to chance that it should not be reported as a strong validation on its own -- consistent with the more diagnostic, per-node findings of Sections~\ref{sec:tier-v2}--\ref{sec:propagation}.
 
 \subsection{Tier-1 vs.\ Tier-2 Decomposition}
 \label{sec:tier}
-Section~\ref{sec:background} makes a more specific claim than any check above tests: that Shapley attribution can decompose a projected change at \emph{one} target node into how much comes from Tier-1 network propagation versus Tier-2 local resource conversion. Neither the dose-response check (Section~\ref{sec:dose-response}; its target, the injection node itself, has no Tier-1 ancestor to separate from) nor the topology check (Section~\ref{sec:topology}; which compares totals \emph{across} services, not tiers \emph{within} one) actually exercises this. We test it directly with a ground-truth-by-construction design: for each of several downstream targets, we construct a \emph{Tier-1-driven} anomaly (a real $do(\text{gateway\_workload} = 2.5\times)$ intervention, target's own value left to the fitted mechanism) and a \emph{Tier-2-driven} anomaly (no real workload change, but the target's own resource value manually perturbed by $+5\sigma$ -- simulating a local inefficiency independent of traffic). \texttt{gcm.attribute\_anomalies} returns a per-ancestor contribution dict that already separates every \texttt{*\_workload} ancestor (Tier 1) from the target's own key (Tier 2); we check whether the tier with the larger $|{\text{contribution}}|$ matches the known true cause, over 10 independent repeats $\times$ 6 Sock Shop targets and 10 repeats $\times$ 4 Train Ticket targets.
+Section~\ref{sec:background} makes a more specific claim than any check above tests: that Shapley attribution can decompose a projected change at \emph{one} target node into how much comes from Tier-1 network propagation versus Tier-2 local resource conversion. Neither the dose-response check (Section~\ref{sec:dose-response}; its target, the injection node itself, has no Tier-1 ancestor to separate from) nor the topology check (Section~\ref{sec:topology}; which compares totals \emph{across} services, not tiers \emph{within} one) actually exercises this. We test it directly with a ground-truth-by-construction design: for each of several downstream targets, we construct a \emph{Tier-1-driven} anomaly (a real $do(\text{gateway\_workload} = 2.5\times)$ intervention, target's own value left to the fitted mechanism) and a \emph{Tier-2-driven} anomaly (no real workload change, but the target's own resource value manually perturbed by $+5\sigma$ -- simulating a local inefficiency independent of traffic). We check whether the tier with the larger $|{\text{contribution}}|$ matches the known true cause, over 10 independent repeats $\times$ 6 Sock Shop targets and 10 repeats $\times$ 4 Train Ticket targets.
 
-\textbf{The result is asymmetric and, on Train Ticket, poor.} Tier-2 (local) attribution is essentially perfect on both systems -- $100.0\%$ accuracy, 120/120 and 80/80 trials. Tier-1 (propagation) attribution is unreliable even on Sock Shop ($60.0\%$, 36/60) and \emph{worse than chance} on Train Ticket ($17.5\%$, 7/40) -- a $-32.5$ percentage-point gap from a 50\% coin flip, meaning the mechanism actively mis-attributes network-driven anomalies to the target's own node more often than it gets them right at this scale. The Sock Shop failures are not uniform across targets: direct children of the injection gateway (\texttt{carts}, \texttt{orders}, \texttt{user}) score $100\%$, while two-hop descendants reached only through an intermediate service (\texttt{payment}, \texttt{shipping}, both parented by \texttt{orders\_workload} rather than \texttt{front-end\_workload} directly) score $0\%$ -- the mechanism appears to lose the propagation signal specifically across an intermediate hop, not uniformly. \textbf{We revise the claim accordingly}: attributing a resource anomaly to the target's own local mechanism is a validated capability; attributing it to upstream network propagation, at more than one hop or beyond Sock Shop's scale, is not.
+\textbf{Current result: the asymmetry replicates, and Tier-2 remains essentially perfect} -- $100.0\%$ accuracy on both systems, 120/120 and 80/80 trials, unchanged from the first pass of this check. Tier-1 (propagation) accuracy is $78.3\%$ on Sock Shop (47/60) and $17.5\%$ on Train Ticket (7/40). (An earlier recorded pass of this exact check had found $60.0\%$ on Sock Shop; the Train Ticket figure is unchanged. As in Section~\ref{sec:topology}, we do not have a fully disentangled explanation for the Sock Shop shift -- the underlying DAG-fitting code for both testbeds was modified between recordings to add the backpressure edges of Section~\ref{sec:tier-v2} -- and report the current number as authoritative rather than silently reconcile it.) \textbf{We revise the claim accordingly}: attributing a resource anomaly to the target's own local mechanism is a validated capability; attributing it to upstream network propagation is not reliable, and is markedly worse at Train Ticket's scale. The remainder of this section (Sections~\ref{sec:tier-v2}--\ref{sec:baro}) goes beyond the original four-experiment scope to explain \emph{why}.
+
+\subsection{A Classification Bug and Its Correction}
+\label{sec:tier-v2}
+The result above uses the same two-way classifier as the original check: every contributor returned by the attribution call is bucketed as Tier~1 if its node name ends in \texttt{\_workload}, or as Tier~2 if it is the target's own key. This classifier predates a change to both testbeds' DAG-construction code that added \emph{validated backpressure edges} -- a second, cross-service parent added to specific CPU nodes (a directly-calling service's own CPU, capturing synchronous backpressure a callee's request count alone does not; validated against held-out data in the companion systems paper's own accuracy checks before deployment). A backpressure parent's node name ends in \texttt{\_cpu}, not \texttt{\_workload} and not the target's own key -- so the two-way classifier \textbf{silently drops it from both tier sums}. Cross-referencing the backpressure-edge list against this section's test targets shows the omission is not a corner case: \textbf{3 of 6 Sock Shop targets} (\texttt{shipping\_cpu}, \texttt{carts\_cpu}, \texttt{user\_cpu}) and \textbf{4 of 4 Train Ticket targets} (\texttt{ts-order/user/travel/seat-service\_cpu}) have at least one backpressure parent whose contribution the original classifier never counted.
+
+We built a corrected, three-way classifier -- Tier~1 (\texttt{*\_workload}), backpressure (any other \texttt{*\_cpu}/\texttt{*\_mem}/\texttt{*\_latency-50} node), Tier~2 (the target's own key) -- and re-ran the identical protocol, reporting two accuracy numbers per trial: \emph{strict} (does Tier~1 alone dominate Tier~2 alone, the original standard) and \emph{upstream} (does Tier~1$+$backpressure combined dominate Tier~2 -- the practically relevant question for a bottleneck-ranking heuristic, and the fairer reading given the companion paper's own Section on backpressure edges already flags that they narrow the tier-decomposition's clean two-way interpretability on exactly these targets). \textbf{The correction does not rescue the Train Ticket result}: strict accuracy is $73.3\%$ (Sock Shop) and $15.0\%$ (Train Ticket); upstream accuracy is $73.3\%$ (Sock Shop, unchanged -- none of its three affected targets flip) and $32.5\%$ (Train Ticket, roughly double the strict figure but still worse than a coin flip). \textbf{We conclude the classification bug is not the explanation for Train Ticket's weakness} -- it is a genuine property of the fitted mechanism at this scale, which the next two subsections trace to a specific cause.
+
+\subsection{Does Attribution Accuracy Track Hop-Distance?}
+\label{sec:hop-distance}
+Section~\ref{sec:tier-v2}'s four Train Ticket targets were, by coincidence of which nodes had a convenient ground-truth-by-construction setup, all exactly one hop from the injection gateway -- so the data could not distinguish ``attribution is unreliable in general'' from ``attribution is unreliable specifically at short range, and the four targets tested happened to sample only that range.'' We extended the identical tier1\_driven/tier2\_driven protocol to five additional Train Ticket targets spanning hops 2 (\texttt{ts-config/basic/train/route-service\_cpu}) and hop 3 (\texttt{ts-price-service\_cpu}, the only service at that distance in this topology), for nine targets total.
+
+\textbf{The result is not what a simple ``signal dilutes with distance'' hypothesis predicts.} Strict accuracy does fall monotonically with hop-distance -- $25.0\%$ (hop 1, $n{=}40$) $\to 2.5\%$ (hop 2, $n{=}40$) $\to 0.0\%$ (hop 3, $n{=}10$), Spearman $\rho=-1.0$ -- consistent with the direct Tier-1 (workload-only) channel genuinely weakening at range: mean $|{\text{Tier-1 contribution}}|$ falls from $0.035$ to $0.009$ over the same range while mean $|{\text{backpressure contribution}}|$ \emph{grows}, from $0.082$ to $0.169$. But once that redirected signal is correctly counted as upstream (the corrected classifier of Section~\ref{sec:tier-v2}), \textbf{upstream accuracy does not decay with distance -- it recovers}: $40.0\%$ (hop 1) $\to 92.5\%$ (hop 2) $\to 90.0\%$ (hop 3). The weakest point in the whole hop range is the closest one. Per-target results at hop 1 are highly variable rather than uniformly weak (\texttt{ts-order-service\_cpu}: $0\%/20\%$ strict/upstream; \texttt{ts-seat-service\_cpu}: $10\%/70\%$; \texttt{ts-travel-service\_cpu}: $10\%/10\%$; \texttt{ts-user-service\_cpu}: $80\%/60\%$), so we treat ``hop-distance'' itself as at most a partial explanation and examine two specific hop-1 nodes -- \texttt{ts-travel-service\_cpu} (worst performer at any hop) and \texttt{ts-user-service\_cpu} (best) -- directly in the next two subsections. (The hop-2/hop-3 samples are thin -- 4 and 1 target respectively -- so we report this recovery as suggestive, not as a settled scaling law.)
+
+\subsection{Per-Node Mechanism Inspection}
+\label{sec:mechanism}
+For each of the four hop-1 targets, we inspected the fitted mechanism directly: its NNLS (non-negative least squares) coefficient on each parent, that parent's own training-period standard deviation (an \emph{effective scale} $= |\text{coef}| \times \sigma_{\text{parent}}$, a rough proxy for how much a parent's typical variation moves the target), and the mechanism's in-sample $R^2$. This requires matching each fitted coefficient to the correct parent name; DoWhy fits every mechanism against \texttt{sorted(predecessors)}, \emph{not} the causal graph's edge-insertion order -- we discovered this the hard way (an initial pass using insertion order produced an apparently pathological $R^2=-3.67$ for \texttt{ts-travel-service\_cpu} that vanished, becoming a normal $R^2=0.436$, once the column order was corrected to match DoWhy's own convention). We report this correction rather than silently fix it, since a spurious negative-$R^2$ finding would otherwise have been a false lead.
+
+\textbf{With correct column alignment, one pattern is uniform across all four targets, and it is not the one that separates them}: Tier-1's share of total effective scale is small everywhere -- $2.1\%$ (\texttt{ts-order}), $1.5\%$ (\texttt{ts-seat}), $9.0\%$ (\texttt{ts-travel}), $10.8\%$ (\texttt{ts-user}) -- so a target's own fitted mechanism structurally starves the direct workload channel of credit regardless of whether that target succeeds or fails at the intervention-based test above. Static coefficient share therefore cannot, by itself, explain why \texttt{ts-user} succeeds ($80\%$ strict) while \texttt{ts-travel} fails ($10\%$): \texttt{ts-travel} actually has a \emph{larger} Tier-1 share ($9.0\%$) than \texttt{ts-seat} ($1.5\%$, which nonetheless reaches $70\%$ upstream accuracy). Fit quality alone is similarly inconclusive ($R^2 = 0.309, 0.598, 0.436, 0.150$ for order/seat/travel/user respectively -- \texttt{ts-user} has the \emph{worst} fit of the four, yet the best attribution accuracy). The static, in-sample view of the mechanism is necessary context but not sufficient to predict which specific nodes will fail; Section~\ref{sec:propagation} looks one layer upstream of it.
+
+\subsection{True Propagated Signal Magnitude}
+\label{sec:propagation}
+Rather than a target's own fitted coefficients, we measured directly how far the real $do(\text{ts-preserve-service\_workload}=2.5\times)$ intervention actually moves each target's own \texttt{\_workload} node -- via \texttt{gcm.interventional\_samples}, expressed as a \emph{sigma-shift} (the intervened mean minus the training baseline mean, in units of that node's own training standard deviation) -- rather than inferred from static coefficients. All four targets sit at exactly one Tier-1-only hop from the injection node, yet the true signal reaching them differs by close to a factor of two: \texttt{ts-user-service\_workload} moves $1.201\sigma$ ($+77.1\%$ relative to baseline), against $0.688\sigma$ (\texttt{ts-order}), $0.679\sigma$ (\texttt{ts-travel}), and $0.600\sigma$ (\texttt{ts-seat}).
+
+This aligns with, but does not fully resolve, the attribution outcome: \texttt{ts-user} receives by far the strongest true signal \emph{and} has the best strict accuracy ($80\%$), consistent with a stronger true cause being easier to correctly credit even against a small nominal coefficient share. \texttt{ts-seat} receives the \emph{weakest} true signal ($0.600\sigma$) yet reaches the second-best upstream accuracy ($70\%$) -- explained by its own backpressure parents (\texttt{ts-travel-service\_cpu}, \texttt{ts-travel2-service\_cpu}) themselves being downstream of the same intervention, so credit that would strictly belong to a two-hop-removed Tier-1 signal still lands correctly in the ``upstream'' bucket via the backpressure channel. \texttt{ts-travel-service\_cpu} is the one node with no such rescue: its own true signal is unexceptional ($0.679\sigma$, similar to \texttt{ts-order}'s), and unlike \texttt{ts-seat} it has no dominant backpressure parent that is \emph{itself} clearly downstream of the injected intervention -- combined with a target of intrinsically high residual variance (Section~\ref{sec:mechanism}'s $\sigma_{\text{target}}=3.40$, the largest of the four), it is left with neither a strong direct signal nor an indirect rescue path. \textbf{We do not claim a single clean law}: attribution outcome at one hop is better explained as the joint result of (i) true signal strength, (ii) whether nominally-competing backpressure parents happen to be co-downstream of the same true cause, and (iii) the target's own residual noise floor, than by any one of these alone.
+
+\subsection{Comparison Against a Non-Causal Baseline (BARO)}
+\label{sec:baro}
+The diagnostics above establish \emph{that} and roughly \emph{why} Tier-1 attribution is unreliable at one hop -- but not whether this is a defect specific to interventional Shapley, or a property of the underlying data/topology that would defeat any root-cause ranking method. We compared against BARO \cite{nguyen2024baro}, a non-causal statistical RCA baseline from RCAEval's own reproducible baseline suite: for each candidate column, fit a \texttt{RobustScaler} (median/IQR) on its normal/baseline distribution, transform the anomalous observations through it, and rank columns by maximum absolute robust z-score. We reused BARO's published ranking rule verbatim (RCAEval's \texttt{e2e/baro.py}), skipping only its dataset-specific raw-CSV preprocessing step, on the two most diagnostic targets: \texttt{ts-travel-service\_cpu} (worst performer for Shapley) and \texttt{ts-user-service\_cpu} (best). To keep the comparison apples-to-apples, BARO's candidate set was restricted to exactly the same causal neighborhood \texttt{gcm.attribute\_anomalies} is confined to (the target plus its causal ancestors -- 11 and 7 columns respectively), not RCAEval's usual whole-system scan (an initial, uncorrected attempt at this comparison scanned all 112 columns and produced a near-vacuous ``top-1 is not the target'' pass rate of 100\% on both nodes -- trivially likely by chance alone with 112 candidates, and revealed on inspection that BARO's actual top-1 pick was neither the target nor the true injected node in either case; we report this second bug too rather than the misleading number it produced).
+
+\textbf{Neither method dominates.} On \texttt{ts-travel-service\_cpu}, BARO's ancestor-outranks-target rate is $50.0\%$ against Shapley's $0$--$10\%$ -- BARO does better on the exact node where Shapley fails worst. On \texttt{ts-user-service\_cpu}, BARO's rate is $40.0\%$ against Shapley's $60$--$80\%$ -- Shapley does better on the node where it succeeds. Both methods are trivially correct on the tier2\_driven (local-fault) sanity check ($100\%$ each, both nodes). The true injected node itself never outranks the target in BARO's ranking on either node ($0\%$ of repeats) -- when BARO's best ancestor does win, it is a different intermediate node, not the ultimate root cause, which is itself consistent with the point Section~\ref{sec:background} makes about associational methods conflating ``downstream of many small upstream pushes'' with ``the true origin.'' \textbf{We read this as evidence that correctly attributing a network-propagated cause at this topology scale is a genuinely hard task for causal and non-causal methods alike}, not a defect unique to interventional Shapley -- while noting the comparison covers only 2 of this section's 10 tier-decomposition targets and should not be over-generalized without extending it further.
+
+\subsection{BARO on Real Fault-Injection Data}
+\label{sec:baro-real}
+Section~\ref{sec:baro}'s comparison, like every other check in this paper, uses synthetic ground-truth-by-construction scenarios (a real or simulated $do(x)$/perturbation on top of the fitted DAG) rather than an actually-occurred incident, and restricts BARO's candidate set to the target's own causal ancestors to keep the comparison matched to what \texttt{gcm.attribute\_anomalies} sees. We additionally ran BARO in its \emph{native} setting -- real, timestamped telemetry with a real injection timestamp, ranking over all $\sim$14 services with no causal-graph restriction -- on RCAEval's own raw Sock Shop corpus (\texttt{data/raw/RE2-SS}): 30 fault types (5 services $\times$ 6 fault categories: CPU, memory, disk, network delay, packet loss, socket exhaustion) $\times$ 3 repeats, the identical 90-scenario corpus the companion systems paper uses for its own RQ1/RQ2 point-forecast accuracy. This is a different task (service-level root-cause localization from a real incident, not attribution of a hypothetical $do(x)$ outcome) and is not directly comparable in accuracy terms to Section~\ref{sec:baro}'s figures -- we report it as an independent data point on how hard this benchmark's root-cause task is for an established method, not as a third arm of that comparison.
+
+\textbf{BARO's own accuracy on real incidents in this benchmark is modest and highly fault-type-dependent}: $26.7\%$ Top-1 and $51.1\%$ Top-3 service-level accuracy overall ($n=90$), against a $\sim$$7\%$ chance baseline over $\sim$14 candidate services. Breaking down by fault type reveals a sharp split: memory faults are comparatively easy ($60.0\%$ Top-1, $93.3\%$ Top-3) and disk faults moderately so ($40.0\%$/$73.3\%$), but \textbf{CPU, network-delay, and packet-loss faults are uniformly hard} -- all three tied at $13.3\%$ Top-1, $26.7\%$ Top-3, the worst of the six categories. \textbf{This is directly relevant to the companion systems paper's own finding} that CPU is the one metric resisting accurate forecasting while memory forecasts cleanly on both testbeds (its ``Why CPU Resists Forecasting'' discussion, attributed there to background OS/GC/health-check noise no request-count metric observes): the same asymmetry -- memory well-behaved, CPU resistant -- shows up here independently, in a real established RCA method's ability to localize the fault's origin at all, not merely in a regression's ability to forecast CPU's future value. We read this as corroborating evidence that CPU's difficulty in this benchmark is a property of the signal itself, observed across two unrelated tasks (forecasting and localization) and two unrelated methods (this paper's monotonicity-constrained SCM and an off-the-shelf statistical RCA baseline), not an artifact specific to either.
 
 % =========================================================
 % IV. DISCUSSION (STUB)
@@ -197,10 +305,10 @@ Section~\ref{sec:background} makes a more specific claim than any check above te
 \label{sec:discussion}
 \textbf{[TODO --- STUB]:} Draft discussion. Key points to cover:
 \begin{itemize}
-    \item \textbf{Evaluation tier (Doshi-Velez \& Kim, 2017).} All four experiments here are \emph{functionally-grounded}: faithfulness is checked against a synthetic, self-constructed ground truth, not against a human's judgment of whether the explanation is useful or against an operator's actual scale/no-scale decision. Neither human-grounded nor application-grounded evaluation has been attempted. State this as the paper's primary limitation, not an afterthought.
-    \item \textbf{Confound in Section~\ref{sec:tier}'s own design.} In the Tier-1-driven scenario, the target's resource value is left to the fitted mechanism's own prediction rather than held to a known-clean value -- so residual model misfit (not a real local anomaly) could itself register as spurious Tier-2 contribution, potentially explaining part of why Tier-1 accuracy is $<100\%$ even on Sock Shop. A follow-up should separate "attribution mechanism is wrong" from "the underlying regression fit is imperfect."
-    \item \textbf{No naive-baseline comparison yet.} Section~\ref{sec:topology}'s $63.0\%$ chance baseline shows Shapley is not \emph{better} than random at Train Ticket scale, but no experiment here compares Shapley against a simple non-causal heuristic (e.g. attribute by hop-distance, or by raw $|\Delta|$) that requires no SCM at all -- needed to argue the machinery's added complexity earns its keep even where it beats chance.
-    \item \textbf{Scale sensitivity.} All three of the checks run on both testbeds degrade, or fail outright, moving from Sock Shop (28 nodes) to Train Ticket (112 nodes) -- consistent across independent experimental designs (ranking-based and construction-based), which strengthens confidence this is a real scale effect and not an artifact of one specific test.
+    \item \textbf{Evaluation tier (Doshi-Velez \& Kim, 2017).} All experiments here are \emph{functionally-grounded}: faithfulness is checked against a synthetic, self-constructed ground truth, not against a human's judgment of whether the explanation is useful or against an operator's actual scale/no-scale decision. Neither human-grounded nor application-grounded evaluation has been attempted. State this as the paper's primary limitation, not an afterthought.
+    \item \textbf{Confound in Section~\ref{sec:tier}'s own design.} In the Tier-1-driven scenario, the target's resource value is left to the fitted mechanism's own prediction rather than held to a known-clean value -- so residual model misfit (not a real local anomaly) could itself register as spurious Tier-2 contribution, potentially explaining part of why Tier-1 accuracy is $<100\%$ even on Sock Shop. Section~\ref{sec:mechanism} partially addresses this (in-sample $R^2$ per target is reported alongside coefficient share) but does not fully separate the two effects.
+    \item \textbf{Naive-baseline comparison: done, but narrow.} Section~\ref{sec:baro} compares against BARO on 2 of the 10 tier-decomposition targets and finds neither method dominates -- suggestive that the one-hop weakness is a task property, not a Shapley-specific defect, but a comparison on only 2 nodes should not be read as a settled result. Section~\ref{sec:baro-real} corroborates this from a different angle -- BARO's own accuracy on real incidents in the same benchmark is fault-type-dependent and specifically weak on CPU -- but on a different task (real-incident localization) that cannot substitute for extending Section~\ref{sec:baro}'s matched comparison to the full target set. A second non-causal baseline (e.g.\ RCAEval's \texttt{CausalRCA} or \texttt{RCD}, which do use a causal graph but not Shapley values) remains untried.
+    \item \textbf{Scale sensitivity is real but not a simple monotonic decay.} Tier-2 (local) attribution is scale-invariant (perfect on both testbeds). Tier-1 (propagation) attribution is markedly worse on Train Ticket than Sock Shop in aggregate, but Section~\ref{sec:hop-distance} shows this is not simply ``bigger graph, weaker signal'': accuracy is worst at the \emph{shortest} distance tested (one hop) and recovers at two-to-three hops once backpressure-mediated credit is counted correctly. The honest summary is that scale changes \emph{which} nodes are hard, not that it uniformly degrades attribution with distance.
 \end{itemize}
 
 \subsection{Threats to Validity}
@@ -208,6 +316,9 @@ Section~\ref{sec:background} makes a more specific claim than any check above te
     \item \textbf{Two testbeds only}, of one architectural style (RCAEval's fault-injected microservice benchmarks); generalization to other topologies or fault-injection regimes is untested.
     \item \textbf{Perturbation magnitude in Section~\ref{sec:tier} is large by design} ($+5\sigma$), chosen to give the mechanism its best chance; smaller, more realistic local anomalies have not been tested and may fare worse.
     \item \textbf{The mechanism validated here is not the one deployed}: the companion systems paper's production capacity-forecasting agent uses a simpler fixed-threshold heuristic for its own bottleneck ranking, not this attribution mechanism -- wiring them together and re-validating end-to-end remains open.
+    \item \textbf{Thin samples at the topology extremes.} Section~\ref{sec:hop-distance}'s hop-3 group has exactly one target (\texttt{ts-price-service\_cpu}); its $90.0\%$ accuracy should be read as one data point, not a validated rate at that distance.
+    \item \textbf{Two independent measurement/analysis bugs were found and corrected mid-study} (backpressure-edge misclassification, Section~\ref{sec:tier-v2}; a parent-column ordering error in Section~\ref{sec:mechanism}, and a near-vacuous baseline criterion in Section~\ref{sec:baro}). We disclose all three rather than only the final numbers, but their discovery this late raises the possibility that further, undiscovered measurement issues remain in the diagnostics reported here.
+    \item \textbf{The Sock Shop and Precision@17 numbers shifted between recordings} (Sections~\ref{sec:topology}, \ref{sec:tier}) for reasons not fully disentangled -- most likely the backpressure-edge DAG change, possibly compounded by ordinary Monte Carlo variance across independent 10-repeat runs. A fixed random seed and a direct before/after re-run on an unmodified DAG would resolve this and is not yet done.
 \end{itemize}
 
 % =========================================================
@@ -228,5 +339,7 @@ J.~Pearl, \emph{Causality}, 2nd ed. Cambridge Univ. Press, 2009.
 F. Doshi-Velez and B. Kim, ``Towards A Rigorous Science of Interpretable Machine Learning,'' \emph{arXiv preprint arXiv:1702.08608}, 2017.
 \bibitem{pham2024rcaeval}
 L. Pham et al., ``RCAEval: A Benchmark for Root Cause Analysis of Microservice Systems,'' 2024.
+\bibitem{nguyen2024baro}
+L. Nguyen, L. Pham, et al., ``BARO: Robust Root Cause Analysis for Microservices via Multivariate Bayesian Online Change Point Detection,'' in \emph{Proc. FSE}, 2024.
 \end{thebibliography}
 \end{document}

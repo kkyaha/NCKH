@@ -91,9 +91,10 @@ Our main contributions are:
 
 \subsection{From Retrospective RCA to Prospective Forecasting}
 Traditional machine learning fits an association between $X$ and $Y$ within the observed distribution, not a mechanism that holds once $X$ is deliberately changed. Pearl's SCM \cite{pearl2009causality} resolves this via the $do$-calculus operator: the Truncated Factorization Theorem states that for an intervention $do(X_i = x_i^*)$,
-\begin{equation}
-P(x_1,\dots,x_n \mid do(X_i{=}x_i^*)) = \prod_{j\neq i} P(x_j \mid pa_j)\Big|_{X_i = x_i^*},
-\end{equation}
+\begin{multline}
+P(x_1,\dots,x_n \mid do(X_i{=}x_i^*)) \\
+{}= \prod_{j\neq i} P(x_j \mid pa_j)\Big|_{X_i = x_i^*},
+\end{multline}
 i.e.\ the interventional distribution is built from the \emph{same} conditional mechanisms $P(x_j\mid pa_j)$ with the edges into $X_i$ severed rather than conditioned on. A regression baseline has no such operator: its estimate $\hat y = h(x)$ need not equal $\mathbb{E}[Y \mid do(X{=}x)]$ under confounding, because the associational and interventional quantities are provably distinct \cite{pearl2009causality}. With a fitted SCM, answering a $do(x)$ query reduces to forward simulation --- computationally trivial --- whose completeness Huang and Valtorta established for Pearl's three inference rules \cite{huang2006complete}. This establishes the \emph{well-definedness} of $do(x)$, not the empirical accuracy of our fitted mechanisms; the latter is reported in RQ1--RQ2, including where unfavorable.
 
 Existing SCM-based microservice diagnostics apply this structure \emph{retrospectively}: Budhathoki et al.\ \cite{budhathoki2022rootcause} attribute an already-observed outlier to upstream root causes via Shapley values over a causal graph --- the same mechanism DoWhy-GCM \cite{blobaum2024dowhy} exposes as \texttt{attribute\_anomalies}. We run this machinery in the opposite, \emph{prospective} direction: given a hypothetical $do(\text{Workload}{=}w)$, we ask which downstream nodes it would push into outlier territory before the workload is applied. Formally, let $\tilde x := \mathbb{E}[X \mid do(\text{Workload}{=}w)]$ be obtained by forward simulation through the fitted DAG (Section~\ref{sec:workload-propagation}); the Shapley decomposition $S(\tilde x) = \sum_j c^{Sh}_{\tilde x}(j)$ of \cite{budhathoki2022rootcause} applies identically, licensed by the modularity property \cite{blobaum2024dowhy}: $do(X_k{=}x_k^*)$ replaces only the mechanism at node $k$, leaving $N_{j\neq k}$ jointly independent regardless of whether $x_k^*$ was measured or hypothesized. Its faithfulness at scale remains untested (Section~\ref{sec:threats}).
@@ -117,32 +118,29 @@ The system is a four-node LangGraph state machine (Fig.~\ref{fig:architecture}) 
 
 \begin{figure}[t]
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{0.92\linewidth}{!}{%
 \begin{tikzpicture}[
     font=\footnotesize,
     node distance = 5mm and 8mm,
-    stage/.style = {draw, rounded corners, fill=blue!6, align=center, text width=3.5cm, minimum height=10mm, inner sep=2mm},
-    io/.style = {draw, rounded corners, fill=gray!10, align=center, text width=3.2cm, minimum height=6mm, inner sep=1.5mm},
-    guardbox/.style = {draw, dashed, rounded corners, fill=red!4, align=left, text width=3.9cm, inner sep=1.5mm, font=\scriptsize},
+    stage/.style = {draw, rounded corners, fill=blue!6, align=center, text width=5.6cm, minimum height=9mm, inner sep=2mm},
+    io/.style = {draw, rounded corners, fill=gray!10, align=center, text width=5.2cm, minimum height=6mm, inner sep=1.5mm},
     arrow/.style = {-{Stealth[length=2mm]}, thick}
 ]
     \node[io] (input) {Natural-language requirement\\ \emph{e.g. ``add a checkout promo-code discount''}};
-    \node[stage, below=of input] (parser) {\textbf{1. Parser Agent}\\ \footnotesize 2-tier: keyword fast-path (sim.\ $\geq0.6$) or LLM $\rightarrow$ $do(X{=}x)$};
-    \node[guardbox, right=of parser, xshift=2mm] (guards) {\textbf{3-Layer Verification}\\ L1: Scope Gate (abstention)\\ L2: Entity Grounding\\ \quad (gateway + service check)\\ L3: Bounded Projection $\Pi$\\ \quad (nested delta clamp)};
-    \node[stage, below=of parser] (arch) {\textbf{2. Architecture Agent}\\ \footnotesize Graph BFS from gateway $\rightarrow$ blast radius};
-    \node[stage, below=of arch] (capacity) {\textbf{3. Capacity Agent}\\ \footnotesize Fast path: bivariate SCM\\ Accurate path: topology-adaptive DAG, $do(x)$ propagation (Tier 1 $\rightarrow$ Tier 2)};
-    \node[stage, below=of capacity] (report) {\textbf{4. Report Synthesis}\\ \footnotesize LLM: bottleneck analysis + self-critique};
+    \node[stage, below=of input] (parser) {\textbf{1. Parser Agent} $\to$ $do(X{=}x)$\\ \footnotesize 2-tier: keyword fast-path or LLM, bounded by 3-layer verification (Fig.~\ref{fig:verification})\\ \scriptsize\itshape evaluated (Sections~\ref{sec:parser-agent}, \ref{sec:results})};
+    \node[stage, below=of parser] (arch) {\textbf{2. Architecture Agent}\\ \footnotesize Graph BFS from gateway $\rightarrow$ blast radius\\ \scriptsize\itshape deterministic, not evaluated};
+    \node[stage, below=of arch] (capacity) {\textbf{3. Capacity Agent}\\ \footnotesize Fast path: bivariate SCM \quad Accurate path: two-tier causal DAG (Fig.~\ref{fig:dag}), $do(x)$ propagation\\ \scriptsize\itshape evaluated (Sections~\ref{sec:workload-propagation}, \ref{sec:results})};
+    \node[stage, below=of capacity] (report) {\textbf{4. Report Synthesis}\\ \footnotesize LLM: bottleneck analysis + self-critique\\ \scriptsize\itshape text synthesis, not evaluated};
     \node[io, below=of report] (output) {\texttt{FeasibilityReport}\\ verdict, confidence, reasoning};
 
     \draw[arrow] (input) -- (parser);
     \draw[arrow] (parser) -- (arch) node[midway, left, font=\scriptsize] {ParsedRequirement};
-    \draw[arrow] (guards.west) -- (parser.east);
     \draw[arrow] (arch) -- (capacity) node[midway, left, font=\scriptsize] {affected services};
     \draw[arrow] (capacity) -- (report) node[midway, left, font=\scriptsize] {projected $\Delta$CPU/Mem/Socket/Lat};
     \draw[arrow] (report) -- (output);
 \end{tikzpicture}%
 }
-\caption{System pipeline: a four-node LangGraph state machine from natural-language requirement to feasibility verdict. Only nodes 1 and 3 (solid arrows into causal/LLM machinery) are quantitatively evaluated in Section~\ref{sec:results}; node 2 is a deterministic graph traversal and node 4 is unevaluated text synthesis.}
+\caption{System pipeline: a four-node LangGraph state machine from natural-language requirement to feasibility verdict. Nodes 1 and 3 carry the causal/LLM machinery quantitatively evaluated in Section~\ref{sec:results} and are detailed separately in Figures~\ref{fig:verification} and~\ref{fig:dag}; node 2 is a deterministic graph traversal and node 4 is unevaluated text synthesis.}
 \label{fig:architecture}
 \end{figure}
 
@@ -150,13 +148,44 @@ The system is a four-node LangGraph state machine (Fig.~\ref{fig:architecture}) 
 \label{sec:parser-agent}
 The Parser Agent translates natural language into a quantitative intervention vector $do(X=x)$. It follows a two-tier strategy: a deterministic keyword-similarity match against an empirical calibration table is attempted first (bypassing the LLM entirely when similarity $\geq \tau$, with $\tau = 0.6$); otherwise the LLM is invoked to propose a request type, affected services, and a bounded adjustment. The same threshold $\tau$ also controls, within the LLM branch, whether the LLM's proposed adjustment is used or zeroed (forcing the calibration anchor unmodified when match confidence is low). Since sweeping $\tau \in [0.3, 0.8]$ on the RQ3 test set left all safety metrics (PBVR, SHR, Anchor MAE) completely unchanged — only the fast-path bypass rate shifted — we treat $\tau$ as a cost--accuracy design parameter rather than a safety mechanism, and do not count it among the verification layers below.
 
-In both branches, the output passes through a \textbf{three-layer symbolic verification architecture} before being returned. Following the LLM-Modulo separation of concerns \cite{kambhampati2024}, the LLM is treated strictly as a non-deterministic candidate generator $L$, and a deterministic, sound verifier enforces all safety properties independently of $L$'s reliability. The three layers are organized by their distinct mathematical purpose — selective abstention, graph-membership enforcement, and interval projection — rather than enumerated as a flat list, and each targets one category of failure mode we observed the unguarded LLM exhibit.
+In both branches, the output passes through a \textbf{three-layer symbolic verification architecture} before being returned (Fig.~\ref{fig:verification}). Following the LLM-Modulo separation of concerns \cite{kambhampati2024}, the LLM is treated strictly as a non-deterministic candidate generator $L$, and a deterministic, sound verifier enforces all safety properties independently of $L$'s reliability. The three layers are organized by their distinct mathematical purpose — selective abstention, graph-membership enforcement, and interval projection — rather than enumerated as a flat list, and each targets one category of failure mode we observed the unguarded LLM exhibit.
+
+\begin{figure}[t]
+\centering
+\resizebox{0.92\linewidth}{!}{%
+\begin{tikzpicture}[
+    font=\footnotesize,
+    node distance = 4mm and 6mm,
+    cand/.style = {draw, rounded corners, fill=gray!10, align=center, text width=4.6cm, minimum height=8mm, inner sep=1.5mm},
+    layer/.style = {draw, rounded corners, fill=blue!6, align=left, text width=4.6cm, minimum height=10mm, inner sep=2mm},
+    refuse/.style = {draw, rounded corners, fill=red!8, align=center, text width=3.1cm, minimum height=8mm, inner sep=1.5mm},
+    review/.style = {draw, rounded corners, fill=orange!15, align=center, text width=3.1cm, minimum height=8mm, inner sep=1.5mm},
+    good/.style = {draw, rounded corners, fill=green!8, align=center, text width=4.6cm, minimum height=7mm, inner sep=1.5mm},
+    arrow/.style = {-{Stealth[length=2mm]}, thick}
+]
+    \node[cand] (in) {Candidate $(t,\delta,S)$ from $L$ (rule-based or LLM)};
+    \node[layer, below=of in] (l1) {\textbf{Layer 1 --- Scope Gate} (\S\ref{sec:scope-gate})\\ \footnotesize score $s(x)=P(\text{out-of-scope}\mid x)$ vs.\ two split-conformal thresholds $\tau_{\text{pass}}, \tau_{\text{refuse}}$};
+    \node[refuse, anchor=north west] (ref) at ([xshift=8mm]l1.north east) {\textsc{refused}\\ \footnotesize explicit refusal report, no numeric verdict};
+    \node[review, below=2mm of ref, anchor=north west] (rev) {\textsc{needs\_human\_review}\\ \footnotesize $\tau_{\text{pass}} \leq s(x) < \tau_{\text{refuse}}$};
+    \node[layer, below=of l1] (l2) {\textbf{Layer 2 --- Entity Grounding} (\S\ref{sec:entity-grounding})\\ \footnotesize gateway invariance: in-deg$(v){=}0$ or fallback; service filter: drop $s\notin\mathcal{G}$};
+    \node[layer, below=of l2] (l3) {\textbf{Layer 3 --- Bounded Projection $\Pi$} (\S\ref{sec:bounded-projection})\\ \footnotesize outer clamp $\delta\in[5,50]$ around inner-clamped adjustment $\in[-10,10]$};
+    \node[good, below=of l3] (out) {Verified $do(X{=}x)$, confidence $\in\{$high, medium, low, refused$\}$};
+
+    \draw[arrow] (in) -- (l1);
+    \draw[arrow] (l1) -- (l2) node[midway, left, font=\scriptsize] {$s(x)<\tau_{\text{pass}}$};
+    \draw[arrow] (l1.east) -- (ref.west) node[midway, above, font=\scriptsize] {$s(x)\geq\tau_{\text{refuse}}$};
+    \draw[arrow] (l1.south east) -- (rev.west) node[midway, below, font=\scriptsize] {(else)};
+    \draw[arrow] (l2) -- (l3);
+    \draw[arrow] (l3) -- (out);
+\end{tikzpicture}%
+}
+\caption{The three-layer verification architecture: a deterministic, LLM-independent verifier composed of one abstention layer (which can short-circuit to a refusal or a human-review request, right branches) and two projection layers that always return a bounded, structurally valid candidate. $\Pi$ (Layers 2--3) is total and deterministic (Eq.~\ref{eq:projection}); Layer 1 is qualitatively different, substituting refusal or escalation for projection when no candidate can be trusted outright.}
+\label{fig:verification}
+\end{figure}
 
 \subsubsection{Layer 1: Scope Gate (Selective Abstention)}
 \label{sec:scope-gate}
-The LLM branch is explicitly instructed to always select the closest-matching known request type rather than decline (Section~\ref{sec:edge-of-scope}), so after it returns a choice we independently recompute keyword similarity against \emph{that chosen type's own} keyword list. Zero overlap for both the rule-based guess and the LLM's own selection sets confidence to \textsc{refused} and flags \texttt{is\_out\_of\_scope}; the report-generation node short-circuits to an explicit refusal report instead of letting the downstream LLM synthesize a confident verdict around a fallback number. This layer implements \emph{selective abstention} rather than projection -- a qualitatively different behavior from Layers 2 and 3, which correct invalid candidates rather than refuse them.
-
-One limitation: the zero-keyword-overlap criterion is coarse. A requirement that shares one incidental keyword with an unrelated archetype would not trigger it, so this is a floor on refusal recall, not a complete taxonomy-membership detector.
+The LLM branch is explicitly instructed to always select the closest-matching known request type rather than decline (Section~\ref{sec:edge-of-scope}), so after it returns a choice the Scope Gate independently decides whether that choice should be trusted at all. It combines four signals -- keyword overlap against the chosen type's own keyword list, the LLM's own pick-similarity, the rule-based guess's similarity, and a structural self-declaration (\texttt{is\_customer\_facing\_feature}, asked in the same extraction call) -- into a single logistic score $s(x) = P(\text{out-of-scope}\mid x)$, checked against two thresholds calibrated by split-conformal prediction \cite{angelopoulos2023conformal} on 81 labeled prompts: below $\tau_{\text{pass}}$ the requirement proceeds normally; at or above $\tau_{\text{refuse}}$ the report-generation node short-circuits to an explicit refusal report instead of letting the downstream LLM synthesize a confident verdict around a fallback number; in between, it returns \texttt{NEEDS\_HUMAN\_REVIEW} rather than guessing either way. This layer implements \emph{selective abstention} rather than projection -- a qualitatively different behavior from Layers 2 and 3, which correct invalid candidates rather than refuse them. Section~\ref{sec:edge-of-scope} reports the full derivation of this design and the adversarial evidence that motivated it.
 
 \subsubsection{Layer 2: Entity Grounding (Graph-Membership Invariants)}
 \label{sec:entity-grounding}
@@ -175,25 +204,78 @@ This layer constrains how far the LLM's numeric proposal may deviate from the em
 \end{itemize}
 
 \textbf{Formalization.} Let $L : \Sigma^* \to T \times \mathbb{R} \times 2^V$ be the LLM's candidate generator, mapping a raw requirement $r$ to a proposed $(t, \delta, S)$ — request type, workload delta, and core-service set. Layers 2 and 3 compose into a single deterministic \emph{bounded projection operator} $\Pi$ applied to every candidate regardless of $L$'s output distribution:
-\begin{equation}
-\Pi(t,\delta,S) = \big(\textsc{Gw}(\text{inj}),\ \textsc{Clamp}_{[5,50]}(\delta_{\text{anchor}} + \textsc{Clamp}_{[-10,10]}(\text{adj})),\ S \cap V\big),
-\end{equation}
+\begin{multline}
+\Pi(t,\delta,S) = \Big(\textsc{Gw}(\text{inj}),\\
+\ \textsc{Clamp}_{[5,50]}\big(\delta_{\text{anchor}} + \textsc{Clamp}_{[-10,10]}(\text{adj})\big),\\
+\ S \cap V\Big),
+\label{eq:projection}
+\end{multline}
 with $\textsc{Gw}(v) = v$ if $\text{in-deg}(v)=0$, else the nearest valid gateway; $\textsc{Clamp}_{[a,b]}(x) = \max(a,\min(b,x))$. Because $\Pi$ is total and deterministic, its output guarantees -- valid gateway, $\delta \in [5,50]$, $S \subseteq V$ -- hold for every input regardless of whether $L$ hallucinates. Layer 1 differs qualitatively: rather than projecting an out-of-range candidate back into a valid one, it detects when no projection can be trusted at all and substitutes an explicit refusal for a numeric verdict.
 
 The dependency topology is separately verified acyclic at graph-construction time (a structural precondition, not a per-request layer). A hard $[0,100]$ clamp on predicted resource values, considered in early design, was not implemented; Section~\ref{sec:extrapolation} discusses the failure mode this gap causes and how we mitigate it at the causal-mechanism level instead. The pipeline evaluated here supports only single-intervention queries -- no additive-shift rule for simultaneous ancestor--descendant interventions exists.
 
 \subsection{Workload Propagation and Causal Simulation}
 \label{sec:workload-propagation}
-The Capacity Agent's accurate path models degradation using a two-tier DAG (28 nodes on Sock Shop; a 112-node instance of the same construction has also been fit on Train Ticket) with DoWhy's Additive Noise Model framework. The node set is partitioned $V = V_W \cup V_R$ into cross-service workload nodes and local resource nodes, with edges restricted to two kinds by default:
-\begin{align}
-\text{Tier 1 (workload):} \quad & W_j = f_j(PA_{W_j}) + N_{W_j}, \ PA_{W_j}\subseteq V_W, \\
-\text{Tier 2 (resource):} \quad & R_j = g_j(PA_{R_j}) + N_{R_j}, \ PA_{R_j}\subseteq \{W_j\}\cup V_R,
-\end{align}
+The Capacity Agent's accurate path models degradation using a two-tier DAG (28 nodes on Sock Shop; a 112-node instance of the same construction has also been fit on Train Ticket) with DoWhy's Additive Noise Model framework (Fig.~\ref{fig:dag}). The node set is partitioned $V = V_W \cup V_R$ into cross-service workload nodes and local resource nodes, with edges restricted to two kinds by default:
+
+\begin{figure}[t]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    font=\footnotesize,
+    tier1/.style = {draw, rounded corners, fill=blue!8, align=center, minimum width=2.5cm, minimum height=7mm, inner sep=1mm},
+    tier2/.style = {draw, rounded corners, fill=orange!10, align=center, minimum width=2.1cm, minimum height=6mm, inner sep=1mm, font=\scriptsize},
+    tag/.style = {font=\scriptsize\itshape},
+    arrow/.style = {-{Stealth[length=1.8mm]}, thick},
+    bparrow/.style = {-{Stealth[length=1.8mm]}, thick, dashed, red!65!black}
+]
+    \node[tier1] (wfe) {\texttt{front-end}\\ \_workload};
+    \node[tier1, right=14mm of wfe] (wo) {\texttt{orders}\\ \_workload};
+    \node[tier1, right=14mm of wo] (ws) {\texttt{shipping}\\ \_workload};
+
+    \node[tier2, below=9mm of wo, xshift=-10mm] (ocpu) {\texttt{orders\_cpu}};
+    \node[tier2, right=2mm of ocpu] (omem) {\texttt{orders\_mem}};
+    \node[tier2, below=9mm of ws, xshift=-10mm] (scpu) {\texttt{shipping\_cpu}};
+    \node[tier2, right=2mm of scpu] (smem) {\texttt{shipping\_mem}};
+
+    \draw[arrow] (wfe) -- (wo);
+    \draw[arrow] (wo) -- (ws);
+    \draw[arrow] (wo) -- (ocpu);
+    \draw[arrow] (wo) -- (omem);
+    \draw[arrow] (ws) -- (scpu);
+    \draw[arrow] (ws) -- (smem);
+    \draw[bparrow] (ocpu) to[bend left=18] node[midway, below=1mm, font=\scriptsize, text=red!65!black, align=center] {backpressure\\ (Sec.~\ref{sec:backpressure-edge})} (scpu);
+
+    \node[fit=(wfe)(wo)(ws), inner sep=0pt] (tier1box) {};
+    \node[fit=(ocpu)(omem)(scpu)(smem), inner sep=0pt] (tier2box) {};
+    \node[tag, above=1mm of tier1box.north] {Tier 1 (workload propagation)};
+    \node[tag, below=1mm of tier2box.south] {Tier 2 (resource consumption)};
+\end{tikzpicture}%
+}
+\caption{Two-tier causal DAG, illustrated on a Sock Shop subgraph. Tier 1 propagates workload along the real call-chain topology; Tier 2 converts each service's own workload into its resource metrics (\texttt{cpu}, \texttt{mem}; \texttt{latency} uses the same Tier-1$\to$Tier-2 pattern with the queueing mechanism of Eq.~\eqref{eq:queueing} instead). The dashed edge is the validated backpressure extension: \texttt{orders\_cpu} as a second, cross-service parent of \texttt{shipping\_cpu} -- an $R\to R$ edge outside the two-tier default, added only where held-out evidence supports it (Section~\ref{sec:backpressure-edge}).}
+\label{fig:dag}
+\end{figure}
+
+\begin{equation}
+\begin{aligned}
+\text{(Tier 1, workload):}\quad W_j &= f_j(PA_{W_j}) + N_{W_j}, \\
+PA_{W_j} &\subseteq V_W,
+\end{aligned}
+\label{eq:tier1}
+\end{equation}
+\begin{equation}
+\begin{aligned}
+\text{(Tier 2, resource):}\quad R_j &= g_j(PA_{R_j}) + N_{R_j}, \\
+PA_{R_j} &\subseteq \{W_j\}\cup V_R,
+\end{aligned}
+\label{eq:tier2}
+\end{equation}
 i.e.\ each resource node $R_j$ (CPU, memory, latency) has its own service's workload $W_j$ as a parent, and \emph{by default} no other: no $R \to R$ or $R \to W$ edges. This default is what makes the per-node Shapley decomposition of Section~\ref{sec:background} \emph{potentially} interpretable as which tier is responsible for a projected change, not merely which node — whether this holds up under a controlled, ground-truth check is evaluated separately \cite{ourxaipaper} rather than assumed here. It is not exceptionless: Section~\ref{sec:backpressure-edge} adds $R\to R$ edges -- one or more caller services' own CPU as additional parents of a callee's CPU -- on a small, individually-validated set of nodes ($3$ of $21$ CPU/memory nodes on Sock Shop, $20$ of $84$ on Train Ticket, some receiving as many as five simultaneous caller-CPU parents), which is exactly why we flag it there as narrowing the tier-decomposition's clean interpretability on precisely those nodes, not only as an accuracy change.
 
 Resource-consumption mechanisms $g_j$ (CPU, memory) are fit as $g_j(w) = \boldsymbol{\beta}^\top w + \beta_0$ with coefficients constrained to $\boldsymbol{\beta}^* = \operatorname*{argmin}_{\boldsymbol{\beta}\geq \mathbf{0}} \lVert \mathbf{y} - X\boldsymbol{\beta}\rVert_2^2$ (non-negative least squares), which guarantees $\partial g_j/\partial w \geq 0$ and enforces a monotonically non-decreasing response to workload by construction (Section~\ref{sec:extrapolation}) — applied uniformly to both tiers, not only Tier 2. Latency mechanisms instead use a queueing-inspired regressor with feature transform
 \begin{equation}
 \phi(w) := \frac{w}{c-w}, \qquad c \approx 1.5 \max(W_{\text{train}}),
+\label{eq:queueing}
 \end{equation}
 fit as $R^{\text{Latency}}_j = \beta\,\phi(W_j) + \beta_0$, $\beta\geq 0$; as $w \to c^-$, $\phi(w)\to\infty$, approximating the heavy-traffic behavior $\rho/(1-\rho)$ of an M/M/1 queue as utilization approaches capacity $c$ \cite{kingman1961}, rather than a closed-form derivation from queueing theory.
 
@@ -308,15 +390,16 @@ Configuration & PBVR & SHR & GMR & Anchor MAE \\
 Unguarded Zero-Shot (B1) & 38.0$\pm$2.0\% & 91.3$\pm$1.2\% & 100.0$\pm$0.0\% & 844.6$\pm$568.2\% \\
 Unguarded Few-Shot (B2)  & 14.7$\pm$1.2\% & 2.0$\pm$0.0\%  & 84.7$\pm$1.2\%  & 38.6$\pm$0.2\%  \\
 Rule-Only (B0)           & 0.0$\pm$0.0\%  & 0.0$\pm$0.0\%  & 0.0$\pm$0.0\%   & 2.8$\pm$0.0\%   \\
-\textbf{Guarded (Ours)}  & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{2.2$\pm$0.2\%} \\
+\textbf{Guarded (Ours)}  & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{0.0$\pm$0.0\%} & \textbf{1.6$\pm$0.1\%} \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
+\noindent\emph{Guarded's four columns above do not have a place to record a fifth outcome its Scope Gate can now return: across these same 150 calls, $18$ ($12.0\%$) triggered \texttt{NEEDS\_HUMAN\_REVIEW} and $11$ ($7.3\%$) were \textsc{refused} outright, leaving $121$ ($80.7\%$) resolved with the numeric verdict PBVR/SHR/GMR/MAE are computed over (Section~\ref{sec:edge-of-scope}).}
 
 Across 3 independent live-LLM repeats (temperature 0.2), the unconstrained LLM (B1) misdirects the injection point away from the gateway on \emph{every} prompt (GMR $=100.0\pm0.0\%$), hallucinates services on $91.3\pm1.2\%$ of prompts (SHR), and violates a physical bound on $38.0\pm2.0\%$ (PBVR); these compound into a mean Anchor MAE of $844.6\pm568.2\%$ (range $188.5$--$1173.4\%$). This mean is right-skewed, as in RQ1: the per-repeat median is far lower ($22.8$--$30.0\%$), inflated by only 2--3 of 50 prompts per repeat going wildly out of bound -- most strikingly a ``DDoS via millions of fake promo-code requests'' prompt answered with a literal $50{,}000\%$ delta. We flag the instability explicitly: an unguarded LLM's output is not merely inaccurate on average, it is unstable run-to-run, which a single-repetition evaluation cannot reveal. In-context calibration (B2: few-shot topology and calibration table, still no runtime guard) closes most of the gap on two metrics (SHR $\to2.0\pm0.0\%$, Anchor MAE $\to38.6\pm0.2\%$) but leaves GMR at $84.7\pm1.2\%$ and PBVR at $14.7\pm1.2\%$: better prompting alone still misdirects the injection point on roughly four out of five prompts, every time.
 
-This is the concrete case for enforcement over prompting. Only the runtime-verified configuration reaches $0.0\pm0.0\%$ on all three structural failure modes -- exact-zero across all 3 repeats -- with an Anchor MAE ($2.2\pm0.2\%$) matching the deterministic Rule-Only floor (B0, $2.8\pm0.0\%$), despite still invoking the LLM for 66\% of prompts. Because B2 already sees the same calibration table the verification layers check against, the residual B2$\to$Guarded improvement (GMR $84.7\%\to0.0\%$, PBVR $14.7\%\to0.0\%$) isolates \emph{enforcing} a bound post hoc from merely showing it as context, and shows enforcement -- not context -- does the remaining work. \textbf{On GMR specifically} (Section~\ref{sec:threats}): the LLM is genuinely asked for \texttt{injection\_service} and proposed \texttt{front-end} unanimously across all 150 live calls, so GMR$=0\%$ is directly measured -- this shows the LLM \emph{avoiding} a wrong choice, not the fallback \emph{correcting} one, though we separately confirmed the fallback itself works ($18/18$ on an adversarial set that did induce wrong proposals, Section~\ref{sec:entity-grounding}); only gateway disambiguation remains untested on this single-gateway topology. PBVR and SHR operate directly on the LLM's own outputs and are not subject to this caveat.
+This is the concrete case for enforcement over prompting. Only the runtime-verified configuration reaches $0.0\pm0.0\%$ on all three structural failure modes -- exact-zero across all 3 repeats -- with an Anchor MAE ($1.6\pm0.1\%$) below the deterministic Rule-Only floor (B0, $2.8\pm0.0\%$), despite invoking the LLM on every prompt (no fast-path bypass remains, Section~\ref{sec:parser-agent}) and the Scope Gate resolving only $80.7\%$ of prompts with a numeric verdict at all (Section~\ref{sec:edge-of-scope}). Because B2 already sees the same calibration table the verification layers check against, the residual B2$\to$Guarded improvement (GMR $84.7\%\to0.0\%$, PBVR $14.7\%\to0.0\%$) isolates \emph{enforcing} a bound post hoc from merely showing it as context, and shows enforcement -- not context -- does the remaining work. \textbf{On GMR specifically} (Section~\ref{sec:threats}): the LLM is genuinely asked for \texttt{injection\_service} and proposed \texttt{front-end} unanimously across all 150 live calls, so GMR$=0\%$ is directly measured -- this shows the LLM \emph{avoiding} a wrong choice, not the fallback \emph{correcting} one, though we separately confirmed the fallback itself works ($18/18$ on an adversarial set that did induce wrong proposals, Section~\ref{sec:entity-grounding}); only gateway disambiguation remains untested on this single-gateway topology. PBVR and SHR operate directly on the LLM's own outputs and are not subject to this caveat.
 
 \subsection{RQ4: Does Graph-Based Propagation Outperform Uniform Delta Injection?}
 We compare SCM Tier-1 propagation (a non-negative-coefficient regression over each service's real parent(s) in the dependency graph) against B4 (Uniform Delta Injection) on the six non-root Sock Shop services, under the same out-of-distribution protocol as RQ1.
@@ -376,6 +459,43 @@ Structural correctness replicates RQ3's pattern: despite the same calibration co
 \label{sec:extrapolation}
 At large synthetic interventions (e.g., $do(\text{workload}) = +150\%$ or $+300\%$), the resource-consumption mechanisms can predict a physically implausible \emph{decrease} in CPU or memory in response to an \emph{increase} in workload -- unconstrained linear extrapolation compounded across the two-tier graph. A hard $[0,100]$ output clamp (an early design goal, Section~\ref{sec:methodology}) would have masked this rather than fixed it. Instead, every workload-propagation and resource-consumption mechanism is fit with non-negative-coefficient regression, enforcing monotonicity by construction -- applied uniformly across the evaluation harness, the deployed Global DAG, and the bivariate fast path (Tool 1, the cheap single-hop lookup gating the SAFE/WARNING/CRITICAL status): on the fast path's own train-low/test-high protocol, this constrained fit scores a mean MAPE of $12.9\%$ and threshold-crossing F1 of $0.90$, against $20.8\%$/$0.73$ for an unconstrained fit (Table~\ref{tab:rq1}). This reduces but does not eliminate sign-inverted predictions at the most extreme interventions: roughly 7--19 of 56 service $\times$ scenario combinations remain at $+150\%$/$+300\%$, depending on the mechanism-fitting run. We flag every remaining case programmatically (an \texttt{extrapolation\_suspect} indicator) and exclude flagged points from any quantitative claim; results at $+150\%$/$+300\%$ should be read as directional illustrations, not as validated forecasts.
 
+\subsection{Why CPU Resists Forecasting While Memory Does Not}
+\label{sec:cpu-ceiling}
+
+\begin{figure}[t]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[font=\scriptsize]
+    \foreach \x in {0,20,40,60,80}
+        \node[gray!60, font=\tiny] at (\x*0.07,-0.35) {\x};
+    \node[gray!60, font=\tiny] at (95*0.07, -0.35) {MAPE (\%)};
+    \draw[thick] (0,0) -- (0,7.2);
+    \draw[gray!50, thin] (0,-0.05) -- (95*0.07,-0.05);
+
+    \foreach \name/\val/\y in {
+        shipping/81.97/6.6,
+        orders/81.34/5.6,
+        carts/62.43/4.6,
+        catalogue/51.11/3.6,
+        user/20.37/2.6,
+        payment/19.92/1.6,
+        front-end/10.16/0.6} {
+        \draw[fill=blue!35, draw=blue!60!black] (0,\y-0.3) rectangle (\val*0.07,\y+0.3);
+        \node[anchor=east] at (-0.15,\y) {\texttt{\name}};
+        \node[anchor=west, font=\tiny] at (\val*0.07+0.15,\y) {\val};
+    }
+\end{tikzpicture}%
+}
+\caption{Full-resolution CPU MAPE by service, Sock Shop, OOD Gold Standard protocol (Table~\ref{tab:rq1}). The five-fold spread ($10\%$ on \texttt{front-end}, $82\%$ on \texttt{shipping}) is not one problem: Section~\ref{sec:cpu-ceiling} diagnoses a distinct cause per service, none of which recur on the Memory metric measured on the same services under the same protocol.}
+\label{fig:mape-bar}
+\end{figure}
+
+RQ1's CPU error is not one failure but at least three distinct ones (Fig.~\ref{fig:mape-bar}), which we diagnosed per node rather than treat as a single aggregate number. On \texttt{orders}, the mechanism genuinely fails to extrapolate: fit on a training range of workload up to $2.20$, it under-predicts the extreme test bucket (workload $2.7$--$15.1$) at $1.99$ against an actual mean of $3.69$ -- the slope learned on a narrow low-workload range does not capture how the true response accelerates far beyond it. On \texttt{shipping}, the non-negative-coefficient constraint collapses to an exact zero slope, masking a real, modest upward trend visible in the raw bucket means ($0.59\to0.76$ across the test range) -- a constraint side-effect distinct from extrapolation failure. On \texttt{carts} and \texttt{catalogue}, by contrast, the bucket-mean fit is already close to the data: a flexible, cross-validated local-mean estimate of the best achievable fit from workload alone (a diagnostic ceiling, not a deployable mechanism) sits within a point or two of what the deployed linear mechanism already achieves, meaning the residual full-resolution error there is dominated by point-to-point noise no function of workload can remove. \texttt{payment} shows none of these three failure modes and forecasts well.
+
+We tested two further covariates this diagnosis suggested, and both failed under the same held-out protocol RQ1 uses, despite looking promising under naive in-distribution cross-validation -- a methodological lesson in its own right: adding each service's own memory and socket count as additional regressors lowers cross-validated in-distribution error substantially, but under the actual train-low/test-high protocol this improvement mostly evaporates or reverses (Sock Shop CPU MAPE moves from $40.25\%$ to $41.91\%$; Train Ticket improves on only $15$ of $28$ nodes, $51.1\%\to49.04\%$) -- the covariate's own extrapolated value compounds error rather than adding information. A second candidate, using a hub service's downstream callees' own CPU to explain the hub's, is structurally blocked outright: for the specific hubs where it looked most promising, every candidate edge already exists in the opposite direction as a validated backpressure edge (Section~\ref{sec:backpressure-edge}), and adding the reverse would create a two-node cycle -- confirming this was the same correlation already exploited, read backwards, not new information. An in-distribution accuracy estimate, in other words, does not by itself predict deployable out-of-distribution improvement.
+
+None of this is uniform across metrics. Memory forecasts at $2$--$4\%$ MAPE on both testbeds throughout this paper (Table~\ref{tab:rq1}), with none of the three CPU failure modes above. The ceiling is a property of CPU specifically -- driven by garbage collection, OS scheduling, and background health-check work no request-count metric observes -- not a property of the pipeline. This is also consistent with why prior SCM-based microservice work stays retrospective (Section~\ref{sec:background}): attributing an already-observed deviation to its ancestors is a relative comparison a noisy target still supports; forecasting its absolute future value is not.
+
 \subsection{Behavior at the Edge of the Declared Scope}
 \label{sec:edge-of-scope}
 Section~\ref{sec:introduction} bounds ``new requirement'' to features approximable by an existing calibration archetype. Without an independent check on this boundary, both parsing paths fail silently in the same direction: the rule-based classifier falls back to a default archetype with no ``no reliable archetype'' signal, and the LLM branch is instructed to always select the \emph{closest-matching} known archetype rather than decline — a deliberate anti-hallucination design choice (Section~\ref{sec:parser-agent}) that has the side effect of never reporting ``insufficient calibration data'' even when that is the honest answer. Either path alone would return a confident-looking numeric verdict for a requirement sharing nothing with the system's taxonomy; this is exactly what Layer 1 (Scope Gate) is built to catch.
@@ -384,7 +504,43 @@ We close this gap with the Scope Gate (Layer 1, Section~\ref{sec:scope-gate}): a
 
 One limitation we quantified rather than left theoretical: the zero-keyword-overlap criterion is coarse, so a requirement sharing one incidental keyword with an unrelated archetype would not trigger it. An 11-prompt adversarial set (ten out-of-taxonomy requirements each carrying one polysemous keyword, e.g.\ ``order'' as in sorting an algorithm's output, ``code'' as in source code, plus a no-keyword control) evaded refusal in \emph{all ten} keyword-coincidence prompts on every repeat ($30/30$), each returning a confident numeric verdict for a domain with no matching archetype at all -- e.g.\ a request to refactor Java source code was classified as \texttt{APPLY\_PROMO\_CODE}. Only the control was correctly refused, confirming the vulnerability is specifically the criterion's coarseness, not the guard's independence from the LLM's self-report. Layer 1 is therefore the weakest of the three in practice: a single incidental word defeats it $100\%$ of the time we tried, against Layers 2 and 3's confirmed $18/18$ and $33/36$ (Section~\ref{sec:threats}). A related risk -- a familiar request type pushed to an extreme projected load, with no extrapolation caveat at all -- is separately addressed by the post-simulation uncertainty annotation (Section~\ref{sec:workload-propagation}).
 
-\textbf{Fixing the Scope Gate.} A first candidate fix -- multilingual sentence-embedding similarity in place of literal keyword overlap -- was tested and rejected: across two models (\texttt{intfloat/multilingual-e5-base}/\texttt{-large} \cite{wang2024multilinguale5}) and two description styles, the best operating point reached only $F_1{=}0.31$, since legitimate and adversarial prompts' similarity distributions simply overlap (means $0.82$ vs.\ $0.83$) -- both share the same ``request a software feature'' register that embedding distance cannot separate. We adopted a structured self-declaration field instead: within the same extraction call, we ask the LLM whether the requirement describes a genuine customer-facing action at all (\texttt{is\_customer\_facing\_feature}), removing the forced-choice instruction, combined with the original keyword check via logical OR. Re-run at full scale (61 live calls): the adversarial evasion rate fell from $100\%$ to $0/11$, with the new signal responsible for 15 of 17 total refusals and the original keyword signal for 2 -- genuinely complementary, not redundant. Twelve of the 50 legitimate prompts were also refused: seven describe scenarios (e.g.\ a hidden gRPC gateway bypass, deleting all users) no reasonable Scope Gate should pass regardless of our fix, which we do not count as false positives against a well-posed ground truth; the remaining five are genuine over-refusals on passive or backend-automated content (FAQ pages, a UI label, a fraud-detection scan) where ``customer-facing'' is a real judgment call our instruction does not yet resolve well.
+\textbf{Deriving a Calibrated Scope Gate.} A candidate signal was needed beyond literal keyword overlap, whose zero-overlap criterion an 11-prompt adversarial set evaded $30/30$ times via single incidental keywords. Multilingual sentence-embedding similarity was tried and rejected: across two models (\texttt{intfloat/multilingual-e5-base}/\texttt{-large} \cite{wang2024multilinguale5}) and two description styles, the best operating point reached only $F_1{=}0.31$, since legitimate and adversarial prompts' similarity distributions simply overlap (means $0.82$ vs.\ $0.83$). A structured self-declaration field fared far better: asking the LLM, within the same extraction call, whether the requirement describes a genuine customer-facing action at all (\texttt{is\_customer\_facing\_feature}) closed the adversarial evasion rate to $0/11$ at full scale (61 live calls), with 12 of 50 legitimate prompts also flagged -- seven scenarios (e.g.\ a hidden gRPC gateway bypass, deleting all users) no reasonable Scope Gate should pass, and five genuine over-refusals on passive or backend-automated content (FAQ pages, a UI label, a fraud-detection scan) where ``customer-facing'' is a real judgment call.
+
+\textbf{A Calibrated, Two-Threshold Design.} Rather than combine keyword overlap, the LLM's own pick-similarity, and the self-declaration signal by inspection, we fit a logistic-regression score over the three and calibrated its decision threshold via split-conformal prediction \cite{angelopoulos2023conformal} -- a distribution-free bound on $\Pr[\text{miss}]$, in the same style recent text-to-SQL work uses for schema-linking abstention \cite{chen2025rts}. A single threshold, calibrated on 61 labeled prompts, reached $100\%$ recall at an $18.0\%$ ($9/50$) legitimate false-refusal rate -- but \textbf{a held-out check on 20 freshly-authored prompts showed this did not generalize}: on unseen data the calibrated rule matched a naive combination exactly ($10/10$ recall, $1/10$ false-refusal), both missing the same borderline prompt (an automated shipping-status email the LLM itself judged not customer-facing).
+
+Pooling the original 61 prompts with this 20-prompt held-out set ($n{=}81$: $21$ out-of-scope, $60$ legitimate) let us recalibrate with a \emph{second} threshold rather than abandon the approach (Fig.~\ref{fig:conformal-scope-gate}): a lower bound $\tau_{\text{pass}}$ (split-conformal on the out-of-scope scores, $\alpha{=}0.01$) below which a prompt auto-passes, and an upper bound $\tau_{\text{refuse}}$ (the mirror-image quantile on the legitimate scores, $\beta{=}0.05$) at or above which it auto-refuses -- the band between the two returns \texttt{NEEDS\_HUMAN\_REVIEW} rather than guessing either way. On the pooled $81$ points: $0/21$ out-of-scope prompts fall in the auto-pass zone (Wilson $95\%$ CI $[0.0,15.5]\%$), $16/81$ ($19.8\%$, CI $[12.5,29.7]\%$) are routed to review, and the auto-refuse zone's false-positive rate falls to $3/60$ ($5.0\%$, CI $[1.7,13.7]\%$) -- down from $10/60$ ($16.7\%$, CI $[9.3,28.0]\%$) without a review band. \textbf{We flag rather than obscure that these two intervals overlap} ($[9.3,13.7]\%$): at $n{=}60$, the point estimate favors the review band but the sample cannot rule out that part of the apparent gain is sampling noise rather than a true effect. This is the sole Layer 1 mechanism deployed (Section~\ref{sec:scope-gate}); two further caveats keep it a validated design rather than a proven one: the logistic score is still fit on the original 61 prompts only (a live daily API quota blocked collecting features for the 20 new ones, so only the two thresholds use the pooled 81), and both thresholds are evaluated on the same 81 points used to set them.
+
+\textbf{Confirmed on RQ3's full protocol.} Table~\ref{tab:rq3} was originally measured before this design existed; we re-ran RQ3's exact live-LLM protocol against it -- 50 prompts $\times$ 3 independent repeats, 150 calls, B0--B2 reused unchanged since their code paths do not involve \texttt{ParserAgent} at all. PBVR, SHR, and GMR remained exactly $0.0\pm0.0\%$ (Wilson $95\%$ CI $[0.0,2.5]\%$ at $n{=}150$), confirming these are Layer 2/3 properties independent of Layer 1, and Anchor MAE \emph{improved}, from $2.2\%$ to $1.57\pm0.12\%$. Across all 150 calls, \texttt{NEEDS\_HUMAN\_REVIEW} fired on $18$ ($12.0\%$, CI $[7.7,18.2]\%$) and \textsc{refused} on $11$ ($7.3\%$, CI $[4.1,12.7]\%$), leaving $121$ ($80.7\%$) resolved normally -- both non-trivial rates, published here rather than rounded away, since Table~\ref{tab:rq3}'s four columns have no place to record them: a reader comparing only PBVR/SHR/GMR/MAE across configurations would not otherwise see that roughly one in five \textsc{Guarded} requests now receives something other than a confident numeric verdict.
+
+\begin{figure}[t]
+\centering
+\resizebox{0.85\linewidth}{!}{%
+\begin{tikzpicture}[
+    font=\footnotesize,
+    node distance = 5mm and 8mm,
+    stepbox/.style = {draw, rounded corners, fill=blue!6, align=center, text width=4.0cm, minimum height=9mm, inner sep=1.5mm},
+    passbox/.style = {draw, rounded corners, fill=green!8, align=center, text width=2.6cm, minimum height=7mm, inner sep=1.5mm},
+    reviewbox/.style = {draw, rounded corners, fill=orange!15, align=center, text width=4.0cm, minimum height=7mm, inner sep=1.5mm},
+    refusebox/.style = {draw, rounded corners, fill=red!8, align=center, text width=2.6cm, minimum height=7mm, inner sep=1.5mm},
+    arrow/.style = {-{Stealth[length=2mm]}, thick}
+]
+    \node[stepbox] (score) {Candidate score $s(x) = P(\text{out-of-scope}\mid x)$};
+    \node[stepbox, below=of score] (check1) {$s(x) < \tau_{\text{pass}}$?\\ \scriptsize split-conformal, $\alpha{=}0.01$ on 21 out-of-scope examples};
+    \node[passbox, right=8mm of check1] (pass) {PASS\\ \footnotesize auto-allow};
+    \node[stepbox, below=of check1] (check2) {$s(x) \geq \tau_{\text{refuse}}$?\\ \scriptsize split-conformal, $\beta{=}0.05$ on 60 legitimate examples};
+    \node[refusebox, right=8mm of check2] (refuse) {REFUSED\\ \footnotesize auto-refuse};
+    \node[reviewbox, below=of check2] (review) {NEEDS\_HUMAN\_REVIEW};
+
+    \draw[arrow] (score) -- (check1);
+    \draw[arrow] (check1) -- (check2) node[midway, left, font=\scriptsize] {no};
+    \draw[arrow] (check1.east) -- (pass.west) node[midway, above, font=\scriptsize] {yes};
+    \draw[arrow] (check2) -- (review) node[midway, left, font=\scriptsize] {no};
+    \draw[arrow] (check2.east) -- (refuse.west) node[midway, above, font=\scriptsize] {yes};
+\end{tikzpicture}%
+}
+\caption{The deployed conformal-calibrated Scope Gate: one score checked against two independently-calibrated thresholds, with a human-review band driven by two statistical guarantees ($\Pr[\text{miss}]\leq\alpha$, $\Pr[\text{false-refusal}]\leq\beta$). $\tau_{\text{pass}}=0.534$, $\tau_{\text{refuse}}=0.691$ on the pooled 81-point calibration set: $0/21$ out-of-scope prompts reach PASS, $16/81$ route to review, and the auto-refuse zone's false-positive rate is $5.0\%$ ($3/60$), down from $16.7\%$ without the review band.}
+\label{fig:conformal-scope-gate}
+\end{figure}
 
 \subsection{Threats to Validity}
 \label{sec:threats}
@@ -394,9 +550,10 @@ One limitation we quantified rather than left theoretical: the zero-keyword-over
     \item \textbf{Topology dependence.} RQ2 shows accuracy conclusions do not transfer between topologies of different scale; results on a third topology cannot be assumed without re-running the full protocol.
     \item \textbf{Single-model LLM.} RQ3/RQ5 use one backend (\texttt{gemini-flash-lite-latest}, temperature 0.2, 3 repeats); unguarded baselines' failure rates may differ with other models.
     \item \textbf{Sock-Shop-only Parser validation.} The calibration table \texttt{CALL\_CHAINS} is a fixed import, not a constructor parameter; a Train Ticket taxonomy is neither supplied nor deployable, and no adversarial test has been repeated on a different domain.
-    \item \textbf{Non-simultaneous data collection.} The Guarded row of Table~\ref{tab:rq3} was re-run after fixing a gateway-check defect; B0--B2 were not, since their code paths are unaffected.
+    \item \textbf{Non-simultaneous data collection.} The Guarded row of Table~\ref{tab:rq3} has been re-run twice since B0--B2 (once after fixing a gateway-check defect, once after replacing the Scope Gate with the conformal design of Section~\ref{sec:edge-of-scope}); B0--B2 were not re-run either time, since their code paths do not involve \texttt{ParserAgent}.
     \item \textbf{Adversarial necessity.} Entity Grounding and Bounded Projection report $0\%$ triggers on RQ3's benign set; purpose-built adversarial sets confirm they are load-bearing ($18/18$ corrections, $33/36$ clamp triggers). Untested: multi-gateway disambiguation and adversarial strategies beyond the six tried.
-    \item \textbf{Scope Gate vulnerability.} An 11-prompt adversarial set evaded refusal $30/30$ times via single incidental keywords --- $100\%$ evasion, the weakest of the three layers.
+    \item \textbf{Scope Gate not attacked with a dedicated adversarial set of its own.} Keyword overlap alone evaded refusal $30/30$ times on an 11-prompt adversarial set, which is why it was folded into the 4-signal conformal score (Section~\ref{sec:edge-of-scope}) rather than kept standalone; that combined score has not itself been targeted by a comparably-sized, purpose-built adversarial set.
+    \item \textbf{Review/refusal rate adds an operational cost the original PBVR/SHR/GMR/MAE framing does not capture.} $19.3\%$ of Table~\ref{tab:rq3}'s 150 calls now return \texttt{NEEDS\_HUMAN\_REVIEW} or \textsc{refused} rather than a numeric verdict (Section~\ref{sec:edge-of-scope}); this is by design (an explicit tradeoff for the false-refusal reduction of Section~\ref{sec:edge-of-scope}'s two-threshold calibration), but any deployment cost of routing $\sim$$12\%$ of requests to a human reviewer is not quantified here.
     \item \textbf{Uncertainty annotation specificity.} The post-simulation caveat fires on $80\%$ of RQ3's cases, driven by one heavy-tailed node; we treat this rate as unreliable until recalibrated.
     \item \textbf{Single-intervention scope.} Bundled requirements (e.g., promotion + checkout redesign) are parsed against a single archetype; joint $do(\cdot)$ reasoning is out of scope.
 \end{itemize}
@@ -463,5 +620,9 @@ J. Demšar, ``Statistical Comparisons of Classifiers over Multiple Data Sets,'' 
 J. F. C. Kingman, ``The Single Server Queue in Heavy Traffic,'' \emph{Mathematical Proceedings of the Cambridge Philosophical Society}, vol. 57, no. 4, 1961.
 \bibitem{wang2024multilinguale5}
 L. Wang, N. Yang, X. Huang, L. Yang, R. Majumder, and F. Wei, ``Multilingual E5 Text Embeddings: A Technical Report,'' \emph{arXiv:2402.05672}, 2024.
+\bibitem{angelopoulos2023conformal}
+A. N. Angelopoulos and S. Bates, ``Conformal Prediction: A Gentle Introduction,'' \emph{Foundations and Trends in Machine Learning}, vol. 16, no. 4, pp. 494--591, 2023.
+\bibitem{chen2025rts}
+K. Chen, Y. Chen, X. Yu, and N. Koudas, ``Reliable Text-to-SQL with Adaptive Abstention,'' \emph{arXiv:2501.10858}, 2025.
 \end{thebibliography}
 \end{document}

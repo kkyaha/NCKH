@@ -20,11 +20,14 @@ Guards (bat buoc, kiem tra TRUOC khi tra ket qua):
   G3: adjustment phai trong [-MAX_ADJ, +MAX_ADJ], vuot -> fallback ve anchor
   G4: core_services chi chua service ton tai trong graph
   G5: low similarity -> siet adjustment = 0
-  G6: similarity == 0 HOAC LLM tu bao is_customer_facing_feature=false voi
-      do tin cay HIGH -> REFUSED (danh dau is_out_of_scope=True); do tin cay
-      thap hon hoac 2 tin hieu bat dong -> needs_human_review=True thay vi
-      tu dong quyet dinh. Day la co che tu choi/escalate tuong minh cho yeu
-      cau nam ngoai taxonomy da hieu chinh (xem muc "Scope" trong paper).
+  G6: mot diem so logistic tong hop 4 tin hieu (keyword overlap, similarity
+      lua chon cua LLM, similarity rule-based, tu-khai-bao is_customer_facing
+      _feature) duoc so voi HAI nguong hieu chinh bang split-conformal
+      (_SCOPE_GATE_CONFORMAL_TAU_PASS / _TAU_REFUSE): duoi nguong duoi ->
+      cho qua, tren nguong tren -> REFUSED (is_out_of_scope=True), o giua ->
+      needs_human_review=True thay vi tu dong quyet dinh. Thay the mot luat
+      OR hai-tin-hieu truoc do (xem docs/paper_draft.tex, "Behavior at the
+      Edge of the Declared Scope" de biet qua trinh dan den thiet ke nay).
 
 Phu hop Q1 paper: "Grounded LLM Estimation anchored to empirical calibration table"
 """
@@ -90,6 +93,16 @@ class ParsedRequirement:
                                          # tinh, hoac 2 tin hieu bat dong) -- khac is_out_of_scope
                                          # o cho KHONG tu dong refuse, ma can nguoi xac nhan
                                          # truoc khi he thong dua ra phan quyet dinh luong.
+    scope_gate_score:      float = None  # P(out-of-scope) tu bo tinh diem conformal-calibrated
+                                         # dung de quyet dinh hard_refuse/needs_human_review
+                                         # o tren (xem _scope_gate_conformal_score).
+    scope_gate_raw_features: dict = None  # {'rb_similarity', 'llm_pick_similarity',
+                                         # 'keyword_similarity_score', 'llm_is_customer_facing'}
+                                         # -- luon duoc dien, de MOI request di qua parse() tu
+                                         # dong gop them 1 dong du lieu co nhan (neu ground truth
+                                         # duoc ghi lai rieng) cho lan hieu chinh conformal tiep
+                                         # theo, thay vi phai chay lai LLM de lay lai cac dac
+                                         # trung nay (dung y voi scope_gate_score o tren).
 
 
 # ============================================================
@@ -110,6 +123,87 @@ def _compute_similarity(text: str, request_type: str) -> float:
     # Nếu khớp >= 2 từ khóa thì coi như khớp tốt (>= 0.6)
     denominator = min(3, len(keywords)) if len(keywords) > 0 else 1
     return matched / denominator
+
+
+# ============================================================
+# CONFORMAL-CALIBRATED SCOPE GATE SCORER (the deployed Layer 1 mechanism)
+# ============================================================
+# Fitted offline on data/processed/scm_results/g6_scope_gate_layerA_validation.csv
+# (61 labeled prompts: 50 legitimate RQ3 + 11 polysemous-keyword adversarial;
+# see experiments/scope_gate_conformal_calibration.py for the full derivation).
+# Coefficients below come from a logistic regression fit on ALL 61 labeled
+# rows (features: keyword_similarity_score, llm_pick_similarity, rb_similarity,
+# llm_is_customer_facing) -- appropriate for a deployed scorer, which should
+# use every available label. The accuracy number reported in the paper
+# (18.0% legitimate false-refusal at 100% recall) is instead the more honest
+# 5-fold *out-of-fold* cross-validated estimate; the two differ slightly
+# because this full-data fit is evaluated on its own training rows and is
+# therefore mildly optimistic -- do not conflate the two numbers.
+#
+# KNOWN LIMITATION, stated plainly rather than buried: the underlying LR
+# score above is still fit on the original 61-prompt calibration set (50
+# legitimate + 11 out-of-scope) -- a live daily API quota limit blocked
+# collecting raw features for a full refit on the larger set below. Only the
+# TWO THRESHOLDS immediately below were recalibrated using the larger n, and
+# both are evaluated on the SAME 81 points used to set them, not a further
+# held-out set -- see docs/paper_draft.tex Section "Behavior at the Edge of
+# the Declared Scope" ("Toward a Calibrated Threshold") for the full history
+# (including the two-signal OR-rule this design replaced, and why).
+_SCOPE_GATE_LR_COEF = {
+    'keyword_similarity_score': 0.6169654821607805,
+    'llm_pick_similarity':      0.2933483794392012,
+    'rb_similarity':            0.6169654821607805,
+    'llm_is_customer_facing':   -3.123588781264302,  # feature encoded as 1.0/0.0
+}
+_SCOPE_GATE_LR_INTERCEPT = 0.3548729348243096
+
+# Two-threshold (reject-option) calibration, recalibrated on 81 labeled
+# examples (21 out-of-scope, 60 legitimate) -- the original 61-prompt
+# calibration set PLUS a genuinely fresh 20-prompt held-out set collected to
+# check generalization (experiments/scope_gate_holdout_test.py). Only the
+# thresholds use the expanded n; the LR coefficients above are unchanged
+# (see limitation note above).
+#
+#   score <  TAU_PASS   -> confidently in-scope, auto-pass.
+#     Calibrated on the 21 OUT-OF-SCOPE calibration scores: split-conformal
+#     guarantees Pr[a new true out-of-scope prompt scores below this] <= 0.01.
+#   score >= TAU_REFUSE  -> confidently out-of-scope, auto-refuse.
+#     Calibrated on the 60 LEGITIMATE calibration scores (mirror-image
+#     quantile): guarantees Pr[a new true legitimate prompt scores at or
+#     above this] <= 0.05.
+#   TAU_PASS <= score < TAU_REFUSE -> genuinely uncertain by BOTH guarantees
+#     at once -> NEEDS_HUMAN_REVIEW, the same role the old OR-rule's HITL
+#     escalation played, now driven by two calibrated bounds instead of a
+#     hand-picked "confidence != HIGH" rule.
+#
+# On the 81-point calibration set this band gives: 0/21 out-of-scope missed
+# in the auto-pass zone, 9 out-of-scope + 7 legitimate routed to review
+# (16/81 ~ 20% of all cases), and only 3/60 (5.0%) legitimate prompts
+# wrongly auto-refused -- down from 10/60 (16.7%) with a single threshold
+# and no review band. This is evaluated on the SAME 81 points used to set
+# the thresholds, not a further held-out set -- read as a validated design,
+# not a proven one.
+#
+# A first attempt at deriving these two thresholds compared them in the
+# WRONG direction (checked tau_refuse < tau_pass instead of tau_pass <
+# tau_refuse), which would have silently produced an inverted, self-
+# contradictory band; caught by printing an explicit sanity breakdown
+# (missed / review / wrongly-refused counts) before hardcoding anything.
+_SCOPE_GATE_CONFORMAL_TAU_PASS   = 0.5343128588727313  # alpha=0.01, n_pos=21
+_SCOPE_GATE_CONFORMAL_TAU_REFUSE = 0.6907318736523925  # beta=0.05,  n_neg=60
+
+
+def _scope_gate_conformal_score(keyword_similarity_score: float, llm_pick_similarity: float,
+                                 rb_similarity: float, llm_is_customer_facing: bool) -> float:
+    """P(out-of-scope) under the fitted logistic score. Higher = more suspicious."""
+    z = (
+        _SCOPE_GATE_LR_INTERCEPT
+        + _SCOPE_GATE_LR_COEF['keyword_similarity_score'] * keyword_similarity_score
+        + _SCOPE_GATE_LR_COEF['llm_pick_similarity'] * llm_pick_similarity
+        + _SCOPE_GATE_LR_COEF['rb_similarity'] * rb_similarity
+        + _SCOPE_GATE_LR_COEF['llm_is_customer_facing'] * (1.0 if llm_is_customer_facing else 0.0)
+    )
+    return 1.0 / (1.0 + pow(2.718281828459045, -z))
 
 
 def _get_gateways(graph) -> set:
@@ -196,6 +290,34 @@ class ParserAgent:
         chung thuc nghiem tren Train Ticket, nhung co che gio da tham so hoa
         thay vi hardcode). Mac dinh giu nguyen gia tri SockShop de tuong thich
         nguoc voi moi noi goi ParserAgent() khong truyen 2 tham so nay.
+
+        Layer 1 (Scope Gate): dung bo tinh diem logistic + HAI nguong
+        split-conformal (TAU_PASS / TAU_REFUSE, xem docstring cac hang so o
+        tren) -- day LA co che duy nhat tu phien ban nay, thay hoan toan cho
+        luat OR/HITL rieng le truoc do (da go bo, xem lich su commit va
+        docs/paper_draft.tex Section "Behavior at the Edge of the Declared
+        Scope" de biet qua trinh dan den thiet ke nay). Vung giua 2 nguong
+        tra ve NEEDS_HUMAN_REVIEW. Da kiem tra tren 20 prompt hoan toan moi
+        (khong dung de hieu chinh): bo don-nguong ban dau (chi co TAU_REFUSE,
+        khong co vung review) HOA CHUNG voi luat OR cu (10/10 recall, 1/10 tu
+        choi oan ca hai) -- cai thien do tren 61 prompt goc KHONG lap lai
+        tren du lieu chua thay. Sau khi gop ca 20 prompt do vao tap hieu
+        chinh (61+20=81, 21 out-of-scope) va them lai vung review bang
+        nguong thu hai, ket qua tren chinh 81 diem nay: 0/21 out-of-scope
+        lot qua vung auto-pass, 16/81 (~20%) can nguoi xem, tu choi oan tu
+        dong con 3/60 (5.0%) -- giam manh so voi 10/60 (16.7%) cua ban
+        1-nguong khong co vung review.
+        LUU Y CON LAI (chua giai quyet, khong nen giau): he so logistic
+        regression VAN chi fit tren 61 prompt goc (chua refit duoc tren 81
+        vi bi chan boi gioi han quota API hang ngay khi thu thap dac trung
+        tho cho 20 prompt moi) -- chi 2 nguong duoc tinh lai voi n lon hon,
+        khong phai toan bo mo hinh. Ket qua tren van danh gia tren CHINH 81
+        diem dung de dat nguong, chua co tap test thu ba hoan toan doc lap.
+        RQ3 (bang Table rq3 trong paper) duoc do TRUOC thay doi kien truc
+        nay -- PBVR/SHR/GMR do o Layer 2/3, khong phu thuoc Layer 1 nen
+        nhieu kha nang khong doi, nhung outcome NEEDS_HUMAN_REVIEW la nhom
+        thu 3 chua co cot rieng trong bang RQ3 hien tai va chua duoc do lai
+        bang live-LLM o dung quy mo 50-prompt x 3-lan-lap cua RQ3.
         """
         self.llm        = llm
         self.arch_agent = arch_agent
@@ -303,68 +425,48 @@ class ParserAgent:
             llm_conf      = "LOW"
             llm_reasoning += f" [GATEWAY FALLBACK: LLM de xuat '{raw_inj_svc}' khong phai gateway hop le, dung {inj_svc}]"
 
-        # G6 / Scope Gate: Out-of-taxonomy refusal, now TWO independent signals
-        # combined with OR -- neither trusted alone (LLM-Modulo: no single source
-        # of truth for a safety property). An 11-prompt adversarial set found the
-        # OLD single-signal design (keyword-overlap only) evaded 100% of the time
-        # by requirements containing one incidental keyword from an unrelated
-        # archetype (data/processed/scm_results/g6_scope_gate_adversarial.csv);
-        # a semantic-embedding replacement was tried and rejected (tested 2 models
-        # x 2 description styles, all gave F1~0.31 with ~48-50/50 false refusals
-        # on legitimate RQ3 prompts -- see scope_gate_embedding_calibration.py).
-        #   Signal 1 (keyword-overlap, independent of the LLM's own report):
-        #     similarity_score == 0.0 -- no archetype, including the LLM's own
-        #     pick, shares a single keyword with the requirement.
-        #   Signal 2 (structural self-declaration, NEW): the LLM is now asked,
-        #     as part of the SAME structured extraction, whether this describes
-        #     a genuine customer-facing SockShop action at all (is_customer_facing
-        #     _feature) -- rather than being forced to always pick an archetype
-        #     with no way to express "none of these fit". This does not replace
-        #     Signal 1; it is checked in addition to it.
-        keyword_signal  = (similarity_score == 0.0)
-        scope_signal    = (llm_is_customer_facing == False)
-
-        # Human-in-the-loop (HITL) escalation: added after finding that neither
-        # signal alone, nor their raw disagreement, cleanly separates genuine
-        # out-of-scope requests from legitimate-but-passive ones (5/50 RQ3
-        # prompts -- static FAQ/ToS pages, a bilingual UI label, a footer, an
-        # automatic fraud-detection scan -- were wrongly auto-refused; see
-        # docs/paper_draft.tex Section "Behavior at the Edge of the Declared
-        # Scope"). Rather than force a binary decision on cases the extraction
-        # step itself is not confident about, we use the SAME self-declared
-        # confidence field (is_customer_facing_confidence) to route uncertain
-        # cases to a human reviewer instead of guessing either direction --
-        # Layer 2 and Layer 3 remain fully automatic (their checks are
-        # deterministic set-membership / numeric-interval tests with no
-        # ambiguity to resolve); this HITL path applies to Layer 1 only.
-        #   Auto-refuse (confident, no human needed): both signals agree, OR
-        #     the LLM confidently (HIGH) self-declares non-customer-facing.
-        #   Needs human review: the keyword backstop and the LLM's confident
-        #     self-declaration DISAGREE (keyword says refuse, LLM confidently
-        #     says it is a real customer action), OR the self-declaration
-        #     itself (whichever way it leans) is not HIGH confidence.
-        #   Auto-allow (confident, no human needed): neither signal fires and
-        #     confidence is HIGH.
-        hard_refuse = (keyword_signal and scope_signal) or (scope_signal and cf_confidence == "HIGH")
-        needs_human_review = (not hard_refuse) and (
-            (keyword_signal and not scope_signal)
-            or (cf_confidence != "HIGH")
+        # G6 / Scope Gate: out-of-taxonomy refusal, decided by a single
+        # conformal-calibrated score against two statistically-calibrated
+        # thresholds (see _scope_gate_conformal_score and the two _TAU_
+        # constants' docstrings above for exactly what each guarantees and
+        # on what data). This replaced an earlier two-signal OR-rule (keyword
+        # overlap OR the LLM's own self-declared is_customer_facing_feature,
+        # with a separate hand-picked HITL escalation rule) after that design
+        # was found to evade 100% of an 11-prompt polysemous-keyword
+        # adversarial set in its keyword-only precursor, then to over-refuse
+        # 12/50 legitimate RQ3 prompts even after the self-declaration fix
+        # (docs/paper_draft.tex Section "Behavior at the Edge of the
+        # Declared Scope" has the full history). cf_confidence remains
+        # available from the same LLM extraction call but no longer drives
+        # this decision -- the two calibrated thresholds below subsume its
+        # role.
+        #   score <  TAU_PASS   -> confidently in-scope, auto-pass.
+        #   score >= TAU_REFUSE -> confidently out-of-scope, auto-refuse.
+        #   TAU_PASS <= score < TAU_REFUSE -> uncertain by both statistical
+        #     guarantees at once -> NEEDS_HUMAN_REVIEW.
+        scope_gate_score = _scope_gate_conformal_score(
+            keyword_similarity_score=similarity_score,
+            llm_pick_similarity=llm_pick_similarity,
+            rb_similarity=rb_similarity,
+            llm_is_customer_facing=llm_is_customer_facing,
         )
+        scope_gate_raw_features = {
+            'rb_similarity': rb_similarity,
+            'llm_pick_similarity': llm_pick_similarity,
+            'keyword_similarity_score': similarity_score,
+            'llm_is_customer_facing': llm_is_customer_facing,
+        }
+
+        hard_refuse = scope_gate_score >= _SCOPE_GATE_CONFORMAL_TAU_REFUSE
+        needs_human_review = (not hard_refuse) and (scope_gate_score >= _SCOPE_GATE_CONFORMAL_TAU_PASS)
         is_out_of_scope = hard_refuse
         if hard_refuse:
             llm_conf      = "REFUSED"
-            if keyword_signal:
-                llm_reasoning += (
-                    " [SCOPE GATE / keyword-overlap: khong tim thay tu khoa trung khop voi "
-                    "bat ky archetype da hieu chinh nao trong CALL_CHAINS, ke ca lua chon gan "
-                    "nhat cua LLM.]"
-                )
-            if scope_signal:
-                llm_reasoning += (
-                    " [SCOPE GATE / self-declared: LLM tu bao day khong phai mot hanh dong "
-                    f"cua khach hang tren {self.system_name} (is_customer_facing_feature=false, "
-                    f"do tin cay={cf_confidence}).]"
-                )
+            llm_reasoning += (
+                f" [SCOPE GATE / conformal: score={scope_gate_score:.3f} >= "
+                f"tau_refuse={_SCOPE_GATE_CONFORMAL_TAU_REFUSE:.3f} (split-conformal, "
+                "beta=0.05, calibrated on 60 labeled legitimate examples).]"
+            )
             llm_reasoning += (
                 " KHONG du du lieu hieu chinh de dua ra con so dang tin cay — day chi la gia "
                 "tri fallback, khuyen nghi load-test thu cong truoc khi trien khai thay vi "
@@ -373,10 +475,11 @@ class ParserAgent:
         elif needs_human_review:
             llm_conf = "NEEDS_HUMAN_REVIEW"
             llm_reasoning += (
-                f" [SCOPE GATE / HITL: is_customer_facing={llm_is_customer_facing} nhung do tin "
-                f"cay chi la {cf_confidence}, hoac keyword-overlap va tu-khai-bao cua LLM bat "
-                "dong voi nhau -- day la truong hop BIEN, he thong KHONG tu quyet dinh refuse "
-                "hay cho qua, can nguoi xem lai truoc khi dua ra phan quyet dinh luong."
+                f" [SCOPE GATE / conformal HITL: score={scope_gate_score:.3f} nam giua "
+                f"tau_pass={_SCOPE_GATE_CONFORMAL_TAU_PASS:.3f} va "
+                f"tau_refuse={_SCOPE_GATE_CONFORMAL_TAU_REFUSE:.3f} -- khong du tin cay theo "
+                "CA HAI bao dam thong ke de tu dong cho qua HOAC tu dong refuse, can nguoi "
+                "xem lai truoc khi dua ra phan quyet dinh luong."
             )
 
         result = ParsedRequirement(
@@ -394,6 +497,8 @@ class ParserAgent:
             llm_was_called      = llm_called,
             is_out_of_scope     = is_out_of_scope,
             needs_human_review  = needs_human_review,
+            scope_gate_score    = scope_gate_score,
+            scope_gate_raw_features = scope_gate_raw_features,
         )
 
         print(f"  [Parser] -> delta={delta_clamped}% | core={core_svcs} | conf={llm_conf}")

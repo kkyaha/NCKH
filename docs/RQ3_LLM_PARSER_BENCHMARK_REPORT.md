@@ -7,7 +7,7 @@ Tài liệu này được **sinh tự động** từ `parser_ablation_benchmark.
 
 > ✅ Backend: **LLM thật** (`LIVE_gemini-flash-lite-latest`), 3 lần lặp độc lập (nhiệt độ 0.2, không deterministic) để đo phương sai run-to-run.
 
-Thời điểm chạy: `2026-09-10T18:04:18.377923` | Số lần lặp: `3` | Backend: `LIVE_gemini-flash-lite-latest`
+Thời điểm chạy: `2026-09-13T13:53:45.844640` | Số lần lặp: `3` | Backend: `LIVE_gemini-flash-lite-latest`
 
 ---
 
@@ -30,7 +30,7 @@ Thời điểm chạy: `2026-09-10T18:04:18.377923` | Số lần lặp: `3` | Ba
 | `Unguarded_ZeroShot_LLM`  | 38.00±2.00% | 91.33±1.15% | 100.00±0.00% | 844.61±568.20% | 80.00±0.00% | 1730.23±1277.71 ms | 0.00±0.00% |
 | `Unguarded_FewShot_LLM`  | 14.67±1.15% | 2.00±0.00% | 84.67±1.15% | 38.60±0.17% | 60.00±0.00% | 2339.44±2096.60 ms | 0.00±0.00% |
 | `Rule_Only`  | 0.00±0.00% | 0.00±0.00% | 0.00±0.00% | 2.80±0.00% | 0.00±0.00% | 0.37±0.01 ms | 100.00±0.00% |
-| `Guarded_Hybrid_Parser` 🏆 **(Đề xuất)** | 0.00±0.00% | 0.00±0.00% | 0.00±0.00% | 2.17±0.23% | 0.00±0.00% | 888.00±21.67 ms | 34.00±0.00% |
+| `Guarded_Hybrid_Parser` 🏆 **(Đề xuất)** | 0.00±0.00% | 0.00±0.00% | 0.00±0.00% | 1.57±0.12% | 0.00±0.00% | 1433.60±26.89 ms | 0.00±0.00% |
 
 *(Không suy diễn "0.0%" hay "vượt trội" nếu bảng trên không thực sự cho ra số đó — mọi tuyên bố kết luận phải đọc trực tiếp từ bảng số ở trên sau khi chạy.)*
 
@@ -53,9 +53,9 @@ Thời điểm chạy: `2026-09-10T18:04:18.377923` | Số lần lặp: `3` | Ba
 | `Rule_Only` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 4.5 |
 | `Rule_Only` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 2.5 |
 | `Rule_Only` | Subtle_ReadOnly | 10 | 0.0 | 0.0 | 0.0 | 2.0 |
-| `Guarded_Hybrid_Parser` | Adversarial_Stress | 10 | 0.0 | 0.0 | 0.0 | 0.5 |
-| `Guarded_Hybrid_Parser` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 4.33 |
-| `Guarded_Hybrid_Parser` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 2.0 |
+| `Guarded_Hybrid_Parser` | Adversarial_Stress | 10 | 0.0 | 0.0 | 0.0 | 2.0 |
+| `Guarded_Hybrid_Parser` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 2.5 |
+| `Guarded_Hybrid_Parser` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 0.67 |
 | `Guarded_Hybrid_Parser` | Subtle_ReadOnly | 10 | 0.0 | 0.0 | 0.0 | 2.0 |
 
 ---

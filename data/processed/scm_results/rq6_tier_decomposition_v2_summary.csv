@@ -1,0 +1,11 @@
+label,target,n,strict_acc_pct,upstream_acc_pct,mean_tier1,mean_backpressure,mean_tier2
+SockShop,carts_cpu,10,100.0,100.0,0.2563,-0.0149,-0.0068
+SockShop,catalogue_cpu,10,60.0,60.0,0.4017,0.0,0.0882
+SockShop,orders_cpu,10,100.0,100.0,0.2268,0.0,-0.0016
+SockShop,payment_cpu,10,0.0,0.0,0.0103,0.0,-0.3612
+SockShop,shipping_cpu,10,80.0,80.0,0.1001,-0.0123,-0.0383
+SockShop,user_cpu,10,100.0,100.0,0.6542,-0.0055,-0.1584
+TrainTicket,ts-order-service_cpu,10,0.0,0.0,0.0248,-0.0873,-0.12
+TrainTicket,ts-seat-service_cpu,10,0.0,70.0,0.0159,-0.1373,-0.1001
+TrainTicket,ts-travel-service_cpu,10,0.0,0.0,0.0468,-0.0681,-0.1101
+TrainTicket,ts-user-service_cpu,10,60.0,60.0,0.0638,-0.0106,-0.0583

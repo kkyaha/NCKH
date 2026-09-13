@@ -1,0 +1,5 @@
+target,scenario,n_candidates,baro_correct_pct,shapley_strict_acc,shapley_upstream_acc
+ts-travel-service_cpu,tier1_driven,11,50.0,0-10%,0-10%
+ts-travel-service_cpu,tier2_driven,11,100.0,100%,100%
+ts-user-service_cpu,tier1_driven,7,40.0,80%,60%
+ts-user-service_cpu,tier2_driven,7,100.0,100%,100%

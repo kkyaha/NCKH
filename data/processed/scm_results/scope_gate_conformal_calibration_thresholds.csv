@@ -1,0 +1,6 @@
+target_alpha_miss_rate,threshold,actual_recall_on_calibration,legitimate_false_refusal_rate
+0.3,0.7193,8/11,1/50 (2.0%)
+0.2,0.6555,10/11,5/50 (10.0%)
+0.1,0.6555,10/11,5/50 (10.0%)
+0.05,0.5343,11/11,9/50 (18.0%)
+0.01,0.5343,11/11,9/50 (18.0%)
