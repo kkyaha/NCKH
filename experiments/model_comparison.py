@@ -33,9 +33,46 @@ OUT_DIR  = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))  # core scm lib (data_processor)
+from dowhy.gcm import AdditiveNoiseModel, EmpiricalDistribution
+from dowhy.gcm.ml import SklearnRegressionModel
 from data_processor import load_normal_data, METRICS, SERVICES
 
 N_PROJ = 500
+
+# ----------------------------------------------------------------------------
+# FAIR-COMPARISON PROTOCOL (added after the RQ2 methodology audit)
+# ----------------------------------------------------------------------------
+# Truoc day moi model duoc fit tren mot luong du lieu KHAC NHAU:
+#   LinearReg/GradBoost -> toan bo df_train (~43k diem)
+#   GaussianProcess     -> 500 diem random
+#   SCM                 -> 2000 diem random
+# => chenh toi 86x, nen ket luan "SCM thua GradBoost" co the chi la artefact
+#    cua cheng lech du lieu chu khong phai cua lop mo hinh. Ngoai ra CSV ghi
+#    n_train giong nhau cho ca 4 model nen nhin file khong phat hien duoc.
+#
+# Tu nay MOI model fit tren DUNG CUNG MOT mau con co dinh (N_FIT, seed co dinh).
+# Tran N_FIT bi chan boi GaussianProcess (do phuc tap O(n^3)); 2000 la muc lon
+# nhat con chay duoc trong thoi gian hop ly cho ca hai testbed.
+N_FIT = 2000
+FIT_SEED = 42
+
+MODEL_ORDER = ['LinearReg', 'GradBoost', 'GaussianProcess', 'SCM_Auto', 'SCM_Deployed']
+
+# Hai bien the SCM duoc bao cao SONG SONG, thay vi chon mot:
+#   SCM_Auto     = gcm.auto.assign_causal_mechanisms  -> tra loi cau hoi
+#                  "cau truc nhan qua co giup gi khong" voi co che linh hoat nhat
+#   SCM_Deployed = LinearRegression(positive=True)    -> DUNG co che thuc su
+#                  duoc trien khai (capacity_agent.py) va dung trong RQ1
+# Truoc day RQ2 chi bao cao SCM_Auto trong khi RQ1/production dung ban constrained,
+# khien Bang RQ1 va bang RQ2 bao cao hai SCM khac nhau tren cung he thong
+# (vi du Socket Sock Shop: 26.7% o RQ1 vs 14.57% o RQ2).
+
+
+def subsample_train(df_train, n_fit=N_FIT, seed=FIT_SEED):
+    """Mau con dung chung cho MOI model. Tra ve (df, n_hieu_dung)."""
+    if len(df_train) <= n_fit:
+        return df_train, len(df_train)
+    return df_train.sample(n=n_fit, random_state=seed), n_fit
 
 def mape(y_true, y_pred):
     yt, yp = np.array(y_true), np.array(y_pred)
@@ -71,41 +108,56 @@ def get_models():
                 ('scaler', StandardScaler()),
                 ('gp', GaussianProcessRegressor(
                     kernel=ConstantKernel(1.0)*RBF(1.0)+WhiteKernel(0.1),
-                    n_restarts_optimizer=3, alpha=1e-3, normalize_y=True))
+                    n_restarts_optimizer=1, alpha=1e-3, normalize_y=True))
             ])
         },
-        'SCM_DoWhy': {
-            'type': 'scm',
+        'SCM_Auto': {
+            'type': 'scm_auto',
+            'model': None  # built per call
+        },
+        'SCM_Deployed': {
+            'type': 'scm_deployed',
             'model': None  # built per call
         },
     }
 
 
-def fit_predict_sklearn(model_name, model, df_train, test_wl_values):
-    """Fit sklearn model and predict at specified workload values."""
-    X_train = df_train[['Workload']].values
-    y_train = df_train['Target'].values
-    if model_name == 'GaussianProcess' and len(X_train) > 500:
-        np.random.seed(42)
-        idx = np.random.choice(len(X_train), 500, replace=False)
-        X_train, y_train = X_train[idx], y_train[idx]
+def fit_predict_sklearn(model_name, model, df_fit, test_wl_values):
+    """Fit sklearn model on the SHARED subsample and predict at given workloads."""
+    X_train = df_fit[['Workload']].values
+    y_train = df_fit['Target'].values
     model.fit(X_train, y_train)
     preds = model.predict(np.array(test_wl_values).reshape(-1, 1))
     return preds
 
 
-def fit_predict_scm(df_train, test_wl_values):
-    """Fit DoWhy SCM and predict via do(Workload) intervention."""
-    df_fit = df_train.sample(min(2000, len(df_train)), random_state=42) if len(df_train) > 2000 else df_train
+def _build_scm(df_fit, constrained):
+    """Fit a bivariate SCM on the SHARED subsample.
+
+    constrained=False -> gcm.auto (flexible mechanism, 'does causal structure help?')
+    constrained=True  -> LinearRegression(positive=True), i.e. the mechanism actually
+                         deployed in capacity_agent.py and used by RQ1.
+    """
     g = nx.DiGraph(); g.add_edge('Workload', 'Target')
     m = gcm.InvertibleStructuralCausalModel(g)
-    gcm.auto.assign_causal_mechanisms(m, df_fit)
+    if constrained:
+        m.set_causal_mechanism('Workload', EmpiricalDistribution())
+        m.set_causal_mechanism(
+            'Target',
+            AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True))))
+    else:
+        gcm.auto.assign_causal_mechanisms(m, df_fit)
     gcm.fit(m, df_fit)
+    return m
+
+
+def fit_predict_scm(df_fit, test_wl_values, constrained):
+    """Fit SCM and predict bucket means via do(Workload) intervention."""
+    m = _build_scm(df_fit, constrained)
     preds = []
     for wlv in test_wl_values:
-        wlc = wlv
         dp = gcm.interventional_samples(
-            m, interventions={'Workload': lambda x, w=wlc: w},
+            m, interventions={'Workload': lambda x, w=wlv: w},
             num_samples_to_draw=N_PROJ)
         preds.append(dp['Target'].mean())
     return preds, m
@@ -140,11 +192,14 @@ def evaluate_all():
             wl_range_train = f"{df_train['Workload'].min():.1f}-{df_train['Workload'].max():.1f}"
             wl_range_test  = f"{df_test['Workload'].min():.1f}-{df_test['Workload'].max():.1f}"
 
+            # MOT mau con duy nhat, dung chung cho CA 4 model (xem N_FIT o dau file)
+            df_fit, n_fit = subsample_train(df_train)
+
             row_base = {
                 'evaluation_protocol': 'OOD_Gold_Standard (Train Low -> Test High)',
                 'risk_threshold': 'P80_Percentile',
                 'service': svc, 'metric': metric_name, 'unit': unit,
-                'n_train': len(df_train), 'n_test': len(df_test),
+                'n_train': len(df_train), 'n_fit': n_fit, 'n_test': len(df_test),
                 'wl_train': wl_range_train, 'wl_test': wl_range_test,
             }
 
@@ -160,13 +215,14 @@ def evaluate_all():
                     if mdef['type'] == 'sklearn':
                         import copy
                         m_clone = copy.deepcopy(mdef['model'])
-                        preds = fit_predict_sklearn(model_name, m_clone, df_train, test_wl)
+                        preds = fit_predict_sklearn(model_name, m_clone, df_fit, test_wl)
                         preds = np.array(preds) * scale
                         # Da fit trong fit_predict_sklearn -> tai su dung de du bao TOAN BO
                         # diem test tho (khong bucket-averaging).
                         preds_full = m_clone.predict(wl_full.reshape(-1, 1)) * scale
-                    else:  # SCM
-                        preds_raw, scm_fitted = fit_predict_scm(df_train, test_wl)
+                    else:  # SCM_Auto hoac SCM_Deployed -- CUNG df_fit voi cac model tren
+                        constrained = (mdef['type'] == 'scm_deployed')
+                        preds_raw, scm_fitted = fit_predict_scm(df_fit, test_wl, constrained)
                         preds = np.array(preds_raw) * scale
                         # Voi AdditiveNoiseModel: E[Target|do(Workload=w)] = prediction_model.predict(w)
                         # -> tinh CHINH XAC (khong Monte Carlo) tren toan bo diem test tho.
@@ -218,7 +274,7 @@ def evaluate_all():
 
             # Print summary row
             parts = [f"{svc:<14}"]
-            for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
+            for mn in MODEL_ORDER:
                 r = model_results.get(mn, {})
                 if 'mape' in r and not np.isnan(r['mape']):
                     tag = '*' if r['mape'] < 10 else ' '
@@ -255,7 +311,7 @@ def main():
         row = f"  {metric_name:<14}"
         best_mape = float('inf')
         best_model = ''
-        for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
+        for mn in MODEL_ORDER:
             s = pd.to_numeric(sub[sub['model']==mn]['mape_pct'], errors='coerce')
             val = s.mean() if not s.empty else float('nan')
             row += f" | {val:>9.1f}%"
@@ -274,7 +330,7 @@ def main():
         row = f"  {metric_name:<14}"
         best_rmse = float('inf')
         best_model = ''
-        for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
+        for mn in MODEL_ORDER:
             s = pd.to_numeric(sub[sub['model']==mn]['rmse'], errors='coerce')
             val = s.mean() if not s.empty else float('nan')
             row += f" | {val:>10.4f}"
@@ -293,7 +349,7 @@ def main():
         row = f"  {metric_name:<14}"
         best_smape = float('inf')
         best_model = ''
-        for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
+        for mn in MODEL_ORDER:
             s = pd.to_numeric(sub[sub['model']==mn]['smape_pct'], errors='coerce')
             val = s.mean() if not s.empty else float('nan')
             row += f" | {val:>9.1f}%"
@@ -306,7 +362,7 @@ def main():
     print("\n" + "="*90)
     print("  PER-SERVICE: Which model wins most often?")
     print("="*90)
-    model_wins = {m: 0 for m in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']}
+    model_wins = {m: 0 for m in MODEL_ORDER}
     for (svc, metric), grp in df_all.groupby(['service','metric']):
         valid = grp.dropna(subset=['mape_pct'])
         if valid.empty: continue
@@ -329,9 +385,10 @@ def main():
         'LinearReg':       ('Yes (slope)',  'No'),
         'GradBoost':       ('No (black box)','No'),
         'GaussianProcess': ('Yes (kernel)', 'No'),
-        'SCM_DoWhy':       ('Yes (DAG)',    'Yes - do-calculus'),
+        'SCM_Auto':        ('Yes (DAG)',    'Yes - do-calculus'),
+        'SCM_Deployed':    ('Yes (DAG)',    'Yes - do-calculus'),
     }
-    for mn in ['LinearReg','GradBoost','GaussianProcess','SCM_DoWhy']:
+    for mn in MODEL_ORDER:
         sub = df_all[df_all['model']==mn]
         avg_mape = pd.to_numeric(sub['mape_pct'], errors='coerce').mean()
         avg_time = pd.to_numeric(sub['train_time_s'], errors='coerce').mean() if 'train_time_s' in sub.columns else float('nan')

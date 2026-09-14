@@ -10,8 +10,11 @@ import json
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-# Call chain per request type (from SockShop architecture + log template analysis)
-CALL_CHAINS = {
+# Call chain per request type (from SockShop architecture + log template analysis).
+# NOTE: day la taxonomy CUA SOCKSHOP. Moi ham trong module nay deu nhan
+# call_chains lam tham so; hang so nay chi la GIA TRI MAC DINH de khong pha
+# code cu. Taxonomy he khac: xem src/scm/taxonomies/.
+SOCKSHOP_CALL_CHAINS = {
     'GET_CATALOGUE': {
         'services': ['front-end', 'catalogue'],
         'description': 'Customer views product list or detail',
@@ -86,6 +89,16 @@ CALL_CHAINS = {
     },
 }
 
+# Alias giu tuong thich nguoc: code cu `from request_router import CALL_CHAINS`
+# van chay, va van tro dung taxonomy SockShop.
+CALL_CHAINS = SOCKSHOP_CALL_CHAINS
+
+# Archetype tra ve khi KHONG tu khoa nao khop. Truoc day viet cung trong
+# classify_request. Suy ra tu bang (archetype nhe nhat) se doi gia tri nay
+# thanh VIEW_CART tren SockShop -- mot thay doi hanh vi lam lech RQ3 -- nen
+# moi taxonomy phai TU KHAI BAO default cua no.
+SOCKSHOP_DEFAULT_TYPE = 'GET_CATALOGUE'
+
 # Log templates per service that signal the service was called
 SERVICE_KEY_TEMPLATES = {
     'payment':      [29],       # method=Authorise
@@ -98,16 +111,19 @@ SERVICE_KEY_TEMPLATES = {
 }
 
 
-def get_blast_radius(request_type: str) -> dict:
+def get_blast_radius(request_type: str, call_chains: dict = None,
+                     service_templates: dict = None) -> dict:
     """Return affected services, templates, and expected workload delta for a request type."""
-    if request_type not in CALL_CHAINS:
-        raise ValueError(f"Unknown: {request_type}. Choose from {list(CALL_CHAINS.keys())}")
-    
-    chain = CALL_CHAINS[request_type]
+    call_chains = call_chains if call_chains is not None else CALL_CHAINS
+    service_templates = service_templates if service_templates is not None else SERVICE_KEY_TEMPLATES
+    if request_type not in call_chains:
+        raise ValueError(f"Unknown: {request_type}. Choose from {list(call_chains.keys())}")
+
+    chain = call_chains[request_type]
     log_templates = {
-        svc: SERVICE_KEY_TEMPLATES[svc]
+        svc: service_templates[svc]
         for svc in chain['services']
-        if svc in SERVICE_KEY_TEMPLATES
+        if svc in service_templates
     }
     
     return {
@@ -128,13 +144,47 @@ def remove_accents(input_str: str) -> str:
     nfkd_form = unicodedata.normalize('NFD', input_str)
     return "".join([c for c in nfkd_form if not unicodedata.combining(c)]).replace('đ', 'd').replace('Đ', 'D')
 
-def classify_request(text: str) -> str:
-    """Simple keyword-based classifier with Vietnamese accent normalization."""
+def default_priority_order(call_chains: dict) -> list:
+    """Thu tu uu tien pha hoa, suy ra TU BANG thay vi liet ke cung.
+
+    Quy tac: yeu cau "nang"/cu the hon thang khi hoa diem tu khoa -- do o day
+    bang so service trong call chain (giam dan), roi alphabet de deterministic.
+    Nho vay mot taxonomy moi khong can khai bao thu tu bang tay.
+    """
+    return sorted(call_chains.keys(),
+                  key=lambda rt: (-len(call_chains[rt].get('services', [])), rt))
+
+
+def classify_request(text: str, call_chains: dict = None,
+                     priority_order: list = None,
+                     default_type: str = None) -> str:
+    """Keyword-based classifier with Vietnamese accent normalization.
+
+    call_chains / priority_order / default_type deu tham so hoa de bo phan
+    phu thuoc cung vao taxonomy SockShop (xem SOCKSHOP_CALL_CHAINS). Khong
+    truyen gi -> giu nguyen hanh vi cu.
+    """
+    # Kiem tra DINH DANH, khong chi None: ParserAgent truyen tuong minh
+    # self.call_chains, voi SockShop chinh la object nay.
+    using_default_table = (call_chains is None or call_chains is SOCKSHOP_CALL_CHAINS)
+    call_chains = call_chains if call_chains is not None else CALL_CHAINS
+    if not call_chains:
+        raise ValueError("call_chains rong: khong the phan loai.")
+    if priority_order is None:
+        priority_order = default_priority_order(call_chains)
+    if default_type is None:
+        if using_default_table:
+            # Tuong thich nguoc tuyet doi voi moi so lieu SockShop da cong bo.
+            default_type = SOCKSHOP_DEFAULT_TYPE
+        else:
+            # Taxonomy moi khong khai bao -> archetype nhe nhat lam fallback.
+            default_type = priority_order[-1]
+
     text_clean = remove_accents(text.lower())
     scores = {}
-    for rtype, info in CALL_CHAINS.items():
+    for rtype, info in call_chains.items():
         score = 0
-        for kw in info['keywords']:
+        for kw in info.get('keywords', []):
             kw_clean = remove_accents(kw.lower())
             pattern = r'\b' + re.escape(kw_clean) + r'\b'
             if re.search(pattern, text_clean):
@@ -143,13 +193,7 @@ def classify_request(text: str) -> str:
 
     max_score = max(scores.values())
     if max_score == 0:
-        return 'GET_CATALOGUE'
-    # On tie, heavier/specific request wins
-    priority_order = [
-        'PLACE_ORDER', 'APPLY_PROMO_CODE', 'RECOMMEND_PRODUCTS',
-        'TRACK_PACKAGE', 'WRITE_PRODUCT_REVIEW', 'ADD_TO_CART',
-        'VIEW_CART', 'REGISTER', 'LOGIN', 'GET_CATALOGUE'
-    ]
+        return default_type
     for rtype in priority_order:
         if scores.get(rtype, 0) == max_score:
             return rtype

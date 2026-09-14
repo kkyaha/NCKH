@@ -1,17 +1,16 @@
 \begin{table*}[t]
 \centering
 \caption{Ablation Study and Reliability Evaluation of LLM Parser Configurations across 50 Requirements (RQ3).
-Rates are mean over 1 independent repeat(s). Backend: SYNTHETIC\_OFFLINE\_EMULATOR\_DO\_NOT\_CITE\_AS\_LLM\_RESULT.}
+Rates are mean over 1 independent repeat(s). Backend: LIVE\_openai/gpt-oss-120b.}
 \label{tab:parser_ablation}
 \begin{tabular}{lcccccc}
 \toprule
 \textbf{Parser Configuration} & \textbf{PBVR (\%)} $\downarrow$ & \textbf{SHR (\%)} $\downarrow$ & \textbf{GMR (\%)} $\downarrow$ & \textbf{MAE (\%)} $\downarrow$ & \textbf{Adv. Fail (\%)} $\downarrow$ & \textbf{Latency (ms)} $\downarrow$ \\
 \midrule
-Unguarded\_ZeroShot\_LLM & 8.00\% & 12.00\% & 6.00\% & 29.88\% & 40.00\% & 0.96 ms \\
-Unguarded\_FewShot\_LLM & 8.00\% & 12.00\% & 10.00\% & 29.40\% & 40.00\% & 0.01 ms \\
-Rule\_Only & 0.00\% & 0.00\% & 0.00\% & 2.80\% & 0.00\% & 0.13 ms \\
-\textbf{Guarded\_Hybrid\_Parser (Ours)} & \textbf{0.00\%} & \textbf{0.00\%} & \textbf{0.00\%} & \textbf{3.40\%} & \textbf{0.00\%} & \textbf{0.19 ms} \\
-\multicolumn{7}{l}{\footnotesize \textbf{WARNING: synthetic offline emulator, not a live LLM. Do not cite as an LLM behavior result.}} \\
+Unguarded\_ZeroShot\_LLM & 18.00\% & 86.00\% & 92.00\% & 33.62\% & 50.00\% & 107114.65 ms \\
+Unguarded\_FewShot\_LLM & 28.00\% & 12.00\% & 72.00\% & 16.66\% & 40.00\% & 1542.49 ms \\
+Rule\_Only & 0.00\% & 0.00\% & 0.00\% & 2.80\% & 0.00\% & 0.38 ms \\
+\textbf{Guarded\_Hybrid\_Parser (Ours)} & \textbf{0.00\%} & \textbf{0.00\%} & \textbf{0.00\%} & \textbf{2.54\%} & \textbf{0.00\%} & \textbf{83385.37 ms} \\
 \bottomrule
 \multicolumn{7}{l}{\footnotesize \textit{Notes:} PBVR = Physical Boundary Violation Rate ($\Delta \notin [5\%, 50\%]$); SHR = Service Hallucination Rate;} \\
 \multicolumn{7}{l}{\footnotesize GMR = Gateway Misdirection Rate; MAE = Mean Absolute Error vs. Calibration Anchor; Adv. Fail = Adversarial-subset Violation Rate.}

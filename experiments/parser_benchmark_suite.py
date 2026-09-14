@@ -69,11 +69,64 @@ os.makedirs(DOCS_DIR, exist_ok=True)
 # ============================================================
 # 1. LLM INITIALIZATION
 # ============================================================
-LLM_MODEL_NAME = os.environ.get("PARSER_BENCH_LLM_MODEL", "gemini-flash-lite-latest")
-# LUU Y: "gemini-3.6-flash" co quota Free Tier chi 20 request/NGAY/model (rat thap,
-# khong du chay ablation 50 prompts x nhieu cau hinh x nhieu lan lap). "gemini-flash-lite-latest"
-# co quota rieng biet, cao hon nhieu, phu hop chay benchmark day du. Doi model qua bien moi
-# truong PARSER_BENCH_LLM_MODEL neu can.
+# Backend duoc chon theo TEN trong llm_backends.BACKENDS (khong phai ten model
+# tho), de moi dong CSV ghi kem provider/tier/pinned phuc vu tai lap.
+# Doi bang bien moi truong PARSER_BENCH_BACKEND hoac --backend=<ten>.
+#
+# LUU Y QUOTA (do lai ngay 2026-09-14, cac so cu da khong con dung):
+#   gemini-flash-lite : quota free tier rong nhat -> backend goc cua paper
+#   gemini-3.6-flash  : goi duoc tren free tier (da xac nhan 200 OK)
+#   gemini-3.1-pro    : frontier DONG, CO free tier nhung la tran token/NGAY
+#                       -> phai --repeats=1 va chay nhieu ngay, script se resume
+#   gpt-oss-20b/120b  : Groq free tier, 8000 token/PHUT + tran ~200k/ngay
+#   gpt-4o*           : tra phi (tai khoan hien tai khong con credit -> 429)
+# Xem _sleep_between_calls cho gian cach tuong ung tung provider.
+PARSER_BENCH_BACKEND = os.environ.get("PARSER_BENCH_BACKEND", "gemini-flash-lite")
+for _a in sys.argv:
+    if _a.startswith('--backend='):
+        PARSER_BENCH_BACKEND = _a.split('=', 1)[1]
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src', 'agents'))
+from llm_backends import get_llm as _factory_get_llm, BACKENDS as _BACKENDS, has_credentials
+
+LLM_MODEL_NAME = _BACKENDS.get(PARSER_BENCH_BACKEND, {}).get('model', PARSER_BENCH_BACKEND)
+
+# Backend goc cua so lieu RQ3 trong paper. CHI backend nay duoc ghi vao ten file
+# khong hau to, de moi tham chieu san co trong bai va trong cac script khac giu
+# nguyen hieu luc. MOI backend kiem chung cheo ghi ra file rieng.
+#
+# Day la sua mot lo hong THAT: truoc khi co doan nay, chay backend thu hai se
+# GHI DE parser_ablation_benchmark.csv cua backend thu nhat. Du lieu RQ3 tung bi
+# mat dung theo kieu do (600 dong Gemini that bi thay bang 200 dong tong hop).
+PRIMARY_BACKEND = 'gemini-flash-lite'
+
+
+def _out(name: str, ext: str) -> str:
+    """Duong dan output co hau to backend (tru backend goc)."""
+    d = DOCS_DIR if ext == '.tex' or ext == '.md' else OUTPUT_DIR
+    if PARSER_BENCH_BACKEND == PRIMARY_BACKEND:
+        return os.path.join(d, f'{name}{ext}')
+    slug = re.sub(r'[^A-Za-z0-9]+', '-', PARSER_BENCH_BACKEND).strip('-')
+    return os.path.join(d, f'{name}__{slug}{ext}')
+
+
+def _sleep_between_calls():
+    """Gian cach giua cac lan goi live de khong dam vao tran PHUT cua free tier.
+
+    So lieu DO TRUC TIEP (2026-09-14), khong phai uoc luong:
+      - Groq free tier: x-ratelimit-limit-tokens = 8000/PHUT. Chi phi thuc mot
+        lan goi cua benchmark nay = 329 token (do bang hieu so
+        x-ratelimit-remaining-tokens truoc/sau 5 lan goi). => ~24 call/phut la
+        an toan => 2.5s. Prompt cua benchmark nay ngan hon nhieu so voi tuong.
+      - Google free tier: ~15 req/phut cho ho flash; gemini-3.1-pro con bi tran
+        token/NGAY nen gian cach rong hon cung khong cuu duoc, phai chia ngay.
+    """
+    cfg = _BACKENDS.get(PARSER_BENCH_BACKEND, {})
+    prov, tier = cfg.get('provider'), cfg.get('tier')
+    if prov == 'google':
+        time.sleep(6.0 if tier == 'frontier' else 4.5)
+    elif prov == 'groq':
+        time.sleep(2.5)      # 8000 token/phut / 329 token moi call = 24/phut
 
 
 def get_llm(use_live_api=True):
@@ -92,21 +145,43 @@ def get_llm(use_live_api=True):
     "SYNTHETIC_OFFLINE_EMULATOR_DO_NOT_CITE_AS_LLM_RESULT" de bat buoc downstream
     (report/paper) phai hien thi canh bao thay vi am tham coi la ket qua LLM that.
     """
+    # --no-fallback: neu khong khoi tao duoc LLM that thi DUNG HAN, khong am tham
+    # chuyen sang bo gia lap. Bat buoc dung cho moi lan chay co quota gioi han:
+    # mot lan 429 luc probe se sinh ra 600 dong tong hop trong khi log chi co mot
+    # dong WARNING o giua man hinh -- dung kieu mat du lieu da xay ra trong du an.
+    no_fallback = '--no-fallback' in sys.argv
+
     if use_live_api:
-        api_key = os.environ.get("GOOGLE_API_KEY")
-        if api_key:
+        cfg = _BACKENDS.get(PARSER_BENCH_BACKEND)
+        if cfg is None:
+            msg = (f"Backend '{PARSER_BENCH_BACKEND}' khong co trong BACKENDS. "
+                   f"Chon trong: {sorted(_BACKENDS)}")
+            if no_fallback:
+                raise SystemExit(f"[FATAL] {msg}")
+            print(f"[WARNING] {msg}")
+        elif not has_credentials(cfg['provider']):
+            msg = f"Thieu API key cho provider '{cfg['provider']}'."
+            if no_fallback:
+                raise SystemExit(f"[FATAL] {msg}")
+            print(f"[WARNING] {msg} Falling back to offline emulator.")
+        else:
             try:
-                from langchain_google_genai import ChatGoogleGenerativeAI
-                llm = ChatGoogleGenerativeAI(model=LLM_MODEL_NAME, temperature=0.2, max_retries=5)
+                llm = _factory_get_llm(PARSER_BENCH_BACKEND, temperature=0.2, max_retries=5)
                 # Xac thuc key that su goi duoc API truoc khi cong bo la "live"
                 from langchain_core.messages import HumanMessage
                 llm.invoke([HumanMessage(content="Reply with exactly: OK")])
-                print(f"  [LLM] Using LIVE Google {LLM_MODEL_NAME} API (real network calls).")
+                print(f"  [LLM] Using LIVE {cfg['provider']} {LLM_MODEL_NAME} "
+                      f"(tier={cfg['tier']}, pinned={cfg['pinned']}).")
                 return llm, f"LIVE_{LLM_MODEL_NAME}"
             except Exception as e:
-                print(f"[WARNING] Gemini live call failed: {e}. Falling back to offline emulator.")
-        else:
-            print("[WARNING] GOOGLE_API_KEY not set. Falling back to offline emulator.")
+                if no_fallback:
+                    raise SystemExit(
+                        f"[FATAL] Live call that bai tren '{PARSER_BENCH_BACKEND}': "
+                        f"{str(e)[:300]}\n"
+                        f"        Dang chay voi --no-fallback nen DUNG, khong sinh du "
+                        f"lieu tong hop. Neu la 429 tran ngay thi doi quota hoi roi chay lai.")
+                print(f"[WARNING] Live call failed on {PARSER_BENCH_BACKEND}: "
+                      f"{str(e)[:160]}. Falling back to offline emulator.")
 
     # Deterministic offline stand-in: KHONG dai dien cho hanh vi LLM that.
     # Chi dung cho smoke-test CI khi khong co API key. Khong duoc trich dan
@@ -368,7 +443,7 @@ def run_parser_benchmark(use_live_api=True, models_to_run=None):
 
     all_model_names = ['Unguarded_ZeroShot_LLM', 'Unguarded_FewShot_LLM', 'Rule_Only', 'Guarded_Hybrid_Parser']
     run_selected = models_to_run if models_to_run else all_model_names
-    csv_path = os.path.join(OUTPUT_DIR, 'parser_ablation_benchmark.csv')
+    csv_path = _out('parser_ablation_benchmark', '.csv')
 
     reused_results = []
     if models_to_run and os.path.exists(csv_path):
@@ -389,10 +464,29 @@ def run_parser_benchmark(use_live_api=True, models_to_run=None):
                   'injection_service', 'core_services', 'physical_boundary_violation',
                   'service_hallucination', 'gateway_misdirection', 'hallucinated_items',
                   'latency_ms', 'llm_called']
-    incremental_path = os.path.join(OUTPUT_DIR, 'parser_ablation_benchmark_INPROGRESS.csv')
-    f_incremental = open(incremental_path, 'w', newline='', encoding='utf-8')
+    incremental_path = _out('parser_ablation_benchmark_INPROGRESS', '.csv')
+
+    # RESUME: backend co tran token/NGAY (gemini-3.1-pro) khong the chay het
+    # 450 lan goi trong mot ngay. Doc lai cac o (repeat_id, model, prompt_id) da
+    # hoan thanh va BO QUA chung, roi ghi TIEP (mode 'a') thay vi ghi de.
+    done = set()
+    resume = os.path.exists(incremental_path) and '--fresh' not in sys.argv
+    if resume:
+        with open(incremental_path, newline='', encoding='utf-8') as fr:
+            for r in csv.DictReader(fr):
+                done.add((int(r['repeat_id']), r['model'], r['prompt_id']))
+        print(f"[RESUME] Tim thay {len(done)} o da hoan thanh trong "
+              f"{os.path.basename(incremental_path)} -- se bo qua va chay tiep.")
+        print(f"         (dung --fresh de bo va chay lai tu dau)")
+
+    f_incremental = open(incremental_path, 'a' if resume else 'w',
+                         newline='', encoding='utf-8')
     incremental_writer = csv.DictWriter(f_incremental, fieldnames=fieldnames)
-    incremental_writer.writeheader()
+    if not resume:
+        incremental_writer.writeheader()
+    # Cac dong da co tu lan chay truoc phai duoc gop vao ket qua cuoi cung
+    if done:
+        all_results.extend(pd.read_csv(incremental_path).to_dict('records'))
 
     print(f"\nEvaluating across {len(prompts)} test scenarios x {n_repeats} repeats "
           f"(backend={llm_backend}) for configuration(s): {run_selected}...")
@@ -417,14 +511,31 @@ def run_parser_benchmark(use_live_api=True, models_to_run=None):
                 exp_anchor = p['expected_anchor']
                 exp_gw = p['expected_gateway']
 
-                # Execute
-                inj_svc, delta, core_svcs, latency_ms, llm_called = runner.parse(req)
+                if (repeat_id, model_name, str(p_id)) in done:
+                    continue
+
+                # Execute. Mot 429 tran-ngay o day phai LAM DUNG lan chay, khong
+                # duoc bat va di tiep: di tiep se sinh ra 450 dong loi gan nhau
+                # ma van trong nhu du lieu. File INPROGRESS giu lai phan da xong,
+                # lan chay sau se resume.
+                try:
+                    inj_svc, delta, core_svcs, latency_ms, llm_called = runner.parse(req)
+                except Exception as e:
+                    f_incremental.flush()
+                    n_done = len(done) + len([r for r in all_results
+                                              if r.get('repeat_id') == repeat_id])
+                    raise SystemExit(
+                        f"\n[STOP] Loi khi goi backend tai repeat={repeat_id} "
+                        f"model={model_name} prompt={p_id}:\n  {str(e)[:300]}\n"
+                        f"  Da ghi an toan {n_done} o vao {incremental_path}\n"
+                        f"  Neu la 429 tran ngay: doi quota hoi roi chay LAI DUNG "
+                        f"lenh nay -- script se tu resume.")
 
                 # Rate-limit: Free Tier cua gemini-*-flash-lite gioi han 15 request/PHUT
                 # (GenerateRequestsPerMinutePerProjectPerModel-FreeTier). Cho ~4.5s giua
                 # cac lan goi that de tranh 429 lien tuc (nhanh hon se bi throttle nang).
                 if (not is_synthetic) and llm_called:
-                    time.sleep(4.5)
+                    _sleep_between_calls()
 
                 # Metric 1: Physical Boundary Violation (Delta not in [5%, 50%])
                 pbv = (delta < 5.0) or (delta > 50.0)
@@ -546,7 +657,7 @@ def run_parser_benchmark(use_live_api=True, models_to_run=None):
     print("=" * 80)
     
     cat_df = pd.DataFrame(category_rows)
-    cat_csv_path = os.path.join(OUTPUT_DIR, 'parser_ablation_by_category.csv')
+    cat_csv_path = _out('parser_ablation_by_category', '.csv')
     cat_df.to_csv(cat_csv_path, index=False, encoding='utf-8')
     print(f"[OK] Per-category breakdown saved to: {cat_csv_path}")
 
@@ -588,7 +699,7 @@ Rates are mean""" + (r"$\pm$std" if n_repeats > 1 else "") + f""" over {n_repeat
 \end{tabular}
 \end{table*}
 """
-    latex_path = os.path.join(DOCS_DIR, 'table_rq3_parser_ablation.tex')
+    latex_path = _out('table_rq3_parser_ablation', '.tex')
     with open(latex_path, 'w', encoding='utf-8') as f:
         f.write(latex_code)
     print(f"[OK] LaTeX publication table generated: {latex_path}")
@@ -670,7 +781,7 @@ Thời điểm chạy: `{run_timestamp}` | Số lần lặp: `{n_repeats}` | Bac
 * Toàn bộ {len(df)} bản ghi (50 prompts × 4 cấu hình × {n_repeats} lần lặp): `data/processed/scm_results/parser_ablation_benchmark.csv`
 * Breakdown theo category: `data/processed/scm_results/parser_ablation_by_category.csv`
 """
-    md_path = os.path.join(DOCS_DIR, 'RQ3_LLM_PARSER_BENCHMARK_REPORT.md')
+    md_path = _out('RQ3_LLM_PARSER_BENCHMARK_REPORT', '.md')
     with open(md_path, 'w', encoding='utf-8') as f:
         f.write(md_report)
     print(f"[OK] Scientific markdown report generated: {md_path}")

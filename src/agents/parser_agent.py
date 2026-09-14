@@ -47,7 +47,8 @@ _AGENT_DIR = os.path.dirname(os.path.abspath(__file__))
 _SRC_DIR   = os.path.dirname(_AGENT_DIR)
 sys.path.insert(0, os.path.join(_SRC_DIR, 'scm'))
 
-from request_router import CALL_CHAINS, classify_request, remove_accents
+from request_router import (CALL_CHAINS, classify_request, remove_accents,
+                            default_priority_order)
 
 # ============================================================
 # CONSTANTS
@@ -108,11 +109,12 @@ class ParsedRequirement:
 # ============================================================
 # HELPER: similarity scoring
 # ============================================================
-def _compute_similarity(text: str, request_type: str) -> float:
+def _compute_similarity(text: str, request_type: str, call_chains: dict = None) -> float:
     """Ti le keyword match trong [0, 1] voi request_type."""
-    if request_type not in CALL_CHAINS:
+    call_chains = call_chains if call_chains is not None else CALL_CHAINS
+    if request_type not in call_chains:
         return 0.0
-    keywords = CALL_CHAINS[request_type].get('keywords', [])
+    keywords = call_chains[request_type].get('keywords', [])
     if not keywords:
         return 0.0
     text_clean = remove_accents(text.lower())
@@ -219,11 +221,38 @@ def _get_gateways(graph) -> set:
 # ============================================================
 # GUARDS
 # ============================================================
-def _guard_injection_service(service: str, gateways: set) -> tuple:
-    """G1: dam bao injection_service la gateway."""
+def _guard_injection_service(service: str, gateways: set,
+                             archetype_services=None,
+                             default_gateway: str = None) -> tuple:
+    """G1 (Layer 2): dam bao injection_service la mot gateway hop le.
+
+    Tra ve (gateway_da_chon, llm_de_xuat_dung_khong).
+
+    Tren topology MOT gateway (SockShop) moi nhanh fallback deu hoi tu ve
+    cung mot node, nen thu tu chon khong quan trong. Tren topology NHIEU
+    gateway (Train Ticket co 14 node in-degree=0) thi no rat quan trong:
+    ban truoc lay `sorted(gateways)[0]`, tuc `ts-admin-order-service` --
+    mot dich vu QUAN TRI -- lam diem tiem cho MOI yeu cau khach hang. Do la
+    loi that, bi che khuat vi SockShop chi co mot gateway.
+
+    Thu tu uu tien bay gio:
+      1. LLM de xuat dung mot gateway  -> nhan.
+      2. Gateway nam trong call chain cua chinh archetype da khop -- archetype
+         khai bao duong vao cua no, nen day la tin hieu co can cu nhat.
+      3. `default_gateway` do he thong khai bao (vd ts-ui-dashboard).
+      4. Alphabet -- chi con la luoi an toan cuoi cung, khong phai lua chon.
+    """
     if service in gateways:
         return service, True
-    # Fallback: chon gateway dau tien (sorted de deterministic)
+
+    if archetype_services:
+        in_chain = [s for s in archetype_services if s in gateways]
+        if in_chain:
+            return in_chain[0], False
+
+    if default_gateway and default_gateway in gateways:
+        return default_gateway, False
+
     fallback = sorted(gateways)[0] if gateways else 'front-end'
     return fallback, False
 
@@ -247,17 +276,35 @@ def _guard_delta(delta: float, template_delta: float) -> tuple:
     return delta, actual_adj, clamped
 
 
-def _guard_core_services(services: list, known_services: set = None) -> list:
-    """G4: chi giu service ton tai trong known_services.
+def _guard_core_services(services: list, known_services: set = None,
+                         fallback_service: str = None) -> list:
+    """G4 (Layer 2): chi giu service ton tai trong known_services.
 
     `known_services` mac dinh la module-level KNOWN_SERVICES (SockShop, giu de
     tuong thich nguoc cho cac script goi ham nay truc tiep khong qua mot
     ParserAgent instance) -- nhung parse() luon truyen self.known_services
     (tu chinh graph cua instance), de guard nay tong quat hoa theo he thong
-    dang chay thay vi luon gia dinh SockShop."""
+    dang chay thay vi luon gia dinh SockShop.
+
+    LOI DA SUA: ban truoc tra ve `['front-end']` khi danh sach rong sau khi
+    loc. `front-end` la service CUA SOCKSHOP, viet cung. Tren Train Ticket
+    (khong co node nao ten 'front-end') guard nay tu no CHEN VAO mot service
+    khong ton tai -- tuc chinh no vi pham bat bien ma no ton tai de bao ve
+    (S* subset V), lam Corollary "SHR = 0 by construction" SAI tren moi he
+    thong khong co node ten 'front-end'. SockShop che lap loi nay vi o do
+    'front-end' tinh co hop le.
+
+    Fallback dung: gateway cua he thong dang chay (luon thuoc V theo dinh
+    nghia), neu khong co thi tra ve danh sach RONG -- rong van thoa
+    S* subset V, con mot service bia dat thi khong.
+    """
     ks = known_services if known_services is not None else KNOWN_SERVICES
     valid = [s for s in services if s in ks]
-    return valid if valid else ['front-end']
+    if valid:
+        return valid
+    if fallback_service and fallback_service in ks:
+        return [fallback_service]
+    return []
 
 
 # ============================================================
@@ -282,7 +329,9 @@ class ParserAgent:
     """
 
     def __init__(self, llm, arch_agent, system_name: str = "SockShop",
-                 domain_description: str = "an online sock e-commerce store"):
+                 domain_description: str = "an online sock e-commerce store",
+                 call_chains: dict = None, default_gateway: str = None,
+                 default_request_type: str = None):
         """
         system_name / domain_description: tham so hoa de Layer 1 (Scope Gate)
         khong con viet cung "SockShop" trong prompt -- xuat phat tu cau hoi
@@ -323,7 +372,19 @@ class ParserAgent:
         self.arch_agent = arch_agent
         self.system_name = system_name
         self.domain_description = domain_description
+        # Taxonomy hieu chinh: tham so hoa (truoc day la module-level import cung,
+        # khien khong the tro ParserAgent sang he thong thu hai). Mac dinh van la
+        # SockShop de tuong thich nguoc.
+        self.call_chains = call_chains if call_chains is not None else CALL_CHAINS
+        self._priority_order = default_priority_order(self.call_chains)
         self._gateways  = _get_gateways(arch_agent.graph)
+        # Gateway mac dinh do he thong khai bao, dung khi LLM de xuat sai va
+        # archetype khong chua gateway nao (xem _guard_injection_service).
+        # Chi co y nghia tren topology nhieu gateway.
+        self.default_gateway = default_gateway
+        # Archetype dung khi khong tu khoa nao khop. None -> classify_request tu
+        # quyet dinh (SockShop giu GET_CATALOGUE de tuong thich nguoc).
+        self.default_request_type = default_request_type
 
         # Build services context cho prompt, VA known_services (Layer 2 / G4)
         # tu CHINH graph duoc truyen vao thay vi doc module-level KNOWN_SERVICES
@@ -342,7 +403,7 @@ class ParserAgent:
 
         # Build calibration table string cho prompt
         self._calibration_ctx = ""
-        for rt, info in CALL_CHAINS.items():
+        for rt, info in self.call_chains.items():
             self._calibration_ctx += (
                 f"  {rt:<25} | anchor={info['expected_delta_pct']}% "
                 f"| {len(info['services'])} services "
@@ -374,30 +435,38 @@ class ParserAgent:
         vas-va them 1 lop kiem tra rieng cho no -- an toan hon, danh doi
         mat loi ich chi phi/do tre da do trong RQ3 (xem paper).
         """
-        rb_request_type  = classify_request(requirement)
-        rb_similarity    = _compute_similarity(requirement, rb_request_type)
-        rb_template_info = CALL_CHAINS.get(rb_request_type, {})
+        rb_request_type  = classify_request(requirement, self.call_chains,
+                                            self._priority_order,
+                                            self.default_request_type)
+        rb_similarity    = _compute_similarity(requirement, rb_request_type,
+                                               self.call_chains)
+        rb_template_info = self.call_chains.get(rb_request_type, {})
         print(f"  [Parser] Rule-based goi y: {rb_request_type} | similarity={rb_similarity:.2f}")
 
         request_type, core_svcs, adjustment, llm_reasoning, llm_conf, raw_inj_svc, llm_is_customer_facing, cf_confidence = \
             self._llm_full_parse(requirement, rb_request_type)
 
         # Re-lookup template sau khi LLM xac dinh request_type
-        template_info  = CALL_CHAINS.get(request_type, rb_template_info)
+        template_info  = self.call_chains.get(request_type, rb_template_info)
         template_delta = template_info.get('expected_delta_pct', 20.0)
         affected       = template_info.get('services', ['front-end'])
         # G6 can DUNG similarity cua chinh archetype LLM da chon (khong phai
         # chi rb_similarity ban dau) — LLM luon bi ep chon 1 loai "gan nhat",
         # nhung neu loai do CUNG khong chia se tu khoa nao voi requirement,
         # do la tin hieu that su khong co archetype dang tin cay.
-        llm_pick_similarity = _compute_similarity(requirement, request_type)
+        llm_pick_similarity = _compute_similarity(requirement, request_type,
+                                                  self.call_chains)
         similarity_score = max(rb_similarity, llm_pick_similarity)
         llm_called     = True
         print(f"  [Parser] LLM full parse: {request_type} | conf: {llm_conf}")
 
         # --- GUARDS ---
         # G4: validate core_services
-        core_svcs = _guard_core_services(core_svcs, self.known_services)
+        # Fallback = gateway cua CHINH he thong nay (luon thuoc V), khong phai
+        # 'front-end' viet cung. Xem docstring _guard_core_services.
+        _fallback_svc = (self.default_gateway if self.default_gateway in self.known_services
+                         else (sorted(self._gateways)[0] if self._gateways else None))
+        core_svcs = _guard_core_services(core_svcs, self.known_services, _fallback_svc)
 
         # G5: low similarity -> siet adjustment ve 0
         if similarity_score < SIMILARITY_THRESHOLD:
@@ -420,7 +489,10 @@ class ParserAgent:
         # hardcoded literal fed to every call regardless of branch (previous
         # version always passed 'front-end' here, so G1 could never observe a
         # real violation even in principle; see docstring on _llm_full_parse).
-        inj_svc, svc_ok = _guard_injection_service(raw_inj_svc, self._gateways)
+        inj_svc, svc_ok = _guard_injection_service(
+            raw_inj_svc, self._gateways,
+            archetype_services=affected,
+            default_gateway=self.default_gateway)
         if not svc_ok:
             llm_conf      = "LOW"
             llm_reasoning += f" [GATEWAY FALLBACK: LLM de xuat '{raw_inj_svc}' khong phai gateway hop le, dung {inj_svc}]"
@@ -619,7 +691,7 @@ Tra ve DUY NHAT JSON sau, KHONG them text khac:
         lap (van giu nguyen) -- ca hai phai dong y moi duoc coi la trong pham
         vi, theo dung nguyen tac LLM-Modulo: khong tin 1 nguon duy nhat.
         """
-        known_types = "\n".join(f"  - {k}: {v['description']}" for k, v in CALL_CHAINS.items())
+        known_types = "\n".join(f"  - {k}: {v['description']}" for k, v in self.call_chains.items())
 
         prompt = f"""Ban la Systems Analyst chuyen gia ve microservices {self.system_name} ({self.domain_description}).
 
@@ -695,7 +767,7 @@ Tra ve DUY NHAT JSON sau:
             data = json.loads(raw)
 
             rt   = data.get("request_type", rb_suggestion)
-            if rt not in CALL_CHAINS:
+            if rt not in self.call_chains:
                 rt = rb_suggestion
             core = data.get("core_services", ["front-end"])
             inj_svc_raw = str(data.get("injection_service", "front-end"))

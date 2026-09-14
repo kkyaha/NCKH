@@ -470,8 +470,15 @@ def test_14_node_causal_graph(global_model=None, df_sub=None):
 # =============================================================================
 
 def run_statistical_significance():
+    """LƯU Ý (sau đợt audit RQ2): hàm này báo cáo p-value THÔ, KHÔNG hiệu chỉnh
+    đa so sánh và KHÔNG chặn hậu kiểm theo Friedman omnibus. Nó chạy ~12 kiểm
+    định trên mỗi hệ thống nên cột "CÓ Ý NGHĨA" ở đây KHÔNG dùng được cho bài
+    báo. Số liệu chính thức lấy từ experiments/rq2_statistical_analysis.py
+    (Friedman gating + Holm + effect size theo hạng) -> rq2_corrected_statistics.csv.
+    Giữ lại hàm này chỉ để đối chiếu lịch sử."""
     print("\n" + "=" * 90)
-    print("  CHẠY KIỂM ĐỊNH THỐNG KÊ (WILCOXON & FRIEDMAN TESTS) CHO BÀI BÁO Q1")
+    print("  KIỂM ĐỊNH THỐNG KÊ (WILCOXON & FRIEDMAN) — BẢN THÔ, KHÔNG HIỆU CHỈNH")
+    print("  >> KHÔNG trích cột 'CÓ Ý NGHĨA' vào bài báo. Dùng rq2_statistical_analysis.py.")
     print("=" * 90)
 
     CSV_PATH_1 = os.path.join(OUT_DIR, 'MODEL_COMPARISON.csv')
@@ -515,7 +522,7 @@ def run_statistical_significance():
         for metric_name in metrics_present:
             sub = valid[valid['metric'] == metric_name]
             for bl in baselines:
-                a, b, n = paired_values(sub, 'SCM_DoWhy', bl, value_col)
+                a, b, n = paired_values(sub, 'SCM_Deployed', bl, value_col)
                 if n >= 2 and not np.allclose(a, b):
                     w_stat, w_p = stats.wilcoxon(a, b)
                 else:
@@ -532,10 +539,10 @@ def run_statistical_significance():
                 })
             # Friedman rieng cho tung metric (chi tinh duoc voi n_service dong nhat qua 4 model)
             piv = sub.pivot_table(index='service', columns='model', values=value_col)
-            piv = piv.dropna(subset=['SCM_DoWhy'] + baselines)
+            piv = piv.dropna(subset=['SCM_Deployed'] + baselines)
             if len(piv) >= 3:
                 f_stat, f_p = stats.friedmanchisquare(
-                    piv['SCM_DoWhy'], piv['LinearReg'], piv['GradBoost'], piv['GaussianProcess'])
+                    piv['SCM_Deployed'], piv['LinearReg'], piv['GradBoost'], piv['GaussianProcess'])
             else:
                 f_stat, f_p = float('nan'), float('nan')
             stat_results.append({
@@ -551,7 +558,7 @@ def run_statistical_significance():
 
         # (2) Kiem dinh tong hop tren toan bo (service, metric)
         for bl in baselines:
-            a, b, n = paired_values(valid, 'SCM_DoWhy', bl, value_col)
+            a, b, n = paired_values(valid, 'SCM_Deployed', bl, value_col)
             if n >= 2 and not np.allclose(a, b):
                 w_stat, w_p = stats.wilcoxon(a, b)
             else:
@@ -568,10 +575,10 @@ def run_statistical_significance():
             })
 
         piv_all = valid.pivot_table(index=['service', 'metric'], columns='model', values=value_col)
-        piv_all = piv_all.dropna(subset=['SCM_DoWhy'] + baselines)
+        piv_all = piv_all.dropna(subset=['SCM_Deployed'] + baselines)
         if len(piv_all) >= 3:
             f_stat, f_p = stats.friedmanchisquare(
-                piv_all['SCM_DoWhy'], piv_all['LinearReg'], piv_all['GradBoost'], piv_all['GaussianProcess'])
+                piv_all['SCM_Deployed'], piv_all['LinearReg'], piv_all['GradBoost'], piv_all['GaussianProcess'])
         else:
             f_stat, f_p = float('nan'), float('nan')
         stat_results.append({

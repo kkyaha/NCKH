@@ -72,10 +72,31 @@ def _load_tt_pair(df_all, service, metric_col):
     return df if len(df) >= MIN_ROWS else None
 
 
+# ----------------------------------------------------------------------------
+# FAIR-COMPARISON PROTOCOL (added after the RQ2 methodology audit)
+# ----------------------------------------------------------------------------
+# Truoc day trong run_tt_model_comparison: GaussianProcess fit tren 400 diem
+# random, con LinearReg/GradBoost/SCM fit tren TOAN BO df_train -> khong cong
+# bang, va khac ca voi Sock Shop (noi SCM bi subsample 2000). Tu nay MOI model
+# fit tren CUNG mot mau con (N_FIT, seed co dinh), giong het model_comparison.py.
+N_FIT = 2000
+FIT_SEED = 42
+
+MODEL_ORDER = ['LinearReg', 'GradBoost', 'GaussianProcess', 'SCM_Auto', 'SCM_Deployed']
+
+
+def subsample_train(df_train, n_fit=N_FIT, seed=FIT_SEED):
+    """Mau con dung chung cho MOI model. Tra ve (df, n_hieu_dung)."""
+    if len(df_train) <= n_fit:
+        return df_train, len(df_train)
+    return df_train.sample(n=n_fit, random_state=seed), n_fit
+
+
 def _fit_scm_bivariate(df_train):
-    """Dung cho RQ2-tuong-duong (run_tt_model_comparison, SCM_DoWhy): gcm.auto tu
-    chon mechanism tot nhat, GIU NGUYEN de khong lam sai lech cau hoi nghien cuu
-    "cau truc nhan qua co giup gi hon regressor khong" — khong lien quan fix RQ1."""
+    """SCM_Auto: gcm.auto tu chon mechanism linh hoat nhat -- tra loi cau hoi
+    "cau truc nhan qua co giup gi hon regressor khong". Bao cao SONG SONG voi
+    _fit_scm_bivariate_constrained (SCM_Deployed) thay vi thay the nhau, vi
+    RQ1 va production dung ban constrained con RQ2 truoc day chi bao cao ban auto."""
     g = nx.DiGraph([('Workload', 'Target')])
     m = gcm.InvertibleStructuralCausalModel(g)
     gcm.auto.assign_causal_mechanisms(m, df_train)
@@ -197,38 +218,34 @@ def run_tt_model_comparison(df_all=None):
             if len(df_test) < 30 or df_train['Workload'].nunique() < 3:
                 continue
 
-            X_train = df_train[['Workload']].values
-            y_train = df_train['Target'].values
+            # MOT mau con duy nhat, dung chung cho CA 5 model
+            df_fit, n_fit = subsample_train(df_train)
+            X_train = df_fit[['Workload']].values
+            y_train = df_fit['Target'].values
             X_test_full = df_test[['Workload']].values
             y_test_full = df_test['Target'].values * scale
 
-            for model_name, model in get_tt_models().items():
-                if model_name == 'GaussianProcess' and len(X_train) > 400:
-                    idx = np.random.RandomState(42).choice(len(X_train), 400, replace=False)
-                    model.fit(X_train[idx], y_train[idx])
-                else:
-                    model.fit(X_train, y_train)
-                preds = model.predict(X_test_full) * scale
-                records.append({
+            def _rec(model_name, preds):
+                return {
                     'system': 'TrainTicket', 'service': svc, 'metric': metric_name, 'model': model_name,
                     'mape_full_res_pct': round(mape(y_test_full, preds), 2),
                     'rmse_full_res': round(np.sqrt(mean_squared_error(y_test_full, preds)), 4),
                     'r2_full_res': round(r2_score(y_test_full, preds), 3),
+                    'n_train': len(df_train), 'n_fit': n_fit,
                     'n_test_full_res': len(y_test_full),
-                })
+                }
 
-            # SCM
-            scm_model = _fit_scm_bivariate(df_train)
-            mech = scm_model.causal_mechanism('Target')
-            scm_preds = mech.prediction_model.predict(X_test_full).ravel() * scale
-            records.append({
-                'system': 'TrainTicket', 'service': svc, 'metric': metric_name, 'model': 'SCM_DoWhy',
-                'mape_full_res_pct': round(mape(y_test_full, scm_preds), 2),
-                'rmse_full_res': round(np.sqrt(mean_squared_error(y_test_full, scm_preds)), 4),
-                'r2_full_res': round(r2_score(y_test_full, scm_preds), 3),
-                'n_test_full_res': len(y_test_full),
-            })
-            print(f"  {svc:<32} | {metric_name:<7} done")
+            for model_name, model in get_tt_models().items():
+                model.fit(X_train, y_train)
+                records.append(_rec(model_name, model.predict(X_test_full) * scale))
+
+            # Hai bien the SCM, cung df_fit voi cac model tren
+            for scm_name, fit_fn in (('SCM_Auto', _fit_scm_bivariate),
+                                     ('SCM_Deployed', _fit_scm_bivariate_constrained)):
+                mech = fit_fn(df_fit).causal_mechanism('Target')
+                records.append(_rec(scm_name,
+                                    mech.prediction_model.predict(X_test_full).ravel() * scale))
+            print(f"  {svc:<32} | {metric_name:<7} done (n_fit={n_fit})")
 
     out = pd.DataFrame(records)
     out.to_csv(os.path.join(OUT_DIR, 'trainticket_model_comparison.csv'), index=False)
@@ -259,7 +276,7 @@ def run_tt_statistical_significance(mc_df=None):
     for metric_name in sorted(mc_df['metric'].unique()):
         sub = mc_df[mc_df['metric'] == metric_name]
         for bl in baselines:
-            a, b, n = paired(sub, 'SCM_DoWhy', bl)
+            a, b, n = paired(sub, 'SCM_Deployed', bl)
             if n >= 2 and not np.allclose(a, b):
                 w_stat, w_p = stats.wilcoxon(a, b)
             else:
@@ -271,7 +288,7 @@ def run_tt_statistical_significance(mc_df=None):
                              'significant_p_lt_0.05': bool(w_p < 0.05) if n >= 2 else False})
 
     for bl in baselines:
-        a, b, n = paired(mc_df, 'SCM_DoWhy', bl)
+        a, b, n = paired(mc_df, 'SCM_Deployed', bl)
         if n >= 2 and not np.allclose(a, b):
             w_stat, w_p = stats.wilcoxon(a, b)
         else:

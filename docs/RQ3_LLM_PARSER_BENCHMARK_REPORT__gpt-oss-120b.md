@@ -5,9 +5,9 @@ Tài liệu này được **sinh tự động** từ `parser_ablation_benchmark.
 để giải quyết **Research Question 3 (RQ3)**:
 > **RQ3:** *"Mô hình Grounded LLM Parser chuyển dịch yêu cầu ngôn ngữ tự nhiên thành đại số can thiệp $do(x)$ với độ tin cậy ra sao, và các Runtime Guards triệt tiêu hiện tượng ảo giác (Hallucination) và vi phạm biên vật lý như thế nào?"*
 
-> ⚠️ **CẢNH BÁO**: Lần chạy này dùng **bộ giả lập offline** (`SYNTHETIC_OFFLINE_EMULATOR_DO_NOT_CITE_AS_LLM_RESULT`), KHÔNG phải LLM thật. Các số liệu dưới đây chỉ có giá trị kiểm tra code (smoke-test), **không được trích dẫn làm bằng chứng khoa học** về hành vi LLM. Chạy lại với `--live-llm` và `GOOGLE_API_KEY` hợp lệ để có kết quả có thể công bố.
+> ✅ Backend: **LLM thật** (`LIVE_openai/gpt-oss-120b`), 1 lần lặp độc lập (nhiệt độ 0.2, không deterministic) để đo phương sai run-to-run.
 
-Thời điểm chạy: `2026-09-14T00:49:12.504733` | Số lần lặp: `1` | Backend: `SYNTHETIC_OFFLINE_EMULATOR_DO_NOT_CITE_AS_LLM_RESULT`
+Thời điểm chạy: `2026-09-14T14:10:16.208608` | Số lần lặp: `1` | Backend: `LIVE_openai/gpt-oss-120b`
 
 ---
 
@@ -27,10 +27,10 @@ Thời điểm chạy: `2026-09-14T00:49:12.504733` | Số lần lặp: `1` | Ba
 
 | Cấu Hình Mô Hình | PBVR (%) | SHR (%) | GMR (%) | Anchor MAE (%) | Adv. PBVR (%) | Latency (ms) | Fast-Path Bypass (%) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `Unguarded_ZeroShot_LLM`  | 8.00% | 12.00% | 6.00% | 29.88% | 40.00% | 0.96 ms | 0.00% |
-| `Unguarded_FewShot_LLM`  | 8.00% | 12.00% | 10.00% | 29.40% | 40.00% | 0.01 ms | 0.00% |
-| `Rule_Only`  | 0.00% | 0.00% | 0.00% | 2.80% | 0.00% | 0.13 ms | 100.00% |
-| `Guarded_Hybrid_Parser` 🏆 **(Đề xuất)** | 0.00% | 0.00% | 0.00% | 3.40% | 0.00% | 0.19 ms | 0.00% |
+| `Unguarded_ZeroShot_LLM`  | 18.00% | 86.00% | 92.00% | 33.62% | 50.00% | 107114.65 ms | 0.00% |
+| `Unguarded_FewShot_LLM`  | 28.00% | 12.00% | 72.00% | 16.66% | 40.00% | 1542.49 ms | 0.00% |
+| `Rule_Only`  | 0.00% | 0.00% | 0.00% | 2.80% | 0.00% | 0.38 ms | 100.00% |
+| `Guarded_Hybrid_Parser` 🏆 **(Đề xuất)** | 0.00% | 0.00% | 0.00% | 2.54% | 0.00% | 83385.37 ms | 0.00% |
 
 *(Không suy diễn "0.0%" hay "vượt trội" nếu bảng trên không thực sự cho ra số đó — mọi tuyên bố kết luận phải đọc trực tiếp từ bảng số ở trên sau khi chạy.)*
 
@@ -41,21 +41,21 @@ Thời điểm chạy: `2026-09-14T00:49:12.504733` | Số lần lặp: `1` | Ba
 
 | Model | Category | N | PBVR (%) | SHR (%) | GMR (%) | MAE (%) |
 |---|---|---|---|---|---|---|
-| `Unguarded_ZeroShot_LLM` | Adversarial_Stress | 10 | 40.0 | 40.0 | 30.0 | 114.8 |
-| `Unguarded_ZeroShot_LLM` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 3.2 |
-| `Unguarded_ZeroShot_LLM` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 9.45 |
-| `Unguarded_ZeroShot_LLM` | Subtle_ReadOnly | 10 | 0.0 | 20.0 | 0.0 | 12.5 |
-| `Unguarded_FewShot_LLM` | Adversarial_Stress | 10 | 40.0 | 40.0 | 50.0 | 114.8 |
-| `Unguarded_FewShot_LLM` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 4.7 |
-| `Unguarded_FewShot_LLM` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 8.7 |
-| `Unguarded_FewShot_LLM` | Subtle_ReadOnly | 10 | 0.0 | 20.0 | 0.0 | 10.1 |
+| `Unguarded_ZeroShot_LLM` | Adversarial_Stress | 10 | 50.0 | 50.0 | 80.0 | 128.5 |
+| `Unguarded_ZeroShot_LLM` | Complex_MultiHop | 10 | 10.0 | 100.0 | 100.0 | 22.2 |
+| `Unguarded_ZeroShot_LLM` | In_Distribution | 20 | 5.0 | 90.0 | 90.0 | 6.3 |
+| `Unguarded_ZeroShot_LLM` | Subtle_ReadOnly | 10 | 20.0 | 100.0 | 100.0 | 4.8 |
+| `Unguarded_FewShot_LLM` | Adversarial_Stress | 10 | 40.0 | 10.0 | 70.0 | 45.5 |
+| `Unguarded_FewShot_LLM` | Complex_MultiHop | 10 | 20.0 | 30.0 | 90.0 | 12.91 |
+| `Unguarded_FewShot_LLM` | In_Distribution | 20 | 10.0 | 5.0 | 85.0 | 8.36 |
+| `Unguarded_FewShot_LLM` | Subtle_ReadOnly | 10 | 60.0 | 10.0 | 30.0 | 8.16 |
 | `Rule_Only` | Adversarial_Stress | 10 | 0.0 | 0.0 | 0.0 | 2.5 |
 | `Rule_Only` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 4.5 |
 | `Rule_Only` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 2.5 |
 | `Rule_Only` | Subtle_ReadOnly | 10 | 0.0 | 0.0 | 0.0 | 2.0 |
-| `Guarded_Hybrid_Parser` | Adversarial_Stress | 10 | 0.0 | 0.0 | 0.0 | 3.7 |
-| `Guarded_Hybrid_Parser` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 4.7 |
-| `Guarded_Hybrid_Parser` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 3.3 |
+| `Guarded_Hybrid_Parser` | Adversarial_Stress | 10 | 0.0 | 0.0 | 0.0 | 2.5 |
+| `Guarded_Hybrid_Parser` | Complex_MultiHop | 10 | 0.0 | 0.0 | 0.0 | 3.5 |
+| `Guarded_Hybrid_Parser` | In_Distribution | 20 | 0.0 | 0.0 | 0.0 | 2.35 |
 | `Guarded_Hybrid_Parser` | Subtle_ReadOnly | 10 | 0.0 | 0.0 | 0.0 | 2.0 |
 
 ---
