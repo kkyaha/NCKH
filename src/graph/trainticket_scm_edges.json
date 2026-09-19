@@ -1,0 +1,606 @@
+{
+  "system": "trainticket",
+  "metric": "cpu",
+  "min_gain": 0.01,
+  "ood_safety_checked": true,
+  "final_edges": [
+    [
+      "ts-ticketinfo-service_cpu",
+      "ts-basic-service_cpu"
+    ],
+    [
+      "ts-travel2-service_cpu",
+      "ts-train-service_cpu"
+    ],
+    [
+      "ts-travel2-service_cpu",
+      "ts-seat-service_cpu"
+    ],
+    [
+      "ts-seat-service_cpu",
+      "ts-config-service_cpu"
+    ],
+    [
+      "ts-basic-service_cpu",
+      "ts-train-service_cpu"
+    ],
+    [
+      "ts-travel2-service_cpu",
+      "ts-ticketinfo-service_cpu"
+    ],
+    [
+      "ts-travel2-service_cpu",
+      "ts-order-other-service_cpu"
+    ],
+    [
+      "ts-basic-service_cpu",
+      "ts-price-service_cpu"
+    ],
+    [
+      "ts-travel-service_cpu",
+      "ts-seat-service_cpu"
+    ],
+    [
+      "ts-seat-service_cpu",
+      "ts-order-other-service_cpu"
+    ],
+    [
+      "ts-basic-service_cpu",
+      "ts-route-service_cpu"
+    ],
+    [
+      "ts-travel-service_cpu",
+      "ts-train-service_cpu"
+    ],
+    [
+      "ts-travel-service_cpu",
+      "ts-ticketinfo-service_cpu"
+    ],
+    [
+      "ts-travel2-service_cpu",
+      "ts-route-service_cpu"
+    ],
+    [
+      "ts-food-service_cpu",
+      "ts-travel-service_cpu"
+    ],
+    [
+      "ts-travel-service_cpu",
+      "ts-route-service_cpu"
+    ],
+    [
+      "ts-food-service_cpu",
+      "ts-food-map-service_cpu"
+    ]
+  ],
+  "scores": [
+    {
+      "caller": "ts-ticketinfo-service",
+      "callee": "ts-basic-service",
+      "r2_baseline": 0.1856,
+      "r2_extended": 0.782,
+      "r2_gain": 0.5964,
+      "n_rows": 64784
+    },
+    {
+      "caller": "ts-travel2-service",
+      "callee": "ts-train-service",
+      "r2_baseline": 0.105,
+      "r2_extended": 0.7002,
+      "r2_gain": 0.5952,
+      "n_rows": 64775
+    },
+    {
+      "caller": "ts-travel2-service",
+      "callee": "ts-seat-service",
+      "r2_baseline": 0.0365,
+      "r2_extended": 0.6159,
+      "r2_gain": 0.5794,
+      "n_rows": 58305
+    },
+    {
+      "caller": "ts-seat-service",
+      "callee": "ts-config-service",
+      "r2_baseline": 0.0814,
+      "r2_extended": 0.6539,
+      "r2_gain": 0.5724,
+      "n_rows": 64782
+    },
+    {
+      "caller": "ts-basic-service",
+      "callee": "ts-train-service",
+      "r2_baseline": 0.105,
+      "r2_extended": 0.6659,
+      "r2_gain": 0.5609,
+      "n_rows": 64773
+    },
+    {
+      "caller": "ts-travel2-service",
+      "callee": "ts-ticketinfo-service",
+      "r2_baseline": 0.1617,
+      "r2_extended": 0.6891,
+      "r2_gain": 0.5274,
+      "n_rows": 64786
+    },
+    {
+      "caller": "ts-travel2-service",
+      "callee": "ts-order-other-service",
+      "r2_baseline": 0.1522,
+      "r2_extended": 0.6504,
+      "r2_gain": 0.4982,
+      "n_rows": 64774
+    },
+    {
+      "caller": "ts-basic-service",
+      "callee": "ts-price-service",
+      "r2_baseline": 0.0509,
+      "r2_extended": 0.5276,
+      "r2_gain": 0.4767,
+      "n_rows": 64788
+    },
+    {
+      "caller": "ts-travel-service",
+      "callee": "ts-seat-service",
+      "r2_baseline": 0.0365,
+      "r2_extended": 0.5069,
+      "r2_gain": 0.4704,
+      "n_rows": 58304
+    },
+    {
+      "caller": "ts-seat-service",
+      "callee": "ts-order-other-service",
+      "r2_baseline": 0.1522,
+      "r2_extended": 0.6208,
+      "r2_gain": 0.4686,
+      "n_rows": 64769
+    },
+    {
+      "caller": "ts-basic-service",
+      "callee": "ts-route-service",
+      "r2_baseline": 0.0614,
+      "r2_extended": 0.4943,
+      "r2_gain": 0.4328,
+      "n_rows": 64786
+    },
+    {
+      "caller": "ts-travel-service",
+      "callee": "ts-train-service",
+      "r2_baseline": 0.105,
+      "r2_extended": 0.5279,
+      "r2_gain": 0.4229,
+      "n_rows": 64771
+    },
+    {
+      "caller": "ts-travel-service",
+      "callee": "ts-ticketinfo-service",
+      "r2_baseline": 0.1617,
+      "r2_extended": 0.5733,
+      "r2_gain": 0.4117,
+      "n_rows": 64782
+    },
+    {
+      "caller": "ts-travel2-service",
+      "callee": "ts-route-service",
+      "r2_baseline": 0.0614,
+      "r2_extended": 0.4654,
+      "r2_gain": 0.404,
+      "n_rows": 64788
+    },
+    {
+      "caller": "ts-food-service",
+      "callee": "ts-travel-service",
+      "r2_baseline": 0.0342,
+      "r2_extended": 0.359,
+      "r2_gain": 0.3248,
+      "n_rows": 64778
+    },
+    {
+      "caller": "ts-travel-service",
+      "callee": "ts-route-service",
+      "r2_baseline": 0.0614,
+      "r2_extended": 0.379,
+      "r2_gain": 0.3176,
+      "n_rows": 64784
+    },
+    {
+      "caller": "ts-food-service",
+      "callee": "ts-food-map-service",
+      "r2_baseline": 0.0046,
+      "r2_extended": 0.3056,
+      "r2_gain": 0.301,
+      "n_rows": 64786
+    },
+    {
+      "caller": "ts-seat-service",
+      "callee": "ts-order-service",
+      "r2_baseline": 0.0507,
+      "r2_extended": 0.2997,
+      "r2_gain": 0.249,
+      "n_rows": 64774
+    },
+    {
+      "caller": "ts-travel-service",
+      "callee": "ts-order-service",
+      "r2_baseline": 0.0507,
+      "r2_extended": 0.2903,
+      "r2_gain": 0.2396,
+      "n_rows": 64775
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-security-service",
+      "r2_baseline": 0.0269,
+      "r2_extended": 0.2665,
+      "r2_gain": 0.2396,
+      "n_rows": 58270
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-seat-service",
+      "r2_baseline": 0.0365,
+      "r2_extended": 0.2643,
+      "r2_gain": 0.2278,
+      "n_rows": 58294
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-contacts-service",
+      "r2_baseline": 0.0254,
+      "r2_extended": 0.2474,
+      "r2_gain": 0.2219,
+      "n_rows": 58280
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-ticketinfo-service",
+      "r2_baseline": 0.1617,
+      "r2_extended": 0.3766,
+      "r2_gain": 0.215,
+      "n_rows": 64775
+    },
+    {
+      "caller": "ts-admin-basic-info-service",
+      "callee": "ts-price-service",
+      "r2_baseline": 0.0509,
+      "r2_extended": 0.2636,
+      "r2_gain": 0.2127,
+      "n_rows": 64793
+    },
+    {
+      "caller": "ts-admin-basic-info-service",
+      "callee": "ts-config-service",
+      "r2_baseline": 0.0814,
+      "r2_extended": 0.291,
+      "r2_gain": 0.2096,
+      "n_rows": 64790
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-user-service",
+      "r2_baseline": 0.0123,
+      "r2_extended": 0.2184,
+      "r2_gain": 0.2061,
+      "n_rows": 58256
+    },
+    {
+      "caller": "ts-basic-service",
+      "callee": "ts-station-service",
+      "r2_baseline": 0.2291,
+      "r2_extended": 0.4326,
+      "r2_gain": 0.2034,
+      "n_rows": 64782
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-travel-service",
+      "r2_baseline": 0.0344,
+      "r2_extended": 0.2331,
+      "r2_gain": 0.1988,
+      "n_rows": 64775
+    },
+    {
+      "caller": "ts-order-other-service",
+      "callee": "ts-station-service",
+      "r2_baseline": 0.229,
+      "r2_extended": 0.4211,
+      "r2_gain": 0.1921,
+      "n_rows": 64768
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-security-service",
+      "r2_baseline": 0.0269,
+      "r2_extended": 0.218,
+      "r2_gain": 0.1911,
+      "n_rows": 58278
+    },
+    {
+      "caller": "ts-consign-service",
+      "callee": "ts-consign-price-service",
+      "r2_baseline": 0.0178,
+      "r2_extended": 0.2013,
+      "r2_gain": 0.1835,
+      "n_rows": 64792
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-user-service",
+      "r2_baseline": 0.0121,
+      "r2_extended": 0.193,
+      "r2_gain": 0.1809,
+      "n_rows": 58262
+    },
+    {
+      "caller": "ts-security-service",
+      "callee": "ts-order-other-service",
+      "r2_baseline": 0.1522,
+      "r2_extended": 0.3218,
+      "r2_gain": 0.1697,
+      "n_rows": 64777
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-assurance-service",
+      "r2_baseline": 0.0186,
+      "r2_extended": 0.1797,
+      "r2_gain": 0.1612,
+      "n_rows": 64768
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-food-service",
+      "r2_baseline": 0.007,
+      "r2_extended": 0.1569,
+      "r2_gain": 0.1499,
+      "n_rows": 64771
+    },
+    {
+      "caller": "ts-admin-travel-service",
+      "callee": "ts-travel2-service",
+      "r2_baseline": 0.1156,
+      "r2_extended": 0.2638,
+      "r2_gain": 0.1481,
+      "n_rows": 64786
+    },
+    {
+      "caller": "ts-admin-travel-service",
+      "callee": "ts-travel-service",
+      "r2_baseline": 0.0342,
+      "r2_extended": 0.1753,
+      "r2_gain": 0.1411,
+      "n_rows": 64782
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-travel2-service",
+      "r2_baseline": 0.1156,
+      "r2_extended": 0.2543,
+      "r2_gain": 0.1387,
+      "n_rows": 64787
+    },
+    {
+      "caller": "ts-security-service",
+      "callee": "ts-order-service",
+      "r2_baseline": 0.0507,
+      "r2_extended": 0.1817,
+      "r2_gain": 0.131,
+      "n_rows": 64782
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-seat-service",
+      "r2_baseline": 0.0365,
+      "r2_extended": 0.1673,
+      "r2_gain": 0.1308,
+      "n_rows": 58302
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-assurance-service",
+      "r2_baseline": 0.0186,
+      "r2_extended": 0.1481,
+      "r2_gain": 0.1296,
+      "n_rows": 64776
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-contacts-service",
+      "r2_baseline": 0.0255,
+      "r2_extended": 0.1535,
+      "r2_gain": 0.128,
+      "n_rows": 58288
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-ticketinfo-service",
+      "r2_baseline": 0.1617,
+      "r2_extended": 0.2845,
+      "r2_gain": 0.1228,
+      "n_rows": 64783
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-order-other-service",
+      "r2_baseline": 0.1522,
+      "r2_extended": 0.2652,
+      "r2_gain": 0.113,
+      "n_rows": 64771
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-order-service",
+      "r2_baseline": 0.0507,
+      "r2_extended": 0.1512,
+      "r2_gain": 0.1004,
+      "n_rows": 64768
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-food-service",
+      "r2_baseline": 0.007,
+      "r2_extended": 0.0947,
+      "r2_gain": 0.0878,
+      "n_rows": 64779
+    },
+    {
+      "caller": "ts-food-service",
+      "callee": "ts-station-service",
+      "r2_baseline": 0.2292,
+      "r2_extended": 0.2958,
+      "r2_gain": 0.0666,
+      "n_rows": 64776
+    },
+    {
+      "caller": "ts-order-service",
+      "callee": "ts-station-service",
+      "r2_baseline": 0.229,
+      "r2_extended": 0.2912,
+      "r2_gain": 0.0622,
+      "n_rows": 64773
+    },
+    {
+      "caller": "ts-inside-payment-service",
+      "callee": "ts-payment-service",
+      "r2_baseline": 0.0602,
+      "r2_extended": 0.109,
+      "r2_gain": 0.0488,
+      "n_rows": 64756
+    },
+    {
+      "caller": "ts-preserve-service",
+      "callee": "ts-station-service",
+      "r2_baseline": 0.2292,
+      "r2_extended": 0.261,
+      "r2_gain": 0.0318,
+      "n_rows": 64773
+    },
+    {
+      "caller": "ts-preserve-other-service",
+      "callee": "ts-station-service",
+      "r2_baseline": 0.2291,
+      "r2_extended": 0.2416,
+      "r2_gain": 0.0125,
+      "n_rows": 64781
+    },
+    {
+      "caller": "ts-inside-payment-service",
+      "callee": "ts-order-other-service",
+      "r2_baseline": 0.1522,
+      "r2_extended": 0.1592,
+      "r2_gain": 0.007,
+      "n_rows": 64776
+    },
+    {
+      "caller": "ts-inside-payment-service",
+      "callee": "ts-order-service",
+      "r2_baseline": 0.0507,
+      "r2_extended": 0.0561,
+      "r2_gain": 0.0054,
+      "n_rows": 64781
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-admin-basic-info-service",
+      "r2_baseline": 0.0003,
+      "r2_extended": 0.0003,
+      "r2_gain": -0.0,
+      "n_rows": 64789
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-admin-travel-service",
+      "r2_baseline": 0.0017,
+      "r2_extended": 0.0017,
+      "r2_gain": 0.0,
+      "n_rows": 64782
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-consign-service",
+      "r2_baseline": 0.029,
+      "r2_extended": 0.029,
+      "r2_gain": 0.0,
+      "n_rows": 64789
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-contacts-service",
+      "r2_baseline": 0.0255,
+      "r2_extended": 0.0255,
+      "r2_gain": -0.0,
+      "n_rows": 58287
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-food-service",
+      "r2_baseline": 0.007,
+      "r2_extended": 0.007,
+      "r2_gain": 0.0,
+      "n_rows": 64778
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-inside-payment-service",
+      "r2_baseline": 0.0048,
+      "r2_extended": 0.0048,
+      "r2_gain": 0.0,
+      "n_rows": 64788
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-order-other-service",
+      "r2_baseline": 0.1521,
+      "r2_extended": 0.1521,
+      "r2_gain": 0.0,
+      "n_rows": 64770
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-order-service",
+      "r2_baseline": 0.0507,
+      "r2_extended": 0.0507,
+      "r2_gain": -0.0,
+      "n_rows": 64775
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-preserve-other-service",
+      "r2_baseline": 0.0522,
+      "r2_extended": 0.0522,
+      "r2_gain": 0.0,
+      "n_rows": 58231
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-preserve-service",
+      "r2_baseline": 0.0496,
+      "r2_extended": 0.0496,
+      "r2_gain": 0.0,
+      "n_rows": 58206
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-travel-service",
+      "r2_baseline": 0.0342,
+      "r2_extended": 0.0342,
+      "r2_gain": 0.0,
+      "n_rows": 64782
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-travel2-service",
+      "r2_baseline": 0.1156,
+      "r2_extended": 0.1156,
+      "r2_gain": -0.0,
+      "n_rows": 64786
+    },
+    {
+      "caller": "ts-ui-dashboard",
+      "callee": "ts-user-service",
+      "r2_baseline": 0.0121,
+      "r2_extended": 0.0121,
+      "r2_gain": 0.0,
+      "n_rows": 58261
+    }
+  ]
+}

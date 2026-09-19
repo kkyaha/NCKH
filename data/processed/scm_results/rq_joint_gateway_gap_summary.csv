@@ -1,0 +1,5 @@
+node_type,n,pct_gap_gt0,median_gap_rel_pct,p90_gap_rel_pct,max_gap_rel_pct
+cpu,8575,0.0,0.0,0.0,0.0
+latency,8575,42.8571,0.0,0.2657,1.5232
+mem,8575,0.0,0.0,0.0,0.0
+workload,7350,0.0,0.0,0.0,0.0

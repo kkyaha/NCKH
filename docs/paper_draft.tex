@@ -19,6 +19,7 @@
 
 \newtheorem{proposition}{Proposition}
 \newtheorem{corollary}{Corollary}
+\newtheorem{definition}{Definition}
 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -28,9 +29,9 @@
 % =========================================================
 % TITLE & AUTHORS
 % =========================================================
-\title{Capability Is Not Verification:\\
-Provable Constraints on LLM-Translated Requirements\\
-for Microservice Capacity Analysis}
+\title{Admissible Evaluation:\\
+What Five Standard Metrics Cannot Refute\\
+in an LLM-Fronted Analysis Pipeline}
 
 % TODO(before submission): replace placeholders with the real author list.
 % For a double-blind venue, comment this block out and use \author{Anonymous Authors}.
@@ -48,34 +49,32 @@ for Microservice Capacity Analysis}
 % =========================================================
 \begin{abstract}
 Software engineering increasingly places an LLM at the front of an analysis
-pipeline, translating a natural-language artefact into a structured input that
-downstream tooling consumes as if it were valid. Such a translator is only as
-trustworthy as its worst output, yet it is typically assessed by average-case
-accuracy. We study this problem in a concrete setting --- turning a proposed
-requirement into a bounded capacity intervention on a microservice architecture,
-so that its workload can be projected before the feature exists --- and argue
-that generator \emph{capability} and output \emph{validity} are separable
-properties, of which only the second can be guaranteed. We formalise the
-translation layer's guardrail as a total, deterministic projection operator and
-prove it maps \emph{every} LLM proposal, adversarial or malformed, to a
-structurally valid intervention (Proposition~\ref{prop:soundness}). Replicating
-the benchmark across two vendors shows why the proof carries operational weight:
-moving from a lite-tier proprietary model to an open-weight $117$B model reduces
-magnitude error $25{\times}$ ($844.6\%\!\to\!33.6\%$) yet leaves gateway
-misdirection at $92\%$ and service hallucination at $86\%$. Capability buys
-semantic plausibility, not respect for topological constraints. Adversarial sets
-confirm the guards are load-bearing ($18/18$ gateway corrections, $33/36$ clamp
-activations), and porting the verifier to a second system exposed a defect
-violating the proposition itself --- invisible to single-system validation.
-Downstream, a protocol built to be able to fail finds that the standard RCA
-benchmark cannot support capacity evaluation at all ($R^2 = 0.003$ versus $0.30$
-on a production trace), and separates the two causal commitments usually defended
-together: graph propagation earns its place ($85\%$ of edges), the $do$-operator
-does not, for a structural reason we characterise.
+pipeline, where its output is consumed by automation rather than read by a
+person. We reassess such a pipeline --- one turning a proposed requirement into a
+bounded capacity intervention on a microservice architecture --- and find the
+binding constraint was not the pipeline but how we had evaluated it. Call an
+evaluation \emph{admissible} for a claim when some outcome of it would refute
+that claim, and \emph{vacuous} otherwise: vacuity is a property of the
+metric--claim pair, and no quantity of additional data repairs it. Five claims
+about this pipeline are each certified, in the literature and in our own earlier
+work, by an evaluation vacuous for it. Substituting an admissible evaluation for each, one claim survived and four
+were refuted --- three of them against results we had previously reported
+ourselves. The survivor is consequential: holding task, prompts and harness fixed
+while replacing a lite-tier proprietary generator with an open-weight $117$B
+model cuts magnitude error $25{\times}$ ($844.6\%\!\to\!33.6\%$) yet leaves
+gateway misdirection at $92\%$, so a verifier proved sound for \emph{every}
+output (Proposition~\ref{prop:soundness}) is not a stopgap awaiting better
+models. The refutations are equally specific: the attainable abstention guarantee
+is set by the calibration size ($4.5\%$), not by the nominal $\alpha$; porting to
+a second topology exposed an implementation defect violating that proposition
+itself; the standard RCA benchmark cannot support capacity evaluation at all
+($R^2 = 0.003$ against $0.30$ on a production trace); and of the two causal
+commitments usually defended together, the dependency graph earns its place
+($85\%$ of edges) while the $do$-operator does not.
 \end{abstract}
 
 \begin{IEEEkeywords}
-LLMs for Software Engineering, LLM Output Verification, Requirements Engineering, Program Analysis Guardrails, Selective Abstention, Microservices, Capacity Analysis, Benchmark Validity.
+Empirical Software Engineering Methodology, Evaluation Validity, Negative Results, LLMs for Software Engineering, LLM Output Verification, Requirements Engineering, Selective Abstention, Microservices, Capacity Analysis, Benchmark Validity.
 \end{IEEEkeywords}
 
 % =========================================================
@@ -89,40 +88,71 @@ boundary, where it converts an informal artefact --- an issue report, a design
 document, a requirement --- into a structured object that downstream automation
 then treats as valid input. The LLM is not the product in these systems; it is a
 translator whose output is consumed by a compiler, a solver, a simulator, or an
-analysis model. This arrangement has a property that average-case evaluation
-hides: the pipeline's trustworthiness is governed by the translator's
-\emph{worst} output, not its mean. A single structurally invalid object can
-propagate silently into a numeric verdict that an engineer then acts on.
+analysis model. We built such a pipeline, evaluated it the way this literature
+evaluates such pipelines, and report here what happened when we evaluated it a
+second time by a different standard.
 
-The usual response is to improve the generator --- better prompting, a larger
-model --- on the implicit assumption that validity is a byproduct of capability.
-We show this assumption fails in a way that matters. Capability and validity are
-separable: a substantially larger model produces far more \emph{plausible}
-values while violating \emph{structural} constraints at nearly the same rate
-(Section~\ref{sec:rq1-backend}). If that holds, then no realistic amount of
-model improvement removes the need for a verifier, and the verifier --- not the
-generator --- is where a guarantee has to live.
+The second evaluation retracted three results we had previously reported
+ourselves. That outcome is the subject of this paper, because the retractions
+share a cause that is neither carelessness nor insufficient data. In each case
+the original claim had been assessed by a procedure that no observation could
+have contradicted.
 
-We study this in a setting where the structured object is sharply specified and
-the stakes are concrete. Given a natural-language requirement for a feature that
-does not yet exist, we translate it into a bounded capacity intervention on a
+\begin{definition}[Admissible evaluation]
+\label{def:admissible}
+Let $C$ be a claim about a pipeline component and let $E$ be an evaluation
+procedure with outcome space $O$. $E$ is \emph{admissible} for $C$ if there
+exists $o \in O$ whose observation refutes $C$; otherwise $E$ is \emph{vacuous}
+for $C$. Admissibility is a property of the pair $(E,C)$: the same metric may be
+admissible for one claim and vacuous for another.
+\end{definition}
+
+Vacuity in this sense is not low statistical power. More repetitions, a larger
+test set, or a more careful experiment do not repair it, because the deficiency
+lies in the outcome space rather than in the estimate: there is no result the
+experiment could have produced that would have counted against the claim. It is
+also not a failure of honesty --- each of the incumbent procedures below is
+standard practice, reported in good faith, and diagnostic for \emph{some} claim.
+It is simply not diagnostic for the one it is being asked to support.
+
+The pipeline we assess has five such pairings, and they are not idiosyncratic to
+it. Average-case accuracy cannot express structural invalidity, because a single
+aggregate does not separate a plausible-but-inadmissible output from an
+implausible one. A nominal conformal level cannot be contradicted by the
+calibration sample used to select it. A test suite cannot violate an invariant
+keyed to an accidental property of the system it runs on. A scale-dependent error
+metric cannot distinguish a learned mechanism from a target that barely varies.
+And held-out accuracy, however carefully split, cannot expose a mechanism that
+fails only when a parent leaves the range in which it was observed. Each pairing
+names a property that governs the trustworthiness of one layer, together with the
+metric conventionally used to certify it.
+
+Replacing each incumbent with an admissible substitute, one of the five claims
+survived and four were refuted. We report all five, and treat the design of the
+substitutes --- not the artefact they were applied to --- as the transferable
+result.
+
+We work in a setting where the structured object is sharply specified and the
+stakes are concrete. Given a natural-language requirement for a feature that does
+not yet exist, we translate it into a bounded capacity intervention on a
 microservice dependency graph and project the resulting workload, so that a team
-can judge feasibility before committing engineering effort. The setting is
-useful for our purpose because validity is \emph{decidable}: an intervention is
-structurally valid only if it names services present in the architecture, is
-applied at an ingress node, and carries a magnitude inside physically admissible
-bounds. Those are checkable predicates, which makes a soundness proof possible
-where it would not be for free-form generation.
+can judge feasibility before committing engineering effort. The setting suits the
+question because validity is \emph{decidable}: an intervention is structurally
+valid only if it names services present in the architecture, is applied at an
+ingress node, and carries a magnitude inside physically admissible bounds. Those
+are checkable predicates, which makes a soundness proof possible where it would
+not be for free-form generation --- and which makes the gap between what is
+proved and what is measured unusually visible.
 
 \textbf{Scope.} We bound ``new requirement'' to features approximable by an existing calibration archetype within the target system's request taxonomy (Section~\ref{sec:methodology}) --- e.g., a new promotion mechanic is treated as a variant of an existing checkout-discount archetype. A requirement matching no known archetype is out of scope for a numeric verdict; Section~\ref{sec:discussion} discusses how the implementation handles this case.
 
 Our main contributions are:
 \begin{enumerate}
-    \item \textbf{A verifier for LLM-proposed interventions with a provable guarantee, shown to be load-bearing.} We formalise the guardrail as a total, deterministic projection operator $\Pi$ (Proposition~\ref{prop:soundness}) whose structural guarantees hold for \emph{every} LLM output, not merely those observed at test time, and demonstrate through purpose-built adversarial sets that the guarded constraints are ones an unguarded generator actually violates (Sections~\ref{sec:rq1}--\ref{sec:rq2}).
-    \item \textbf{Evidence that model capability does not substitute for verification.} Replicating the benchmark on an open-weight $117$B model from a second vendor reduces magnitude error $25{\times}$ while leaving gateway misdirection at $92\%$ and service hallucination at $86\%$, across all four prompt categories. Capability improves semantic plausibility and leaves structural validity roughly unchanged --- so the verifier is not a stopgap awaiting better models (Section~\ref{sec:rq1-backend}).
-    \item \textbf{Evidence that a proved design still requires its implementation validated elsewhere.} Porting the verifier to a second system with $14$ gateways rather than one exposed three defects invisible on the original topology --- including a hard-coded fallback that violated Proposition~\ref{prop:soundness} itself (Section~\ref{sec:rq3}).
-    \item \textbf{An evaluation protocol that can return a negative answer, and a benchmark diagnosis.} A signal gate, a predictor-free baseline, and a permuted-workload negative control together establish that RCA benchmarks cannot support capacity-forecasting evaluation ($R^2 = 0.003$ against $0.30$ on a production trace), and that on data which does support it the deployed mechanism forecasts with positive skill in and out of distribution (Section~\ref{sec:rq4}).
-    \item \textbf{An honest accounting of the downstream model, including what we withdraw.} We separate the two causal commitments usually defended together --- the dependency graph earns its place, the $do$-operator does not, for a structural reason we characterise in four independent tests --- and retract a memory-forecasting result from earlier work, where a MAPE of $0.15$ with skill of zero reproduces on both datasets as an artefact of reporting scale-dependent error without a predictor-free baseline (Sections~\ref{sec:rq4}--\ref{sec:rq5}).
+    \item \textbf{An admissibility criterion for evaluations, and a demonstration that it bites.} Definition~\ref{def:admissible} supplies a check that is cheap to apply before an experiment is run: name the outcome that would refute the claim. Applied to five layers of a deployed pipeline it rejects the incumbent evaluation of every one of them, including three we had used ourselves. Table~\ref{tab:rq-spine} states, for each, the claim, the reason the incumbent admits no refutation, the substitute, and the refuting outcome that substitute allows.
+    \item \textbf{The claim that survived: capability does not substitute for verification.} We formalise the guardrail as a total, deterministic projection operator $\Pi$ whose structural guarantees hold for \emph{every} LLM output rather than for those observed at test time (Proposition~\ref{prop:soundness}). Because the guarded violation rates are then zero by construction, the outcome contrast is vacuous, and we substitute two admissible measurements: layer \emph{firing} rates on adversarial input ($18/18$ gateway corrections, $33/36$ clamp activations), and a controlled backend change. Moving to an open-weight $117$B model from a second vendor cuts magnitude error $25{\times}$ while leaving gateway misdirection at $92\%$ and service hallucination at $86\%$, across all four prompt categories (Sections~\ref{sec:rq1}--\ref{sec:rq1-backend}). The guarantee also composes end to end: because every mechanism downstream is monotone, two deterministic forward passes at the verified boundary of $\delta$ certify an interval containing every downstream node's point estimate for any admissible input (Proposition~\ref{prop:envelope}), and checking that composition's precondition against the deployed model --- rather than assuming it --- found and fixed a latency mechanism that violated it (Section~\ref{sec:certified-envelope}). The same argument extends to several simultaneous requirements at no extra evaluation cost, but not additively: because the latency mechanism is convex, the true effect of two requirements converging on a shared bottleneck is provably larger than the sum of their two individually-certified envelopes, confirmed exactly on a controlled instantiation of the deployed mechanism class (Proposition~\ref{prop:superadd}, Section~\ref{sec:rq1-envelope}). A first attempt to confirm this on real Alibaba telemetry did not survive a stability check --- doubling the observation window collapsed the effect to zero --- and we report the cause (an under-sampled capacity ceiling in the latency mechanism) rather than the number, withdrawing it as a real-data claim.
+    \item \textbf{Two refutations of guarantees that appear to hold.} The abstention layer's certifiable miss rate is set by the calibration size, not by the nominal level: at our sample two different $\alpha$ return the identical threshold, so the attainable bound is $4.5\%$ and the $\alpha=0.01$ we had used certifies nothing (Section~\ref{sec:rq2}). And a design proved sound can be implemented unsoundly in a way its own topology conceals: porting to a system with $14$ gateways rather than one exposed a hard-coded fallback that violates Proposition~\ref{prop:soundness}(iii), the invariant it exists to enforce (Section~\ref{sec:rq3}).
+    \item \textbf{A benchmark-admissibility diagnosis, and a forecasting result gated by it.} A signal gate, a predictor-free baseline, and a permuted-workload negative control establish that RCA benchmarks cannot support capacity-forecasting evaluation at all ($R^2 = 0.003$ against $0.30$ on a production trace), which withdraws our earlier $2$--$4\%$ memory result --- a MAPE a constant predictor also attains. On data that does support the question, the deployed mechanism forecasts with positive skill in and out of distribution across $1{,}293$ services (Section~\ref{sec:rq4}).
+    \item \textbf{A separation of the two causal commitments usually defended together.} Held-out accuracy is vacuous for interventional transfer --- an extension we validated on $23$ of $23$ eligible nodes degrades by $365$ MAPE points under real intervention. Under an interventional test the dependency graph earns its place ($85\%$ of edges) and the $do$-operator does not, for a structural reason we characterise and confirm in four independent tests: a requirement enters at the system boundary, so its intervention sits at a root node where truncated factorisation removes nothing (Section~\ref{sec:rq5}).
 \end{enumerate}
 
 % =========================================================
@@ -246,8 +276,14 @@ $P(Y \mid do(X)) = P(Y \mid X)$ identically and the operator is an expensive
 no-op. This distinction organises the divide above. A fault is injected
 \emph{into} a specific service, so RCA interventions are internal, the intervened
 node has parents, and backdoor paths exist. A new customer-facing requirement
-enters at the system boundary, so its intervention sits at a root node with no
-incoming edges to sever. Section~\ref{sec:rq5} measures the consequences.
+enters at the system boundary --- the gateway/ingress tier that microservice
+architecture designates as the sole point of contact with external
+traffic \cite{richardson2018microservices}, where production tracing
+infrastructure roots every request trace in practice
+\cite{sigelman2010dapper}, and where large-scale operational traces confirm
+load actually originates \cite{luo2021characterizing} --- so its intervention
+sits at a root node with no incoming edges to sever. Section~\ref{sec:rq5}
+measures the consequences.
 
 
 \subsection{Benchmarks and Statistical Methodology}
@@ -262,7 +298,7 @@ We evaluate on RCAEval \cite{pham2024rcaeval}, a public microservice benchmark p
 \textbf{Notation.} Let $\mathcal{G} = (V, E)$ denote the dependency graph, where $V = V_W \cup V_R$ partitions into workload and resource nodes. For node $j$, $PA_j$ denotes its parent set in $\mathcal{G}$ and $N_j$ its exogenous noise term.
 
 \subsection{System Architecture Overview}
-The system is a four-node LangGraph state machine, executed sequentially per requirement. The \emph{Parser Agent} (Section~\ref{sec:parser-agent}) turns text into a bounded intervention $do(X{=}x)$. The \emph{Architecture Agent} performs a breadth-first traversal from the injection gateway to determine the blast radius of affected services. The \emph{Capacity Agent} projects downstream resource consumption along two paths: a fast per-service bivariate SCM, and an accurate topology-adaptive global DAG propagating through both the cross-service workload tier and the local resource-consumption tier (Section~\ref{sec:workload-propagation}). Finally, an LLM synthesizes the projected metrics and a self-critique pass into a natural-language \texttt{FeasibilityReport}. Sections~\ref{sec:results} evaluates nodes one and three, which carry the causal and LLM machinery; node two is a deterministic graph traversal, and node four is not evaluated quantitatively.
+The system is a four-node LangGraph state machine, executed sequentially per requirement. The \emph{Parser Agent} (Section~\ref{sec:parser-agent}) turns text into a bounded intervention $do(X{=}x)$. The \emph{Architecture Agent} performs a breadth-first traversal from the injection gateway to determine the blast radius of affected services. The \emph{Capacity Agent} projects downstream resource consumption along two paths: a fast per-service bivariate SCM, and an accurate topology-adaptive global DAG propagating through both the cross-service workload tier and the local resource-consumption tier (Section~\ref{sec:workload-propagation}). Finally, an LLM synthesizes the projected metrics and a self-critique pass into a natural-language \texttt{FeasibilityReport}. Section~\ref{sec:results} evaluates nodes one and three, which carry the causal and LLM machinery; node two is a deterministic graph traversal, and node four is not evaluated quantitatively.
 
 \subsection{Parser Agent: Semantic Bridge and Three-Layer Verification}
 \label{sec:parser-agent}
@@ -361,7 +397,7 @@ The Physical Boundary Violation Rate and Service Hallucination Rate of the guard
 \end{corollary}
 
 Corollary~\ref{cor:zero} changes how the corresponding entries of
-Table~\ref{tab:rq3} should be read: they are not an estimate of a rate that might
+Table~\ref{tab:rq1-parser} should be read: they are not an estimate of a rate that might
 have come out otherwise, but a check that the implementation realises the
 operator specified here --- a check that Section~\ref{sec:rq3} shows was
 warranted. Their evidential value lies in the adversarial evaluations, which
@@ -471,9 +507,11 @@ instead uses a queueing-inspired transform
 \phi(w) := \frac{w}{c-w}, \qquad c \approx 1.5 \max(W_{\text{train}}),
 \label{eq:queueing}
 \end{equation}
-fit as $R^{\text{Lat}}_j = \beta\,\phi(W_j) + \beta_0$ with $\beta\geq 0$;
-as $w \to c^-$ this approximates the heavy-traffic behaviour $\rho/(1-\rho)$ of an
-M/M/1 queue \cite{kingman1961}, by analogy rather than derivation.
+fit as $R^{\text{Lat}}_j = \beta_1 W_j + \beta_2\,\phi(W_j) + \beta_0$ with
+$\beta_1,\beta_2\geq 0$ (both non-negative-constrained, for the reason
+Section~\ref{sec:certified-envelope} gives); as $w \to c^-$ the $\phi$ term
+approximates the heavy-traffic behaviour $\rho/(1-\rho)$ of an M/M/1 queue
+\cite{kingman1961}, by analogy rather than derivation.
 
 \textbf{Post-simulation uncertainty.} Verification bounds the \emph{input} delta,
 but a downstream node reached through propagation can still land outside its own
@@ -487,6 +525,197 @@ distribution (P95 $=0.21$, max $=49.0$) makes its band narrower than a typical
 delta. We name the failure mode --- single-node dominance under percentile
 calibration --- and leave recalibration to Section~\ref{sec:future-work}, since
 it requires an outlier-resistant estimator rather than a threshold adjustment.
+
+\subsection{From a Point Estimate to a Certified Envelope}
+\label{sec:certified-envelope}
+Proposition~\ref{prop:soundness} bounds the \emph{input} to the Capacity Agent
+--- $\delta\in[5,50]$ --- but says nothing about the number an engineer actually
+reads. Every mechanism in both tiers is fit with non-negative coefficients
+(Section~\ref{sec:workload-propagation}), which is a stronger property than
+accuracy: it makes the entire propagation monotone, and monotonicity composes.
+
+\begin{proposition}[Certified capacity envelope]
+\label{prop:envelope}
+Let $\hat{Y}:[\delta_{\min},\delta_{\max}]\to\mathbb{R}^{|V\setminus\{v^*\}|}$ be
+the deterministic (zero-noise) point-estimate propagation from the verified
+injection node $v^*$, obtained by evaluating each fitted mechanism's own
+prediction function in topological order with every other exogenous input held
+at its calibration baseline. If \emph{(a)} every fitted coefficient is
+non-negative and \emph{(b)} for every latency node $j$ reached,
+$\hat{Y}_{PA_j}(\delta) < c_j$ on the whole interval, then $\hat{Y}$ is
+component-wise monotone non-decreasing on $[\delta_{\min},\delta_{\max}]$, and
+for every $j$ and every $\delta^*\in[\delta_{\min},\delta_{\max}]$,
+\begin{equation}
+\hat{Y}_j(\delta^*) \in \big[\hat{Y}_j(\delta_{\min}),\ \hat{Y}_j(\delta_{\max})\big].
+\label{eq:envelope}
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By induction on the topological order of $\mathcal{G}$. Base case:
+$\hat{Y}_{v^*}(\delta)=\delta$, monotone trivially. Inductive step: for $j$ with
+parents $PA_j$, $\hat{Y}_j(\delta)=h_j(\hat{Y}_{PA_j}(\delta))$ where $h_j$ is
+either the non-negative-coefficient affine map of Eq.~\eqref{eq:tiers} or the
+two-feature latency map $\beta_1 W+\beta_2\phi(W)+\beta_0$ of
+Section~\ref{sec:workload-propagation}, with $\phi$ monotone increasing on
+$W<c_j$ by hypothesis (b). Both are monotone non-decreasing in every argument by
+hypothesis (a). A monotone non-decreasing function of monotone non-decreasing
+arguments is monotone non-decreasing --- the only property used, which is why
+the non-affine $\phi$ term does not break the argument. Hence $\hat{Y}_j$ is
+monotone on $[\delta_{\min},\delta_{\max}]$, and its image of that interval is
+exactly the bracket in Eq.~\eqref{eq:envelope}.
+\end{proof}
+
+Two deterministic forward passes, at $\delta_{\min}=5$ and $\delta_{\max}=50$,
+therefore certify every downstream node without an additional LLM call: $v^*$
+and the interval bound on $\delta$ are already guaranteed by
+Proposition~\ref{prop:soundness}, so Proposition~\ref{prop:envelope} composes on
+top of it rather than re-verifying anything. Interval propagation through
+monotone compositions is not itself new --- it is the mechanism behind interval
+bound propagation for neural-network certification \cite{gowal2018ibp} and
+mixed-monotone reachability analysis \cite{angeli2003mixed} --- what is specific
+here is establishing that this pipeline's mechanism class satisfies the
+precondition, and that the resulting interval attaches to a number an engineer
+reads, not to a network's logits.
+
+\textbf{What this does and does not certify.} $\hat{Y}$ sets every noise term
+$N_j$ to zero: Eq.~\eqref{eq:envelope} bounds the fitted mechanism's conditional
+mean for any admissible $\delta^*$, not the realised future observation, which
+still varies with $N_j$ and with mechanism misspecification. The two guarantees
+are complementary, not redundant, and we report them together: the envelope
+answers ``what does the fitted model commit to, given a verified input,'' the
+existing extrapolation caveat (above) answers ``is that commitment being asked
+outside what the model has seen.'' Where hypothesis (b) fails --- the certified
+upper end would push some node's parent to its own queueing ceiling --- the
+correct behaviour is not to extrapolate a diverging $\phi$ silently but to flag
+that node \textsc{ceiling\_breached}, the same abstention idiom as the Scope
+Gate rather than a numeric answer.
+
+\textbf{The precondition is not free, and checking it found a defect.} We
+verified hypothesis (a) computationally rather than trusting the fitting
+routine's constraint by construction, in the same spirit as
+Section~\ref{sec:rq3}'s finding that a design proved sound can still be
+implemented unsoundly. All $20$ CPU/memory/Tier-1-workload mechanisms in the
+deployed Sock Shop model satisfied $\beta\geq0$ as fit. All $7$ latency
+mechanisms did not: the latency regressor fit $W$ and $\phi(W)$ as two separate
+features under an \emph{unconstrained} regression, and because the two features
+are highly collinear, the solver assigned a negative coefficient to raw $W$ in
+every one of the $7$ mechanisms to compensate --- concretely,
+\texttt{orders\_latency-50}'s fitted mechanism predicted \emph{lower} latency at
+$\delta=50$ than at $\delta=5$, a direct counterexample to
+Proposition~\ref{prop:envelope} on the shipped code, not merely a theoretical
+risk. Constraining both coefficients to be non-negative, exactly as already done
+for CPU and memory, restores monotonicity and --- rather than trading accuracy
+for it --- \emph{improves} held-out MAPE (same OOD protocol as
+Section~\ref{sec:setup}) on all $7$ of $7$ services (mean $927.9\%\to256.2\%$,
+median $33.9\%\to12.1\%$; the large means reflect MAPE's known sensitivity to
+small denominators \cite{hyndman2006accuracy}, the direction is what we rely on
+here). The negative coefficient was a symptom of an unstable, collinear fit, not
+a real effect the unconstrained model had learned. We replaced the mechanism
+with the constrained version throughout.
+
+\subsection{Joint Intervention Envelope}
+\label{sec:joint-envelope}
+The scope statement of Section~\ref{sec:threats} restricts the pipeline to one
+intervention per requirement. Two requirements approved in the same release
+window are common, and an engineer's real question is often not ``is each of
+these safe'' but ``are they safe together.'' Proposition~\ref{prop:envelope}'s
+induction never used that only one root variable feeds the graph --- each step
+only needed that a mechanism is monotone non-decreasing in each of its parents
+--- so it extends unchanged to $K$ simultaneous injections.
+
+\begin{proposition}[Joint intervention envelope]
+\label{prop:joint}
+Let $\hat{Y}(\delta_1,\ldots,\delta_K)$ be the deterministic propagation under
+$K$ simultaneous injections $do(X_i{=}\delta_i)$, $i=1,\ldots,K$, at possibly
+distinct nodes. Under the hypotheses of Proposition~\ref{prop:envelope},
+$\hat{Y}$ is monotone non-decreasing in each $\delta_i$ separately, so
+\begin{equation}
+\hat{Y}_j(\delta_1^*,\ldots,\delta_K^*) \in \big[\hat{Y}_j(\delta_{\min},\ldots,\delta_{\min}),\ \hat{Y}_j(\delta_{\max},\ldots,\delta_{\max})\big]
+\end{equation}
+for every $j$ and every $(\delta_1^*,\ldots,\delta_K^*)\in[\delta_{\min},\delta_{\max}]^K$
+--- two deterministic forward passes certify the joint envelope regardless of
+$K$.
+\end{proposition}
+
+What does \emph{not} extend is additivity, and this is the operationally
+important half of the result. Write $d_i$ for the marginal delta at some
+downstream node $j$ produced by injection $i$ computed alone against the same
+baseline.
+
+\begin{proposition}[Superposition and superadditivity]
+\label{prop:superadd}
+For any node $j$ in Tier 1 or the CPU/memory branch of Tier 2, whose mechanism
+is affine with non-negative coefficients, the joint effect of $K$ simultaneous
+injections equals the exact sum of their marginal effects computed separately:
+$\hat{Y}_j(\delta_1^*,\ldots) - \hat{Y}_j(0,\ldots) = \sum_i d_i$. For a latency
+node whose parent workload $W$ receives contributions from more than one
+injection, because $\phi(w)=w/(c-w)$ is convex increasing on $w<c$, Jensen's
+inequality gives
+\begin{equation}
+\phi(w_0{+}\textstyle\sum_i \Delta_i) - \phi(w_0) \;\geq\; \sum_i \big[\phi(w_0{+}\Delta_i)-\phi(w_0)\big],
+\label{eq:superadd}
+\end{equation}
+strict whenever at least two $\Delta_i>0$. The true joint latency increase is
+therefore never less than, and generally strictly greater than, the sum of the
+increases each injection would cause alone.
+\end{proposition}
+
+\begin{proof}
+The affine case is linearity of the composed map in each root variable when
+every mechanism on the path is affine with non-negative weights, applied
+coordinatewise. For the latency case, write $w_0$ for the parent workload's
+value with no injection active and $\Delta_i$ for injection $i$'s marginal
+contribution to that same parent (itself an exact sum by the affine case,
+since $W$ is a Tier-1 or Tier-2-CPU-style node feeding the latency mechanism).
+Convexity of $\phi$ gives, for each $i$, that the marginal increase
+$\phi(w_0+\Delta_i)-\phi(w_0)$ is smaller than the increase the same $\Delta_i$
+would produce starting from any higher base point; summing this comparison
+across $i=1,\ldots,K$ applied sequentially from $w_0$ yields
+Eq.~\eqref{eq:superadd}.
+\end{proof}
+
+\textbf{Consequence.} Checking two requirements individually against a shared
+latency bottleneck is necessary but not sufficient: their joint envelope must
+be computed with both injections active (Proposition~\ref{prop:joint}, still
+two forward passes), not approximated by summing two single-intervention
+envelopes, which \emph{understates} the true effect whenever their downstream
+footprints converge on a queueing edge.
+
+\textbf{Verification.} No pair of nodes in either deployed topology instantiates
+the clean case Proposition~\ref{prop:superadd} assumes --- two injection points
+with no ancestral relationship to each other, converging only through a shared
+descendant. Sock Shop has a single gateway, so every other Tier-1 node is a
+descendant of it; Train Ticket's simulation subgraph retains only $2$ gateways
+(of the $14$ in the full topology, most others lack a telemetry column) and
+they share no latency descendant. We therefore verify
+Eq.~\eqref{eq:superadd} on a controlled synthetic collider --- two independent
+exogenous sources feeding a shared Tier-1 node, feeding a latency node ---
+fit with the exact production mechanism classes
+(\texttt{LinearRegression(positive=True)}, the fixed
+\texttt{QueueingLatencyRegressor}). At $\delta{=}50\%$ on both sources, the
+workload node's gap is $0.000000$ to six decimals (superposition, exact) while
+the latency node's gap is $+4.774$, growing monotonically from $+0.028$ at
+$\delta{=}5\%$ to $+4.774$ at $\delta{=}50\%$ --- the predicted sign, and the
+predicted growth with $\delta$, on the mechanism class actually deployed.
+
+Attempting the same comparison on the real topology, at the one node pair
+available (\texttt{front-end} and \texttt{orders}, which converge on
+\texttt{carts\_workload}), returns a \emph{negative} gap instead --- and the
+reason is informative rather than a defect. \texttt{orders\_workload} is
+itself a descendant of \texttt{front-end\_workload} in the undisturbed graph,
+so these are not two independent injections but a \emph{nested} intervention:
+correctly implementing $do(\text{orders}{=}x)$ requires severing the edge from
+\texttt{front-end} into \texttt{orders}, exactly as the truncated
+factorisation of Section~\ref{sec:background} prescribes, and our
+implementation does this by construction (an injected node's value overrides
+what its own mechanism would have produced). The naive marginal-sum baseline
+double-counts orders' natural response to front-end once through that edge and
+once through the direct injection, so it is not a meaningful comparison here
+in the first place --- this is precisely the confounded, parent-bearing case
+Section~\ref{sec:rq5-do} identifies as the one configuration where severing an
+edge is consequential, now arising from a second intervention rather than an
+internal-node feature.
 
 
 \section{Experimental Setup}
@@ -555,7 +784,7 @@ to avoid obscuring topology-specific variation.
     \item \textbf{(B1) Unguarded Zero-Shot LLM:} the same live LLM backend as our proposed parser, prompted directly with no calibration table and no runtime guards.
     \item \textbf{(B2) Unguarded Few-Shot LLM:} as B1, but with the system topology and calibration table given as in-context examples, still without any runtime guard.
     \item \textbf{(B3) Non-Causal Regression Baselines:} Linear Regression, Gradient Boosting Regression, and a Gaussian Process Regressor, evaluated under the out-of-distribution protocol of Section~\ref{sec:results}, used to test whether causal structure yields an accuracy advantage over standard regressors. \emph{Matched training samples.} Every model in the comparison --- baselines and both SCM variants --- is fit on one identical subsample of the training split ($n{=}2000$, fixed seed), rather than on whatever sample size each method scales to. The cap is set by the Gaussian Process, whose $O(n^3)$ fit does not admit the full split. This matters because an earlier version of the harness fit the baselines on the full training set ($\sim$43k points) while subsampling the Gaussian Process and the SCM, an $86{\times}$ disparity that confounds model class with training-set size; under matched samples, a difference between two models is attributable to the models.
-    \item \textbf{(SCM variants)} The comparison reports two instantiations of the same causal graph, differing only in the mechanism class fit at each node. \textsc{SCM-Deployed} uses the non-negative linear mechanism that the framework actually ships (Section~\ref{sec:backpressure-edge}) and that RQ1 evaluates. \textsc{SCM-Auto} lets DoWhy select the mechanism by cross-validation, and answers the separate question of whether causal structure helps when the mechanism class is unconstrained. Reporting only the latter, as an earlier version did, produces the anomaly that the RQ1 and RQ2 tables describe different models of the same system; reporting only the former conflates the framework's engineering choice with the scientific question. We report both.
+    \item \textbf{(SCM variants)} The comparison reports two instantiations of the same causal graph, differing only in the mechanism class fit at each node. \textsc{SCM-Deployed} uses the non-negative linear mechanism that the framework actually ships (Section~\ref{sec:backpressure-edge}) and that RQ4 evaluates. \textsc{SCM-Auto} lets DoWhy select the mechanism by cross-validation, and answers the separate question of whether causal structure helps when the mechanism class is unconstrained. Reporting only the latter, as an earlier version did, produces the anomaly that the RQ4 and RQ5 tables describe different models of the same system; reporting only the former conflates the framework's engineering choice with the scientific question. We report both.
     \item \textbf{(B4) Uniform Delta Injection:} a naive propagation baseline that assumes every downstream service's workload changes by exactly the same percentage as the injected upstream delta, bypassing the dependency-graph propagation entirely.
 \end{itemize}
 
@@ -578,16 +807,81 @@ i.e.\ the fractions of requirements whose emitted delta leaves the physical enve
 \section{Results and Evaluation}
 \label{sec:results}
 
-We organize results around five research questions. RQ1--RQ2 evaluate forecasting accuracy and compare the SCM against non-causal regressors. RQ3 evaluates Parser reliability under the three-layer verification architecture. RQ4 tests graph-based propagation against a uniform-delta baseline, and RQ5 measures multi-agent coordination overhead.
+An evaluation that cannot return a negative answer will not return one. Our five
+research questions are five instances of one template built on
+Definition~\ref{def:admissible}. For each layer we name (i) the claim $C_i$ that
+governs that layer's trustworthiness, (ii) the incumbent evaluation and why it is
+vacuous for $C_i$, (iii) an admissible substitute, and (iv) the outcome that
+substitute admits which would refute $C_i$. Table~\ref{tab:rq-spine} states all
+four for each question; the subsections then report what the substitute returned,
+and each opens by restating its claim and its refuting outcome, so that the
+standard by which the result could have failed precedes the result.
 
-\subsection{RQ1: Can LLM-Proposed Interventions Be Constrained by Guarantees That Are Both Provable and Load-Bearing?}
+Of the five claims, one survived intact. Three of the four refutations were
+returned against results we had previously reported ourselves, and we mark each
+where it occurs.
+
+\begin{table*}[!t]
+\centering
+\caption{The five research questions as instances of Definition~\ref{def:admissible}. Each row names the claim under test, the incumbent evaluation and the reason no outcome of it can refute that claim, the admissible substitute we use instead, and the refuting outcome the substitute admits.}
+\label{tab:rq-spine}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{1.5cm}p{3.2cm}p{4.2cm}p{3.9cm}p{3.5cm}}
+\toprule
+\textbf{RQ} & \textbf{Claim under test $C_i$} & \textbf{Incumbent, and why it is vacuous} & \textbf{Admissible substitute} & \textbf{Refuting outcome} \\
+\midrule
+\textbf{RQ1}\newline Necessity \& Composability\newline (\S\ref{sec:rq1}, \S\ref{sec:rq1-envelope})
+& Structural violation rate decreases with generator capability, verifier is transitional; the input guarantee composes to the output, individually and across simultaneous requirements.
+& Average-case accuracy on one backend: cannot separate semantic from structural failure, and PBVR/SHR are $0$ by Corollary~\ref{cor:zero}, tautological. Trusting the monotonicity precondition rather than checking it against the fitted model.
+& Task, prompts and harness fixed while the generator varies; per-layer firing rate on adversarial input; the precondition checked computationally on two deployed systems; joint-envelope gap measured on a synthetic collider, with a stability check (window doubling) applied before trusting any real-data instance of it.
+& Structural rates falling with capability; a layer that never fires; a fitted mechanism with $\beta{<}0$; a joint envelope matching the naive sum where superadditivity is predicted. \\
+\addlinespace
+\textbf{RQ2}\newline Attainability\newline (\S\ref{sec:rq2})
+& The abstention layer certifies an out-of-scope miss rate of $\alpha$.
+& Reporting the nominal $\alpha$: a chosen number, not a measured one, which no observation of the calibration set can contradict.
+& Report the order statistic the calibration size actually selects, $\lceil (n{+}1)\alpha\rceil$, and the coverage cost at the operating point.
+& A threshold invariant to $\alpha$, which certifies nothing beyond the extreme order statistic. \\
+\addlinespace
+\textbf{RQ3}\newline Realisation\newline (\S\ref{sec:rq3})
+& The implementation realises $\Pi$, hence Corollary~\ref{cor:zero} holds in deployment.
+& Test suite and benchmark on the development topology: invariants keyed to its accidental properties (one gateway; a node named \texttt{front-end}) cannot be violated there.
+& Deployment to a topology differing in exactly those properties: $68$ vs $7$ nodes, $14$ vs $1$ gateway, disjoint name vocabulary.
+& Any emitted intervention violating Proposition~\ref{prop:soundness}(i)--(iii). \\
+\addlinespace
+\textbf{RQ4}\newline Measurability\newline (\S\ref{sec:rq4})
+& The capacity model forecasts resource consumption from workload.
+& MAPE on held-out telemetry: a near-invariant target yields low MAPE under any predictor, including one ignoring the input.
+& Signal gate on undivided data; predictor-free constant baseline; permuted-workload negative control; skill rather than raw error.
+& $R^2\!\approx\!0$ at the gate (no accuracy claim admissible); skill $\leq 0$; or skill surviving permutation. \\
+\addlinespace
+\textbf{RQ5}\newline Attribution\newline (\S\ref{sec:rq5})
+& (a) Graph propagation beats a uniform-delta assumption; (b) the $do$-operator confers an estimation advantage over conditioning.
+& Held-out observational accuracy, including out-of-distribution in load: a mechanism can improve it on every node and still fail under intervention once a parent leaves its observed range.
+& Real interventional ground truth (fault injection) stratified by whether the parent stayed in range; backdoor vs.\ naive transfer; abduction vs.\ residual carrying.
+& (a) Graph failing to beat uniform-delta on a majority of edges; (b) backdoor adjustment failing to beat the naive estimator. \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{RQ1 (Necessity): Is the Verifier Necessary, or Does Generator Capability Subsume It?}
 \label{sec:rq1}
+
+\emph{Claim under test.} Structural violation rate is a decreasing function of
+generator capability, so the verifier is a stopgap that a stronger model
+obsoletes. \emph{Refuted by:} structural rates falling with capability at the
+rate magnitude error does, or a guard layer that never fires even under
+adversarial input. Two evaluations are required because the incumbent is vacuous
+in two independent ways (Table~\ref{tab:rq-spine}): a capability sweep, reported
+with the failure modes disaggregated, and a firing-rate measurement that
+distinguishes an active guarantee from a decorative one.
+
 We evaluate 50 hand-authored requirement prompts (In-Distribution, Complex Multi-Hop, Subtle Read-Only, and Adversarial subsets) against four parser configurations, using a live LLM backend rather than a scripted stand-in, so that failure modes reflect genuine model behavior rather than an experimenter-authored fixture. The primary arm uses \texttt{gemini-flash-lite-latest} over $3$ repeats; Section~\ref{sec:rq1-backend} replicates the benchmark on a second backend from a different vendor to test whether the failure rates are specific to a lite-tier model.
 
 \begin{table}[!t]
 \centering
 \caption{Parser reliability, live LLM, 50 prompts, mean $\pm$ std over 3 independent repeats}
-\label{tab:rq3}
+\label{tab:rq1-parser}
 \resizebox{\linewidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
@@ -603,7 +897,7 @@ Rule-Only (B0)           & 0.0$\pm$0.0\%  & 0.0$\pm$0.0\%  & 0.0$\pm$0.0\%   & 2
 \end{table}
 \noindent\emph{The four columns cannot record a fifth outcome the Scope Gate now returns. Across the same 150 calls, $18$ ($12.0\%$) triggered \texttt{NEEDS\_HUMAN\_REVIEW} and $11$ ($7.3\%$) were \textsc{refused}. The remaining $121$ ($80.7\%$) produced the numeric verdict over which PBVR, SHR, GMR, and Anchor MAE are computed (Section~\ref{sec:edge-of-scope}).}
 
-Across 3 independent live-LLM repeats (temperature 0.2), the unconstrained LLM (B1) misdirects the injection point away from the gateway on \emph{every} prompt (GMR $=100.0\pm0.0\%$), hallucinates services on $91.3\pm1.2\%$ of prompts (SHR), and violates a physical bound on $38.0\pm2.0\%$ (PBVR); these compound into a mean Anchor MAE of $844.6\pm568.2\%$ (range $188.5$--$1173.4\%$). This mean is right-skewed, as in RQ1: the per-repeat median is far lower ($22.8$--$30.0\%$), inflated by only 2--3 of 50 prompts per repeat going wildly out of bound -- most strikingly a ``DDoS via millions of fake promo-code requests'' prompt answered with a literal $50{,}000\%$ delta. The instability matters independently of the mean: an unguarded LLM's output is not merely inaccurate on average but unstable run to run, a property no single-repetition evaluation can reveal. In-context calibration (B2: few-shot topology and calibration table, still no runtime guard) closes most of the gap on two metrics (SHR $\to2.0\pm0.0\%$, Anchor MAE $\to38.6\pm0.2\%$) but leaves GMR at $84.7\pm1.2\%$ and PBVR at $14.7\pm1.2\%$: better prompting alone still misdirects the injection point on roughly four out of five prompts, every time.
+Across 3 independent live-LLM repeats (temperature 0.2), the unconstrained LLM (B1) misdirects the injection point away from the gateway on \emph{every} prompt (GMR $=100.0\pm0.0\%$), hallucinates services on $91.3\pm1.2\%$ of prompts (SHR), and violates a physical bound on $38.0\pm2.0\%$ (PBVR); these compound into a mean Anchor MAE of $844.6\pm568.2\%$ (range $188.5$--$1173.4\%$). This mean is right-skewed: the per-repeat median is far lower ($22.8$--$30.0\%$), inflated by only 2--3 of 50 prompts per repeat going wildly out of bound -- most strikingly a ``DDoS via millions of fake promo-code requests'' prompt answered with a literal $50{,}000\%$ delta. The instability matters independently of the mean: an unguarded LLM's output is not merely inaccurate on average but unstable run to run, a property no single-repetition evaluation can reveal. In-context calibration (B2: few-shot topology and calibration table, still no runtime guard) closes most of the gap on two metrics (SHR $\to2.0\pm0.0\%$, Anchor MAE $\to38.6\pm0.2\%$) but leaves GMR at $84.7\pm1.2\%$ and PBVR at $14.7\pm1.2\%$: better prompting alone still misdirects the injection point on roughly four out of five prompts, every time.
 
 The guarded configuration attains $0.0\pm0.0\%$ on all three structural failure modes, with an Anchor MAE ($1.6\pm0.1\%$) below the deterministic Rule-Only floor (B0, $2.8\pm0.0\%$) despite invoking the LLM on every prompt and resolving only $80.7\%$ of them with a numeric verdict (Section~\ref{sec:edge-of-scope}). Two of these three zeros follow from Corollary~\ref{cor:zero} and are confirmatory; what the comparison establishes is the premise the corollary needs to be meaningful, namely that the guarded quantities are ones an unguarded generator violates at high rate even when given identical context.
 
@@ -675,8 +969,89 @@ from sampling noise, and in-context calibration is not part of our contribution.
 claim is that the violation rates are not an artifact of one lite model, not
 that they are invariant across all generators.
 
-\subsection{RQ2: What Does Abstention Cost, and What Guarantee Is Attainable at This Sample Size?}
+\subsubsection{Does the certified guarantee reach the output, individually and jointly?}
+\label{sec:rq1-envelope}
+Corollary~\ref{cor:zero} bounds the \emph{input} $\Pi$ returns. Whether that
+bound composes to the downstream number an engineer reads, and whether it
+still composes when two requirements are assessed together, are separate
+claims with separate refuting outcomes: a downstream node violating the
+certified interval (Proposition~\ref{prop:envelope}), or a joint envelope
+matching the naive sum of two single-intervention envelopes where
+Proposition~\ref{prop:superadd} predicts it should not.
+
+\begin{table}[!t]
+\centering
+\caption{Certified envelope, checked against the deployed model rather than assumed. Pre/post columns are before and after constraining the latency mechanism to $\beta\geq0$.}
+\label{tab:envelope-validation}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lrr}
+\toprule
+ & Sock Shop & Train Ticket \\
+\midrule
+Latency mechanisms checked & 7 & 28 \\
+Precondition violations, pre-fix & 7/7 & 28/28 \\
+Precondition violations, post-fix & 0/7 & 0/28 \\
+Held-out MAPE, mean (pre$\to$post) & 927.9\%$\to$256.2\% & 1366.8\%$\to$38.3\% \\
+Held-out MAPE, median (pre$\to$post) & 33.9\%$\to$12.1\% & 130.6\%$\to$34.2\% \\
+Services improved by the fix & 7/7 & 23/28 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{The precondition, checked rather than assumed.} Every fitted mechanism
+in the deployed Sock Shop and Train Ticket models was checked computationally
+against Proposition~\ref{prop:envelope}'s hypothesis (a). All $20$ and $82$
+CPU/memory/Tier-1-workload mechanisms respectively satisfied $\beta\geq0$ as
+fit; all $7$ and all $28$ latency mechanisms did not, for the collinearity
+reason Section~\ref{sec:certified-envelope} gives. Table~\ref{tab:envelope-validation}
+reports the fix's cost on both systems. On Sock Shop it is strictly a win.
+On Train Ticket it is a win in aggregate ($23/28$, with the largest gains
+exceeding $9{,}000$ percentage points) but not uniformly: $5$ services where
+the unconstrained fit was already reasonably accurate lose $1.8$ to $18.6$
+percentage points, the same shape of trade-off already documented for CPU
+(Table~\ref{tab:rq4}). We report both directions rather than the aggregate
+alone.
+
+\textbf{The joint envelope.} Neither deployed topology instantiates the
+independent-collider case Proposition~\ref{prop:superadd} assumes (Sock Shop
+has one gateway; Train Ticket's two retain no shared latency descendant). On a
+synthetic collider fit with the exact deployed mechanism classes, the
+linear-tier gap is $0.000000$ to six decimals at every $\delta$ tested and the
+latency-tier gap is positive and grows monotonically, $+0.028$ at $\delta{=}5\%$
+to $+4.774$ at $\delta{=}50\%$ --- the predicted sign and the predicted growth.
+This we take as confirmed: the mechanism class is the one deployed, and the
+only freedom is the exogenous inputs.
+
+An attempt to repeat this on Alibaba's real call graph did not survive scrutiny,
+and we report why rather than the number it first produced. Two node pairs
+(of $13$ fan-in-$\geq2$ candidates; $10$ lacked joint telemetry coverage, one
+fit too poorly to trust) showed a positive gap on a five-hour window. Doubling
+the window to ten hours to check stability collapsed both gaps to exactly zero.
+The cause is a defect in \texttt{QueueingLatencyRegressor} distinct from the
+one Section~\ref{sec:certified-envelope} already fixed: its capacity ceiling is
+set from $1.5\times$ the \emph{observed} maximum workload, so a single higher
+value in the wider window raises the ceiling, pushes every historical point
+further from it in relative terms, and NNLS reallocates the queueing term's
+weight to zero because it no longer varies enough across the observed range to
+explain anything. The instability is in the ceiling estimate, not in
+Proposition~\ref{prop:superadd}'s mathematics, but it means real-world
+confirmation of superadditivity is not currently available: the two positive
+gaps we first measured were an artefact of an under-sampled ceiling, not
+evidence for the phenomenon, and we withdraw them rather than report a number
+we no longer trust. A ceiling estimated by a quantile of the training
+distribution rather than its single maximum is the natural fix, and testing
+it is future work.
+
+\subsection{RQ2 (Attainability): What Guarantee Is Attainable Where No Projection Exists, and What Does It Cost?}
 \label{sec:rq2}
+
+\emph{Claim under test.} The abstention layer certifies an out-of-scope miss rate
+of $\alpha$. \emph{Refuted by:} a threshold that does not move with $\alpha$,
+which certifies nothing beyond the extreme order statistic. The incumbent
+practice --- reporting the nominal $\alpha$ --- is the subtlest vacuity in this
+paper, because it has the form of a statistical guarantee while being a number we
+chose rather than one the data returned.
 
 Layers~2 and~3 admit a sound total projection because the properties they enforce
 are structural. Scope membership is not: whether a requirement resembles any
@@ -694,7 +1069,7 @@ $3/60$ ($5.0\%$), down from $10/60$ ($16.7\%$) for the single-threshold design.
 Across RQ1's $150$ live calls, $12.0\%$ returned \texttt{NEEDS\_HUMAN\_REVIEW}
 and $7.3\%$ were refused, leaving $80.7\%$ with a numeric verdict. Roughly one
 request in five therefore receives something other than a number --- a coverage
-cost the reliability metrics of Table~\ref{tab:rq3} cannot express, and one we
+cost the reliability metrics of Table~\ref{tab:rq1-parser} cannot express, and one we
 report rather than absorb.
 
 \textbf{The attainable guarantee is set by $n$, not by $\alpha$.} Split conformal
@@ -717,11 +1092,18 @@ classified as \texttt{APPLY\_PROMO\_CODE}. Only the control was refused. That
 failure is what motivated the four-signal conformal score, which has not itself
 been attacked by a comparably sized set.
 
-\subsection{RQ3: Does the Framework Transfer to a Second System, and What Does Transferring Reveal?}
+\subsection{RQ3 (Realisation): Does the Implementation Satisfy Its Own Proposition on a System It Was Not Built On?}
 \label{sec:rq3}
 
-A guarantee proved on paper and validated on one system is not thereby validated
-as implemented. We deployed the parser to Train Ticket --- $68$ nodes against
+\emph{Claim under test.} The implementation realises $\Pi$, and therefore
+Corollary~\ref{cor:zero} holds in deployment. \emph{Refuted by:} any emitted
+intervention violating Proposition~\ref{prop:soundness}(i)--(iii). A guarantee
+proved on paper and validated on one system is not thereby validated as
+implemented, and the reason is an admissibility failure rather than insufficient
+testing: an invariant keyed to an accidental property of the development topology
+--- that it has exactly one gateway, and that a node named \texttt{front-end}
+exists --- cannot be violated there, whatever the test suite does.
+We deployed the parser to Train Ticket --- $68$ nodes against
 Sock Shop's $7$, a different domain, and a topology with $14$ gateways rather
 than one --- and report both the deployment and what it exposed.
 
@@ -766,11 +1148,14 @@ whose accidental properties differ, and porting is the cheapest way to obtain
 one.
 
 
-\subsection{RQ4: Does the Capacity Model Forecast --- and How Would We Know If It Did Not?}
+\subsection{RQ4 (Measurability): Can the Data Support a Forecasting Claim, and Where It Can, Does the Model Forecast?}
 \label{sec:rq4}
 
-An accuracy number is only meaningful if the evaluation that produced it could
-have failed. Our first attempt at this question could not: measured on an RCA
+\emph{Claim under test.} The capacity model forecasts resource consumption from
+workload. \emph{Refuted by:} no measurable workload signal in the data, skill at
+or below that of a predictor that ignores the workload, or skill that survives
+permuting the workload. Our first attempt at this question admitted none of the
+three: measured on an RCA
 benchmark with MAPE alone, the memory mechanism scored $2$--$4\%$ error and
 looked like a success, while explaining essentially none of the variance it was
 credited with. We therefore report the protocol before the numbers.
@@ -906,13 +1291,23 @@ memory forecasting accuracy, and note that MAPE reported without a
 predictor-free baseline cannot distinguish the two cases.
 
 
-\subsection{RQ5: What Does Causal Structure Buy --- the Graph, the $do$-Operator, or Neither?}
+\subsection{RQ5 (Attribution): Which Causal Commitment Survives an Evaluation Able to Reject It?}
 \label{sec:rq5}
 
 The framework carries two distinct causal commitments: a dependency \emph{graph}
 along which load propagates, and an \emph{interventional operator} defined over
 that graph. They are usually defended together. We evaluate them separately, and
 they do not survive together.
+
+\emph{Claims under test.} (a) Propagation along the real dependency graph beats
+the uniform-delta assumption; (b) the $do$-operator confers an estimation
+advantage over conditioning. \emph{Refuted by:} (a) the graph failing to beat
+uniform-delta on a majority of edges; (b) backdoor adjustment failing to beat the
+naive conditional estimator on interventional transfer. The incumbent evaluation
+--- held-out observational accuracy, including out-of-distribution in load --- is
+vacuous for both, and Section~\ref{sec:backpressure-edge} reports the case that
+shows why: a mechanism we validated as improving held-out error on $23$ of $23$
+eligible nodes degrades by $365$ MAPE points under real intervention.
 
 \subsubsection{(a) The graph: a measurable advantage}
 \label{sec:rq5-graph}
@@ -1173,12 +1568,21 @@ effect. The operational divergence of Section~\ref{sec:operational} measures
 disagreement with a simulated reference, not accuracy against ground truth, which
 does not exist for an unbuilt requirement.
 
-\textbf{Internal.} The guarded row of Table~\ref{tab:rq3} was re-measured after
+\textbf{Internal.} The guarded row of Table~\ref{tab:rq1-parser} was re-measured after
 B0--B2 were collected, following a defect fix and the Scope Gate replacement;
 B0--B2 were not re-run, as their code paths do not invoke the parser. The Scope
 Gate's score is fit on 61 prompts while its thresholds use the pooled 81, and
 both are evaluated on those same 81 points, so the reported operating point is
-optimistic relative to a fully held-out estimate.
+optimistic relative to a fully held-out estimate. The status/verdict figures of
+Section~\ref{sec:rq1-operational} are produced by \texttt{simulate\_intervention}'s
+Monte Carlo sampling (Section~\ref{sec:certified-envelope}) rather than the
+deterministic envelope; a case near the $40\%$ latency-saturation threshold can
+therefore cross it or not by sampling luck alone, a source of run-to-run
+variance the reported divergence rate does not currently quantify. Deterministic
+replay of the same cases against the now-fixed latency mechanism confirms this
+did not change which of the $150$ recorded calls were flagged, but the
+sensitivity is real and the certified envelope, not the sampled mean, is the
+principled fix.
 
 \textbf{Conclusion.} Where the deployed mechanism and linear regression produce
 identical predictions ($12/21$ and $74/84$ pairs) the paired test is undefined
@@ -1200,12 +1604,17 @@ of Section~\ref{sec:rq1-operational} uses one backend only. The Alibaba
 analysis uses five of twelve available hours, and its hashed service names
 preclude any parser evaluation there.
 
-\textbf{Scope.} The pipeline handles one intervention per requirement, applied at
-a gateway. Section~\ref{sec:rq5-do} argues this is appropriate for
+\textbf{Scope.} Each parsed requirement carries one intervention, applied at a
+gateway; assessing several approved requirements together uses
+Proposition~\ref{prop:joint}'s joint envelope rather than summing separate
+single-requirement assessments, which Proposition~\ref{prop:superadd} shows
+understates risk wherever their footprints converge on a queueing edge.
+Section~\ref{sec:rq5-do} argues single-gateway intervention is appropriate for
 customer-facing requirements, whose load enters at the system boundary, and
 identifies the excluded cases --- background jobs, asynchronous consumers, and
 features that alter internal behaviour without changing external load --- as
-requiring internal-node interventions we do not support.
+requiring internal-node interventions we do not support; Section~\ref{sec:joint-envelope}'s
+nested-intervention case is a first instance of what that would require.
 
 
 \subsection{Deploying to a New Target System}
@@ -1262,51 +1671,74 @@ in Proposition~\ref{prop:soundness}.
 
 \section{Conclusion}
 \label{sec:conclusion}
-We asked what can be guaranteed about an LLM's output when that output is
-consumed not by a person but by an analysis pipeline, and we asked it in a
-setting where validity is decidable: translating an unbuilt requirement into a
-bounded capacity intervention on a microservice architecture. What we can report
-is narrower than what we set out to claim, and more useful for it.
+We set out to defend five claims about an LLM-fronted analysis pipeline, and
+found that the evaluation certifying each of them admitted no outcome that would
+have refuted it. Replacing the five, one claim survived.
 
-The translation layer holds. A requirement becomes a bounded intervention under a
-guarantee that is proved rather than measured, and adversarial evidence shows the
-guarantee is not vacuous. Porting it to a second system exposed an implementation
-defect that violated that very guarantee, which no amount of testing on the
-original topology could have revealed --- a verified design still requires its
-implementation validated where the accidental properties differ.
+The survivor is that capability does not substitute for verification. Holding
+task, prompts and harness fixed while replacing a lite-tier proprietary generator
+with an open-weight $117$B model cut magnitude error $25{\times}$ and left gateway
+misdirection at $92\%$. Capability and validity are separable properties of a
+generator, and the kind of error a verifier eliminates is not the kind that scale
+repairs. We expect this to generalise beyond capacity analysis to any pipeline
+where an LLM emits an object whose admissibility is defined by membership in a
+structure the model was never constrained to respect --- a schema, a type system,
+a call graph, an architecture. Where such a structure exists it can be checked,
+and where it can be checked a proof is available that no benchmark score can
+supply. Establishing this required an admissible substitute in two steps, because
+the guarded violation rates are zero by construction and therefore say nothing:
+adversarial firing rates show the guards are load-bearing, and the controlled
+backend change shows what capability does and does not buy.
 
-The guarantee also turns out not to be a stopgap. Holding the task and harness
-fixed while replacing a lite-tier proprietary generator with an open-weight
-$117$B model cut magnitude error $25{\times}$ and left gateway misdirection at
-$92\%$. Capability and validity are separable properties of a generator, and the
-kind of error that a verifier eliminates is not the kind that scale repairs. We
-expect this to generalise beyond capacity analysis to any pipeline where an LLM
-emits an object whose admissibility is defined by membership in a structure the
-model was never constrained to respect --- a schema, a type system, a call graph,
-an architecture. Where such a structure exists, it can be checked, and where it
-can be checked, a proof is available that no benchmark score can supply.
+The survivor's guarantee is not only structural but load-bearing all the way to
+the decision an engineer reads. Checking its precondition against the deployed
+model, rather than trusting the fitting routine's constraint, found a latency
+mechanism that violated it on both systems tested --- and fixing it, mirroring
+a constraint already used elsewhere in the same model, cost nothing: held-out
+accuracy improved on $7$ of $7$ and $23$ of $28$ services. The same guarantee
+extends to several requirements assessed together, but not by addition: two
+interventions converging on a shared queueing bottleneck produce strictly more
+latency than the sum of their separate certificates, a consequence of convexity
+we confirm exactly on a controlled instantiation of the deployed mechanism
+class. A real-data instance of the same test looked confirmatory at first and
+did not survive a stability check we ran on our own initiative: doubling the
+observation window collapsed both measured gaps to zero, traced to the latency
+mechanism's capacity ceiling being set from the single highest workload
+observed rather than a stable quantile, so a wider window quietly moves the
+ceiling and erases the very nonlinearity the result depended on. We withdraw
+the real-data number rather than keep a version of it we no longer trust; the
+instability is in that estimate, not in the proposition.
 
-The capacity model forecasts, but only on data containing a load signal, and
-establishing that required an evaluation able to fail. Our own earlier results
-passed every check we then applied while measuring nothing: a memory error of
-$2$--$4\%$ that a constant predictor also achieves. Three independent properties
-make the standard RCA benchmark unsuitable for this question --- no load
-variation, no measurable confounding, and interventions applied at the wrong
-layer --- and each was invisible until we looked for it.
+The four refutations are more instructive than the survivor, and each names a
+different way an outcome space can be closed. A nominal conformal level is a
+number we chose, so the calibration sample cannot contradict it; the attainable
+bound was $4.5\%$ where we had claimed $1\%$. A test suite cannot violate an
+invariant keyed to an accidental property of the system it runs on; porting
+exposed an implementation that inserts a non-existent service, violating the very
+proposition it enforces. A scale-dependent error cannot separate a learned
+mechanism from a target that barely moves; our $2$--$4\%$ memory result is a MAPE
+a constant predictor also attains, and the benchmark it was measured on carries
+no load signal to learn from at all ($R^2 = 0.003$). And held-out accuracy,
+however carefully split, cannot expose a mechanism that fails only outside the
+range where its parent was observed; an extension improving held-out error on
+$23$ of $23$ nodes degrades by $365$ MAPE points under real intervention.
 
-On the causal side the two commitments usually defended together come apart. The
-dependency graph earns its place. The $do$-operator does not, and the reason is a
-property of the problem rather than of our design: a new customer-facing feature
-enters at the system boundary, so the intervention necessarily sits at a root
-node, where truncated factorisation removes nothing. That is also why the
-microservice literature's causal machinery has been productive for retrospective
-diagnosis, whose interventions are internal, and not for prospective forecasting.
+That last vacuity also settles the causal question. Under an interventional test
+the two commitments usually defended together come apart: the dependency graph
+earns its place, the $do$-operator does not, and the reason is a property of the
+problem rather than of our design. A new customer-facing feature enters at the
+system boundary, so its intervention necessarily sits at a root node, where
+truncated factorisation removes nothing. That is also why the microservice
+literature's causal machinery has been productive for retrospective diagnosis,
+whose interventions are internal, and not for prospective forecasting.
 
 None of this makes the framework a better forecaster than a regression. What it
 offers is an interface --- a requirement in English becomes a bounded, auditable,
-refusable intervention --- and a model behind it evaluated by a protocol that
-would have told us had it been measuring noise. That last point may be the most
-transferable: an evaluation which cannot return a negative answer will not.
+refusable intervention --- and, we think more usefully, a worked demonstration
+that the question \emph{what outcome would refute this?} can be asked of an
+evaluation before it is run, costs nothing to ask, and in five attempts here
+rejected five standard answers. An evaluation which cannot return a negative
+answer will not.
 
 \bibliographystyle{IEEEtran}
 \begin{thebibliography}{00}
@@ -1315,6 +1747,12 @@ J.~Pearl, \emph{Causality}, 2nd ed. Cambridge Univ. Press, 2009.
 \bibitem{huang2006complete}
 Y. Huang and M. Valtorta, ``Pearl's Calculus of Intervention Is Complete,'' in \emph{Proc. UAI}, 2006.
 % NOTE: companion paper. For double-blind submission keep this anonymized;
+\bibitem{richardson2018microservices}
+C. Richardson, \emph{Microservices Patterns: With Examples in Java}. Manning Publications, 2018.
+\bibitem{sigelman2010dapper}
+B. H. Sigelman, L. A. Barroso, M. Burrows, P. Stephenson, M. Plakal, D. Beaver, S. Jaspan, and C. Shanbhag, ``Dapper, a Large-Scale Distributed Systems Tracing Infrastructure,'' Google, Inc., Tech. Rep. dapper-2010-1, 2010.
+\bibitem{luo2021characterizing}
+S. Luo, H. Xu, C. Lu, K. Ye, G. Xu, L. Zhang, Y. Ding, J. He, and C. Xu, ``Characterizing Microservice Dependency and Performance: Alibaba Trace Analysis,'' in \emph{Proc. ACM Symposium on Cloud Computing (SoCC)}, 2021, pp. 412--426.
 \bibitem{budhathoki2022rootcause}
 K. Budhathoki, L. Minorics, P. Blöbaum, and D. Janzing, ``Causal Structure-Based Root Cause Analysis of Outliers,'' in \emph{Proc. ICML}, PMLR vol. 162, pp. 2357--2369, 2022.
 \bibitem{kambhampati2024}
@@ -1411,6 +1849,10 @@ N. Cliff, ``Dominance Statistics: Ordinal Analyses to Answer Ordinal Questions,'
 C. Wohlin, P. Runeson, M. Höst, M. C. Ohlsson, B. Regnell, and A. Wesslén, \emph{Experimentation in Software Engineering}. Springer, 2012.
 \bibitem{kingman1961}
 J. F. C. Kingman, ``The Single Server Queue in Heavy Traffic,'' \emph{Mathematical Proceedings of the Cambridge Philosophical Society}, vol. 57, no. 4, pp. 902--904, 1961.
+\bibitem{gowal2018ibp}
+S. Gowal, K. Dvijotham, R. Stanforth, R. Bunel, C. Qin, J. Uesato, R. Arandjelovic, T. Mann, and P. Kohli, ``On the Effectiveness of Interval Bound Propagation for Training Verifiably Robust Models,'' \emph{arXiv:1810.12715}, 2018.
+\bibitem{angeli2003mixed}
+D. Angeli and E. D. Sontag, ``Monotone Control Systems,'' \emph{IEEE Transactions on Automatic Control}, vol. 48, no. 10, pp. 1684--1698, 2003.
 \bibitem{wang2024multilinguale5}
 L. Wang, N. Yang, X. Huang, L. Yang, R. Majumder, and F. Wei, ``Multilingual E5 Text Embeddings: A Technical Report,'' \emph{arXiv:2402.05672}, 2024.
 \bibitem{angelopoulos2023conformal}

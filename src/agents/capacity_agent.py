@@ -56,6 +56,15 @@ from data_processor import (
     TRAINTICKET_SERVICES,
     METRICS
 )
+from queueing_regressor import QueueingLatencyRegressor
+from deterministic_forward import deterministic_forward
+from taxonomy_builder import load_graph, derive_primary_gateway
+from scm_graph_builder import build_scm_edges, DEFAULT_EDGE_TEMPLATES
+from node_impact import (
+    rank_user_impact as _rank_user_impact,
+    evaluate_node_stability as _evaluate_node_stability,
+    select_key_nodes as _select_key_nodes,
+)
 
 N_PROJ = 500
 
@@ -106,29 +115,10 @@ def _load_normal_data(service: str, metric_col: str, data_dir: str) -> pd.DataFr
 # ============================================================
 # 1. NON-LINEAR QUEUEING REGRESSOR (Dành cho Latency)
 # ============================================================
-class QueueingLatencyRegressor(BaseEstimator, RegressorMixin):
-    """
-    Mô hình hàng đợi phi tuyến (M/M/1 - Kleinrock approximation):
-    Khi Workload -> Capacity, Latency bùng nổ theo hàm tiệm cận: W / (C - W).
-    """
-    def __init__(self):
-        self.model_ = LinearRegression(fit_intercept=True)
-        self.capacity_ = None
-
-    def fit(self, X, y):
-        X = np.array(X)
-        self.capacity_ = np.max(X, axis=0) * 1.5
-        self.capacity_[self.capacity_ == 0] = 1.0
-        X_queue = X / (self.capacity_ - X + 1e-6)
-        X_transformed = np.hstack([X, X_queue])
-        self.model_.fit(X_transformed, y)
-        return self
-
-    def predict(self, X):
-        X = np.array(X)
-        X_capped = np.minimum(X, self.capacity_ * 0.99)
-        X_queue  = X_capped / (self.capacity_ - X_capped + 1e-6)
-        return self.model_.predict(np.hstack([X_capped, X_queue]))
+# Chuyen sang src/scm/queueing_regressor.py (import o dau file) de
+# deterministic_forward.py dung chung duoc ma khong pha phan tang
+# src/scm/ -> src/agents/ (xem README "Vi sao tach vay"). Ten giu nguyen
+# qua import, hanh vi khong doi.
 
 
 # ============================================================
@@ -183,18 +173,34 @@ class CapacityAgent:
             if graph_path is None:
                 graph_path = os.path.join(BASE_DIR, 'src', 'graph', 'trainticket_agent_graph.json')
             self.services = services or TRAINTICKET_SERVICES
-            self.default_injection = 'ts-preserve-service'
         else:
             if data_dir is None:
                 data_dir = os.path.join(BASE_DIR, 'data', 'raw')
             if graph_path is None:
                 graph_path = os.path.join(BASE_DIR, 'src', 'graph', 'sockshop_agent_graph.json')
             self.services = services or SERVICES
-            self.default_injection = 'front-end'
 
         self.llm        = llm
         self.data_dir   = data_dir
         self.graph_path = graph_path
+
+        # default_injection: SUY tu graph (derive_primary_gateway), khong
+        # go tay nua -- truoc day la 'front-end'/'ts-preserve-service' co
+        # dinh theo system_type. 'front-end' (SockShop) trung voi gateway
+        # that (khong doi hanh vi). 'ts-preserve-service' (Train Ticket) LA
+        # mot seed archetype (BOOK_TICKET), KHONG PHAI gateway that (gateway
+        # that la 'ts-ui-dashboard') -- doi sang gateway that dung voi paper
+        # (Section "Scope": "applied at a gateway"). self.gateways giu toan
+        # bo gateway hop le (moi node type=='gateway') cho nhu cau multi-
+        # gateway sau nay, self.default_injection la gateway CHINH (tuong
+        # thich nguoc voi moi cho dang dung 1 string).
+        try:
+            _adj, _node_types = load_graph(self.graph_path)
+            self.gateways = sorted(n for n, t in _node_types.items() if t == 'gateway')
+            self.default_injection = derive_primary_gateway(_adj, _node_types)
+        except (FileNotFoundError, ValueError):
+            self.gateways = []
+            self.default_injection = self.services[0] if self.services else None
 
         # State của Tool Fast Path (Bivariate)
         self.trained_models: Dict[Tuple[str, str], Any] = {}
@@ -214,6 +220,14 @@ class CapacityAgent:
         self._last_ood_flagged: List[str] = []
         self.dag              = None
 
+        # Node confidence: select_key_nodes() cache (tu dong, xem
+        # _get_key_nodes) + co che danh dau TAY mot node la khong dang tin
+        # (vd biet truoc tu G7/README, khong can cho elasticity/stability
+        # tu dong bat duoc) -- xem mark_node_unreliable().
+        self._key_nodes_cache: Dict[str, List[str]] = None
+        self._stability_cache: pd.DataFrame = None
+        self._manual_unreliable_nodes: Dict[str, str] = {}
+
         self._is_trained = False
 
         print(f"[CapacityAgent] Khởi tạo ({self.system_type}). Data dir: {self.data_dir}")
@@ -228,6 +242,8 @@ class CapacityAgent:
         self.train_fast_path()
         self.train_accurate_path()
         self._is_trained = bool(self.trained_models and self.global_dag_model)
+        self._key_nodes_cache = None  # DAG moi -> bo cache select_key_nodes() cu
+        self._stability_cache = None  # DAG moi -> bo cache evaluate_node_stability() cu
 
     def train_fast_path(self):
         """Huấn luyện mô hình SCM Bivariate (N services x 3 metrics)."""
@@ -241,7 +257,7 @@ class CapacityAgent:
             return
 
         try:
-            df_multi = load_multi_service_data(self.data_dir, system_type=self.system_type)
+            df_multi = load_multi_service_data(self.data_dir, system_type=self.system_type, services=self.services)
         except Exception:
             df_multi = None
 
@@ -360,7 +376,7 @@ class CapacityAgent:
         print(f"  [CapacityAgent: Tool 2] HUẤN LUYỆN GLOBAL CAUSAL DAG ({self.system_type.upper()})")
         print("=" * 70)
 
-        df_data = load_multi_service_data(self.data_dir, system_type=self.system_type)
+        df_data = load_multi_service_data(self.data_dir, system_type=self.system_type, services=self.services)
         if df_data is None or df_data.empty:
             print("[WARNING] Không load được dữ liệu đa dịch vụ.")
             return
@@ -369,111 +385,39 @@ class CapacityAgent:
             print(f"[WARNING] Không tìm thấy file graph: {self.graph_path}")
             return
 
-        with open(self.graph_path, 'r', encoding='utf-8') as f:
-            graph_json = json.load(f)
+        # Toan bo tap canh SCM duoc dung bang MOT engine duy nhat tren bang
+        # template (src/scm/scm_graph_builder.py) -- khong con doan code rieng
+        # cho tung tier/tung he thong:
+        #   - Tier 1 (workload -> workload theo chieu goi)      : cau truc
+        #   - Tier 2 (workload -> cpu/mem/latency cung service) : cau truc
+        #   - CPU backpressure (cpu -> cpu theo chieu goi)      : phai hoc
+        #   - Latency backprop (latency callee -> latency caller,
+        #     CausIL arXiv:2303.00554)                          : phai hoc
+        # Hai loai "phai hoc" deu qua cung mot quy trinh: candidate tu do thi
+        # phu thuoc -> cham diem HELD-OUT (67/33 tai thap -> tai cao) ->
+        # knee-point -> OOD-safety. Xem scm_edge_selector.score_edge_heldout()
+        # ve ly do bo tieu chi in-sample (R2-gain/BIC) da dung truoc day.
+        def _model_builder_for(edges_so_far):
+            g_base = nx.DiGraph()
+            g_base.add_edges_from(edges_so_far)
+            return self._build_extended_dag_fn(g_base, df_data)
+
+        edge_build = build_scm_edges(
+            self.graph_path, df_data, self.services,
+            templates=DEFAULT_EDGE_TEMPLATES,
+            build_model_fn=_model_builder_for,
+            injection_services=self.gateways or [self.default_injection],
+            cache_dir=os.path.join(BASE_DIR, 'data', 'processed', 'scm_cache'),
+        )
+        self._last_edge_build = edge_build
 
         g = nx.DiGraph()
-        # Tier 1: Workload -> Workload theo call chain thực tế
-        for edge in graph_json.get('edges', []):
-            src, tgt = edge['source'], edge['target']
-            if src in self.services and tgt in self.services:
-                g.add_edge(f"{src}_workload", f"{tgt}_workload")
-
-        # Tier 2: Workload -> Metrics nội tại
-        for s in self.services:
-            for metric_col in [f'{s}_cpu', f'{s}_mem', f'{s}_latency-50']:
-                if f'{s}_workload' in df_data.columns and metric_col in df_data.columns:
-                    g.add_edge(f"{s}_workload", metric_col)
-
-        # Tier 2.5: canh "backpressure" tu CPU cua caller sang CPU cua callee —
-        # danh sach RIENG cho tung he thong, moi canh da duoc kiem dinh bang du
-        # lieu that (KHONG dong loat/mo rong tuy y cho toan bo node) qua 3 buoc:
-        #   1) experiments/{call_chain_neighbor,tt_call_chain_neighbor}_diagnostic.py
-        #      — R2 tang khi them CPU caller lam parent thu 2 (nguong gain>0.03
-        #      cho Train Ticket; Sock Shop chon thu cong 3 canh manh nhat).
-        #   2) experiments/replace_vs_add_edge_test.py — xac nhan phai THEM (giu
-        #      ca workload rieng LAN caller_cpu), khong duoc THAY: thay se lam
-        #      mat kha nang phan ung voi mot can thiep do() rieng le tai chinh
-        #      callee (vd do(shipping_workload=+30%) voi orders_cpu giu nguyen ->
-        #      mo hinh REPLACE du bao +0.00%, sai ro rang).
-        #   3) experiments/{backpressure,tt_backpressure}_edge_accuracy_test.py —
-        #      xac nhan tren du lieu HELD-OUT (protocol OOD Gold Standard giong
-        #      RQ1, khong phai R2 in-sample): Sock Shop ca 3/3 canh cai thien
-        #      MAPE/R2/F1; Train Ticket 49/50 canh giam MAPE, 47/50 tang R2/F1.
-        #   4) experiments/{backpressure,tt_backpressure}_edge_ood_safety_test.py —
-        #      quet delta +5%..+300%, dem so ca sign-inversion: Sock Shop giam
-        #      hoi toan (30->24, sua duoc 2 loi co san); Train Ticket giam rong
-        #      (35->26) nhung TANG nhe o dung +300% (8->11, cac node bi anh huong
-        #      hau het KHONG phai 1-hop tu canh moi — nhieu kha nang la do do
-        #      mong manh von co cua rang buoc tuyen tinh o cuc bien, khong rieng
-        #      do canh nay) — nam trong pham vi +150%/+300% ma paper da tu gioi
-        #      han la "minh hoa dinh huong, khong phai du bao da kiem chung"
-        #      (Section "Extrapolation-Sign Failure Mode"), khong che giau caveat
-        #      nay.
-        if self.system_type == 'sockshop':
-            BACKPRESSURE_EDGES = [
-                ('orders_cpu', 'shipping_cpu'),
-                ('orders_cpu', 'carts_cpu'),
-                ('front-end_cpu', 'user_cpu'),
-            ]
-        elif self.system_type == 'trainticket':
-            BACKPRESSURE_EDGES = [
-                ('ts-ticketinfo-service_cpu', 'ts-basic-service_cpu'),
-                ('ts-travel2-service_cpu', 'ts-train-service_cpu'),
-                ('ts-travel2-service_cpu', 'ts-seat-service_cpu'),
-                ('ts-seat-service_cpu', 'ts-config-service_cpu'),
-                ('ts-basic-service_cpu', 'ts-train-service_cpu'),
-                ('ts-travel2-service_cpu', 'ts-ticketinfo-service_cpu'),
-                ('ts-travel2-service_cpu', 'ts-order-other-service_cpu'),
-                ('ts-basic-service_cpu', 'ts-price-service_cpu'),
-                ('ts-travel-service_cpu', 'ts-seat-service_cpu'),
-                ('ts-seat-service_cpu', 'ts-order-other-service_cpu'),
-                ('ts-basic-service_cpu', 'ts-route-service_cpu'),
-                ('ts-travel-service_cpu', 'ts-train-service_cpu'),
-                ('ts-travel-service_cpu', 'ts-ticketinfo-service_cpu'),
-                ('ts-travel2-service_cpu', 'ts-route-service_cpu'),
-                ('ts-food-service_cpu', 'ts-travel-service_cpu'),
-                ('ts-travel-service_cpu', 'ts-route-service_cpu'),
-                ('ts-food-service_cpu', 'ts-food-map-service_cpu'),
-                ('ts-seat-service_cpu', 'ts-order-service_cpu'),
-                ('ts-travel-service_cpu', 'ts-order-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-security-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-seat-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-contacts-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-ticketinfo-service_cpu'),
-                ('ts-admin-basic-info-service_cpu', 'ts-price-service_cpu'),
-                ('ts-admin-basic-info-service_cpu', 'ts-config-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-user-service_cpu'),
-                ('ts-basic-service_cpu', 'ts-station-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-travel-service_cpu'),
-                ('ts-order-other-service_cpu', 'ts-station-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-security-service_cpu'),
-                ('ts-consign-service_cpu', 'ts-consign-price-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-user-service_cpu'),
-                ('ts-security-service_cpu', 'ts-order-other-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-assurance-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-food-service_cpu'),
-                ('ts-admin-travel-service_cpu', 'ts-travel2-service_cpu'),
-                ('ts-admin-travel-service_cpu', 'ts-travel-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-travel2-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-seat-service_cpu'),
-                ('ts-security-service_cpu', 'ts-order-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-assurance-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-contacts-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-ticketinfo-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-order-other-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-order-service_cpu'),
-                ('ts-preserve-other-service_cpu', 'ts-food-service_cpu'),
-                ('ts-food-service_cpu', 'ts-station-service_cpu'),
-                ('ts-order-service_cpu', 'ts-station-service_cpu'),
-                ('ts-inside-payment-service_cpu', 'ts-payment-service_cpu'),
-                ('ts-preserve-service_cpu', 'ts-station-service_cpu'),
-            ]
-        else:
-            BACKPRESSURE_EDGES = []
-        for caller_cpu_node, callee_cpu_node in BACKPRESSURE_EDGES:
-            if caller_cpu_node in df_data.columns and callee_cpu_node in df_data.columns:
-                g.add_edge(caller_cpu_node, callee_cpu_node)
+        g.add_edges_from(edge_build['all_edges'])
+        if edge_build.get('from_cache'):
+            print(f"  [Edges] dung cache: {len(edge_build['learned_edges'])} canh da hoc.")
+        for label, rep in edge_build['reports'].items():
+            print(f"  [{label}] {rep['n_candidates']} candidate -> {rep['n_selected']} qua "
+                  f"held-out/knee-point -> {rep['n_final']} qua OOD-safety.")
 
         valid_nodes = [n for n in g.nodes() if n in df_data.columns]
         g_sub = g.subgraph(valid_nodes).copy()
@@ -494,21 +438,33 @@ class CapacityAgent:
 
         model = gcm.InvertibleStructuralCausalModel(g_sub)
         gcm.auto.assign_causal_mechanisms(model, df_fit)
+        self._assign_dag_mechanisms(model, g_sub)
 
-        # Gán cơ chế chuyên biệt: CPU/Mem + Tier-1 Workload->Workload (Linear,
-        # rang buoc he so KHONG AM), Latency (Queueing phi tuyến).
-        #
-        # DONG BO VOI evaluation_suite.build_and_train_global_dag() (Sock Shop):
-        # ban dau o day chi co _cpu/_mem dung LinearRegression() THUONG (khong
-        # positive=True), va canh Tier-1 (Workload->Workload) khong duoc gan
-        # rang buoc gi ca — tuc la CHINH XAC bug sign-inversion ma Section
-        # "Extrapolation-Sign Failure Mode" cua paper mo ta da "fix" (nhung
-        # fix do truoc day chi nam o evaluation_suite.py, mot script rieng
-        # cho RQ4, KHONG nam trong CapacityAgent — class nay moi la code that
-        # duoc orchestrator.py dung cho ca Sock Shop LAN Train Ticket). Ap
-        # dung dung mot rang buoc cho ca 2 he thong o day de ket qua giua
-        # Sock Shop va Train Ticket (vd RQ6 Part A.3) khong con lech nhau vi
-        # mot confound ve quy trinh fit, chi con lech vi ban chat du lieu.
+        gcm.fit(model, df_fit)
+        self.global_dag_model = model
+        self.global_model     = self.global_dag_model
+        print(f"[OK] Đã khớp Global DAG {len(valid_nodes)} nodes ({len(g_sub.edges())} edges).")
+
+    def _assign_dag_mechanisms(self, model, g_sub: nx.DiGraph):
+        """Gán cơ chế chuyên biệt: CPU/Mem + Tier-1 Workload->Workload
+        (Linear, ràng buộc hệ số KHÔNG ÂM), Latency (Queueing phi tuyến).
+        Tách thành method riêng (trước đây viết thẳng trong train_accurate_
+        path) để dùng LẠI đúng một chỗ cho cả DAG sản phẩm và cho
+        build_model_fn của scm_edge_selector.validate_ood_safety (pha 4) --
+        hai nơi PHẢI gán cùng quy tắc, không được lệch nhau.
+
+        ĐỒNG BỘ VỚI evaluation_suite.build_and_train_global_dag() (Sock Shop):
+        ban đầu ở đây chỉ có _cpu/_mem dùng LinearRegression() THƯỜNG (không
+        positive=True), và cạnh Tier-1 (Workload->Workload) không được gán
+        ràng buộc gì cả — tức là CHÍNH XÁC bug sign-inversion mà Section
+        "Extrapolation-Sign Failure Mode" của paper mô tả đã "fix" (nhưng
+        fix đó trước đây chỉ nằm ở evaluation_suite.py, một script riêng
+        cho RQ4, KHÔNG nằm trong CapacityAgent — class này mới là code thật
+        được orchestrator.py dùng cho cả Sock Shop LẪN Train Ticket). Áp
+        dụng đúng một ràng buộc cho cả 2 hệ thống ở đây để kết quả giữa
+        Sock Shop và Train Ticket (vd RQ6 Part A.3) không còn lệch nhau vì
+        một confound về quy trình fit, chỉ còn lệch vì bản chất dữ liệu.
+        """
         for node in g_sub.nodes():
             if node.endswith('_cpu') or node.endswith('_mem'):
                 model.set_causal_mechanism(
@@ -526,10 +482,34 @@ class CapacityAgent:
                     AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True)))
                 )
 
-        gcm.fit(model, df_fit)
-        self.global_dag_model = model
-        self.global_model     = self.global_dag_model
-        print(f"[OK] Đã khớp Global DAG {len(valid_nodes)} nodes ({len(g_sub.edges())} edges).")
+    def _build_extended_dag_fn(self, base_graph: nx.DiGraph, df_data: pd.DataFrame):
+        """Trả về build_model_fn(df, extra_edges) -> (model, df_sub) dùng
+        cho scm_edge_selector.validate_ood_safety() (pha 4): thêm extra_edges
+        vào BẢN SAO của base_graph (Tier1+Tier2, chưa có backpressure), phá
+        cycle nếu có, gán mechanism ĐÚNG quy tắc _assign_dag_mechanisms(),
+        fit trên cùng df_data. Tách rời base_graph (không đụng vào `g` đang
+        xây dở trong train_accurate_path) để mỗi lần gọi build_model_fn là
+        một model độc lập, đúng hợp đồng validate_ood_safety cần."""
+        def build_model_fn(df_for_build: pd.DataFrame, extra_edges: list):
+            g2 = base_graph.copy()
+            for u, v in extra_edges:
+                g2.add_edge(u, v)
+            while not nx.is_directed_acyclic_graph(g2):
+                cycle = nx.find_cycle(g2, orientation='original')
+                g2.remove_edge(cycle[-1][0], cycle[-1][1])
+
+            valid = [n for n in g2.nodes() if n in df_for_build.columns]
+            g2_sub = g2.subgraph(valid).copy()
+            df_sub2 = df_for_build[valid].dropna()
+            df_fit2 = (df_sub2.sample(min(2000, len(df_sub2)), random_state=42)
+                       if len(df_sub2) > 2000 else df_sub2)
+
+            m2 = gcm.InvertibleStructuralCausalModel(g2_sub)
+            gcm.auto.assign_causal_mechanisms(m2, df_fit2)
+            self._assign_dag_mechanisms(m2, g2_sub)
+            gcm.fit(m2, df_fit2)
+            return m2, df_sub2
+        return build_model_fn
 
     def _compute_hops(self, injection_service: str) -> Dict[str, int]:
         """Đếm số hop từ injection_service đến mỗi service trong DAG."""
@@ -566,7 +546,7 @@ class CapacityAgent:
             return {}
 
         result = {}
-        for metric_name, _, unit, scale in METRICS:
+        for metric_name, metric_col, unit, scale in METRICS:
             key = (service_name, metric_name)
             if key not in self.trained_models:
                 continue
@@ -588,6 +568,16 @@ class CapacityAgent:
             result[f'{metric_name}_baseline_{unit}']  = round(base_v, 4)
             result[f'{metric_name}_predicted_{unit}'] = round(pred_v, 4)
             result[f'{metric_name}_change_pct']       = round(chg, 2)
+            # Do tin cay cua CHINH node nay trong Global DAG (_node_confidence(),
+            # dua tren evaluate_node_stability() -- KHONG loc qua top-impact
+            # toan cuc, xem docstring _get_key_nodes()) -- Fast Path (Bivariate)
+            # va Accurate Path
+            # (DAG) la 2 mo hinh khac nhau tren CUNG mot node ten, nhung day
+            # la tin hieu duy nhat co san ve do on dinh cua node do trong toan
+            # do thi (Fast Path khong tu danh gia rieng cho tung service; xem
+            # accuracy_df/get_accuracy_report() cho do chinh xac RIENG cua
+            # CHINH mo hinh Bivariate nay neu can phan biet 2 nguon).
+            result[f'{metric_name}_confidence'] = self._node_confidence(f'{service_name}_{metric_col}')
 
         return result
 
@@ -713,18 +703,357 @@ class CapacityAgent:
                 ('latency_change_pct', '_latency-50'),
             ]:
                 col = f"{svc}{col_suffix}"
+                base_key = metric_key.replace('_change_pct', '')
                 if col in self.df_baseline.columns and col in samples.columns:
                     base = float(self.df_baseline[col].mean())
                     pred = float(samples[col].mean())
                     chg  = (pred - base) / abs(base) * 100.0 if base != 0 else 0.0
                     entry[metric_key] = round(chg, 1)
-                    entry[f"{metric_key.replace('_change_pct', '')}_predicted"] = round(pred, 2)
-                    entry[f"{metric_key.replace('_change_pct', '')}_baseline"]  = round(base, 2)
+                    entry[f"{base_key}_predicted"] = round(pred, 2)
+                    entry[f"{base_key}_baseline"]  = round(base, 2)
+                    # Do tin cay cua node nay (_node_confidence(), dua tren
+                    # evaluate_node_stability() rieng cua node) -- danh dau ngay canh so, khong bat
+                    # nguoi doc phai tu tra select_key_nodes() rieng.
+                    entry[f"{base_key}_confidence"] = self._node_confidence(col)
                 else:
                     entry[metric_key] = None
+                    entry[f"{base_key}_confidence"] = 'no_dag_node'
             results[svc] = entry
 
         return results
+
+    def simulate_joint_intervention(
+        self,
+        injection_services: List[str] = None,
+        delta_pct: float = 25.0,
+    ) -> Dict[str, Any]:
+        """Nhu simulate_intervention(), nhung can thiep DONG THOI tai NHIEU
+        gateway -- truoc day chi co o muc chung minh (joint_certified_
+        envelope, Proposition 3), chua lo ra o lop API chinh nguoi dung/
+        assess_capacity() hay dung.
+
+        injection_services: mac dinh self.gateways (TOAN BO gateway hop le
+        suy tu graph, xem __init__) -- khong con gioi han 1 gateway "chinh"
+        duy nhat nhu simulate_intervention().
+
+        Dung deterministic_forward() (KHONG Monte Carlo, xem module
+        deterministic_forward.py) thay vi gcm.interventional_samples() --
+        nhat quan voi huong toi uu phep do() da chon xuyen suot phien lam
+        viec nay, va tranh sai so chon mau khi can thiep nhieu diem cung
+        luc (moi diem them mot nguon nhieu ngau nhien neu dung Monte Carlo).
+
+        Tra ve dict CUNG SCHEMA voi simulate_intervention() (moi service:
+        cpu/mem/latency_change_pct + _predicted/_baseline/_confidence),
+        chi khac o cho hieu ung la TONG HOP cua tat ca gateway can thiep
+        cung luc (khong phai cong don tung gateway rieng le -- xem
+        docstring joint_certified_envelope ve ly do khong duoc cong don
+        cho node latency phi tuyen)."""
+        self._last_ood_confidence = "high"
+        self._last_ood_flagged = []
+
+        if injection_services is None:
+            injection_services = self.gateways or (
+                [self.default_injection] if self.default_injection else [])
+
+        if self.global_dag_model is None or self.df_baseline is None or not injection_services:
+            return {}
+
+        injections = {}
+        for svc in injection_services:
+            col = f"{svc}_workload"
+            if col not in self.df_baseline.columns:
+                continue
+            base_wl = float(self.df_baseline[col].mean())
+            injections[col] = base_wl * (1.0 + delta_pct / 100.0)
+
+        if not injections:
+            return {}
+
+        print(f"  [Joint Simulation] do({list(injections.keys())} = +{delta_pct}%, "
+              f"{len(injections)} gateway dong thoi)")
+
+        vals, breached = deterministic_forward(self.dag_graph, self.global_dag_model,
+                                                self.df_baseline, injections)
+
+        results = {}
+        for svc in self.services:
+            entry = {}
+            for metric_key, col_suffix in [
+                ('cpu_change_pct',     '_cpu'),
+                ('mem_change_pct',     '_mem'),
+                ('latency_change_pct', '_latency-50'),
+            ]:
+                col = f"{svc}{col_suffix}"
+                base_key = metric_key.replace('_change_pct', '')
+                if col in self.df_baseline.columns and col in vals:
+                    base = float(self.df_baseline[col].mean())
+                    if col in breached:
+                        entry[metric_key] = float('inf')
+                        entry[f"{base_key}_predicted"] = float('inf')
+                    else:
+                        pred = vals[col]
+                        chg = (pred - base) / abs(base) * 100.0 if base != 0 else 0.0
+                        entry[metric_key] = round(chg, 1)
+                        entry[f"{base_key}_predicted"] = round(pred, 2)
+                    entry[f"{base_key}_baseline"] = round(base, 2)
+                    entry[f"{base_key}_confidence"] = self._node_confidence(col)
+                else:
+                    entry[metric_key] = None
+                    entry[f"{base_key}_confidence"] = 'no_dag_node'
+            results[svc] = entry
+
+        return results
+
+    # ----------------------------------------------------------
+    # PROPOSITION 2: CERTIFIED CAPACITY ENVELOPE
+    # ----------------------------------------------------------
+    # Layer 3 (parser_agent.py) guarantees the emitted delta lies in
+    # [5,50] (Proposition 1(ii)). Because every Tier-1/Tier-2 mechanism
+    # is fit with non-negative coefficients (LinearRegression(positive=
+    # True)) and the queueing transform phi(w)=w/(c-w) is monotone
+    # increasing on w<c, the composition of the whole DAG is monotone
+    # non-decreasing in delta (proof: induction over topological order,
+    # composition of monotone non-decreasing functions is monotone
+    # non-decreasing). Two deterministic forward passes therefore bound
+    # every downstream node's POINT ESTIMATE for every delta* in [5,50]
+    # Layer 3 could emit -- not a probabilistic bound on the realised
+    # future value (noise terms N_j are not propagated here; see
+    # docstring of certified_envelope for what this does and does not
+    # certify).
+    #
+    # This must NOT be implemented via simulate_intervention() / gcm.
+    # interventional_samples(): that draws stochastic Monte Carlo noise
+    # per node, which reintroduces exactly the ambiguity a certificate
+    # is meant to remove (confirmed empirically: two live calls at the
+    # same delta gave CPU predictions that differed only due to sampling
+    # noise, with no change to the fitted mechanism at all).
+
+    def _deterministic_forward(
+        self, injection_node: str, target_value: float
+    ) -> Tuple[Dict[str, float], List[str]]:
+        """Noise-free point-estimate propagation: walk the DAG in
+        topological order, call each fitted mechanism's own sklearn
+        .predict() on its parents' point estimates (no additive-noise
+        sampling). Returns (values, breached) where `breached` lists
+        latency nodes whose parent workload reached or exceeded that
+        node's own fitted capacity ceiling (phi's domain boundary) --
+        flagged explicitly rather than silently extrapolated through a
+        diverging queueing transform.
+
+        Thin wrapper over src/scm/deterministic_forward.py (shared with
+        _deterministic_forward_multi below and with node_impact.py's
+        rank_user_impact) -- single injection is just the multi-injection
+        case with one key."""
+        return deterministic_forward(
+            self.dag_graph, self.global_dag_model, self.global_df_baseline,
+            {injection_node: target_value})
+
+    def _check_monotone_precondition(self) -> List[str]:
+        """Runtime check of Proposition 2's precondition (a): every
+        fitted mechanism coefficient is non-negative. Re-asserted here
+        rather than only trusted from the solver constraint, because
+        RQ3's own finding (a hard-coded fallback silently violating
+        Proposition 1) is precisely the failure mode this guards
+        against for Proposition 2: a design that is correct is not
+        thereby an implementation that is correct."""
+        violations = []
+        for node in self.dag_graph.nodes():
+            if self.dag_graph.in_degree(node) == 0:
+                continue
+            sk = self.global_dag_model.causal_mechanism(node).prediction_model.sklearn_model
+            coef = sk.model_.coef_ if isinstance(sk, QueueingLatencyRegressor) else getattr(sk, 'coef_', None)
+            if coef is not None and bool((np.array(coef) < 0).any()):
+                violations.append(node)
+        return violations
+
+    def certified_envelope(
+        self,
+        injection_service: str = None,
+        delta_min_pct: float = 5.0,
+        delta_max_pct: float = 50.0,
+    ) -> Dict[str, Any]:
+        """Proposition 2. Two deterministic forward passes at the
+        verified boundary of the intervention delta certify, for EVERY
+        delta* in [delta_min_pct, delta_max_pct], a coordinate-wise
+        interval containing the point-estimate (conditional-mean, zero-
+        noise) value of every downstream node. This is a guarantee about
+        the fitted deterministic mechanism, NOT a probabilistic
+        prediction interval on the realised future observation: it does
+        not account for N_j, nor for mechanism misspecification. See the
+        existing G7 OOD-confidence guard (_classify_ood_confidence) for
+        the complementary, separate signal of whether a node's projected
+        value falls outside its own training distribution -- report both
+        together, they answer different questions.
+
+        Raises RuntimeError if the monotonicity precondition does not
+        hold on the currently fitted model (see _check_monotone_
+        precondition) -- the certificate must never be issued silently
+        over a violated precondition.
+        """
+        violations = self._check_monotone_precondition()
+        if violations:
+            raise RuntimeError(
+                f"Proposition 2 precondition violated (beta<0) at: {violations}. "
+                "Certificate withheld -- fix the mechanism before certifying."
+            )
+
+        if injection_service is None:
+            injection_service = self.default_injection
+        inj_col = f"{injection_service}_workload"
+        if inj_col not in self.global_df_baseline.columns:
+            return {}
+
+        base_wl = float(self.global_df_baseline[inj_col].mean())
+        w_lo = base_wl * (1.0 + delta_min_pct / 100.0)
+        w_hi = base_wl * (1.0 + delta_max_pct / 100.0)
+
+        Y_lo, breached_lo = self._deterministic_forward(inj_col, w_lo)
+        Y_hi, breached_hi = self._deterministic_forward(inj_col, w_hi)
+        breached = set(breached_lo) | set(breached_hi)
+
+        envelope: Dict[str, Any] = {}
+        for node in self.dag_graph.nodes():
+            if node == inj_col:
+                continue
+            if node in breached:
+                envelope[node] = 'CEILING_BREACHED'
+                continue
+            lo, hi = Y_lo.get(node), Y_hi.get(node)
+            if lo is None or hi is None:
+                continue
+            # min/max rather than assuming lo<=hi: a cheap defensive net,
+            # not a substitute for the precondition check above.
+            envelope[node] = {'lo': min(lo, hi), 'hi': max(lo, hi)}
+        return envelope
+
+    # ----------------------------------------------------------
+    # PROPOSITION 3: JOINT INTERVENTION ENVELOPE
+    # ----------------------------------------------------------
+    # Two requirements approved in the same window intervene at two
+    # (possibly different) nodes simultaneously. Proposition 2's
+    # monotonicity argument extends unchanged to a vector of
+    # simultaneous injections -- the induction over topological order
+    # only ever used that each mechanism is monotone non-decreasing in
+    # EACH of its parents, which holds regardless of how many root
+    # variables feed the graph. So the joint envelope over K simultaneous
+    # deltas still costs exactly two deterministic forward passes: all K
+    # injections at their delta_min together, all K at their delta_max
+    # together.
+    #
+    # What does NOT carry over is additivity. Tier-1/Tier-2 CPU/mem/
+    # workload mechanisms are affine, so their joint effect equals the
+    # exact sum of each intervention's marginal effect computed alone --
+    # superposition holds. The latency mechanism is not affine: phi(w) =
+    # w/(c-w) is convex increasing on w<c, so for any node whose parent
+    # workload receives contributions from two converging interventions,
+    # Jensen's inequality gives
+    #     phi(w0+d1+d2) - phi(w0)  >=  [phi(w0+d1)-phi(w0)] + [phi(w0+d2)-phi(w0)],
+    # i.e. the TRUE joint latency increase is never less than the sum of
+    # the two increases computed separately -- strictly greater whenever
+    # both d1,d2>0 and phi is strictly convex there. Checking two
+    # requirements individually against a shared latency bottleneck is
+    # therefore necessary but not sufficient: the joint envelope must be
+    # computed with both injections active, not approximated by summing
+    # two single-intervention envelopes.
+
+    def _deterministic_forward_multi(
+        self, injections: Dict[str, float]
+    ) -> Tuple[Dict[str, float], List[str]]:
+        """As _deterministic_forward, but accepts several simultaneous
+        do(node=value) injections (keys are e.g. 'front-end_workload',
+        'orders_workload'). Nodes not listed are computed from their
+        parents as usual; injected nodes take their given value directly,
+        overriding whatever their own mechanism would have produced.
+
+        Thin wrapper over src/scm/deterministic_forward.py -- see
+        _deterministic_forward above."""
+        return deterministic_forward(
+            self.dag_graph, self.global_dag_model, self.global_df_baseline, injections)
+
+    def joint_certified_envelope(
+        self,
+        injection_services: List[str],
+        delta_min_pct: float = 5.0,
+        delta_max_pct: float = 50.0,
+    ) -> Dict[str, Any]:
+        """Proposition 3. Certifies an interval for every downstream node
+        under K simultaneous interventions, for every combination of
+        delta*_1,...,delta*_K each in [delta_min_pct, delta_max_pct] --
+        still exactly two deterministic forward passes regardless of K,
+        by the same monotonicity argument as certified_envelope(). See
+        the module-level note above on why this must NOT be approximated
+        by summing K single-intervention envelopes for any node whose
+        latency depends on a workload with contributions from more than
+        one of the injected services."""
+        violations = self._check_monotone_precondition()
+        if violations:
+            raise RuntimeError(
+                f"Proposition 2/3 precondition violated (beta<0) at: {violations}. "
+                "Certificate withheld."
+            )
+        inj_cols = [f"{s}_workload" for s in injection_services]
+        for c in inj_cols:
+            if c not in self.global_df_baseline.columns:
+                return {}
+        bases = {c: float(self.global_df_baseline[c].mean()) for c in inj_cols}
+
+        lo_injections = {c: bases[c] * (1.0 + delta_min_pct / 100.0) for c in inj_cols}
+        hi_injections = {c: bases[c] * (1.0 + delta_max_pct / 100.0) for c in inj_cols}
+        Y_lo, breached_lo = self._deterministic_forward_multi(lo_injections)
+        Y_hi, breached_hi = self._deterministic_forward_multi(hi_injections)
+        breached = set(breached_lo) | set(breached_hi)
+
+        envelope: Dict[str, Any] = {}
+        for node in self.dag_graph.nodes():
+            if node in inj_cols:
+                continue
+            if node in breached:
+                envelope[node] = 'CEILING_BREACHED'
+                continue
+            lo, hi = Y_lo.get(node), Y_hi.get(node)
+            if lo is None or hi is None:
+                continue
+            envelope[node] = {'lo': min(lo, hi), 'hi': max(lo, hi)}
+        return envelope
+
+    def compare_joint_vs_naive_sum(
+        self, injection_services: List[str], delta_pct: float = 50.0
+    ) -> Dict[str, Dict[str, float]]:
+        """Empirical companion to Proposition 3: computes, for a single
+        fixed delta applied to each of K services simultaneously, (a) the
+        TRUE joint point estimate (both/all injections active in one
+        deterministic forward pass) versus (b) the NAIVE sum (each
+        injection's marginal delta computed alone against baseline, then
+        added). Returns, per downstream node, {'joint':..., 'naive_sum':
+        ..., 'gap': joint-naive_sum}. Proposition 3 predicts gap==0 (up to
+        floating point) for every affine Tier-1/Tier-2 node, and gap>=0,
+        strictly >0 where a latency node's parent workload receives a
+        genuine contribution from more than one injected service."""
+        inj_cols = [f"{s}_workload" for s in injection_services]
+        bases = {c: float(self.global_df_baseline[c].mean()) for c in inj_cols}
+        target = {c: bases[c] * (1.0 + delta_pct / 100.0) for c in inj_cols}
+
+        baseline_vals, _ = self._deterministic_forward_multi({})
+        joint_vals, _ = self._deterministic_forward_multi(target)
+
+        # Naive sum: baseline + each injection's own marginal delta, added.
+        marginals = {c: self._deterministic_forward_multi({c: target[c]})[0] for c in inj_cols}
+        naive_sum: Dict[str, float] = {}
+        for node, base_v in baseline_vals.items():
+            if node in inj_cols:
+                continue
+            total = base_v
+            for c in inj_cols:
+                total += marginals[c].get(node, base_v) - base_v
+            naive_sum[node] = total
+
+        out: Dict[str, Dict[str, float]] = {}
+        for node in joint_vals:
+            if node in inj_cols or node not in naive_sum:
+                continue
+            j, n = joint_vals[node], naive_sum[node]
+            out[node] = {'joint': j, 'naive_sum': n, 'gap': j - n}
+        return out
 
     def get_accuracy_report(self) -> pd.DataFrame:
         if self.accuracy_df is None or self.accuracy_df.empty:
@@ -761,6 +1090,134 @@ class CapacityAgent:
             if node in self.global_df_baseline:
                 return float(self.global_df_baseline[node])
         return 24.0
+
+    # ----------------------------------------------------------
+    # NODE IMPACT / STABILITY RANKING (src/scm/node_impact.py)
+    # ----------------------------------------------------------
+    # "Node nao anh huong nguoi dung nhat" va "node nao du bao on dinh
+    # nhat" la 2 cau hoi khac nhau tra loi boi node_impact.py (xem
+    # docstring module do). Cac method duoi day CHI truyen dung state cua
+    # CHINH agent nay (dag_graph/global_dag_model/global_df_baseline da
+    # fit boi train_accurate_path) vao 2 ham system-agnostic do -- khong
+    # lap lai logic.
+
+    def rank_user_impact(
+        self, target_nodes: List[str] = None, gateway: str = None, delta_pct: float = 20.0
+    ) -> pd.DataFrame:
+        """Xep hang tung cap (node, target) trong Global DAG theo
+        elasticity doi voi trai nghiem nguoi dung (mac dinh target_nodes:
+        TOAN BO node '..._latency-50' trong do thi -- xem node_impact.
+        rank_user_impact() de biet vi sao mot target duy nhat (vd chi
+        latency cua gateway) cho ket qua suy bien tren DAG hien tai)."""
+        if self.dag_graph is None or self.global_dag_model is None:
+            return pd.DataFrame()
+        return _rank_user_impact(self.dag_graph, self.global_dag_model,
+                                  self.global_df_baseline, target_nodes=target_nodes,
+                                  gateway=gateway, delta_pct=delta_pct)
+
+    def evaluate_node_stability(self) -> pd.DataFrame:
+        """Danh gia do on dinh du bao (MAPE/R2 held-out, protocol OOD Gold
+        Standard) cua CHINH co che DA FIT (khong refit ban sao moi -- xem
+        node_impact.evaluate_node_stability() ve ly do quan trong cua dieu
+        nay) cho tung node co cha trong Global DAG."""
+        if self.dag_graph is None or self.global_dag_model is None or self.global_df_baseline is None:
+            return pd.DataFrame()
+        return _evaluate_node_stability(self.dag_graph, self.global_dag_model, self.global_df_baseline)
+
+    def select_key_nodes(
+        self, target_nodes: List[str] = None, gateway: str = None, delta_pct: float = 20.0,
+    ) -> Dict[str, List[str]]:
+        """Gop rank_user_impact() + evaluate_node_stability() thanh khuyen
+        nghi node nao nen uu tien du bao/theo doi: 'recommended' (anh
+        huong nguoi dung manh VA du bao on dinh, hoac la node goc doc truc
+        tiep tu telemetry), 'unstable_but_impactful' (anh huong manh nhung
+        du bao KHONG dang tin -- canh bao rieng, khong am tham bo qua). Xem
+        node_impact.select_key_nodes()."""
+        impact_df = self.rank_user_impact(target_nodes, gateway, delta_pct)
+        stability_df = self.evaluate_node_stability()
+        root_nodes = {n for n in self.dag_graph.nodes() if self.dag_graph.in_degree(n) == 0}
+        return _select_key_nodes(impact_df, stability_df, root_nodes=root_nodes)
+
+    def _get_key_nodes(self) -> Dict[str, List[str]]:
+        """select_key_nodes() voi tham so mac dinh, cache lai -- CHI dung
+        cho cau hoi "node nao nen theo doi o muc TOAN HE THONG" (vd bao
+        cao tong quan). KHONG dung cho _node_confidence() (xem do): mot
+        node CapacityAgent DA QUYET DINH bao cao (vi request/service dang
+        hoi toi no) can duoc danh gia do tin cay CUA RIENG NO, khong phai
+        bi che boi cau hoi "no co nam trong top-impact TOAN CUC hay
+        khong" -- 2 cau hoi khac nhau. Vi du da phat hien tren Train
+        Ticket: target mac dinh (latency) khien MOI node co elasticity=0
+        (README #7), nen select_key_nodes() tra ve rong cho MOI node --
+        neu _node_confidence() dung cache nay, no se bao 'not_ranked' cho
+        ca 28 node latency hoi hong, che mat dung van de can bao."""
+        if self._key_nodes_cache is None:
+            self._key_nodes_cache = self.select_key_nodes() if self.dag_graph is not None else {
+                'high_impact': [], 'recommended': [], 'unstable_but_impactful': []}
+        return self._key_nodes_cache
+
+    def _get_stability_df(self) -> pd.DataFrame:
+        """evaluate_node_stability() cache lai (mot lan/train(), xem
+        _get_key_nodes() ve ly do cache theo train() chu khong theo lan
+        goi) -- day la nguon THAT cho _node_confidence(), khong phai
+        select_key_nodes()."""
+        if self._stability_cache is None:
+            self._stability_cache = self.evaluate_node_stability() if self.dag_graph is not None else pd.DataFrame()
+        return self._stability_cache
+
+    def mark_node_unreliable(self, node: str, reason: str = None):
+        """Danh dau TAY mot node la khong dang tin, doc lap voi select_
+        key_nodes() tu dong -- dung khi biet truoc mot van de KHONG the
+        (hoac chua) bat duoc qua elasticity/stability tu dong, vd:
+          - G7 da ghi nhan catalogue_cpu tren Sock Shop lech phan phoi
+            nang, bao dong gia (README "Gioi han da biet" #4).
+          - README #7: ca 28 node latency cua Train Ticket co he so = 0
+            (evaluate_node_stability() da bat duoc dieu nay qua kiem coef_
+            truc tiep -- MAPE mot minh KHONG bat duoc, xem
+            node_impact._is_degenerate_mechanism -- nhung mot nguoi dung
+            co the muon danh dau ngay ca khi chua chay lai danh gia).
+        Danh dau nay LUON duoc _node_confidence() uu tien hon ket qua tu
+        dong (xem do)."""
+        self._manual_unreliable_nodes[node] = reason or 'flagged_manually'
+
+    def unmark_node_unreliable(self, node: str):
+        """Bo danh dau TAY (neu co) -- khong loi neu node chua duoc danh dau."""
+        self._manual_unreliable_nodes.pop(node, None)
+
+    def _node_confidence(self, node: str) -> str:
+        """Do tin cay CUA RIENG node nay (khong phu thuoc no co "quan
+        trong toan cuc" hay khong -- xem _get_key_nodes() ve ly do TACH
+        rieng khoi select_key_nodes()/rank_user_impact()). Uu tien theo
+        thu tu:
+          1. 'manually_flagged' : da mark_node_unreliable() cho node nay
+                                   -- LUON thang, bat ke danh gia tu dong.
+          2. 'no_dag_node'      : node khong ton tai trong Global DAG (vd
+                                   Socket -- Tier-2 khong co canh workload
+                                   ->socket) -- khong co gi de danh gia.
+          3. 'stable'           : node GOC (doc truc tiep tu telemetry,
+                                   khong qua co che du bao nao -- vd
+                                   workload cua gateway), HOAC co
+                                   evaluate_node_stability() voi tag
+                                   EXCELLENT/FAIR.
+          4. 'unstable'         : co evaluate_node_stability() voi tag
+                                   POOR -- day la nguyen nhan README #7
+                                   (28 node latency Train Ticket) duoc
+                                   bat o day, KHONG phai qua top-impact.
+          5. 'unknown'          : co co che (khong phai node goc) nhung
+                                   khong du du lieu OOD held-out de danh
+                                   gia (vd < min_rows) -- khac 'stable',
+                                   khong nen ngam dinh la dang tin."""
+        if node in self._manual_unreliable_nodes:
+            return 'manually_flagged'
+        if self.dag_graph is None or node not in self.dag_graph.nodes():
+            return 'no_dag_node'
+        if self.dag_graph.in_degree(node) == 0:
+            return 'stable'
+        stability_df = self._get_stability_df()
+        row = stability_df[stability_df['node'] == node] if not stability_df.empty else stability_df
+        if row.empty:
+            return 'unknown'
+        tag = row.iloc[0]['tag']
+        return 'unstable' if tag == 'POOR' else 'stable'
 
     # ----------------------------------------------------------
     # CHU TRÌNH REACT TOÀN PHẦN (THE CORE AGENTIC METHOD)

@@ -1,0 +1,15 @@
+system,node,metric_type,baseline_test_mape,chosen_extra_parent,final_test_mape,n_candidates_tried
+sockshop,front-end_cpu,cpu,4.07,(none),4.07,0
+sockshop,front-end_latency-50,latency,9.04,carts_latency-50,3.76,4
+sockshop,catalogue_cpu,cpu,60.77,(none),60.77,1
+sockshop,catalogue_latency-50,latency,0.68,(none),0.68,0
+sockshop,user_cpu,cpu,6.28,(none),6.28,2
+sockshop,user_latency-50,latency,1.68,(none),1.68,0
+sockshop,carts_cpu,cpu,5.24,orders_cpu,6.13,2
+sockshop,carts_latency-50,latency,868.82,(none),868.82,0
+sockshop,orders_cpu,cpu,12.9,(none),12.9,1
+sockshop,orders_latency-50,latency,89.69,carts_latency-50,9.38,4
+sockshop,payment_cpu,cpu,16.65,(none),16.65,1
+sockshop,payment_latency-50,latency,1.52,(none),1.52,0
+sockshop,shipping_cpu,cpu,9.46,orders_cpu,7.48,1
+sockshop,shipping_latency-50,latency,11.13,(none),11.13,0

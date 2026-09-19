@@ -1,0 +1,4 @@
+mechanism,mape_pct,rmse,r2,f1_threshold_cross,n_pairs
+hgbr_mono,14.2055,817997.3084,-59.8807,0.8571,21
+linear_pos,12.6135,464405.7578,-58.0728,0.9,21
+sigmoid_sat,242.0879,12295200.8828,-69237.0498,0.7302,21

@@ -1,0 +1,9 @@
+caller,callee,r2_baseline,r2_extended,r2_gain,n_rows
+orders,shipping,0.0008,0.1511,0.1502,63486
+orders,carts,0.002,0.0802,0.0783,63486
+front-end,user,0.0215,0.0616,0.0401,63486
+orders,user,0.0215,0.0403,0.0188,63486
+front-end,orders,0.0858,0.0974,0.0116,63486
+front-end,carts,0.002,0.0121,0.0101,63486
+front-end,catalogue,0.0,0.0,0.0,63486
+orders,payment,0.0002,0.0002,0.0,63486

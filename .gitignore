@@ -4,6 +4,10 @@ credentials/
 .env
 .env*.local
 
+# SCM edge-selection cache (tu sinh, khoa theo hash du lieu/graph -- xem
+# src/scm/scm_graph_builder.py) -- khong phai source, khong nen commit.
+data/processed/scm_cache/
+
 # Logs
 logs/
 *.log

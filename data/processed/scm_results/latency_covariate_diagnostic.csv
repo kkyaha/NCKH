@@ -1,0 +1,21 @@
+target,features,positive,mape,coefs
+carts_latency-50,carts_workload,True,961.6,{'carts_workload': np.float64(0.0)}
+carts_latency-50,carts_workload+front-end_cpu,True,961.6,"{'carts_workload': np.float64(0.0), 'front-end_cpu': np.float64(0.0)}"
+carts_latency-50,carts_workload+front-end_latency-50,True,294.1,"{'carts_workload': np.float64(0.0), 'front-end_latency-50': np.float64(76.6738)}"
+carts_latency-50,carts_workload+orders_cpu,True,961.6,"{'carts_workload': np.float64(0.0), 'orders_cpu': np.float64(0.0)}"
+carts_latency-50,carts_workload+orders_workload,True,961.6,"{'carts_workload': np.float64(0.0), 'orders_workload': np.float64(0.0)}"
+carts_latency-50,carts_workload,False,1197.5,{'carts_workload': np.float64(-0.2683)}
+carts_latency-50,carts_workload+front-end_cpu,False,1052.9,"{'carts_workload': np.float64(-0.2136), 'front-end_cpu': np.float64(-0.3987)}"
+carts_latency-50,carts_workload+front-end_latency-50,False,707.3,"{'carts_workload': np.float64(-0.1281), 'front-end_latency-50': np.float64(73.3324)}"
+carts_latency-50,carts_workload+orders_cpu,False,1220.5,"{'carts_workload': np.float64(-0.2641), 'orders_cpu': np.float64(-0.041)}"
+carts_latency-50,carts_workload+orders_workload,False,1093.2,"{'carts_workload': np.float64(-0.2491), 'orders_workload': np.float64(-0.1328)}"
+orders_latency-50,orders_workload,True,100.4,{'orders_workload': np.float64(0.0)}
+orders_latency-50,orders_workload+carts_latency-50,True,7.6,"{'orders_workload': np.float64(0.0), 'carts_latency-50': np.float64(0.4334)}"
+orders_latency-50,orders_workload+user_latency-50,True,100.4,"{'orders_workload': np.float64(0.0), 'user_latency-50': np.float64(0.0)}"
+orders_latency-50,orders_workload+payment_latency-50,True,106.6,"{'orders_workload': np.float64(0.0), 'payment_latency-50': np.float64(271.4875)}"
+orders_latency-50,orders_workload+shipping_latency-50,True,100.4,"{'orders_workload': np.float64(0.0), 'shipping_latency-50': np.float64(0.0)}"
+orders_latency-50,orders_workload,False,64.6,{'orders_workload': np.float64(-0.1258)}
+orders_latency-50,orders_workload+carts_latency-50,False,18.4,"{'orders_workload': np.float64(-0.0162), 'carts_latency-50': np.float64(0.4325)}"
+orders_latency-50,orders_workload+user_latency-50,False,66.2,"{'orders_workload': np.float64(-0.1241), 'user_latency-50': np.float64(-26.3784)}"
+orders_latency-50,orders_workload+payment_latency-50,False,30.5,"{'orders_workload': np.float64(-0.0815), 'payment_latency-50': np.float64(264.2761)}"
+orders_latency-50,orders_workload+shipping_latency-50,False,87.7,"{'orders_workload': np.float64(-0.1408), 'shipping_latency-50': np.float64(-32.8639)}"

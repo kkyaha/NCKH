@@ -211,3 +211,30 @@ ghi chú chung:
    trích dẫn bất kỳ con số nào từ một script `--live-llm`.
 6. Free-tier Gemini API có quota theo phút/ngày — nếu script báo lỗi 429, đợi quota reset (thường
    theo ngày UTC) rồi chạy lại; dữ liệu từng dòng đã ghi sẽ không mất (xem mục "CHẠY").
+7. **Global DAG của Train Ticket không dự báo được latency (mọi service).** Phát hiện qua
+   `src/scm/node_impact.py` (đánh giá elasticity/độ ổn định từng node): cả 28/28 cơ chế
+   `<service>_latency-50` trong `train_accurate_path()` fit ra hệ số hồi quy **= 0 tuyệt đối**
+   (`QueueingLatencyRegressor.model_.coef_ == [0, 0]`), tức mô hình luôn dự báo latency không
+   đổi bất kể workload — không phải lỗi code: tương quan thô workload↔latency trên dữ liệu
+   "bình thường" (trước inject fault) của Train Ticket chỉ ~0.0016 (gần như không có), có lẽ vì
+   khoảng workload quan sát được trong giai đoạn bình thường quá hẹp để lộ hiệu ứng hàng đợi.
+   Khác với Sock Shop, nơi hiện tượng này chỉ xảy ra ở 1/7 node (đã ghi trong docstring
+   `QueueingLatencyRegressor`). Do đó: (a) `simulate_intervention()`/`certified_envelope()` trên
+   Train Ticket vẫn chạy và trả về số, nhưng **mọi con số latency đều là hằng số baseline, không
+   phản ánh can thiệp** — chỉ CPU/Memory/Socket (Fast Path) và các node `_cpu`/`_workload` trong
+   Global DAG là đáng tin cho Train Ticket; (b) `rank_user_impact()` mặc định dùng target
+   `_latency-50` sẽ trả về rỗng cho Train Ticket vì lý do này — dùng
+   `target_nodes=[f'{s}_cpu' for s in services]` thay thế cho hệ thống này. Chưa có bản sửa;
+   cần dữ liệu Train Ticket với dải workload rộng hơn (bao gồm giai đoạn tải cao) hoặc một cơ chế
+   latency khác không phụ thuộc hoàn toàn vào workload tuyến tính. Trong lúc chưa sửa được, có
+   thể đánh dấu tay 28 node này bằng `agent.mark_node_unreliable(node, reason=...)`
+   (`capacity_agent.py`) để `get_metrics_for_service()`/`simulate_intervention()` trả về
+   `..._confidence = 'manually_flagged'` cho chúng ngay cả khi `evaluate_node_stability()`
+   chưa/không chạy lại — xem docstring `mark_node_unreliable()`. **Tự động cũng bắt được**
+   (không cần đánh dấu tay): `evaluate_node_stability()`/`_node_confidence()` gắn cờ
+   `'unstable'` cho cả 28/28 node này — nhưng ban đầu suýt không bắt được, vì latency của
+   Train Ticket có biên độ rất hẹp (~0.01-0.05) nên một dự báo HẰNG SỐ vẫn có MAPE trông thấp
+   (5-30%, có node còn tới mức "EXCELLENT") dù R² âm mọi node (-4.3 đến -0.002) và hệ số = 0 —
+   đúng cái bẫy MAPE-một-mình mà `docs/RQ1_SCM_ACCURACY_REPORT.md` đã cảnh báo. Đã sửa bằng
+   cách kiểm `coef_` trực tiếp (`node_impact._is_degenerate_mechanism`) thay vì chỉ suy từ
+   MAPE/R² — coef≈0 luôn ép tag về `'POOR'`/`'unstable'` bất kể MAPE nói gì.

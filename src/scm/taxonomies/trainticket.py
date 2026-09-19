@@ -9,9 +9,11 @@ Cach dung theo dung "General Specification" trong paper:
 
   * `services` cua moi archetype KHONG viet tay. Chung duoc suy ra tu do thi
     phu thuoc that (`src/graph/trainticket_agent_graph.json`) bang cach lay
-    closure huu han hop (bounded BFS) tu gateway qua cac service "hat giong"
-    dac trung cho archetype do -- dung phep "simple paths from gateway"
-    ma bang General Specification danh dau la ban tu dong.
+    closure huu han hop (bounded BFS) tu cac service "hat giong" dac trung
+    cho archetype do -- dung phep ma bang General Specification danh dau la
+    ban tu dong. Phan BFS/gateway-derivation nay nam trong
+    `src/scm/taxonomy_builder.py` (system-agnostic), KHONG viet rieng o day
+    nua -- xem module do de biet chi tiet thuat toan.
   * `keywords` va `description` viet tay tu tai lieu Train Ticket -- dung
     hang ma bang General Specification danh dau la "Assisted, needs human
     review". Day la phan KHONG tu dong hoa duoc, va chung toi khong gia vo
@@ -23,69 +25,33 @@ Cach dung theo dung "General Specification" trong paper:
     Phai neu ro dieu nay o bat ky cho nao bao cao so lieu Train Ticket.
 
 Gateway: khac SockShop (mot gateway `front-end` duy nhat), Train Ticket co
-14 node in-degree=0. Entry point that cua nguoi dung cuoi la `ts-ui-dashboard`
-(out-degree 15, cao nhat do thi). Cac node in-degree=0 con lai la dich vu
-quan tri/ha tang (`ts-admin-*`, `ts-auth-service`, `ts-voucher-service`, ...)
-KHONG phai duong vao cua yeu cau khach hang. Dieu nay lam cho bai toan
-"gateway disambiguation" -- thu paper truoc day xep vao muc chua kiem chung
-duoc vi topology chi co mot gateway -- tro nen kiem chung duoc.
+14 node type=='gateway' (in-degree=0, tru ha tang). Entry point that cua
+nguoi dung cuoi la `ts-ui-dashboard` (out-degree 15, cao nhat do thi) --
+dung `taxonomy_builder.derive_primary_gateway()` de suy ra gia tri nay tu
+CHINH do thi thay vi ghi co dinh, va gan lai vao hang so ben duoi CHI DE
+kiem chung/tai lieu hoa (assert bang nhau, xem duoi). Cac node type=='gateway'
+con lai la dich vu quan tri/ha tang (`ts-admin-*`, `ts-auth-service`,
+`ts-voucher-service`, ...) KHONG phai duong vao cua yeu cau khach hang. Dieu
+nay lam cho bai toan "gateway disambiguation" -- thu paper truoc day xep vao
+muc chua kiem chung duoc vi topology chi co mot gateway -- tro nen kiem
+chung duoc.
 """
 
-import json
 import os
-from collections import deque
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from taxonomy_builder import load_graph, derive_primary_gateway, build_call_chains  # noqa: E402
 
 GRAPH_PATH = os.path.abspath(os.path.join(
     os.path.dirname(__file__), '..', '..', 'graph', 'trainticket_agent_graph.json'))
 
 # Entry point that su cho yeu cau khach hang (xem docstring ve 14 gateway).
+# Ghi co dinh (khong goi derive_primary_gateway() truc tiep vao CALL_CHAINS)
+# de mot lan trich xuat lai graph bi loi khong am tham doi gateway; module
+# nay TU KIEM (xem __main__) rang gia tri suy ra tu do thi khop hang so nay.
 TRAINTICKET_GATEWAY = 'ts-ui-dashboard'
-
-# Ha tang, khong phai service ung dung -> loai khoi blast radius.
-_INFRA_SUFFIXES = ('-mongo', '-mysql', '-redis')
-
-
-def _load_graph():
-    with open(GRAPH_PATH, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    adj = {n['id']: [] for n in data['nodes']}
-    for e in data['edges']:
-        if e['source'] in adj:
-            adj[e['source']].append(e['target'])
-    return adj
-
-
-def _is_infra(node: str) -> bool:
-    return node.endswith(_INFRA_SUFFIXES)
-
-
-def _closure(adj, seeds, max_hops: int):
-    """BFS huu han hop tu CAC SEED cua archetype, bo node ha tang.
-
-    QUAN TRONG: BFS bat dau tu seed, KHONG tu gateway. Gateway
-    `ts-ui-dashboard` co out-degree 15, nen mo rong tu no chi 2 hop la cham
-    gan het do thi (28-30/68 node) va moi archetype se co blast radius gan
-    nhu giong het nhau -- dung loi ma paper da neu: mot tap node chung khong
-    phan biet duoc hai archetype khac y dinh nguoi dung. Gateway chi duoc
-    GHEP vao dau danh sach vi moi yeu cau khach hang deu di qua no.
-
-    Tra ve danh sach theo thu tu on dinh (gateway truoc, roi alphabet).
-    """
-    seen = set()
-    q = deque()
-    for s in seeds:
-        if s in adj and s != TRAINTICKET_GATEWAY:
-            q.append((s, 0))
-            seen.add(s)
-    while q:
-        node, hop = q.popleft()
-        if hop >= max_hops:
-            continue
-        for nxt in adj.get(node, []):
-            if nxt not in seen and not _is_infra(nxt) and nxt != TRAINTICKET_GATEWAY:
-                seen.add(nxt)
-                q.append((nxt, hop + 1))
-    return [TRAINTICKET_GATEWAY] + sorted(seen)
 
 
 # Phan VIET TAY: seed service, mo ta, tu khoa, neo gia dinh.
@@ -177,22 +143,29 @@ _ARCHETYPE_SPEC = {
 
 
 def build_trainticket_call_chains() -> dict:
-    """Sinh bang CALL_CHAINS cho Train Ticket tu do thi phu thuoc that."""
-    adj = _load_graph()
-    out = {}
-    for name, spec in _ARCHETYPE_SPEC.items():
-        services = _closure(adj, spec['seeds'], spec['hops'])
-        out[name] = {
-            'services': services,
-            'description': spec['description'],
-            'keywords': spec['keywords'],
-            'resource_profile': spec['resource_profile'],
-            'expected_delta_pct': spec['expected_delta_pct'],
-        }
-    return out
+    """Sinh bang CALL_CHAINS cho Train Ticket tu do thi phu thuoc that.
+
+    Uy quyen toan bo cho taxonomy_builder.build_call_chains() (system-agnostic)
+    -- Train Ticket chi cung graph path + TRAINTICKET_GATEWAY + _ARCHETYPE_SPEC
+    viet tay (phan "assisted"/"not automatable" theo General Specification).
+    """
+    return build_call_chains(GRAPH_PATH, _ARCHETYPE_SPEC, gateway=TRAINTICKET_GATEWAY)
 
 
 TRAINTICKET_CALL_CHAINS = build_trainticket_call_chains()
 
 __all__ = ['TRAINTICKET_CALL_CHAINS', 'build_trainticket_call_chains',
            'TRAINTICKET_GATEWAY']
+
+if __name__ == '__main__':
+    # Tu kiem: TRAINTICKET_GATEWAY (hang so ghi co dinh o tren) phai khop
+    # gateway suy tu CHINH do thi -- neu lech, graph da doi (vd trich xuat
+    # lai) va hang so can duoc cap nhat thu cong.
+    _adj, _node_types = load_graph(GRAPH_PATH)
+    _derived = derive_primary_gateway(_adj, _node_types)
+    assert _derived == TRAINTICKET_GATEWAY, (
+        f"TRAINTICKET_GATEWAY='{TRAINTICKET_GATEWAY}' khong khop gateway suy tu "
+        f"do thi hien tai ('{_derived}') -- graph co the da doi, kiem tra lai.")
+    print(f"[OK] TRAINTICKET_GATEWAY khop gateway suy tu do thi: {_derived}")
+    for _name, _chain in TRAINTICKET_CALL_CHAINS.items():
+        print(f"  {_name}: {_chain['services']}")

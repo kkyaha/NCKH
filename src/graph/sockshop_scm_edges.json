@@ -1,0 +1,86 @@
+{
+  "system": "sockshop",
+  "metric": "cpu",
+  "min_gain": 0.01,
+  "ood_safety_checked": true,
+  "final_edges": [
+    [
+      "orders_cpu",
+      "shipping_cpu"
+    ],
+    [
+      "orders_cpu",
+      "carts_cpu"
+    ],
+    [
+      "front-end_cpu",
+      "user_cpu"
+    ]
+  ],
+  "scores": [
+    {
+      "caller": "orders",
+      "callee": "shipping",
+      "r2_baseline": 0.0008,
+      "r2_extended": 0.1511,
+      "r2_gain": 0.1502,
+      "n_rows": 63486
+    },
+    {
+      "caller": "orders",
+      "callee": "carts",
+      "r2_baseline": 0.002,
+      "r2_extended": 0.0802,
+      "r2_gain": 0.0783,
+      "n_rows": 63486
+    },
+    {
+      "caller": "front-end",
+      "callee": "user",
+      "r2_baseline": 0.0215,
+      "r2_extended": 0.0616,
+      "r2_gain": 0.0401,
+      "n_rows": 63486
+    },
+    {
+      "caller": "orders",
+      "callee": "user",
+      "r2_baseline": 0.0215,
+      "r2_extended": 0.0403,
+      "r2_gain": 0.0188,
+      "n_rows": 63486
+    },
+    {
+      "caller": "front-end",
+      "callee": "orders",
+      "r2_baseline": 0.0858,
+      "r2_extended": 0.0974,
+      "r2_gain": 0.0116,
+      "n_rows": 63486
+    },
+    {
+      "caller": "front-end",
+      "callee": "carts",
+      "r2_baseline": 0.002,
+      "r2_extended": 0.0121,
+      "r2_gain": 0.0101,
+      "n_rows": 63486
+    },
+    {
+      "caller": "front-end",
+      "callee": "catalogue",
+      "r2_baseline": 0.0,
+      "r2_extended": 0.0,
+      "r2_gain": 0.0,
+      "n_rows": 63486
+    },
+    {
+      "caller": "orders",
+      "callee": "payment",
+      "r2_baseline": 0.0002,
+      "r2_extended": 0.0002,
+      "r2_gain": 0.0,
+      "n_rows": 63486
+    }
+  ]
+}

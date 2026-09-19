@@ -100,10 +100,45 @@ TRAINTICKET_SERVICES = [
 ]
 
 
+def _detect_metric_file_format(target_dir: str, max_depth: int = 3) -> str:
+    """Nhan dang dinh dang du lieu BANG FILE THAT SU TON TAI trong
+    target_dir, khong phai bang ten thu muc/system_type -- quet toi da
+    max_depth cap con (du cho ca quy uoc scenario/run/ cua RE2-SS lan
+    scenario/ cua Train Ticket), dung ngay khi thay 1 file khop.
+
+    LUU Y ve pham vi: PHAI goi voi mot target_dir DA THU HEP ve dung 1 he
+    thong (vd 'data/raw/RE2-SS', khong phai 'data/raw' -- thu muc cha
+    chung cua ca RE2-SS lan trainticket) -- neu khong se doc nham dinh
+    dang cua he thong khac nam trong thu muc anh em.
+
+    Tra ve 'parquet' | 'csv' | None.
+    """
+    if not target_dir or not os.path.isdir(target_dir):
+        return None
+    base_depth = target_dir.rstrip(os.sep).count(os.sep)
+    for dirpath, dirnames, filenames in os.walk(target_dir):
+        depth = dirpath.rstrip(os.sep).count(os.sep) - base_depth
+        if depth > max_depth:
+            dirnames[:] = []
+            continue
+        if 'inject_time.txt' not in filenames:
+            continue
+        if 'metrics.parquet' in filenames:
+            return 'parquet'
+        if 'simple_metrics.csv' in filenames:
+            return 'csv'
+    return None
+
+
 def load_trainticket_data(data_dir: str = None) -> pd.DataFrame:
     """
-    Tải dữ liệu viễn trắc Train Ticket từ các kịch bản trong data/raw/trainticket/.
-    Lọc bỏ giai đoạn inject fault (chỉ giữ thời gian t < inject_time).
+    Tải dữ liệu viễn trắc dạng metrics.parquet + inject_time.txt (mỗi
+    scenario 1 thư mục con) -- ban đầu viết riêng cho Train Ticket, tên
+    hàm giữ nguyên để tương thích ngược (nhiều nơi import theo tên này),
+    nhưng logic phát hiện thư mục scenario giờ THEO FILE THẬT SỰ TỒN TẠI
+    (metrics.parquet + inject_time.txt), không còn khớp tiền tố 're2tt_'
+    -- một hệ thống thứ 3 dùng cùng định dạng file (parquet theo scenario)
+    nhưng đặt tên thư mục khác vẫn nạp được, không cần sửa code này.
     """
     if data_dir is None:
         data_dir = os.path.join(BASE_DIR, 'data', 'raw', 'trainticket')
@@ -112,7 +147,12 @@ def load_trainticket_data(data_dir: str = None) -> pd.DataFrame:
         return None
 
     dfs = []
-    scenarios = [d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d)) and d.startswith('re2tt_')]
+    scenarios = [
+        d for d in os.listdir(data_dir)
+        if os.path.isdir(os.path.join(data_dir, d))
+        and os.path.exists(os.path.join(data_dir, d, 'metrics.parquet'))
+        and os.path.exists(os.path.join(data_dir, d, 'inject_time.txt'))
+    ]
     for sc in scenarios:
         sc_dir = os.path.join(data_dir, sc)
         mp = os.path.join(sc_dir, 'metrics.parquet')
@@ -139,15 +179,28 @@ def load_trainticket_data(data_dir: str = None) -> pd.DataFrame:
     return pd.concat(dfs, ignore_index=True)
 
 
-def load_multi_service_data(data_dir: str = None, system_type: str = 'sockshop') -> pd.DataFrame:
+def load_multi_service_data(data_dir: str = None, system_type: str = 'sockshop',
+                             services: list = None) -> pd.DataFrame:
     """
     Tải và gộp dữ liệu viễn trắc của toàn bộ các dịch vụ vi mô
     cho cả 4 nhóm chỉ số (Workload, CPU, Memory, Socket).
     Hỗ trợ cả SockShop (7 dịch vụ) và TrainTicket (28+ dịch vụ).
-    """
-    if system_type == 'trainticket' or (data_dir and 'trainticket' in data_dir.lower()):
-        return load_trainticket_data(data_dir)
 
+    services: danh sách service dung de xay cols_to_keep -- mac dinh SERVICES
+    (SockShop, giu tuong thich nguoc) NEU khong truyen. Truoc day tham so
+    nay khong ton tai, ham LUON dung hang so module-level SERVICES bat ke
+    he thong nao dang chay -- voi mot he thong thu 3 (hoac ngay ca goi
+    voi services=... da tuy chinh), cols_to_keep chi chua ten 7 service
+    SockShop nen loc ra dataframe rong. Tham so nay sua dung diem do.
+
+    Dinh dang file (parquet theo scenario vs CSV theo scenario/run) duoc
+    NHAN DIEN TU FILE THUC TE co trong thu muc (_detect_metric_file_format),
+    khong con so sanh chuoi `system_type == 'trainticket'`/`data_dir.lower()`
+    -- mot he thong thu 3 dung dinh dang co san (vd CSV kieu RE2-SS) se tu
+    duoc doc dung ma khong can khai bao system_type dac biet nao. `system_
+    type` chi con dung lam gia tri du phong khi KHONG tim thay file nao
+    khop ca 2 dinh dang (vd thu muc rong/sai duong dan).
+    """
     if data_dir is None:
         target_dir = RAW_DATA_DIR
     elif os.path.isdir(os.path.join(data_dir, 'RE2-SS')):
@@ -155,9 +208,21 @@ def load_multi_service_data(data_dir: str = None, system_type: str = 'sockshop')
     else:
         target_dir = data_dir
 
+    fmt = _detect_metric_file_format(target_dir)
+    if fmt == 'parquet':
+        return load_trainticket_data(data_dir)
+    if fmt is None:
+        # Khong tim thay file nao khop trong target_dir -- du phong theo
+        # system_type de tuong thich nguoc voi cach goi cu (vd truyen
+        # system_type='trainticket' nhung data_dir tro sai cho tam thoi).
+        if system_type == 'trainticket':
+            return load_trainticket_data(data_dir)
+        return None
+
+    services = services if services is not None else SERVICES
     merged_df = None
     cols_to_keep = []
-    for s in SERVICES:
+    for s in services:
         cols_to_keep.extend([f'{s}_workload', f'{s}_cpu', f'{s}_mem', f'{s}_socket', f'{s}_latency-50', f'{s}_latency-90', f'{s}_latency-99'])
         
     for scenario in os.listdir(target_dir):
