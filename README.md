@@ -238,3 +238,4 @@ ghi chú chung:
    đúng cái bẫy MAPE-một-mình mà `docs/RQ1_SCM_ACCURACY_REPORT.md` đã cảnh báo. Đã sửa bằng
    cách kiểm `coef_` trực tiếp (`node_impact._is_degenerate_mechanism`) thay vì chỉ suy từ
    MAPE/R² — coef≈0 luôn ép tag về `'POOR'`/`'unstable'` bất kể MAPE nói gì.
+

@@ -141,6 +141,7 @@ class CapacityAssessment:
                                          # ngoại suy của *độ lớn* workload dự phóng, độc lập
                                          # với `confidence` (vốn chỉ đo taxonomy-membership).
     ood_flagged_nodes: List[str] = field(default_factory=list)  # node nào rơi ngoài P95 train
+    headroom: Dict[str, Any] = field(default_factory=dict)      # xem compute_headroom()
 
 
 # ============================================================
@@ -420,6 +421,28 @@ class CapacityAgent:
                   f"held-out/knee-point -> {rep['n_final']} qua OOD-safety.")
 
         valid_nodes = [n for n in g.nodes() if n in df_data.columns]
+
+        # CHOT AN TOAN (system-agnostic): node cua do thi KHONG co cot metric
+        # tuong ung se bi loai am tham o dong tren. Neu node bi loai la
+        # GATEWAY thi toan bo ket qua vo nghia -- moi can thiep deu ap tai
+        # gateway (Gateway Invariance, Prop. 1) nen mat no la mat diem vao.
+        # Phat hien khi trien khai thu sang Online Boutique: bang metrics goi
+        # gateway la 'frontend' con do thi (trich tu trace, cot serviceName)
+        # goi la 'frontendservice' -- hai nguon telemetry CUA CUNG HE THONG
+        # dung hai quy uoc ten khac nhau. Truoc khi co chot nay, he van chay
+        # het va bao "[OK] Da khop Global DAG 24 nodes" trong khi DAG thieu
+        # han gateway; day dung loai loi phai bao to, khong phai bo qua.
+        missing_gw = [gw for gw in (self.gateways or [self.default_injection])
+                      if gw and f"{gw}_workload" not in df_data.columns]
+        if missing_gw:
+            print(f"[CANH BAO] Gateway {missing_gw} khong co cot '<gateway>_workload' trong "
+                  f"telemetry -- kiem tra ten service giua do thi va bang metrics co khop "
+                  f"khong. simulate_intervention() tai cac gateway nay se tra ve rong.")
+        dropped = [n for n in g.nodes() if n not in df_data.columns]
+        if dropped:
+            print(f"[CANH BAO] {len(dropped)} node cua do thi bi loai vi thieu cot metric: "
+                  f"{sorted(dropped)[:8]}{' ...' if len(dropped) > 8 else ''}")
+
         g_sub = g.subgraph(valid_nodes).copy()
         df_sub = df_data[valid_nodes].dropna()
 
@@ -607,6 +630,14 @@ class CapacityAgent:
                 if len(vals) > 0:
                     stats[col] = {
                         'max': float(np.max(vals)),
+                        # p50 dung lam MOC DUOI cua bien du phong (xem
+                        # compute_headroom): moc duoi va tran phai cung ho
+                        # thong ke -- dung trung binh lam moc duoi con P99
+                        # lam tran thi voi phan phoi lech phai nang, trung
+                        # binh CO THE vuot P99 (gap that o Online Boutique:
+                        # recommendationservice_latency-50 co mean=0.010 >
+                        # P99=0.0077) va bien tinh ra am.
+                        'p50': float(np.percentile(vals, 50)),
                         'p90': float(np.percentile(vals, 90)),
                         'p95': float(np.percentile(vals, 95)),
                         'p99': float(np.percentile(vals, 99)),
@@ -660,7 +691,21 @@ class CapacityAgent:
         n_samples: int = 200,
         **kwargs
     ) -> Dict[str, Any]:
-        """Tương thích SimulationAgent.simulate_intervention()."""
+        """Tương thích SimulationAgent.simulate_intervention().
+
+        Dùng deterministic_forward() (Proposition 2 machinery, xem
+        certified_envelope) thay vì gcm.interventional_samples(): can thiệp
+        trong hệ này luôn xảy ra tại gateway (in-degree=0), nên do(X)=
+        condition(X) đồng nhất (RQ5b) -- xác nhận thực nghiệm trên cả 2 hệ
+        thống (SockShop, Train Ticket) rằng deterministic forward khớp
+        median <1% với trung bình Monte Carlo, nhanh hơn ~14x, và không còn
+        nhiễu lấy mẫu từng khiến G7 trả về confidence KHÁC NHAU giữa hai lần
+        gọi với CÙNG input (bug đã tái lập: độ lệch tương đối giữa các lần
+        gọi lặp lại tới 36% ở node xấu nhất, dù model/delta không đổi).
+        simulate_joint_intervention() đã dùng đúng cách này từ trước; hàm
+        đơn-can-thiệp này trước đó là ngoại lệ còn sót lại dùng gcm.
+        n_samples giữ trên chữ ký để tương thích ngược, không còn dùng.
+        """
         # Reset G7 state up front so an early return below (no model / unknown
         # column) can never leak a stale confidence level from a PRIOR call.
         self._last_ood_confidence = "high"
@@ -681,14 +726,15 @@ class CapacityAgent:
 
         print(f"  [Simulation] do({injection_col} = {base_wl:.2f} -> {target_wl:.2f} req/s, +{delta_pct}%)")
 
-        samples = gcm.interventional_samples(
-            self.global_dag_model,
-            interventions={injection_col: lambda x, w=target_wl: w},
-            num_samples_to_draw=n_samples
-        )
+        vals, breached = deterministic_forward(
+            self.dag_graph, self.global_dag_model, self.df_baseline,
+            {injection_col: target_wl})
 
-        # G7: classify extrapolation risk on the samples we already have --
-        # stashed on self, read by assess_capacity() right after this call.
+        # G7: _classify_ood_confidence() chỉ đọc samples[node].mean() --
+        # bọc vals (dict) thành DataFrame 1 dòng để tái dùng nguyên hàm đó,
+        # không mất thông tin gì so với trước (Monte Carlo cũng chỉ bị đọc
+        # qua .mean(), chưa từng dùng phương sai).
+        samples = pd.DataFrame([vals])
         self._last_ood_confidence, self._last_ood_flagged = self._classify_ood_confidence(
             samples, injection_node=injection_col)
 
@@ -704,12 +750,16 @@ class CapacityAgent:
             ]:
                 col = f"{svc}{col_suffix}"
                 base_key = metric_key.replace('_change_pct', '')
-                if col in self.df_baseline.columns and col in samples.columns:
+                if col in self.df_baseline.columns and col in vals:
                     base = float(self.df_baseline[col].mean())
-                    pred = float(samples[col].mean())
-                    chg  = (pred - base) / abs(base) * 100.0 if base != 0 else 0.0
-                    entry[metric_key] = round(chg, 1)
-                    entry[f"{base_key}_predicted"] = round(pred, 2)
+                    if col in breached:
+                        entry[metric_key] = float('inf')
+                        entry[f"{base_key}_predicted"] = float('inf')
+                    else:
+                        pred = vals[col]
+                        chg  = (pred - base) / abs(base) * 100.0 if base != 0 else 0.0
+                        entry[metric_key] = round(chg, 1)
+                        entry[f"{base_key}_predicted"] = round(pred, 2)
                     entry[f"{base_key}_baseline"]  = round(base, 2)
                     # Do tin cay cua node nay (_node_confidence(), dua tren
                     # evaluate_node_stability() rieng cua node) -- danh dau ngay canh so, khong bat
@@ -1222,6 +1272,211 @@ class CapacityAgent:
     # ----------------------------------------------------------
     # CHU TRÌNH REACT TOÀN PHẦN (THE CORE AGENTIC METHOD)
     # ----------------------------------------------------------
+    # BIEN DU PHONG (HEADROOM) -- DAI LUONG DAU RA CHINH
+    # ----------------------------------------------------------
+    # Nguong CHINH SACH (policy), KHONG phai do duoc tu du lieu -- khai bao
+    # tuong minh o day thay vi chon tay trong ham, de doi duoc mot cho.
+    HEADROOM_WARNING_FRAC = 0.50    # tieu >50% bien con lai -> WARNING
+    HEADROOM_CRITICAL_FRAC = 1.00   # vuot qua tran da quan sat -> CRITICAL
+    # Tran P99 duoc uoc luong tu mau huu han nen CHINH NO co sai so. Thay vi
+    # dat them mot nguong tuy y de loai node "duoi nang" (ban dau o day tung
+    # co CEILING_TAIL_RATIO_MAX=10.0, chon sau khi thay catalogue_cpu o 210x
+    # -- tuc gan nguong theo MOT quan sat tren MOT he; do phan bo max/P99 tren
+    # ca 2 he cho thay phan bo lien tuc, P50=1.67 / P90=5.2 / P95=26.3, khong
+    # co vach ngan tu nhien nao tai 10), ta BOOTSTRAP tran va de trang thai
+    # tu bao "UNDECIDED" khi khoang tin cay vat qua ranh gioi quyet dinh.
+    # Khong them hang so nao: ranh gioi van la hai nguong chinh sach o tren.
+    CEILING_BOOTSTRAP_B = 200
+    CEILING_BOOTSTRAP_N = 2000      # tran mau moi lan resample (du on dinh, du nhanh)
+    CEILING_CI_LOW, CEILING_CI_HIGH = 5, 95
+
+    def compute_headroom(self, sim_result: Dict[str, Any]) -> Dict[str, Any]:
+        """Quy doi du bao sang BIEN DU PHONG: tinh nang nay an bao nhieu phan
+        tram khoang cach con lai tu muc hien tai toi tran van hanh.
+
+        Vi sao doi dau ra: tran nang luc vat ly C KHONG dinh danh duoc tu du
+        lieu chua bao hoa (do thuc nghiem tren Alibaba: phi(W)=W/(C-W) suy
+        bien, moi co che latency co rang buoc bi ep he so ve 0). Nen thay vi
+        hua mot con so latency khong giu duoc, bao cao dai luong CO tin hieu
+        that va don dieu: do chiem dung tai nguyen so voi bien con lai.
+
+        Tran = P99 cua CHINH node do trong du lieu van hanh binh thuong --
+        "muc cao nhat da thuc su quan sat thay he chay duoc", khong phai mot
+        nguong % viet cung (CPU trong bo du lieu nay la core/byte, khong phai
+        phan tram -- nguong `>70.0` trong ban assess_capacity truoc day vi the
+        gan nhu khong bao gio kich hoat).
+
+        MOI metric deu duoc xu ly GIONG NHAU -- khong loai cung metric nao.
+        Mot metric duoc bao 'not_forecastable' khi CO CHE CUA CHINH NODE DO
+        tren CHINH he thong nay bi danh gia la khong dang tin
+        (_node_confidence() tra 'unstable'/'manually_flagged'/'unknown'), chu
+        khong phai vi mot ket luan viet tay. Nho vay: tren SockShop/Train
+        Ticket hau het node latency se tu bi loai (README #7: 28/28 co che
+        latency Train Ticket fit ra coef=0, evaluate_node_stability() gan tag
+        POOR), con mot he thong tuong lai co latency that su don dieu thi VAN
+        duoc bao cao binh thuong -- quy tac do duoc, khong phai gia dinh.
+
+        Tra ve {service: {metric: {...}}} voi moi metric gom:
+          baseline, projected, ceiling_p99 (+ khoang tin cay bootstrap),
+          headroom_before, consumed_pct va [consumed_lo_pct, consumed_hi_pct],
+          remaining_pct, status.
+        """
+        stats = self._ood_train_stats()
+        out: Dict[str, Any] = {}
+        for svc, entry in (sim_result or {}).items():
+            node_out = {}
+            for metric_key, col_suffix in (('cpu', '_cpu'), ('mem', '_mem'),
+                                            ('latency', '_latency-50')):
+                col = f"{svc}{col_suffix}"
+                base = entry.get(f'{metric_key}_baseline')
+                proj = entry.get(f'{metric_key}_predicted')
+                s = stats.get(col)
+                if base is None or proj is None or s is None:
+                    continue
+
+                # Cong do duoc, ap cho MOI metric nhu nhau: co che cua node nay
+                # tren he nay co dang tin khong?
+                conf = self._node_confidence(col)
+                if conf != 'stable':
+                    node_out[metric_key] = {
+                        'status': 'not_forecastable', 'confidence': conf,
+                        'reason': f"co che cua node nay duoc danh gia '{conf}' "
+                                   f"(evaluate_node_stability/mark_node_unreliable)"}
+                    continue
+                if not (np.isfinite(base) and np.isfinite(proj)):
+                    node_out[metric_key] = {'status': 'unavailable',
+                                            'reason': 'du bao khong huu han (ceiling breached)'}
+                    continue
+
+                ceiling = float(s['p99'])
+                floor = float(s['p50'])
+                lo_c, hi_c = self._ceiling_ci(col)
+                rec = {'baseline': round(float(base), 4),
+                       'projected': round(float(proj), 4),
+                       'floor_p50': round(floor, 4),
+                       'ceiling_p99': round(ceiling, 4),
+                       'ceiling_ci': [round(lo_c, 4), round(hi_c, 4)],
+                       'confidence': conf}
+
+                # BIEN = khoang van hanh quan sat duoc P50 -> P99 (hai PHAN VI
+                # cua CUNG phan phoi), KHONG phai P99 - trung binh: trung binh
+                # va phan vi la hai ho thong ke khac nhau, va voi phan phoi
+                # lech phai nang trung binh co the VUOT P99 -> bien am (gap
+                # that tren Online Boutique). Tu so van la so gia tang do co
+                # che du bao (projected - baseline), vi do la DAI LUONG mo
+                # hinh sinh ra; hieu so nen sai khac mean/median phan lon triet
+                # tieu.
+                delta = float(proj) - float(base)
+                span = ceiling - floor
+
+                def _consumed(ceil_val):
+                    hb = ceil_val - floor
+                    return None if hb <= 0 else delta / hb
+
+                c_mid = _consumed(ceiling)
+                # tran LON hon -> bien rong hon -> tieu it hon, va nguoc lai
+                c_lo, c_hi = _consumed(hi_c), _consumed(lo_c)
+                if c_mid is None:
+                    # P50 == P99: node gan nhu khong bien thien trong du lieu
+                    # quan sat duoc -> khong co "bien van hanh" nao de do.
+                    rec.update({'headroom_before': 0.0, 'consumed_pct': None,
+                                'remaining_pct': 0.0, 'status': 'NO_OBSERVED_RANGE',
+                                'reason': 'P50 == P99: khong quan sat duoc bien thien nao'})
+                    node_out[metric_key] = rec
+                    continue
+
+                def _classify(c):
+                    if c is None:
+                        return 'NO_OBSERVED_RANGE'
+                    if c > self.HEADROOM_CRITICAL_FRAC:
+                        return 'BEYOND_ENVELOPE'
+                    if c > self.HEADROOM_WARNING_FRAC:
+                        return 'TIGHT'
+                    return 'OK'
+
+                st_lo, st_hi = _classify(c_lo), _classify(c_hi)
+                # Khoang tin cay cua TRAN vat qua ranh gioi quyet dinh -> du
+                # lieu khong du de phan dinh node nay. Khong can them hang so:
+                # ranh gioi van la 2 nguong chinh sach da khai bao.
+                st = _classify(c_mid) if st_lo == st_hi else 'UNDECIDED'
+                rec.update({
+                    'headroom_before': round(span, 4),
+                    # consumed am = du bao GIAM so voi nen; giu nguyen dau vi do
+                    # la thong tin that, nhung remaining_pct kep vao [0,100].
+                    'consumed_pct': round(c_mid * 100, 1),
+                    'consumed_ci_pct': [round(c_lo * 100, 1) if c_lo is not None else None,
+                                        round(c_hi * 100, 1) if c_hi is not None else None],
+                    'remaining_pct': round(min(max(1.0 - c_mid, 0.0), 1.0) * 100, 1),
+                    'status': st,
+                })
+                node_out[metric_key] = rec
+            if node_out:
+                out[svc] = node_out
+        return out
+
+    def _ceiling_ci(self, col: str) -> Tuple[float, float]:
+        """Khoang tin cay bootstrap cua tran P99 cho mot node.
+
+        Ly do can: P99 duoc uoc luong tu mau huu han, va voi node co duoi
+        nang (vd SockShop catalogue_cpu: P99=0.23 nhung max=49.0) no rat
+        khong on dinh -- dung nhu bay co mau da lam hong uoc luong capacity_
+        trong queueing_regressor.py. Bootstrap de bien su khong on dinh do
+        thanh mot dai luong BAO CAO DUOC thay vi mot nguong tuy chon.
+        """
+        cache = getattr(self, '_ceiling_ci_cache', None)
+        if cache is None:
+            cache = self._ceiling_ci_cache = {}
+        if col in cache:
+            return cache[col]
+        vals = (self.global_df_baseline[col].dropna().values
+                if self.global_df_baseline is not None and col in self.global_df_baseline.columns
+                else np.array([]))
+        if len(vals) < 20:
+            p99 = float(np.percentile(vals, 99)) if len(vals) else 0.0
+            cache[col] = (p99, p99)
+            return cache[col]
+        rng = np.random.default_rng(42)
+        n = min(len(vals), self.CEILING_BOOTSTRAP_N)
+        draws = rng.choice(vals, size=(self.CEILING_BOOTSTRAP_B, n), replace=True)
+        boots = np.percentile(draws, 99, axis=1)
+        cache[col] = (float(np.percentile(boots, self.CEILING_CI_LOW)),
+                      float(np.percentile(boots, self.CEILING_CI_HIGH)))
+        return cache[col]
+
+    @staticmethod
+    def summarize_headroom(headroom: Dict[str, Any]) -> Tuple[str, List[str]]:
+        """Gop headroom thanh (status tong, danh sach dong canh bao doc duoc).
+
+        Status tong lay theo node TE NHAT: co node BEYOND_ENVELOPE -> CRITICAL;
+        co node TIGHT -> WARNING; con lai SAFE.
+
+        UNDECIDED va NO_OBSERVED_RANGE co y KHONG nang muc canh bao: ca hai
+        deu la "du lieu khong du de phan dinh", khac han voi "da do duoc va
+        thay nguy hiem". De chung day phan quyet len CRITICAL la bien thieu
+        thong tin thanh bao dong -- van liet ke de nguoi doc thay.
+        """
+        worst, lines = 'SAFE', []
+        for svc, metrics in (headroom or {}).items():
+            for metric, h in metrics.items():
+                st = h.get('status')
+                if st == 'BEYOND_ENVELOPE':
+                    worst = 'CRITICAL'
+                elif st == 'TIGHT' and worst != 'CRITICAL':
+                    worst = 'WARNING'
+                # UNDECIDED co y KHONG nang muc canh bao: khoang tin cay cua
+                # tran vat qua ranh gioi nen du lieu khong du phan dinh -- de
+                # no quyet dinh phan quyet la bao dong gia. Van liet ke kem
+                # khoang de nguoi doc tu thay do rong.
+                if st in ('BEYOND_ENVELOPE', 'TIGHT', 'UNDECIDED', 'NO_OBSERVED_RANGE'):
+                    pct = h.get('consumed_pct')
+                    ci = h.get('consumed_ci_pct')
+                    note = f", khoang {ci[0]}-{ci[1]}%" if ci and None not in ci else ''
+                    lines.append(f"{svc}.{metric}: tieu {pct}% bien du phong{note} "
+                                  f"({h.get('baseline')} -> {h.get('projected')}, "
+                                  f"tran P99={h.get('ceiling_p99')}) [{st}]")
+        return worst, sorted(lines)
+
+    # ----------------------------------------------------------
     def assess_capacity(
         self,
         parsed_requirement: Dict[str, Any],
@@ -1254,28 +1509,15 @@ class CapacityAgent:
 
         sim_result = self.simulate_intervention(inj_svc, delta)
 
-        # --- 2. OBSERVE (Quan sát định lượng & Sàng lọc ngưỡng) ---
-        saturated_services = []
-        for srv, metrics in fast_metrics.items():
-            cpu_pred = metrics.get('CPU_predicted_%', metrics.get('cpu_predicted_%', 0.0))
-            cpu_chg  = metrics.get('CPU_change_pct', metrics.get('cpu_change_pct', 0.0))
-            if cpu_chg > 25.0 or cpu_pred > 70.0:
-                saturated_services.append(f"{srv} (CPU +{cpu_chg}%)")
-
-        for srv, metrics in sim_result.items():
-            lat_chg = metrics.get('latency_ms_change_pct', 0.0)
-            if lat_chg > 40.0:
-                saturated_services.append(f"{srv} (Latency +{lat_chg}%)")
-
-        saturated_services = sorted(list(set(saturated_services)))
-
-        # Xác định trạng thái sơ bộ
-        if len(saturated_services) >= 2:
-            status = "CRITICAL"
-        elif len(saturated_services) == 1:
-            status = "WARNING"
-        else:
-            status = "SAFE"
+        # --- 2. OBSERVE: quy doi sang BIEN DU PHONG ---
+        # Truoc day buoc nay dung nguong tuyet doi (`cpu_pred > 70.0`) gia dinh
+        # CPU la PHAN TRAM; trong RCAEval/Alibaba cot _cpu la core/byte nen
+        # nguong do gan nhu khong bao gio kich hoat, va nhanh latency (`lat_chg
+        # > 40`) thi dua tren dai luong da chung minh la khong du bao duoc.
+        # Nay quyet dinh dua tren % bien du phong bi tieu, so voi tran P99 cua
+        # CHINH tung node -- xem compute_headroom().
+        headroom = self.compute_headroom(sim_result)
+        status, saturated_services = self.summarize_headroom(headroom)
 
         # --- 3. REASON & CRITIQUE (Suy luận chuyên sâu + Devil's Advocate) ---
         print(f"[CapacityAgent: Reason] Phân tích điểm nghẽn & Tự phản biện rủi ro...")
@@ -1298,6 +1540,7 @@ class CapacityAgent:
             confidence         = parsed_requirement.get('confidence', 'MEDIUM'),
             ood_confidence     = self._last_ood_confidence,
             ood_flagged_nodes  = self._last_ood_flagged,
+            headroom           = headroom,
         )
 
     # ----------------------------------------------------------

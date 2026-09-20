@@ -52,10 +52,21 @@ class QueueingLatencyRegressor(BaseEstimator, RegressorMixin):
 
     def fit(self, X, y):
         X = np.array(X)
-        self.capacity_ = np.max(X, axis=0) * 1.5
+        # P99 thay vi max(X): thong ke on dinh theo co mau -- hoi tu ve
+        # phan vi that cua phan phoi khi them du lieu (LLN), khac max, mot
+        # thong ke cuc tri tang khong gioi han theo co mau tren duoi dai.
+        # Da xac nhan la nguyen nhan that: mo rong cua so Alibaba tu 5h len
+        # 10h lam max(X) tang, day capacity_ len theo, xoa mat tin hieu phi
+        # tuyen va lam bang chung Proposition 3 tren du lieu that sup ve 0
+        # (xem PROGRESS_REPORT muc 3.3).
+        self.capacity_ = np.percentile(X, 99, axis=0) * 1.5
         self.capacity_[self.capacity_ == 0] = 1.0
-        X_queue = X / (self.capacity_ - X + 1e-6)
-        X_transformed = np.hstack([X, X_queue])
+        # Khac voi truoc day (max(X)*1.5 dam bao > moi diem X), P99*1.5
+        # KHONG con chac chan vuot moi diem trong duoi dai -- chan X truoc
+        # khi tinh X_queue, giong het predict(), de tranh mau so am/no.
+        X_capped = np.minimum(X, self.capacity_ * 0.99)
+        X_queue = X_capped / (self.capacity_ - X_capped + 1e-6)
+        X_transformed = np.hstack([X_capped, X_queue])
         self.model_ = LinearRegression(fit_intercept=True, positive=True)
         self.model_.fit(X_transformed, y)
         return self

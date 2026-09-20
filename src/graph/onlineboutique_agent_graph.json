@@ -1,0 +1,98 @@
+{
+  "system": "OnlineBoutique",
+  "total_nodes": 7,
+  "total_edges": 9,
+  "nodes": [
+    {
+      "id": "checkoutservice",
+      "type": "backend",
+      "description": "Microservice noi bo: checkoutservice"
+    },
+    {
+      "id": "currencyservice",
+      "type": "backend",
+      "description": "Microservice noi bo (leaf, khong goi service khac trong trace nay): currencyservice. SUA TAY: heuristic sink=>database cua extract_graph_generic.py gan sai vi trace Online Boutique khong ghi lai loi goi datastore that (vd redis-cart) -- khong co node ha tang nao quan sat duoc trong du lieu nay."
+    },
+    {
+      "id": "emailservice",
+      "type": "backend",
+      "description": "Microservice noi bo (leaf, khong goi service khac trong trace nay): emailservice. SUA TAY: heuristic sink=>database cua extract_graph_generic.py gan sai vi trace Online Boutique khong ghi lai loi goi datastore that (vd redis-cart) -- khong co node ha tang nao quan sat duoc trong du lieu nay."
+    },
+    {
+      "id": "frontend",
+      "type": "gateway",
+      "description": "Gateway (in-degree=0). DOI TEN tu 'frontendservice' (ten trong trace, cot serviceName) sang 'frontend' de KHOP ten trong bang metrics (cot frontend_cpu/_mem/_workload/_latency-50). Hai nguon telemetry cua cung he thong dung hai quy uoc dat ten khac nhau; DAG phai tra cuu duoc cot metric nen lay ten theo metrics."
+    },
+    {
+      "id": "paymentservice",
+      "type": "backend",
+      "description": "Microservice noi bo (leaf, khong goi service khac trong trace nay): paymentservice. SUA TAY: heuristic sink=>database cua extract_graph_generic.py gan sai vi trace Online Boutique khong ghi lai loi goi datastore that (vd redis-cart) -- khong co node ha tang nao quan sat duoc trong du lieu nay."
+    },
+    {
+      "id": "productcatalogservice",
+      "type": "backend",
+      "description": "Microservice noi bo (leaf, khong goi service khac trong trace nay): productcatalogservice. SUA TAY: heuristic sink=>database cua extract_graph_generic.py gan sai vi trace Online Boutique khong ghi lai loi goi datastore that (vd redis-cart) -- khong co node ha tang nao quan sat duoc trong du lieu nay."
+    },
+    {
+      "id": "recommendationservice",
+      "type": "backend",
+      "description": "Microservice noi bo: recommendationservice"
+    }
+  ],
+  "edges": [
+    {
+      "source": "checkoutservice",
+      "target": "currencyservice",
+      "relation": "REST_CALL",
+      "call_count": 2323
+    },
+    {
+      "source": "checkoutservice",
+      "target": "emailservice",
+      "relation": "REST_CALL",
+      "call_count": 669
+    },
+    {
+      "source": "checkoutservice",
+      "target": "paymentservice",
+      "relation": "REST_CALL",
+      "call_count": 669
+    },
+    {
+      "source": "checkoutservice",
+      "target": "productcatalogservice",
+      "relation": "REST_CALL",
+      "call_count": 1655
+    },
+    {
+      "source": "frontend",
+      "target": "checkoutservice",
+      "relation": "HTTP_GATEWAY",
+      "call_count": 669
+    },
+    {
+      "source": "frontend",
+      "target": "currencyservice",
+      "relation": "HTTP_GATEWAY",
+      "call_count": 52421
+    },
+    {
+      "source": "frontend",
+      "target": "productcatalogservice",
+      "relation": "HTTP_GATEWAY",
+      "call_count": 84412
+    },
+    {
+      "source": "frontend",
+      "target": "recommendationservice",
+      "relation": "HTTP_GATEWAY",
+      "call_count": 12929
+    },
+    {
+      "source": "recommendationservice",
+      "target": "productcatalogservice",
+      "relation": "REST_CALL",
+      "call_count": 12929
+    }
+  ]
+}
