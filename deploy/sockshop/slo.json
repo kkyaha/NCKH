@@ -1,0 +1,6 @@
+{
+  "_doc": "SLO phia NGUOI DUNG (do o loadgen): p99 do tre cua moi request va ty le loi (5xx + timeout) trong phan on dinh cua moi bac tai. Nhan kha thi = SLO duoc giu. PHAI chot o Phase 0 tu baseline va KHONG doi sau khi do dap an.",
+  "p99_s": 0.25,
+  "err_rate": 0.01,
+  "_status": "CHOT sau Phase 0 (2026-09-21): p99<=0.25s, loi<=1%. Diem gay baseline on dinh [220,240] voi moi nguong p99 tu 150ms den 500ms (xem docs/DATA_FRAMEWORK.md muc 5b). KHONG doi sau khi do dap an."
+}

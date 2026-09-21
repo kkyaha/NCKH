@@ -1,0 +1,42 @@
+{
+  "_doc": "Cau hinh tran CPU (cores, tuong duong K8s limit) ap LIVE bang `docker update --cpus` (none = --cpus bang so vCPU cua VM; KHONG dung --cpus 0: tren Docker nay 0 = khong doi, da kiem chung). Don vi cot `_cpu` = % cua 1 core, nen C_s = 100 * cores. Telemetry chuan ghi lai gioi han nay o cot raw `container-spec-cpu-quota` (= cores * 100000).",
+  "_status": "CHI RE2 hop le. C1 (carts 0.15 core, JVM) va C2 (catalogue 0.08 core, Go) DEU THAT BAI vi CFS throttling o han ngach nho: SLO vo o muc su dung trung binh 20-45%, khong phai ~88% nhu front-end o RE2 (0.5 core). Tien de 'SLO vo o u*~0.88' chi kiem chung cho han ngach >= 0.5 core (front-end). Muon nghen node khac phai dung han ngach nho => vao che do throttling, ngoai pham vi bo du doan hien tai. Xem docs/DATA_FRAMEWORK.md muc 5c.",
+  "configs": {
+    "none": {},
+    "C1": {
+      "_INVALID": "carts 0.15 core lam JVM bi bop nghen: carts dung 95% tran o 40 req/s (mo hinh tuyen tinh du doan 19%), p99 10 giay. Dung C2.",
+      "front-end": 0.6,
+      "catalogue": 0.1,
+      "user": 0.1,
+      "carts": 0.15,
+      "orders": 0.3
+    },
+    "RE2": {
+      "carts": 0.5,
+      "carts-db": 0.5,
+      "catalogue": 0.5,
+      "front-end": 0.5,
+      "orders": 0.5,
+      "orders-db": 0.5,
+      "payment": 0.1,
+      "queue-master": 0.5,
+      "shipping": 0.5,
+      "user": 0.2,
+      "user-db": 0.5
+    },
+    "C2": {
+      "_INVALID": "catalogue 0.08 core bi CFS throttle khi CPU trung binh moi ~45% tran: ti le chu ky bi throttle 0%(<=80 req/s)->5%(120)->18%(140)->32%(160); p99 5ms->99ms->464ms. SLO vo o 140 req/s thay vi ~223 du doan. Cung co che voi C1 (JVM).",
+      "carts": 0.5,
+      "carts-db": 0.5,
+      "catalogue": 0.08,
+      "front-end": 0.8,
+      "orders": 0.35,
+      "orders-db": 0.5,
+      "payment": 0.1,
+      "queue-master": 0.5,
+      "shipping": 0.5,
+      "user": 0.1,
+      "user-db": 0.5
+    }
+  }
+}
