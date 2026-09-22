@@ -165,3 +165,15 @@ def test_fit_feature_cost_recovers_known_parameters(pred):
     for s, c in C_TRUE.items():
         assert fit['c'][s] == pytest.approx(c, rel=1e-6), s
     assert fit['x'] == pytest.approx(X_TRUE, rel=1e-6)
+
+
+def test_p2_gateway_uses_sum_of_k_not_chain_length(pred):
+    p2 = FP.FeasibilityPredictor(pred.mech, CORES, 0.87, feature_cost={'c': {}, 'x': 0.1})
+    # promo chain = front-end,carts,orders,payment (3 non-gateway members)
+    base_ncalls3 = p2.workloads(100, mode='P2', feature='promo')['front-end']
+    heavy = p2.workloads(100, mode='P2', feature='promo', k={'carts': 6.0})   # tong k = 6+1+1 = 8, khong phai 3
+    assert heavy['front-end'] > base_ncalls3
+    delta = 0.2
+    assert heavy['front-end'] == pytest.approx(100 * (1 + delta * (1 + 0.1 * 8)))
+    # k mac dinh rong -> dung CHINH XAC cong thuc cu (tuong thich nguoc)
+    assert base_ncalls3 == pytest.approx(100 * (1 + delta * (1 + 0.1 * 3)))

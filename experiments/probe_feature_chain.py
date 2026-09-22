@@ -13,6 +13,7 @@ Chay khi he thong ranh (khong co tai khac), neu khong so dem bi lan.
 """
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -77,10 +78,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--features', required=True)
     ap.add_argument('--n', type=int, default=20)
+    ap.add_argument('--save', default='', help='ghi ket qua k do duoc ra JSON (dung cho P3)')
     a = ap.parse_args()
     c = httpx.Client(base_url='http://127.0.0.1', timeout=30)
     cheap, items = make_user(c)
     print(f'\n=== CHUOI GOI THUC TE ({a.n} lan/tinh nang) ===')
+    out = {}
     for feat in a.features.split(','):
         meta = L.FEATURES[feat]
         method, url = meta['req']
@@ -106,6 +109,14 @@ def main():
         print(f'  chain taxonomy ({meta["archetype"]}):    {tax}')
         print(f'  => {"KHOP" if set(hit) == set(tax) else "KHAC"}'
               + ('' if set(hit) == set(tax) else f'  (thua: {sorted(set(hit) - set(tax))}, thieu: {sorted(set(tax) - set(hit))})'))
+        out[feat] = {'measured_per_use': per, 'chain_measured': hit, 'chain_taxonomy': tax,
+                     'archetype': meta['archetype'], 'n_probes': a.n}
+
+    if a.save:
+        os.makedirs(os.path.dirname(os.path.abspath(a.save)) or '.', exist_ok=True)
+        json.dump({'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'n_probes': a.n, 'features': out},
+                  open(a.save, 'w', encoding='utf-8'), indent=1, ensure_ascii=False)
+        print(f'\n[OK] k do duoc -> {a.save}')
 
 
 if __name__ == '__main__':

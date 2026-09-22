@@ -225,6 +225,73 @@ Mục đích: bỏ hai điểm yếu còn lại: (a) tập khoá `track`/`review
 **Giao diện HTTP (bên yêu cầu cố định, backend nào bị gọi do người cài quyết định):** `GET /cart/summary`, `POST /cart/quick {id}`, `POST /checkout/express {id}`.
 Điều này kiểm tra cả bản đồ tuyến đường (taxonomy có mô tả đúng một cài đặt tự nhiên không) lẫn độ lớn chi phí.
 
+## 5g. Kết quả trên dữ liệu ĐỘC LẬP (2026-09-22) — phát hiện quan trọng: bội số gọi (k_s) không phải luôn ~1
+
+16 ramp (`SS-LIMITS-INDEP`, 0 FAIL). Cả bốn bộ dự đoán đóng băng — kể cả **P2** (đã tổng quát hoá tốt trên tập khoá track/review) —
+**sai rất lớn theo hướng lạc quan nguy hiểm**: điểm gãy dự đoán muộn hơn thực tế 14% đến **313%**.
+
+| Ô | Đo được [lo, hi) | P0=P1=ctrl | P2 |
+|---|---|---|---|
+| cartsum ×1 | [160, 180) | 188 (+17%) | 182 (+14%) |
+| cartsum ×2 | [140, 160) | 172 (+23%) | 162 (+16%) |
+| quickadd ×1 | [60, 80) | 180 (**+200%**) | 164 (+173%) |
+| quickadd ×2 | [40, 60) | 159 (**+297%**) | 136 (+240%) |
+| express ×1 | [40, 50) | 165 (**+313%**) | 115 (+187%) |
+| express ×2 | vỡ ngay từ bậc đầu (40) | 138 | 79 |
+
+**Nguyên nhân đo trực tiếp** (`experiments/probe_feature_chain.py`, độc lập với ramp): bội số gọi thật mỗi lần dùng tính năng
+
+| Tính năng | Taxonomy giả định (k=1 mỗi node trong chain) | Đo được |
+|---|---|---|
+| cartsum | carts=1 (thiếu catalogue) | catalogue=1 (ngoài chain), carts=1 |
+| quickadd | carts=1 | **carts=2** (có lời gọi đọc lại giỏ sau khi thêm) |
+| express | user=1, carts=1 | **user=6**, **carts=3** |
+
+Bốn tính năng chính (promo/recs/track/review) đều có k≈1 đo được, nên cả P1 lẫn P2 (chỉnh chi phí mỗi lần gọi, không chỉnh k) chưa từng bị thử với k≠1 trước đây — **đây là lần đầu**. `carts=2` của quickadd là lựa chọn cài đặt (đọc lại sau khi ghi). `user=6` của express nhiều khả năng một phần đến từ chính dịch vụ `orders` (tự phân giải các href HATEOAS của customer/address/card khi tạo đơn) — tức là hành vi **có sẵn trong hệ thống**, không phải lựa chọn của agent; archetype PLACE_ORDER chưa từng được dùng làm tính năng mới trong bốn tính năng chính nên hệ số này chưa từng lộ ra.
+
+**Kết luận:** taxonomy (chain + k=1 mặc định) là xấp xỉ tốt cho các tính năng mà lối cài "tự nhiên" khớp với giả định một-lần-gọi-mỗi-hop
+(đã đúng ở 6/6 tính năng trước). Nó **không đáng tin** khi lối cài thực tế gọi lại một backend nhiều lần — điều một công cụ dự đoán *trước khi cài*
+không thể biết chắc. Đây là giới hạn cần nêu rõ trong Threats to Validity: công cụ cần một cơ chế phát hiện/cảnh báo k≠1 (ví dụ đo nhẹ ở tải thấp trước
+khi đưa ra phán quyết cuối, giống `probe_feature_chain.py`), hoặc chấp nhận khoảng bất định rất rộng khi k chưa được xác nhận.
+
+## 5h. P3 (k đo được thay k=1 giả định) — chẩn đoán hồi cứu, sửa được một phần, lộ thêm nguyên nhân thứ hai
+
+**Không phải mô hình mới:** `FeasibilityPredictor.workloads(mode='P2', k=...)` đã nhận tham số `k` từ trước; `freeze_predictions.py` chỉ chưa từng truyền nó (mặc định k=1 mọi node). P3 = P2 (giữ nguyên `c_s`, `x` đã fit trên promo/recs) + `k` đo bằng probing chức năng nhẹ
+(`experiments/probe_feature_chain.py --save`, ~20 lời gọi/tính năng, KHÔNG dùng dữ liệu tải/điểm gãy). Sửa thêm một chỗ: công thức chi phí gateway trước đó dùng **độ dài chain** làm số lượt gọi backend;
+đổi thành **Σk** (tổng bội số thật) — khi k mặc định thì Σk = độ dài chain, tương thích ngược hoàn toàn (18/18 test cũ vẫn qua).
+
+⚠ **Đây là chẩn đoán HỒI CỨU**, không phải dự đoán đóng băng mới: dữ liệu độc lập đã được xem (`evaluate_frozen.py --split indep` chạy trước đó). Việc đo `k` tự nó không cần dữ liệu tải nên về nguyên tắc
+làm được *trước* khi phán quyết, nhưng để tuyên bố P3 tổng quát hoá tốt cần một vòng dữ liệu độc lập **mới, chưa từng đo**, đóng băng P3 trước.
+
+**Kết quả (sai số bình quân |%| so với ngưỡng đạt SLO thấp nhất, tập độc lập):**
+
+| Mô hình | Tập độc lập | Tập dev (đối chứng) | Tập khoá (đối chứng, k~1 đúng) |
+|---|---|---|---|
+| P1 (k=1) | 170% | 38% | 10% |
+| P2 (c,x; k=1, chain=độ dài) | 126% | 14% | 3% |
+| **P3 (k đo được, gateway=Σk)** | **104%** | 15% (không đổi có ý nghĩa) | 3% (không đổi, đúng như kỳ vọng) |
+
+P3 sửa mạnh nhất ở tính năng thiên về CPU: **express từ +313% xuống +111%**, cartsum từ +17%/+23% xuống +10%/+14% (do đã thêm cả biến thể "P3+chain" gộp catalogue vào VIEW_CART). Đối chứng đúng như kỳ vọng:
+dev và tập khoá gần như không đổi (chúng vốn có k≈1 đo được).
+
+**Nguyên nhân sai số còn lại (mới, đo trực tiếp, tách bạch với vấn đề k):** so mức sử dụng CPU thật tại đúng bậc tải nơi SLO vỡ —
+
+| Tính năng | front-end lúc vỡ SLO | carts lúc vỡ SLO | Cơ chế |
+|---|---|---|---|
+| cartsum ×1 | ~84% (gần u\*=0,878) | — | **CPU bão hoà** — đúng cơ chế P0–P3 mô hình |
+| express ×1 | 38–55% | 20–29% | SLO vỡ (p99 98→218ms) khi **chưa node nào gần trần** |
+| quickadd ×1 | 47–49% | 34–36% | SLO vỡ (p99 209→2499ms) khi **chưa node nào gần trần** |
+
+Với express và quickadd, độ trễ vỡ ngưỡng SLO (p99 ≤ 250ms) ở mức sử dụng CPU **thấp hơn nhiều** so với `u*` hiệu chỉnh từ baseline. Đây là hiệu ứng **hàng đợi/độ trễ đuôi** do tính năng gọi
+nhiều lượt backend (song song hoặc tuần tự): độ trễ đầu-cuối cộng dồn qua nhiều hop tăng nhanh hơn mức sử dụng CPU của bất kỳ node đơn lẻ nào. Không mô hình nào trong P0–P3 theo dõi độ trễ
+đầu-cuối — cả bốn chỉ so **mức sử dụng CPU với một ngưỡng duy nhất**. Đây khớp với hạn chế đã biết từ trước của dự án (latency không dự báo được bằng cơ chế tuyến tính/hàng đợi hiện có,
+xem `docs/RQ6_ATTRIBUTION_VALIDITY_REPORT.md`), không phải lỗi mới — nhưng đây là **lần đầu nó ảnh hưởng trực tiếp đến phán quyết khả thi** thay vì chỉ ảnh hưởng độ chính xác dự báo một con số.
+
+**Kết luận cho bài báo:** hai nguyên nhân sai số ĐỘC LẬP, cần hai hướng khắc phục khác nhau —
+(1) bội số gọi k≠1 — sửa được bằng đo trước khi phán quyết (P3, đã kiểm chứng hồi cứu, cần dữ liệu mới để xác nhận tiến cứu);
+(2) hiệu ứng hàng đợi/độ trễ đuôi từ quạt-ra nhiều backend — **chưa có hướng khắc phục** trong khung `u_s = CPU_s/C_s` hiện tại; cần một chỉ báo riêng cho tính năng có nhiều lượt gọi
+(ví dụ ngưỡng cảnh báo khi Σk vượt một mức, độc lập với việc CPU có gần trần hay không) thay vì cố mô hình hoá độ trễ (đã thử và bỏ, xem mục 8).
+
 ## 6. Chia dữ liệu và chống rò rỉ
 
 | Vai trò | Dữ liệu | Quy tắc |

@@ -1,0 +1,53 @@
+set,cell,model,R*_pred,node_nghen,do_duoc_lo,hi,sai_so_%,phan_loai
+DOC LAP (chinh),cartsumx1,P1 (k=1),187.8,front-end,160.0,180.0,17.4,MUON (kha thi gia)
+DOC LAP (chinh),cartsumx1,"P2 (c,x; k=1)",181.8,front-end,160.0,180.0,13.6,MUON (kha thi gia)
+DOC LAP (chinh),cartsumx1,P3 (k do duoc),181.8,front-end,160.0,180.0,13.6,MUON (kha thi gia)
+DOC LAP (chinh),cartsumx1,P3+chain,176.0,front-end,160.0,180.0,10.0,TRONG khoang
+DOC LAP (chinh),cartsumx2,P1 (k=1),172.2,front-end,140.0,160.0,23.0,MUON (kha thi gia)
+DOC LAP (chinh),cartsumx2,"P2 (c,x; k=1)",162.2,front-end,140.0,160.0,15.9,MUON (kha thi gia)
+DOC LAP (chinh),cartsumx2,P3 (k do duoc),162.2,front-end,140.0,160.0,15.9,MUON (kha thi gia)
+DOC LAP (chinh),cartsumx2,P3+chain,153.4,front-end,140.0,160.0,9.5,TRONG khoang
+DOC LAP (chinh),expressx1,P1 (k=1),165.3,front-end,40.0,60.0,313.3,MUON (kha thi gia)
+DOC LAP (chinh),expressx1,"P2 (c,x; k=1)",114.6,front-end,40.0,60.0,186.5,MUON (kha thi gia)
+DOC LAP (chinh),expressx1,P3 (k do duoc),84.4,front-end,40.0,60.0,111.0,MUON (kha thi gia)
+DOC LAP (chinh),expressx1,P3+chain,84.4,front-end,40.0,60.0,111.0,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx1,P1 (k=1),179.7,front-end,60.0,80.0,199.5,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx1,"P2 (c,x; k=1)",163.9,front-end,60.0,80.0,173.2,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx1,P3 (k do duoc),157.0,front-end,60.0,80.0,161.7,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx1,P3+chain,157.0,front-end,60.0,80.0,161.7,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx2,P1 (k=1),158.9,front-end,40.0,60.0,297.4,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx2,"P2 (c,x; k=1)",135.8,front-end,40.0,60.0,239.6,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx2,P3 (k do duoc),126.6,front-end,40.0,60.0,216.6,MUON (kha thi gia)
+DOC LAP (chinh),quickaddx2,P3+chain,126.6,front-end,40.0,60.0,216.6,MUON (kha thi gia)
+dev (kiem tra khong hoi quy),promox1,P1 (k=1),172.2,front-end,150.0,170.0,14.8,MUON (kha thi gia)
+dev (kiem tra khong hoi quy),promox1,"P2 (c,x; k=1)",145.4,front-end,150.0,170.0,-3.1,SOM (an toan)
+dev (kiem tra khong hoi quy),promox1,P3 (k do duoc),145.4,front-end,150.0,170.0,-3.1,SOM (an toan)
+dev (kiem tra khong hoi quy),promox1,P3+chain,145.4,front-end,150.0,170.0,-3.1,SOM (an toan)
+dev (kiem tra khong hoi quy),promox2,P1 (k=1),147.6,front-end,80.0,100.0,84.5,MUON (kha thi gia)
+dev (kiem tra khong hoi quy),promox2,"P2 (c,x; k=1)",112.2,front-end,80.0,100.0,40.2,MUON (kha thi gia)
+dev (kiem tra khong hoi quy),promox2,P3 (k do duoc),112.2,front-end,80.0,100.0,40.2,MUON (kha thi gia)
+dev (kiem tra khong hoi quy),promox2,P3+chain,112.2,front-end,80.0,100.0,40.2,MUON (kha thi gia)
+dev (kiem tra khong hoi quy),recsx1,P1 (k=1),158.9,front-end,120.0,140.0,32.5,MUON (kha thi gia)
+dev (kiem tra khong hoi quy),recsx1,"P2 (c,x; k=1)",126.6,front-end,120.0,140.0,5.5,TRONG khoang
+dev (kiem tra khong hoi quy),recsx1,P3 (k do duoc),118.6,front-end,120.0,140.0,-1.2,SOM (an toan)
+dev (kiem tra khong hoi quy),recsx1,P3+chain,118.6,front-end,120.0,140.0,-1.2,SOM (an toan)
+dev (kiem tra khong hoi quy),recsx2,P1 (k=1),118.7,orders,100.0,120.0,18.7,TRONG khoang
+dev (kiem tra khong hoi quy),recsx2,"P2 (c,x; k=1)",91.3,front-end,100.0,120.0,-8.7,SOM (an toan)
+dev (kiem tra khong hoi quy),recsx2,P3 (k do duoc),83.2,front-end,100.0,120.0,-16.8,SOM (an toan)
+dev (kiem tra khong hoi quy),recsx2,P3+chain,83.2,front-end,100.0,120.0,-16.8,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx1,P1 (k=1),187.8,front-end,180.0,200.0,4.4,TRONG khoang
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx1,"P2 (c,x; k=1)",176.0,front-end,180.0,200.0,-2.2,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx1,P3 (k do duoc),176.0,front-end,180.0,200.0,-2.2,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx1,P3+chain,176.0,front-end,180.0,200.0,-2.2,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx2,P1 (k=1),172.2,front-end,150.0,170.0,14.8,MUON (kha thi gia)
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx2,"P2 (c,x; k=1)",153.4,front-end,150.0,170.0,2.2,TRONG khoang
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx2,P3 (k do duoc),153.4,front-end,150.0,170.0,2.2,TRONG khoang
+"khoa (k~1 do duoc, ky vong khong doi)",reviewx2,P3+chain,153.4,front-end,150.0,170.0,2.2,TRONG khoang
+"khoa (k~1 do duoc, ky vong khong doi)",trackx1,P1 (k=1),179.7,front-end,170.0,190.0,5.7,TRONG khoang
+"khoa (k~1 do duoc, ky vong khong doi)",trackx1,"P2 (c,x; k=1)",163.9,front-end,170.0,190.0,-3.6,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",trackx1,P3 (k do duoc),163.9,front-end,170.0,190.0,-3.6,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",trackx1,P3+chain,163.9,front-end,170.0,190.0,-3.6,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",trackx2,P1 (k=1),158.9,front-end,140.0,160.0,13.5,TRONG khoang
+"khoa (k~1 do duoc, ky vong khong doi)",trackx2,"P2 (c,x; k=1)",135.8,front-end,140.0,160.0,-3.0,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",trackx2,P3 (k do duoc),135.8,front-end,140.0,160.0,-3.0,SOM (an toan)
+"khoa (k~1 do duoc, ky vong khong doi)",trackx2,P3+chain,135.8,front-end,140.0,160.0,-3.0,SOM (an toan)

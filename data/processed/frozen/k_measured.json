@@ -1,0 +1,178 @@
+{
+ "created": "2026-09-22 11:18:43",
+ "n_probes": 20,
+ "features": {
+  "promo": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 0.0,
+    "user": 0.0,
+    "carts": 1.0,
+    "orders": 1.0,
+    "payment": 1.0,
+    "shipping": 0.0
+   },
+   "chain_measured": [
+    "front-end",
+    "carts",
+    "orders",
+    "payment"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "carts",
+    "orders",
+    "payment"
+   ],
+   "archetype": "APPLY_PROMO_CODE",
+   "n_probes": 20
+  },
+  "recs": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 2.0,
+    "user": 1.0,
+    "carts": 0.0,
+    "orders": 1.0,
+    "payment": 0.0,
+    "shipping": 0.0
+   },
+   "chain_measured": [
+    "front-end",
+    "catalogue",
+    "user",
+    "orders"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "user",
+    "catalogue",
+    "orders"
+   ],
+   "archetype": "RECOMMEND_PRODUCTS",
+   "n_probes": 20
+  },
+  "track": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 0.0,
+    "user": 0.0,
+    "carts": 0.0,
+    "orders": 1.0,
+    "payment": 0.0,
+    "shipping": 1.0
+   },
+   "chain_measured": [
+    "front-end",
+    "orders",
+    "shipping"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "orders",
+    "shipping"
+   ],
+   "archetype": "TRACK_PACKAGE",
+   "n_probes": 20
+  },
+  "review": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 1.0,
+    "user": 1.0,
+    "carts": 0.0,
+    "orders": 0.0,
+    "payment": 0.0,
+    "shipping": 0.0
+   },
+   "chain_measured": [
+    "front-end",
+    "catalogue",
+    "user"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "user",
+    "catalogue"
+   ],
+   "archetype": "WRITE_PRODUCT_REVIEW",
+   "n_probes": 20
+  },
+  "cartsum": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 1.0,
+    "user": 0.0,
+    "carts": 1.0,
+    "orders": 0.0,
+    "payment": 0.0,
+    "shipping": 0.0
+   },
+   "chain_measured": [
+    "front-end",
+    "catalogue",
+    "carts"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "carts"
+   ],
+   "archetype": "VIEW_CART",
+   "n_probes": 20
+  },
+  "quickadd": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 1.0,
+    "user": 0.0,
+    "carts": 2.0,
+    "orders": 0.0,
+    "payment": 0.0,
+    "shipping": 0.0
+   },
+   "chain_measured": [
+    "front-end",
+    "catalogue",
+    "carts"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "catalogue",
+    "carts"
+   ],
+   "archetype": "ADD_TO_CART",
+   "n_probes": 20
+  },
+  "express": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 1.0,
+    "user": 6.0,
+    "carts": 3.0,
+    "orders": 1.0,
+    "payment": 1.0,
+    "shipping": 1.0
+   },
+   "chain_measured": [
+    "front-end",
+    "catalogue",
+    "user",
+    "carts",
+    "orders",
+    "payment",
+    "shipping"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "user",
+    "catalogue",
+    "carts",
+    "orders",
+    "payment",
+    "shipping"
+   ],
+   "archetype": "PLACE_ORDER",
+   "n_probes": 20
+  }
+ }
+}

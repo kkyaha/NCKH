@@ -148,7 +148,11 @@ class FeasibilityPredictor:
             elif mode == 'P2':
                 fc = self.feature_cost
                 if s == GATEWAY:
-                    out[s] = L * (rho + delta * (1.0 + fc['x'] * max(len(ch) - 1, 0)))
+                    # n_calls = TONG boi so goi backend (Sum k_m). Voi k mac dinh (rong) => k.get(m,1.0)=1.0
+                    # moi node -> tong = len(ch)-1, GIONG HET cong thuc cu (tuong thich nguoc). Khi co k do
+                    # duoc (P3), n_calls phan anh dung tong luot goi backend thuc (vd express: 13, khong phai 6).
+                    n_calls = sum(k.get(m, 1.0) for m in ch if m != GATEWAY)
+                    out[s] = L * (rho + delta * (1.0 + fc['x'] * n_calls))
                 else:
                     out[s] = L * (rho + (delta * k.get(s, 1.0) * fc['c'].get(s, 1.0) if s in ch else 0.0))
             else:
