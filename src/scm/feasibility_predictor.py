@@ -47,8 +47,10 @@ SCORED = ['front-end', 'catalogue', 'user', 'carts', 'orders']      # docs/DATA_
 FEATURE_ARCHETYPE = {'promo': 'APPLY_PROMO_CODE', 'recs': 'RECOMMEND_PRODUCTS',
                      'track': 'TRACK_PACKAGE', 'review': 'WRITE_PRODUCT_REVIEW',
                      # tinh nang DOC LAP (cai boi agent rieng, khong thay taxonomy): REQ-06, REQ-05, REQ-10
-                     'cartsum': 'VIEW_CART', 'quickadd': 'ADD_TO_CART', 'express': 'PLACE_ORDER'}
-FEATURE_SETS = {'main': ['promo', 'recs', 'track', 'review'], 'indep': ['cartsum', 'quickadd', 'express']}
+                     'cartsum': 'VIEW_CART', 'quickadd': 'ADD_TO_CART', 'express': 'PLACE_ORDER',
+                     # tinh nang KIEM DINH TIEN CUU cho P3 (mot agent DOC LAP khac, sau khi P0/P1/P2 da dong bang)
+                     'browse': 'GET_CATALOGUE'}
+FEATURE_SETS = {'main': ['promo', 'recs', 'track', 'review'], 'indep': ['cartsum', 'quickadd', 'express'], 'prosp': ['browse']}
 U_MARGIN = 0.10           # MARGINAL khi max_u trong 10% duoi u*
 
 
@@ -113,7 +115,7 @@ def fit_mechanism(df, services=SERVICES, gateway=GATEWAY):
 # ------------------------------------------------------------------ du doan
 def wrong_chain(feature, seed=0):
     """Chain NGAU NHIEN cung kich thuoc, luon co gateway (moi request di qua gateway) -- doi chung cua P1."""
-    true = SOCKSHOP_CALL_CHAINS[FEATURE_ARCHETYPE[feature]]['services']
+    true = SOCKSHOP_CALL_CHAINS[FEATURE_ARCHETYPE.get(feature, feature)]['services']
     others = [s for s in SERVICES if s != GATEWAY]
     rng = random.Random(f'{feature}:{seed}')
     return [GATEWAY] + rng.sample(others, len(true) - 1)
@@ -130,9 +132,16 @@ class FeasibilityPredictor:
 
     # --- can thiep
     def spec(self, feature, scale=1.0, chain=None):
+        """`feature` nhan MOT trong hai dang: ten tinh nang da dat (khoa cua FEATURE_ARCHETYPE, vd 'promo')
+        hoac TEN ARCHETYPE THAT (khoa cua SOCKSHOP_CALL_CHAINS, vd 'LOGIN') -- cho phep dung voi bat ky yeu
+        cau moi nao ma ParserAgent phan loai duoc, khong chi 8 tinh nang da co bang chung thuc nghiem."""
         if feature in (None, 'base'):
             return 0.0, []
-        arch = SOCKSHOP_CALL_CHAINS[FEATURE_ARCHETYPE[feature]]
+        archetype_name = FEATURE_ARCHETYPE.get(feature, feature)
+        if archetype_name not in SOCKSHOP_CALL_CHAINS:
+            raise KeyError(f"'{feature}' khong phai ten tinh nang da dat (FEATURE_ARCHETYPE) "
+                          f"hay ten archetype hop le (SOCKSHOP_CALL_CHAINS: {sorted(SOCKSHOP_CALL_CHAINS)})")
+        arch = SOCKSHOP_CALL_CHAINS[archetype_name]
         return arch['expected_delta_pct'] * scale / 100.0, list(chain if chain is not None else arch['services'])
 
     def workloads(self, L, mode='P1', feature=None, scale=1.0, chain=None, k=None):

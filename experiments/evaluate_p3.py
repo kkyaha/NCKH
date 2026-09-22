@@ -42,6 +42,7 @@ def load_predictor():
     base = json.load(open(os.path.join(FROZEN_DIR, 'predictions_frozen_RE2.json'), encoding='utf-8'))
     p2 = json.load(open(os.path.join(FROZEN_DIR, 'p2_params_dev.json'), encoding='utf-8'))
     kmeas = json.load(open(os.path.join(FROZEN_DIR, 'k_measured.json'), encoding='utf-8'))['features']
+    kmeas.update(json.load(open(os.path.join(FROZEN_DIR, 'k_measured_prosp.json'), encoding='utf-8'))['features'])
     P = FP.FeasibilityPredictor(base['mechanism'], base['params']['cores'], base['params']['u_star'],
                                 feature_cost=p2['params'])
     return P, kmeas
@@ -97,7 +98,8 @@ def main():
 
     all_bp, all_node = [], []
     for ramp_dir, feats, label in [
-            (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS-INDEP'), EF.INDEP, 'DOC LAP (chinh)'),
+            (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS-CLEAN'), EF.INDEP, 'DOC LAP (chinh, du lieu SACH)'),
+            (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS-CLEAN'), EF.PROSP, 'TIEN CUU (browse, du lieu SACH)'),
             (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS'), ('promo', 'recs'), 'dev (kiem tra khong hoi quy)'),
             (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS'), ('track', 'review'), 'khoa (k~1 do duoc, ky vong khong doi)')]:
         bp, nd = eval_set(P, kmeas, ramp_dir, feats, label)

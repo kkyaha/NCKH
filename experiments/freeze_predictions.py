@@ -76,14 +76,15 @@ def main():
 
     if not a.out:
         a.out = os.path.join(BASE, 'data', 'processed', 'frozen',
-                             f'predictions_frozen_{a.limits}{"_P2" if a.p2_params else ""}{"_indep" if a.feature_set == "indep" else ""}{"_dev" if a.dev else ""}.json')
+                             f'predictions_frozen_{a.limits}{"_P2" if a.p2_params else ""}'
+                             f'{"_" + a.feature_set if a.feature_set != "main" else ""}{"_dev" if a.dev else ""}.json')
     p2 = None
-    if a.feature_set == 'indep':
+    if a.feature_set in ('indep', 'prosp'):
         if not a.p2_params:
-            sys.exit('--feature-set indep can --p2-params (tham so P2 da dong bang tu promo/recs)')
-        exist = [d for f in FP.FEATURE_SETS['indep'] for d in glob.glob(os.path.join(a.ramp_dir, f'ramp_{f}_*'))]
+            sys.exit(f'--feature-set {a.feature_set} can --p2-params (tham so P2 da dong bang tu promo/recs)')
+        exist = [d for f in FP.FEATURE_SETS[a.feature_set] for d in glob.glob(os.path.join(a.ramp_dir, f'ramp_{f}_*'))]
         if exist:
-            sys.exit(f'TU CHOI: da co du lieu ramp cua tinh nang doc lap {exist[:2]}; dong bang bay gio khong con la du doan truoc.')
+            sys.exit(f'TU CHOI: da co du lieu ramp cua tinh nang {a.feature_set} {exist[:2]}; dong bang bay gio khong con la du doan truoc.')
     if a.p2_params:
         lock_log = os.path.join(os.path.dirname(a.out), 'locked_access.log')
         if a.feature_set == 'main' and os.path.exists(lock_log):      # chot chan tap khoa chi ap cho bo main

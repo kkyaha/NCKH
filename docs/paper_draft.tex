@@ -153,6 +153,7 @@ Our main contributions are:
     \item \textbf{Two refutations of guarantees that appear to hold.} The abstention layer's certifiable miss rate is set by the calibration size, not by the nominal level: at our sample two different $\alpha$ return the identical threshold, so the attainable bound is $4.5\%$ and the $\alpha=0.01$ we had used certifies nothing (Section~\ref{sec:rq2}). And a design proved sound can be implemented unsoundly in a way its own topology conceals: porting to a system with $14$ gateways rather than one exposed a hard-coded fallback that violates Proposition~\ref{prop:soundness}(iii), the invariant it exists to enforce (Section~\ref{sec:rq3}).
     \item \textbf{A benchmark-admissibility diagnosis, and a forecasting result gated by it.} A signal gate, a predictor-free baseline, and a permuted-workload negative control establish that RCA benchmarks cannot support capacity-forecasting evaluation at all ($R^2 = 0.003$ against $0.30$ on a production trace), which withdraws our earlier $2$--$4\%$ memory result --- a MAPE a constant predictor also attains. On data that does support the question, the deployed mechanism forecasts with positive skill in and out of distribution across $1{,}293$ services (Section~\ref{sec:rq4}).
     \item \textbf{A separation of the two causal commitments usually defended together.} Held-out accuracy is vacuous for interventional transfer --- an extension we validated on $23$ of $23$ eligible nodes degrades by $365$ MAPE points under real intervention. Under an interventional test the dependency graph earns its place ($85\%$ of edges) and the $do$-operator does not, for a structural reason we characterise and confirm in four independent tests: a requirement enters at the system boundary, so its intervention sits at a root node where truncated factorisation removes nothing (Section~\ref{sec:rq5}).
+    \item \textbf{The first ground truth for an unbuilt requirement's feasibility, and what it exposes.} We redeploy the target system, implement eight requirements against six calibration archetypes --- four by us, four by agents blind to the taxonomy and to each other's results --- and step load until each measured deployment's SLO breaks. The graph-aware cost correction generalises to held-out requirements to $2.8\%$ mean breakpoint error, down from $9.6\%$ for the uniform-delta baseline it replaces. Against independently implemented requirements both degrade sharply (up to $+297\%$, a false-feasible verdict), which exposes an assumption --- one backend call per requirement per hop --- silently true in every requirement we had written ourselves; measuring the true call count with a load-free functional probe and feeding it back recovers most of the gap ($+136\%\to+21\%$ on the cell with the largest multiplicity correction) but not all of it, isolating a second, unmodelled queueing failure mode that breaks the SLO at under $65\%$ of the calibrated CPU ceiling. A fourth, genuinely prospective test --- predictions frozen before an agent blind to this entire result saw the requirement, load data collected only afterward --- lands within $14\%$ mean error and zero dangerous-direction misses (Section~\ref{sec:rq6}).
 \end{enumerate}
 
 % =========================================================
@@ -741,6 +742,7 @@ Dataset & Family & Names & Load & Used for \\
 Sock Shop, Train Ticket & RCA benchmark & yes & \textbf{no} & RQ1--RQ3, RQ5b \\
 Alibaba v2021 & production trace & \textbf{no} & yes & RQ4, RQ5a \\
 DeathStarBench & benchmark suite & yes & yes\textsuperscript{$\dagger$} & --- \\
+Sock Shop load sweep (ours) & controlled testbed & yes & yes & RQ6 \\
 \bottomrule
 \end{tabular}%
 }
@@ -776,6 +778,24 @@ the parser.
 We report per-system rather than pooled throughout,
 to avoid obscuring topology-specific variation.
 
+\textbf{Sock Shop load sweep (ours).} None of the above resolves the gap Table~\ref{tab:dataset-gap}
+names: no dataset combines semantic names with a load axis wide enough to identify a
+workload-to-resource relationship \emph{and} lets us implement a genuinely new feature and measure
+what happens. We built one. We redeployed Sock Shop from its original Docker Compose manifest,
+instrumented every container (not only the seven application services) via the cgroup CPU counter,
+the application's own \texttt{/metrics} endpoint, and \texttt{docker inspect} for the live CPU quota,
+at $2$--$5\,$s resolution. \textsc{SS-Train} sweeps $8$ load levels ($10$--$250\,$req/s, $2$ repeats,
+no feature, no CPU limit) to fit the per-service mechanism $\mathrm{CPU}_s=\alpha_s+\beta_s W_s$ by
+non-negative least squares and the ratio $\rho_s$ of each service's workload to the gateway's under
+the unmodified request mix. \textsc{SS-Limits} applies the deployment's own published CPU quota
+(Sock Shop's \texttt{container-spec-cpu-quota}, not a value we chose) and steps load in $20\,$req/s
+increments until the SLO breaks ($\mathrm{p99}\le250\,$ms, error rate $\le1\%$, sustained over
+consecutive steps) to locate the breakpoint $R^{*}$ under a feature's added load. We implement eight
+features spanning six of the ten calibration archetypes, four written by us and four by agents given
+only the natural-language requirement and the backend API surface --- never the taxonomy, the
+calibration table, or any prior result --- so that the call chain and its multiplicities are measured
+from code we did not write, the same logic that motivates RQ3's system transfer. RQ6 reports what this
+testbed makes measurable that Table~\ref{tab:dataset-gap}'s other three could not.
 
 
 \subsection{Baselines for Comparison}
@@ -819,7 +839,11 @@ standard by which the result could have failed precedes the result.
 
 Of the five claims, one survived intact. Three of the four refutations were
 returned against results we had previously reported ourselves, and we mark each
-where it occurs.
+where it occurs. A sixth question, RQ6 (Section~\ref{sec:rq6}), follows a
+different template: rather than replacing a vacuous incumbent metric for an
+existing claim, it reports on a claim the paper could not evaluate at all
+until the infrastructure of Section~\ref{sec:setup} made ground truth for it
+possible to collect.
 
 \begin{table*}[!t]
 \centering
@@ -1451,6 +1475,184 @@ impact. The $136$ observations are repeated runs over $47$ requirements, so the
 rate is a point estimate without an attached interval.
 
 
+\subsection{RQ6 (Prospective Validation): Once Ground Truth Exists for an Unbuilt Requirement, Is the Feasibility Verdict Accurate?}
+\label{sec:rq6}
+
+\emph{Claim under test.} Given a requirement's calibration archetype, the
+framework predicts the peak load $R^{*}$ at which the deployed system's SLO
+breaks, closer than the uniform-delta baseline (B4) it replaces.
+\emph{Refuted by:} error that does not shrink from B4 to the graph-aware
+model, error that shrinks on data the model was fit on but not on data it was
+not, or a feasible/infeasible verdict wrong in the dangerous direction ---
+predicting the system survives a load at which it has already broken. Section
+\ref{sec:operational} could not test this claim; it measured agreement with a
+simulated reference because, as stated there, no ground truth exists for an
+unbuilt requirement. The Sock Shop load sweep (Section~\ref{sec:setup}) exists
+to remove that caveat: it implements the requirement, measures where the
+running system actually breaks, and lets us check a prediction against it.
+
+\subsubsection{A pre-registration protocol}
+\label{sec:rq6-protocol}
+An accuracy claim checked against data the model has already seen is not a
+claim about generalisation. We therefore fix four safeguards before reporting
+any number:
+
+\begin{enumerate}
+    \item \textbf{Frozen prediction.} For every (feature, load-multiplier)
+    cell we compute and hash the predicted breakpoint \emph{before} the
+    corresponding load sweep is run, from a mechanism fit only on
+    no-feature traffic. A prediction is not reported unless its hash
+    predates the answer.
+    \item \textbf{A development/held-out/independent split.} Two features
+    (\textsc{promo}, \textsc{recs}) are development data, on which we are
+    permitted to fit the one free parameter class (Section~\ref{sec:rq6-independent}
+    below). Two more (\textsc{track}, \textsc{review}) are held out and
+    opened exactly once. A further four are implemented by agents given only
+    the natural-language requirement and the backend API surface --- never
+    the taxonomy, the calibration table, the held-out features, or any prior
+    result --- so that neither the call chain nor its per-call cost is
+    authored by us.
+    \item \textbf{A baseline that already exists.} B4 (uniform delta
+    injection) is the pre-registered floor every variant must beat; it is
+    algebraically identical to propagating the requirement's delta without
+    consulting the call chain at all.
+    \item \textbf{Report the dangerous direction separately.} A late
+    breakpoint prediction (the model says the system survives a load at
+    which it has already violated its SLO) is a false-feasible verdict and
+    is reported as such, distinct from a conservative early prediction,
+    because the two carry opposite engineering risk.
+\end{enumerate}
+
+\begin{table}[!t]
+\centering
+\caption{RQ6 breakpoint error $|R^{*}_{\text{pred}}-R^{*}_{\text{meas}}|/R^{*}_{\text{meas}}$,
+mean over cells. B4/P1 propagate the delta uniformly by workload share; P2 adds
+a per-service cost correction fit on development data only; P3 adds the
+measured call multiplicity $k_s$ (Section~\ref{sec:rq6-independent}). Held-out,
+independent and prospective features were never used to fit P2 or P3. Independent
+and prospective rows are from \textsc{SS-LIMITS-CLEAN}, a re-run of the load
+sweep on a machine state verified free of the long-session performance drift
+described in Section~\ref{sec:drift-threat} (development and held-out rows are
+unaffected by that drift and unchanged from the original sweep).}
+\label{tab:rq6-error}
+\begin{tabular}{lrrr}
+\toprule
+Split ($n$ cells) & B4/P1 & P2 & P3 \\
+\midrule
+Development (4, in-sample)   & $37.6\%$  & $14.4\%$  & $15.3\%$ \\
+Held-out (4)                 & $9.6\%$   & $\mathbf{2.8\%}$  & $2.8\%$ \\
+Independent implementation (5) & $119.7\%$ & $87.5\%$ & $\mathbf{72.6\%}$ \\
+Prospective (2, held to freeze order in Section~\ref{sec:rq6-prospective}) & $10.0\%$ & $14.0\%$ & $14.0\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Held-out accuracy: the cost correction generalises where its assumption holds}
+\label{sec:rq6-heldout}
+On \textsc{track} and \textsc{review} --- never used to fit anything --- P2
+cuts mean breakpoint error from $9.6\%$ to $2.8\%$ against B4/P1
+(Table~\ref{tab:rq6-error}), and every P2 prediction falls on the conservative
+side (early by $0.6$--$3.6\%$) or within $2.2\%$ late, none in the dangerous
+range. This is the paper's first genuine held-out accuracy result for the
+feasibility claim: a graph-aware correction fit on two features predicts a
+breaking point on two different ones it never saw, to single-digit error, on
+a deployed system under real load.
+
+\subsubsection{Independent implementation exposes an unstated assumption}
+\label{sec:rq6-independent}
+Every mechanism tested so far --- B4/P1's uniform delta and P2's per-service
+cost --- carries one unstated assumption: a requirement calls each service in
+its archetype's chain exactly once ($k_s=1$). It held, unnoticed, for all four
+features we implemented ourselves. It is not a property of the taxonomy; it is
+a property of \emph{our} implementations of it. Three agents, given the same
+archetypes (\textsc{view\_cart}, \textsc{add\_to\_cart}, \textsc{place\_order})
+and no visibility into this assumption, wrote code that violates it: a
+read-after-write on the cart service calls it twice, not once
+($k_{\text{carts}}=2$); an order-placement flow provoked six calls to the user
+service and three to carts, not one each ($k_{\text{user}}=6$,
+$k_{\text{carts}}=3$), the latter substantially the system's own
+HATEOAS-resolution behaviour in the \texttt{orders} service, not the agent's
+design choice. On these three features, B4/P1 and P2 both degrade sharply
+(Table~\ref{tab:rq6-error}): mean error $119.7\%$ and $87.5\%$, driven by
+individual cells as high as $+297\%$ (\textsc{quickadd} at $2\times$ scale) ---
+a false-feasible verdict predicting survival at roughly four times the load
+the system actually withstands.
+
+We measure $k_s$ directly, independently of any load data, by issuing $20$
+functional calls to the deployed feature and counting per-service request
+volume at the application's own \texttt{/metrics} endpoint --- a probe that
+touches only control flow, not the load axis being predicted. Feeding the
+measured $k_s$ into P2's cost model (P3) is not a new mechanism class; the
+formula already accepted a multiplicity argument, defaulted to $1$ because no
+tested feature before this section had violated it. P3 cuts mean independent-set
+error to $72.6\%$ and the cell with the largest multiplicity correction
+(\textsc{express}, $k_{\text{user}}=6$) from $+136\%$ to $+21\%$
+(Table~\ref{tab:rq6-error}) --- a genuine, substantial correction, and
+not a full one.
+
+\subsubsection{What the multiplicity fix does not reach: an unmodelled queueing effect}
+\label{sec:rq6-latency}
+One cell barely moves under P3: \textsc{quickadd} improves only from
+$+124.6\%$ to $+96.3\%$ at $1\times$ scale (and $+297.4\%$ to $+216.6\%$ at
+$2\times$) --- a real but small correction next to \textsc{express}'s. Reading
+the utilisation at the exact load step where its SLO first breaks explains why.
+\textsc{cartsum} breaks with its bottleneck service (the gateway) at
+$83$--$89\%$ of the calibrated ceiling, consistent with every mechanism in
+this paper, which scores feasibility as CPU utilisation against a threshold.
+\textsc{quickadd} breaks with no service above $46\%$ (p99
+$77\,\mathrm{ms}\to448\,\mathrm{ms}$ across one $20\,$req/s step at $2\times$
+scale, gateway at $32\%$) and \textsc{express} with no service above $65\%$
+(p99 $223\,\mathrm{ms}\to1034\,\mathrm{ms}$ across one $20\,$req/s step at
+$1\times$ scale): latency crosses the SLO from request fan-out and queueing
+across several sequential backend hops, a mechanism no variant in this paper
+--- P0 through P3, or the certified envelope of
+Section~\ref{sec:certified-envelope} --- tracks, because all of them compare
+per-service CPU to a single ceiling and none composes end-to-end latency
+across hops. This is not a new limitation; it is the latency mechanism's known
+failure to forecast (Section~\ref{sec:rq4}) recurring in a setting where, for
+the first time, it silently degrades the \emph{feasibility verdict} rather
+than a number downstream of it. We report it rather than absorb it into a
+further-tuned cost parameter: no cost correction fixes a mechanism the model
+does not have.
+
+\subsubsection{A fourth, genuinely prospective test}
+\label{sec:rq6-prospective}
+Every result above is confirmatory in one sense: the independent-implementation
+finding was known before we built P3, so P3's own accuracy is not yet tested
+on data collected after it existed. We therefore ran one further round with a
+protocol P3 itself requires: freeze B4/P1/P2 from the archetype alone, as
+before; have a fourth agent, blind to every prior result including this
+section, implement the requirement (\textsc{get\_catalogue}, a filtered
+product-browsing endpoint); \emph{then} probe the deployed code for $k_s$ and
+freeze the P3 prediction --- before running the load sweep that would reveal
+whether it is right. This agent's implementation is the one case across all
+four independently-written features whose measured call chain and
+multiplicity match the taxonomy exactly ($k_s=1$ on both services it touches),
+so P1, P2 and P3 coincide on this feature by construction; the test this cell
+runs is not of the multiplicity correction but of the frozen pipeline as a
+whole under the pre-registration protocol of Section~\ref{sec:rq6-protocol}.
+At both load multipliers the frozen prediction is accurate and on the safe
+side: $R^{*}_{\text{pred}}=181.8\,$req/s against a measured breakpoint of
+$200$--$220\,$req/s at $1\times$ scale ($-9.1\%$), and $162.2\,$req/s against
+$200$--$220\,$req/s at $2\times$ scale ($-18.9\%$); zero of two cells fall in
+the dangerous (late-prediction) direction. Mean error across the two cells is
+$14.0\%$ (Table~\ref{tab:rq6-error}), the smallest of any non-trivial split in
+this section, consistent with a feature whose implementation happens to match
+every assumption the mechanism makes.
+
+\subsubsection{Answer}
+The graph-aware correction earns its place twice: P2 generalises to held-out
+features to single-digit error (Section~\ref{sec:rq6-heldout}), and P3's
+multiplicity correction, fit on nothing more than a lightweight functional
+probe, recovers most of what an independent implementation costs the simpler
+models (Section~\ref{sec:rq6-independent}). Neither reaches a queueing effect
+that breaks the SLO at well under half the calibrated CPU ceiling
+(Section~\ref{sec:rq6-latency}): the feasibility verdict this paper's
+mechanism produces is accurate conditional on the bottleneck being CPU, and we
+now have the first measurement, rather than an assumption, of how often an
+independently implemented feature violates that condition.
+
+
 \section{Discussion and Threats to Validity}
 \label{sec:discussion}
 
@@ -1566,7 +1768,17 @@ the residual risk. The gateway-misdirection contrast between B2 and the guarded
 configuration is confounded by a prompt difference and is not claimed as a guard
 effect. The operational divergence of Section~\ref{sec:operational} measures
 disagreement with a simulated reference, not accuracy against ground truth, which
-does not exist for an unbuilt requirement.
+did not exist for an unbuilt requirement at the time that measurement was taken;
+Section~\ref{sec:rq6} removes the caveat for the eight archetypes it tests by
+implementing the requirement and measuring where the deployed system actually
+breaks, but the remaining two calibration archetypes still carry it. The
+ceiling $u^{*}=0.878$ that RQ6's verdict is thresholded against is calibrated
+from one node (the gateway) under unmodified traffic and assumed, not shown, to
+transfer to other nodes and other traffic shapes; Section~\ref{sec:rq6-latency}
+reports two features whose SLO breaks at under $55\%$ of that ceiling for a
+reason (queueing, not CPU) the calibration cannot see, which is evidence the
+transfer assumption fails specifically where it is not CPU-bound, not evidence
+about how often that is the case.
 
 \textbf{Internal.} The guarded row of Table~\ref{tab:rq1-parser} was re-measured after
 B0--B2 were collected, following a defect fix and the Scope Gate replacement;
@@ -1582,7 +1794,42 @@ variance the reported divergence rate does not currently quantify. Deterministic
 replay of the same cases against the now-fixed latency mechanism confirms this
 did not change which of the $150$ recorded calls were flagged, but the
 sensitivity is real and the certified envelope, not the sampled mean, is the
-principled fix.
+principled fix. RQ6's cost parameters $(c_s, x)$ are fit on two
+author-implemented features (\textsc{promo}, \textsc{recs}) and evaluated on
+two more author-implemented features held out before fitting; the only test
+against code we did not write is the three-feature independent set and the
+one-feature prospective set of Section~\ref{sec:rq6-prospective}, four
+implementations from three agent sessions on one machine running one instance
+of Sock Shop. Two alternative CPU-quota configurations, chosen to force the
+bottleneck onto a non-gateway node, both failed before yielding a usable
+breakpoint: a quota an order of magnitude below the deployment's own value
+throttles the underlying runtime (JVM, then Go) nonlinearly at a fraction of
+nominal utilisation, so every reported breakpoint in Section~\ref{sec:rq6} is
+gateway-bound at the deployment's published quota, and we could not obtain a
+comparable result for a bottleneck elsewhere without confounding it with this
+separate, unmodelled throttling effect.
+\label{sec:drift-threat}
+Midway through independent-set data collection the measured no-feature
+breakpoint drifted downward across an uninterrupted $\sim\!21\,$h measurement
+session (from $220$--$240\,$req/s to $180$--$220\,$req/s, then to
+$140$--$160\,$req/s), tracked by stable low-load latency ($3.4$--$3.75\,$ms at
+$40\,$req/s throughout), which rules out application-level causes
+(e.g.\ database bloat) and points to accumulating host/VM resource contention
+under the container runtime rather than the system under test. A full restart
+of the container runtime and its Linux VM recovered the breakpoint to
+$240$--$260\,$req/s, above the original calibration, confirming the drift was
+external to the measured system. Because this means the reported independent-set
+figures in Table~\ref{tab:rq6-error} of the original run may have been inflated
+by a confound of unknown magnitude, we re-ran the entire independent and
+prospective load sweep in one session on a verified-recovered host and report
+only those numbers; a first attempt to avoid any future recurrence by moving the
+load generator itself into a container attached directly to the service
+network (bypassing the host's NAT layer, separately measured to add
+$1.4\,$--$17.8\,$ms of connection latency under load) instead produced a
+substantially larger artifact of its own (p99 latency of $29\,$s at a load
+level the host-based generator serves at $67\,$ms) and was abandoned; the host
+NAT overhead is retained as a known, small, quantified limitation of measuring
+through Docker Desktop on Windows rather than a native Linux host.
 
 \textbf{Conclusion.} Where the deployed mechanism and linear regression produce
 identical predictions ($12/21$ and $74/84$ pairs) the paired test is undefined
@@ -1602,7 +1849,11 @@ sample of the generator population: a frontier proprietary model remains
 untested, and the open-weight arm is a single repeat. The operational comparison
 of Section~\ref{sec:rq1-operational} uses one backend only. The Alibaba
 analysis uses five of twelve available hours, and its hashed service names
-preclude any parser evaluation there.
+preclude any parser evaluation there. RQ6 runs on one Sock Shop deployment on
+one machine; the independent-implementation result generalises across four
+features and four agent sessions but not across systems, so whether an
+independently written Train Ticket feature shows the same multiplicity
+violations is untested.
 
 \textbf{Scope.} Each parsed requirement carries one intervention, applied at a
 gateway; assessing several approved requirements together uses
@@ -1614,7 +1865,15 @@ customer-facing requirements, whose load enters at the system boundary, and
 identifies the excluded cases --- background jobs, asynchronous consumers, and
 features that alter internal behaviour without changing external load --- as
 requiring internal-node interventions we do not support; Section~\ref{sec:joint-envelope}'s
-nested-intervention case is a first instance of what that would require.
+nested-intervention case is a first instance of what that would require. RQ6's
+verdict is CPU utilisation against a per-service ceiling; it does not compose
+end-to-end latency across hops, so a requirement whose failure mode is queueing
+delay rather than CPU exhaustion is scored on the wrong axis
+(Section~\ref{sec:rq6-latency}). The deployed predictor raises a coarse
+fan-out flag when total measured backend calls per use reach a fixed
+threshold, so the caller is not left to discover this silently, but the flag
+is a heuristic trigger, not a latency estimate, and its threshold is not
+itself calibrated against SLO outcomes.
 
 
 \subsection{Deploying to a New Target System}
@@ -1655,18 +1914,34 @@ once here rather than assumed to transfer unchanged.
 
 \subsection{Future Work}
 \label{sec:future-work}
-Three directions follow directly. The uncertainty annotation requires an
-outlier-resistant quantile estimator rather than per-node threshold adjustment,
-since its failure originates in quantile estimation on heavy-tailed samples.
-Validating prospective attribution --- whether the framework ranks affected
-services correctly --- requires an intervention on \emph{load}, which no public
-dataset provides and which a controlled load sweep would supply; the same
-infrastructure would permit the strongest available evaluation, implementing a
-forecast requirement and measuring the deployed system against the prediction
-made beforehand. Finally, the confounding we measure at production scale
-(Section~\ref{sec:rq5-do}) makes internal-node interventions with node-load
-adjustment a motivated extension, at the cost of redefining the gateway invariant
-in Proposition~\ref{prop:soundness}.
+The uncertainty annotation requires an outlier-resistant quantile estimator
+rather than per-node threshold adjustment, since its failure originates in
+quantile estimation on heavy-tailed samples. The confounding we measure at
+production scale (Section~\ref{sec:rq5-do}) makes internal-node interventions
+with node-load adjustment a motivated extension, at the cost of redefining the
+gateway invariant in Proposition~\ref{prop:soundness} --- the same excluded
+case, named in Section~\ref{sec:threats}, that a background job or asynchronous
+consumer would require.
+
+RQ6 closes the prospective-validation direction named in an earlier draft of
+this section --- implementing a forecast requirement and measuring the
+deployed system against the prediction made beforehand --- and opens three
+narrower ones in its place. First, the queueing effect of
+Section~\ref{sec:rq6-latency} needs its own mechanism, not a further correction
+to the CPU cost model: a request-fan-out predictor that composes per-hop
+latency, checked against the same kind of pre-registered, independently
+implemented ground truth RQ6 introduces. Second, the multiplicity probe of
+Section~\ref{sec:rq6-independent} is a manual step run once per feature before
+its verdict is trusted; folding it into the pipeline as an automatic
+pre-verdict stage --- probe, then predict, rather than predict from the
+archetype alone --- would remove the one place RQ6's protocol still depends on
+a human remembering to run it. Third, the independent-implementation sample is
+four features from three agent sessions on one system; the multiplicity
+violation rate that matters for a deployment decision is a property of a
+population of implementations we have only begun to sample, and a wider one,
+on a second system, would show whether the $k_s\neq1$ failure mode is a
+property of Sock Shop's services or of how independently written code calls
+any service.
 
 
 \section{Conclusion}

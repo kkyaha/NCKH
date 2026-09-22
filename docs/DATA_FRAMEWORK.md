@@ -292,6 +292,43 @@ xem `docs/RQ6_ATTRIBUTION_VALIDITY_REPORT.md`), không phải lỗi mới — nh
 (2) hiệu ứng hàng đợi/độ trễ đuôi từ quạt-ra nhiều backend — **chưa có hướng khắc phục** trong khung `u_s = CPU_s/C_s` hiện tại; cần một chỉ báo riêng cho tính năng có nhiều lượt gọi
 (ví dụ ngưỡng cảnh báo khi Σk vượt một mức, độc lập với việc CPU có gần trần hay không) thay vì cố mô hình hoá độ trễ (đã thử và bỏ, xem mục 8).
 
+## 5i. Đường bất đồng bộ (rabbitmq/queue-master) — không cần đo mới, dùng dữ liệu đã có
+
+Collector ghi CPU của MỌI container (không chỉ 7 service chính), nên `rabbitmq`/`queue-master` đã có sẵn trong mọi ramp đã chạy (mọi tính năng đều đi qua `orders`→`shipping`→hàng đợi `shipping-task`→`queue-master`).
+Kiểm tra trên toàn bộ dải tải đã đo (40–260 req/s, ramp express + baseline): `rabbitmq_cpu` giữ phẳng quanh 1,6–2,7% (max 3,7%), `queue-master_cpu` quanh 0,2–0,4% (max 0,95%), **không có xu hướng tăng**.
+Kết luận: đường bất đồng bộ không phải nút nghẽn trong dải tải đã kiểm; hai service này không cần đưa vào `SCORED` hay trần CPU. Không cần một tính năng "bất đồng bộ" riêng để kiểm việc này.
+
+## 5j. Tích hợp vào hệ thống, khoảng bất định, trần từ telemetry (2026-09-22)
+
+**`src/agents/feasibility_agent.py` (`NewFeatureFeasibilityAgent`), TÁCH RIÊNG khỏi `CapacityAgent`.** `CapacityAgent.train()` học từ dữ liệu RCAEval fault-injection, phục vụ RQ1–RQ12 đã công bố —
+KHÔNG đụng vào để không rủi ro tái hiện các RQ đó. Agent mới trả lời một câu hỏi khác ("thêm tính năng CHƯA TỪNG CÓ thì hệ đang chạy có còn đáp ứng SLO ở tải đỉnh L không"), học từ `SS-TRAIN`/`SS-LIMITS`.
+
+* **Trần `C_s` đọc TRỰC TIẾP từ container đang chạy** (`docker inspect …NanoCpus`) tại thời điểm hỏi, không phải từ `limits.json` tĩnh — chịu được lệch cấu hình. Có phương án dự phòng về `limits.json` kèm cảnh báo rõ nếu Docker không gọi được (ví dụ môi trường CI).
+* **Khoảng bất định cho điểm gãy:** bootstrap KHÔNG tham số trên chính các hàng dữ liệu huấn luyện (không phải trên tham số đã fit) — resample có hoàn lại, fit lại cơ chế (rho/alpha/beta) mỗi lần, tính lại điểm gãy, lấy phân vị [5,95] thực nghiệm. 200 lần lặp mất ~2,3 giây.
+* **Tổng quát hoá sang MỌI archetype** (không chỉ 8 tính năng có bằng chứng thực nghiệm): `feasibility_predictor.spec()` nhận cả tên tính năng đã đặt (`'promo'`) lẫn tên archetype thật (`'LOGIN'`, `'REGISTER'`…) trực tiếp.
+* **Cờ `latency_risk`:** khi Σk (tổng bội số gọi backend) ≥ 4, verdict vẫn tính theo CPU nhưng kèm cảnh báo rõ — vì hiệu ứng hàng đợi/độ trễ đuôi (mục 5h) chưa được mô hình hoá; **không giả vờ đã giải quyết**, chỉ tránh im lặng bỏ qua.
+* **Nối với `ParserAgent`:** `orchestrator.assess_new_feature_requirement(text, L_peak)` — đường RIÊNG, không đụng `StateGraph` `feasibility_analyzer` cũ. Đã kiểm chứng đầu-cuối (né import `capacity_agent`/`dowhy` bị lỗi môi trường có sẵn, xem dưới): NL → `APPLY_PROMO_CODE` (delta 20%) → verdict INFEASIBLE tại L=150, khớp chính xác kết quả `evaluate_p3.py` (145,4 req/s); thử với `LOGIN` (chưa từng có bằng chứng thực nghiệm) → FEASIBLE, `extrapolating=False`, hợp lý.
+* **30 test mới** (`tests/test_feasibility_agent.py`), tất cả qua.
+
+⚠ **Phát hiện phụ, KHÔNG do phiên này gây ra:** `tests/test_capacity_agent.py` đã hỏng từ trước (`ModuleNotFoundError: dowhy.graph`, do `.venv` có `include-system-site-packages=true` và `dowhy` hệ thống ở bản 0.8 thiếu submodule `graph`). KHÔNG nâng cấp `dowhy` vì việc đó sửa đổi Python hệ thống dùng chung, ngoài phạm vi được uỷ quyền — cần người dùng quyết định và tự làm.
+
+## 5k. Điều tra nguyên nhân gốc của độ bất ổn đo lường — giả thuyết NAT bị bác bỏ
+
+Giữa chừng đo `SS-LIMITS-PROSP`, điểm gãy baseline trôi liên tục trong một phiên chạy dài (xem mục 5j và `sockshop-data-collection-setup` — 220–240 → 180–220 → 140–160 req/s). Giả thuyết đầu tiên: lớp NAT/port-forward của Docker Desktop trên Windows (đo được p90 thời gian kết nối nhảy từ 1,4ms lúc rảnh lên 17,8ms dưới tải ~150 req/s) đang gây nhiễu có hệ thống vào phép đo.
+
+**Thử để sửa (bị bác bỏ bằng thực nghiệm):** đóng gói loadgen (`load_sweep_collect.py`) vào một container gắn THẲNG vào `sockshop_default`, gọi service qua tên DNS nội bộ (`http://edge-router`) thay vì `127.0.0.1`, để bỏ qua lớp NAT. Kiểm chứng trực tiếp — cùng mức tải 80 req/s, cùng trần CPU RE2, cùng thời điểm:
+
+| Nguồn tải | p99 | Lỗi | SLO |
+|---|---|---|---|
+| Host (qua NAT) | 67 ms | 0% | Đạt |
+| Container (gắn thẳng mạng docker) | **29 212 ms** | 0% | **Vi phạm nặng** |
+
+Container hoá loadgen — vốn định sửa lỗi NAT — **tự nó gây ra một lỗi giả còn nghiêm trọng hơn NAT rất nhiều** (29 giây so với 67ms, ở đúng một mức tải mà host xử lý hoàn toàn bình thường). Đã loại trừ hai giả thuyết cho lỗi container: (a) không phải CPU throttling — `docker stats` toàn bộ 14 container dịch vụ trong lúc "kẹt" đều dưới 30%; (b) không phải bản thân `LoadGen.setup()` chậm — gọi trực tiếp hàm thật (không qua bản sao chép tay) trong cùng container chỉ mất 24 giây cho 300 tài khoản. Nguyên nhân cụ thể bên trong container chưa được xác định (không đào sâu thêm — quyết định người dùng: xem giá trị chi phí đầu tư không rõ ràng so với việc quay lại đo từ host).
+
+**Kết luận:** lớp NAT của Docker Desktop là có thật và đo được, nhưng độ lớn (~17ms) quá nhỏ so với ngưỡng SLO (250ms) để là nguyên nhân của các đợt trôi điểm gãy quan sát được — đó KHÔNG phải nguyên nhân gốc. Nguyên nhân trôi thực sự nhiều khả năng vẫn là tranh chấp tài nguyên host/VM tích luỹ sau phiên chạy dài (đã chẩn đoán ở mục 5j: restart Docker Desktop + `wsl --shutdown` phục hồi hoàn toàn điểm gãy về 240/260, tốt hơn cả mức gốc). Đã BỎ hướng container hoá harness: xoá `deploy/sockshop/harness-runner/`, revert phần đường dẫn `_host_path()`/`SS_HOST_ROOT` trong `load_sweep_collect.py` (giữ `SS_TARGET` như một override chung, không còn dùng để né NAT). Ghi vào Threats to Validity: độ trễ NAT ~17ms dưới tải là một giới hạn nhỏ, đã định lượng, của việc đo trên Windows/Docker Desktop thay vì Linux gốc.
+
+Chiến dịch đo sạch `SS-LIMITS-CLEAN` (baseline + cartsum + quickadd + express + browse, 2 cường độ × 2 lần lặp, trần RE2) được chạy LẠI TỪ ĐẦU trên host sau khi sửa xong, thay thế mọi số liệu độc lập/tiến cứu trước đó.
+
 ## 6. Chia dữ liệu và chống rò rỉ
 
 | Vai trò | Dữ liệu | Quy tắc |

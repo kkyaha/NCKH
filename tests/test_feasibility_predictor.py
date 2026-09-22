@@ -177,3 +177,25 @@ def test_p2_gateway_uses_sum_of_k_not_chain_length(pred):
     assert heavy['front-end'] == pytest.approx(100 * (1 + delta * (1 + 0.1 * 8)))
     # k mac dinh rong -> dung CHINH XAC cong thuc cu (tuong thich nguoc)
     assert base_ncalls3 == pytest.approx(100 * (1 + delta * (1 + 0.1 * 3)))
+
+
+# ---------------- tong quat hoa: dung truc tiep TEN ARCHETYPE (khong chi 8 tinh nang da dat ten) ----------------
+def test_spec_accepts_raw_archetype_name_not_just_named_feature(pred):
+    delta_login, chain_login = pred.spec('LOGIN', scale=1.0)
+    assert chain_login == FP.SOCKSHOP_CALL_CHAINS['LOGIN']['services']
+    assert delta_login == pytest.approx(FP.SOCKSHOP_CALL_CHAINS['LOGIN']['expected_delta_pct'] / 100.0)
+    # 'promo' (ten da dat) va archetype that cua no phai cho ra CUNG mot ket qua
+    d1, c1 = pred.spec('promo', scale=1.0)
+    d2, c2 = pred.spec('APPLY_PROMO_CODE', scale=1.0)
+    assert d1 == d2 and c1 == c2
+
+
+def test_spec_rejects_unknown_name(pred):
+    with pytest.raises(KeyError):
+        pred.spec('khong_ton_tai', scale=1.0)
+
+
+def test_breakpoint_works_with_raw_archetype_name(pred):
+    r_named, _ = pred.breakpoint(mode='P1', feature='promo')
+    r_raw, _ = pred.breakpoint(mode='P1', feature='APPLY_PROMO_CODE')
+    assert r_named == pytest.approx(r_raw)

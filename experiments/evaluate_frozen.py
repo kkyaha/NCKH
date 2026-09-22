@@ -33,7 +33,8 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 DEV = ('base', 'promo', 'recs')
 LOCKED = ('track', 'review')
 INDEP = ('cartsum', 'quickadd', 'express')     # tinh nang DOC LAP (cai boi agent rieng)
-ANCHOR = {'promo': 20, 'recs': 30, 'track': 15, 'review': 10, 'cartsum': 10, 'quickadd': 15, 'express': 25}
+PROSP = ('browse',)                            # tinh nang KIEM DINH TIEN CUU P3 (agent doc lap khac)
+ANCHOR = {'promo': 20, 'recs': 30, 'track': 15, 'review': 10, 'cartsum': 10, 'quickadd': 15, 'express': 25, 'browse': 10}
 
 
 def load_ramps(ramp_dir, features):
@@ -69,7 +70,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--frozen', required=True)
     ap.add_argument('--ramp-dir', required=True)
-    ap.add_argument('--split', choices=['dev', 'locked', 'all', 'indep'], default='dev')
+    ap.add_argument('--split', choices=['dev', 'locked', 'all', 'indep', 'prosp'], default='dev')
     ap.add_argument('--open-locked', action='store_true', help='bat buoc de doc tap KHOA (track, review); ghi nhat ky kiem toan')
     ap.add_argument('--out', default='')
     a = ap.parse_args()
@@ -80,7 +81,7 @@ def main():
         with open(os.path.join(os.path.dirname(os.path.abspath(a.frozen)), 'locked_access.log'), 'a', encoding='utf-8') as f:
             f.write(f'{time.strftime("%Y-%m-%d %H:%M:%S")} MO TAP KHOA split={a.split} frozen_sha256='
                     f'{hashlib.sha256(open(a.frozen, "rb").read()).hexdigest()[:16]} ramp_dir={a.ramp_dir}\n')
-    feats = {'dev': DEV, 'locked': LOCKED + ('base',), 'all': DEV + LOCKED, 'indep': INDEP + ('base',)}[a.split]
+    feats = {'dev': DEV, 'locked': LOCKED + ('base',), 'all': DEV + LOCKED, 'indep': INDEP + ('base',), 'prosp': PROSP + ('base',)}[a.split]
 
     fz = json.load(open(a.frozen, encoding='utf-8'))
     if fz.get('dev') or fz.get('post_hoc'):

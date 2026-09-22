@@ -72,7 +72,14 @@ DEFAULT_OUT = os.path.join(BASE_DIR, 'data', 'raw', 'SS-LOADSWEEP')
 PROJECT = 'sockshop'
 NETWORK = f'{PROJECT}_default'
 COLLECTOR = 'ss-collector'
-TARGET = 'http://127.0.0.1'
+import os as _os  # noqa: E402  (chi de doc bien moi truong ngay tai diem khai bao, gan voi TARGET)
+# Mac dinh qua host (127.0.0.1 -> Docker Desktop NAT). Da THU nghiem chay chinh loadgen nay
+# BEN TRONG 1 container gan thang vao mang docker (bo NAT) de loai tru NAT la nguyen nhan dao
+# dong diem gay; ket qua: NAT KHONG phai nguyen nhan (host tai 80 req/s: p99=67ms, dat SLO --
+# container CUNG tai do: p99=29s, VI PHAM nang -- tu container tu gay ra loi gia con nang hon
+# NAT rat nhieu). Da BO huong container hoa harness. SS_TARGET giu lai nhu 1 override chung
+# (vd. tro toi 1 host khac), khong con dung de goi thang qua mang docker.
+TARGET = _os.environ.get('SS_TARGET', 'http://127.0.0.1')
 SERVICES = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shipping']
 VM_SATURATED = 0.85     # vm_cpu_util vuot nguong nay => mau bi nghi nhiem/bao hoa host
 
@@ -212,6 +219,7 @@ FEATURES = {
     'cartsum':  {'req': ('GET', '/cart/summary'),        'anchor': 10, 'archetype': 'VIEW_CART'},
     'quickadd': {'req': ('POST', '/cart/quick'),         'anchor': 15, 'archetype': 'ADD_TO_CART'},
     'express':  {'req': ('POST', '/checkout/express'),   'anchor': 25, 'archetype': 'PLACE_ORDER'},
+    'browse':   {'req': ('GET', '/catalogue/browse?tags=sport'), 'anchor': 10, 'archetype': 'GET_CATALOGUE'},
 }
 
 

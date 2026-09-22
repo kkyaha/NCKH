@@ -86,6 +86,47 @@ perf_agent = capacity_agent
 sim_agent  = capacity_agent
 
 # ==========================================
+# 2b. FEASIBILITY AGENT (tinh nang CHUA TUNG CO, khac muc dich voi CapacityAgent o tren)
+# ==========================================
+# CapacityAgent.train() hoc tu du lieu RCAEval fault-injection, phuc vu RQ1-RQ12 da cong bo -- KHONG
+# dung chung pipeline voi duong nay de khong dung cham vao no. NewFeatureFeasibilityAgent tra loi mot
+# cau hoi khac: "them mot tinh nang CHUA TUNG CO thi he thong Sock Shop dang chay con dap ung SLO o tai
+# dinh L khong" (docs/DATA_FRAMEWORK.md), hoc tu SS-TRAIN/SS-LIMITS (khong phai RCAEval). Tao lazy (chi
+# khi goi assess_new_feature_requirement) de import nay khong lam hong moi truong thieu file dong bang.
+_feasibility_agent = None
+
+
+def _get_feasibility_agent():
+    global _feasibility_agent
+    if _feasibility_agent is None:
+        from agents.feasibility_agent import NewFeatureFeasibilityAgent
+        _feasibility_agent = NewFeatureFeasibilityAgent()
+    return _feasibility_agent
+
+
+def assess_new_feature_requirement(text: str, L_peak: float, k: dict = None, bootstrap: bool = True) -> dict:
+    """Duong rieng NL -> archetype -> kha thi, dung ParserAgent (da co) + NewFeatureFeasibilityAgent
+    (P2/P3, docs/DATA_FRAMEWORK.md). KHONG dung StateGraph `feasibility_analyzer` o duoi (duong do dung
+    CapacityAgent cho muc dich khac); goi ham nay TRUC TIEP, khong qua workflow.invoke().
+
+    k: boi so goi do duoc (vd tu experiments/probe_feature_chain.py) neu tinh nang DA duoc cai va do --
+    truyen vao thi dung P3, khong truyen thi P2 (gia dinh k=1, it lac quan hon, xem docs muc 5g-5h).
+    """
+    parsed = parser_agent.parse(text)
+    agent = _get_feasibility_agent()
+    from feasibility_predictor import SOCKSHOP_CALL_CHAINS, FEATURE_ARCHETYPE  # noqa: E402 (da tren sys.path qua feasibility_agent)
+    archetype = parsed.request_type
+    if archetype not in SOCKSHOP_CALL_CHAINS:
+        return {'parsed_requirement': asdict(parsed), 'feasibility': None,
+                'error': f"archetype '{archetype}' khong co trong taxonomy -- ngoai pham vi (xem Scope Gate)"}
+    # scale sao cho delta THAT su dung = injection_delta_pct cua CHINH yeu cau nay (khong phai
+    # anchor mac dinh cua archetype) -- ton trong uoc luong rieng cua ParserAgent cho tung yeu cau.
+    anchor = SOCKSHOP_CALL_CHAINS[archetype]['expected_delta_pct']
+    scale = (parsed.injection_delta_pct / anchor) if anchor else 1.0
+    verdict = agent.assess(archetype, scale=scale, L_peak=L_peak, k=k, bootstrap=bootstrap)
+    return {'parsed_requirement': asdict(parsed), 'feasibility': verdict}
+
+# ==========================================
 # 3. DINH NGHIA STATE
 # ==========================================
 class RequirementState(TypedDict):

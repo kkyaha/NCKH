@@ -1,0 +1,27 @@
+{
+ "created": "2026-09-22 12:12:13",
+ "n_probes": 20,
+ "features": {
+  "browse": {
+   "measured_per_use": {
+    "front-end": 1.0,
+    "catalogue": 1.0,
+    "user": 0.0,
+    "carts": 0.0,
+    "orders": 0.0,
+    "payment": 0.0,
+    "shipping": 0.0
+   },
+   "chain_measured": [
+    "front-end",
+    "catalogue"
+   ],
+   "chain_taxonomy": [
+    "front-end",
+    "catalogue"
+   ],
+   "archetype": "GET_CATALOGUE",
+   "n_probes": 20
+  }
+ }
+}
