@@ -1,0 +1,27 @@
+{
+ "created": "2026-09-22 06:17:54",
+ "fit_data_sha256": "bf8a7feabc4daf131607795744383850be659b1ea9aad151b2fc9d6cb2d9fef1",
+ "fit_features": [
+  "promo",
+  "recs"
+ ],
+ "fit_ramp_files": 8,
+ "frozen_base": {
+  "file": "predictions_frozen_RE2.json",
+  "sha256": "f05c8eb552c173d4fbdd13a972f5e5678f8a66efac4c3c466b6c9bf7e93bc8e2"
+ },
+ "gateway_multiple_by_feature": {
+  "promo": 2.0548567252471868,
+  "recs": 2.2178734555009245
+ },
+ "params": {
+  "c": {
+   "carts": 1.5125613341733157,
+   "catalogue": 1.064990236845319,
+   "orders": 0.4360435575480845,
+   "user": 1.3112443903885322
+  },
+  "x": 0.36849339060985065
+ },
+ "stage": "DEVELOPMENT (fit tren promo/recs; khong phai du doan truoc)"
+}

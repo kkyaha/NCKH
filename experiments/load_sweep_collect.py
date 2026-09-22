@@ -208,6 +208,10 @@ FEATURES = {
     'recs':   {'req': ('GET', '/recommendations'),  'anchor': 30, 'archetype': 'RECOMMEND_PRODUCTS'},
     'track':  {'req': ('GET', '/track'),            'anchor': 15, 'archetype': 'TRACK_PACKAGE'},
     'review': {'req': ('POST', '/reviews'),         'anchor': 10, 'archetype': 'WRITE_PRODUCT_REVIEW'},
+    # tinh nang DOC LAP: giao dien HTTP do ben yeu cau quy dinh, backend nao duoc goi la quyet dinh cua nguoi cai
+    'cartsum':  {'req': ('GET', '/cart/summary'),        'anchor': 10, 'archetype': 'VIEW_CART'},
+    'quickadd': {'req': ('POST', '/cart/quick'),         'anchor': 15, 'archetype': 'ADD_TO_CART'},
+    'express':  {'req': ('POST', '/checkout/express'),   'anchor': 25, 'archetype': 'PLACE_ORDER'},
 }
 
 
@@ -293,6 +297,10 @@ class LoadGen:
             elif feat == 'review':
                 kw['json'] = {'productId': self.rng.choice(self.items),
                               'stars': self.rng.randint(1, 5), 'text': 'good socks'}
+            elif feat == 'quickadd':
+                kw['json'] = {'id': self.rng.choice(self.items)}
+            elif feat == 'express':
+                kw['json'] = {'id': self.rng.choice(self.cheap)}    # payment tu choi don > 100 USD
             await self._req(self.rng.choice(self.feat_pool), method, url, _f=True, **kw)
         finally:
             st['inflight'] -= 1

@@ -166,6 +166,65 @@ so **mức sử dụng dự đoán từng node** `u_s` của P0/P1/P1_ctrl với
 (ví dụ orders: P0 +0,7 req/s so với P1 +18 req/s cho promo), nên chain có thể được chứng minh hoặc bác bỏ ngay cả khi front-end nghẽn ở mọi ô.
 `predictions_frozen_*.json` lưu `u` từng node theo lưới tải để làm việc này. Quyết định cấp hệ thống (điểm gãy, node nghẽn) vẫn được báo cáo nhưng chủ yếu phân biệt qua front-end.
 
+## 5d. Kết quả Pha B trên tập PHÁT TRIỂN (2026-09-22; bản đóng băng RE2, SHA-256 `f05c8eb5…bc8e2`; baseline + promo + recs, 13 ramp)
+
+Tập khoá (`track`, `review`) **chưa mở** (không có `locked_access.log`). Bản đóng băng không bị chỉnh sau khi thấy kết quả.
+
+| Ô | Đo được [lo, hi) | P0 = P1 = ctrl | Sai số vs lo |
+|---|---|---|---|
+| baseline | [220, 240) | 207 (front-end) | −6% (an toàn) |
+| promo ×1 | [150, 170) | 172 | +15% (**kha thi gia**) |
+| promo ×2 | [80, 100) | 148 | +85% (**kha thi gia**) |
+| recs ×1 | [120, 140) | 159 | +32% (**kha thi gia**) |
+| recs ×2 | [100, 120) | P0/ctrl 129 (+29%); **P1 119 (đúng, nghẽn dự đoán ở orders)** | |
+
+* Phân quyết trên lưới tải (96 điểm): P1 acc 0,906, 9 "khả thi giả"; P0 và ctrl acc 0,885, 11 khả thi giả; **0 báo động giả** ở cả ba.
+* Mức sử dụng từng node (điểm % của trần, trước điểm gãy): gateway sai **9 điểm (promo) và 16 điểm (recs)**, giống nhau cho mọi bộ dự đoán (chi phí điều phối bị bỏ qua, front-end bị dự đoán thấp ~21%);
+  node backend TRONG chain: P0 8,8/10,2, P1 8,5/9,5, **chain sai 7,0/7,7** (promo/recs); node ngoài chain: P1 tốt nhất ở promo (0,63) nhưng kém P0 ở recs (3,8 so với 2,0).
+  orders: P0 thấp −71%, **P1 cao +103%**, ctrl −77%.
+
+**Đọc kết quả:** (1) cơ chế đúng cho baseline; (2) với tính năng chưa từng có cả hai bộ đều lạc quan nguy hiểm ở 4/5 ô (15–85%), nguyên nhân chính là chi phí gateway;
+(3) giả thuyết "chain thật tốt hơn tỉ lệ nền và tốt hơn chain sai" **không được ủng hộ ở mức node** (chain sai thậm chí thấp hơn ở node chain); chain chỉ giúp ở ô mà orders là nút nghẽn thật (recs ×2).
+Nguồn sai số nghi ngờ (chưa tách): độ lớn (k_s = 1 và chi phí mỗi lần gọi bằng trung bình nền, orders bị dự đoán gấp đôi) và chi phí gateway; cần phân tích P2 (bội số đo được từ `routes.csv`) trên dữ liệu phát triển.
+Mọi chỉnh mô hình từ đây là **phát triển**, chỉ dùng promo/recs; tập khoá mở đúng một lần khi kết thúc.
+
+## 5e. Kết quả trên tập KHOÁ (track, review) — mở đúng một lần (2026-09-22 06:19:09, `locked_access.log`)
+
+Bốn mô hình chấm trên hai tính năng chưa từng dùng để chỉnh: P0/P1/chain-sai (đóng băng trước Pha B, SHA-256 `f05c8eb5…`) và **P2** (tham số fit trên promo/recs, đóng băng 06:18:49, SHA-256 `4c692d4f…`, trước khi mở tập khoá).
+
+| Ô | Đo được [lo, hi) | P0 = P1 = ctrl | P2 |
+|---|---|---|---|
+| review ×1 | [180, 200) | 187,8 (+4%) | 176,0 (−2%) |
+| review ×2 | [150, 170) | 172,2 (**+15%, muộn**) | 153,3 (+2%) |
+| track ×1 | [170, 190) | 179,7 (+6%) | 163,9 (−4%) |
+| track ×2 | [140, 160) | 158,9 (+14%) | 135,8 (−3%) |
+
+* **P2 sai trong ±4% ở cả 4 ô, không ô nào dự đoán muộn** (0 "khả thi giả"); 3/4 nghiêng về an toàn. Trên lưới tải P2 có 6 báo động giả, tất cả nằm sát biên (bước lưới 20 req/s).
+* Mức sử dụng node (điểm % của trần): track P0 3,9 / P1 4,8 / chain-sai 4,6 / **P2 1,9**; review 2,5 / 2,1 / 2,9 / **1,7**. Riêng node TRONG chain: track P1 13,3 → **P2 0,8**; review P1 1,0 → **0,6**. Gateway: 3,9–5,0 → 2,8–2,9.
+* orders (sai tương đối): P0 −26%, P1 +41%, **P2 −2%**; front-end: −8,7% → **+0,8%**.
+* Giả thuyết chưa kiểm ở dev, nay được kiểm: chi phí gateway theo số lời gọi backend (dev đều n_calls=3, khoá n_calls=2) **đứng vững**.
+* Không giải thích được: `carts` bị dự đoán thấp ~22% dù không thuộc chain (cả P1 và P2), nghi do tác động gián tiếp; sai số tuyệt đối nhỏ.
+
+**Giới hạn:** 2 tính năng khoá × 2 cường độ × 2 lần lặp; một máy, một hệ thống; các tính năng do người xây dựng viết (không độc lập); P0/P1 trông ổn hơn trên tập khoá vì hai tính năng này nhẹ hơn promo/recs.
+Tập khoá đã dùng: mọi tính năng mới phải là dữ liệu mới.
+
+## 5f. Dữ liệu ĐỘC LẬP (2026-09-22, đang thu): tính năng do một agent riêng cài
+
+Mục đích: bỏ hai điểm yếu còn lại: (a) tập khoá `track`/`review` đã dùng, (b) bốn tính năng đầu do chính người xây dựng công cụ cài sau khi đã đọc taxonomy.
+
+**Giao thức (thứ tự bắt buộc):**
+1. Chọn 3 tính năng thuộc 3 archetype chưa dùng, có số lời gọi backend khác nhau: `cartsum` = VIEW_CART (n=1, REQ-06), `quickadd` = ADD_TO_CART (n=2, REQ-05), `express` = PLACE_ORDER (n=6, REQ-10).
+   Dữ liệu cũ chỉ có n=2 và n=3; n=1 và n=6 là ngoại suy thật cho chi phí gateway `x·n_calls`.
+2. **Đóng băng dự đoán TRƯỚC khi bất kỳ dòng code nào được viết:** `data/processed/frozen/predictions_frozen_RE2_P2_indep.json`,
+   SHA-256 `f9853d23…3390`, tạo 06:34:45. Chỉ phụ thuộc mô tả tiếng Việt → archetype → chain, u\* và cơ chế của bản gốc, tham số P2 fit trên promo/recs.
+3. Agent cài trong **thư mục cách ly** ngoài repo (`indep_sandbox`): chỉ có mã front-end gốc, danh mục API backend trung lập và yêu cầu (nguyên văn tiếng Việt + giao diện HTTP bắt buộc).
+   Đã quét không có dấu vết taxonomy, chain, dự đoán, mã tính năng của người xây dựng hay bài báo. Agent không được chạy hệ thống.
+4. Người xây dựng chỉ build, thử chức năng (`experiments/probe_feature_chain.py`) và đo; lỗi chức năng được chuyển lại cho agent, KHÔNG chuyển gợi ý về thiết kế.
+5. Đo ramp: baseline + 3 tính năng × 2 cường độ × 2 lần lặp dưới trần `RE2`. Đánh giá bằng `evaluate_frozen.py --split indep`, kèm so chuỗi gọi THỰC TẾ với chain taxonomy.
+
+**Giao diện HTTP (bên yêu cầu cố định, backend nào bị gọi do người cài quyết định):** `GET /cart/summary`, `POST /cart/quick {id}`, `POST /checkout/express {id}`.
+Điều này kiểm tra cả bản đồ tuyến đường (taxonomy có mô tả đúng một cài đặt tự nhiên không) lẫn độ lớn chi phí.
+
 ## 6. Chia dữ liệu và chống rò rỉ
 
 | Vai trò | Dữ liệu | Quy tắc |

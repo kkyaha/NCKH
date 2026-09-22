@@ -32,7 +32,8 @@ sys.path.insert(0, os.path.join(BASE, 'src', 'scm'))
 import feasibility_predictor as FP  # noqa: E402
 
 GRID = list(range(40, 261, 20))
-CELLS = [('base', 1.0)] + [(f, s) for f in FP.FEATURE_ARCHETYPE for s in (1.0, 2.0)]
+def cells_for(feature_set):
+    return [('base', 1.0)] + [(f, s) for f in FP.FEATURE_SETS[feature_set] for s in (1.0, 2.0)]
 
 
 def sha_file(p):
@@ -66,15 +67,34 @@ def main():
     ap.add_argument('--out', default='', help='mac dinh data/processed/frozen/predictions_frozen_<limits>.json (MOI cau hinh tran mot file)')
     ap.add_argument('--dev', action='store_true', help='thu code: train tu chinh ramp baseline (co tran); KHONG phai dong bang')
     ap.add_argument('--allow-post-hoc', action='store_true')
+    ap.add_argument('--feature-set', choices=list(FP.FEATURE_SETS), default='main',
+                    help='main = promo/recs/track/review; indep = cartsum/quickadd/express (tinh nang DOC LAP)')
+    ap.add_argument('--base-frozen', default=os.path.join(BASE, 'data', 'processed', 'frozen', 'predictions_frozen_RE2.json'),
+                    help='ban dong bang goc (dung khi --p2-params: lay u* va doi chieu co che)')
+    ap.add_argument('--p2-params', default='', help='JSON tu fit_feature_costs --save: them du doan P2 (PHAT TRIEN, dong bang TRUOC khi mo tap khoa)')
     a = ap.parse_args()
 
     if not a.out:
-        a.out = os.path.join(BASE, 'data', 'processed', 'frozen', f'predictions_frozen_{a.limits}{"_dev" if a.dev else ""}.json')
+        a.out = os.path.join(BASE, 'data', 'processed', 'frozen',
+                             f'predictions_frozen_{a.limits}{"_P2" if a.p2_params else ""}{"_indep" if a.feature_set == "indep" else ""}{"_dev" if a.dev else ""}.json')
+    p2 = None
+    if a.feature_set == 'indep':
+        if not a.p2_params:
+            sys.exit('--feature-set indep can --p2-params (tham so P2 da dong bang tu promo/recs)')
+        exist = [d for f in FP.FEATURE_SETS['indep'] for d in glob.glob(os.path.join(a.ramp_dir, f'ramp_{f}_*'))]
+        if exist:
+            sys.exit(f'TU CHOI: da co du lieu ramp cua tinh nang doc lap {exist[:2]}; dong bang bay gio khong con la du doan truoc.')
+    if a.p2_params:
+        lock_log = os.path.join(os.path.dirname(a.out), 'locked_access.log')
+        if a.feature_set == 'main' and os.path.exists(lock_log):      # chot chan tap khoa chi ap cho bo main
+            sys.exit(f'TU CHOI: tap khoa da tung bi mo ({lock_log}); P2 khong con la mo hinh dong bang TRUOC khi mo tap khoa.')
+        p2 = json.load(open(a.p2_params, encoding='utf-8'))
+        a.allow_post_hoc = True      # P2 fit tren du lieu Pha B (promo/recs) => khong phai du doan truoc so voi Pha B
 
     # ---- chot chan: chua co dap an tinh nang
     feat_ramps = [d for d in glob.glob(os.path.join(a.ramp_dir, 'ramp_*'))
                   if os.path.isdir(d) and os.path.basename(d) != 'ramp_base']      # chi THU MUC (bo qua ramp_manifest_*.json)
-    post_hoc = bool(feat_ramps)
+    post_hoc = bool(feat_ramps) and a.feature_set == 'main'      # bo doc lap: chua co du lieu do (da chan o tren)
     if post_hoc and not a.allow_post_hoc and not a.dev:
         sys.exit(f'TU CHOI: {a.ramp_dir} da co ramp tinh nang ({[os.path.basename(d) for d in feat_ramps][:3]}...). '
                  f'Dong bang bay gio khong con la du doan truoc. Dung --allow-post-hoc neu chap nhan (se ghi post_hoc=true).')
@@ -95,17 +115,28 @@ def main():
         df_all, train_root = FP.load_runs(a.train_dir), a.train_dir
         train = FP.select_train(df_all, a.train_max)
     mech = FP.fit_mechanism(train)
-    u_star, u_detail = FP.calibrate_u_star(a.ramp_dir, cores)
-    P = FP.FeasibilityPredictor(mech, cores, u_star)
+    if p2:
+        # P2: u* va co che LAY NGUYEN tu ban dong bang goc (khong tinh lai: ramp baseline nay con co them 2 ramp cua Pha B,
+        # va thu muc da chua ramp tinh nang). Kiem tra co che tinh lai phai KHOP ban goc.
+        base_fz = json.load(open(a.base_frozen, encoding='utf-8'))
+        u_star, u_detail = base_fz['params']['u_star'], base_fz['u_star_calibration']
+        for s_, m_ in base_fz['mechanism'].items():
+            for k_ in ('rho', 'alpha', 'beta'):
+                assert abs(m_[k_] - round(mech[s_][k_], 5)) < 1e-4, f'co che {s_}.{k_} khong khop ban goc'
+    else:
+        u_star, u_detail = FP.calibrate_u_star(a.ramp_dir, cores)
+    P = FP.FeasibilityPredictor(mech, cores, u_star, feature_cost=(p2['params'] if p2 else None))
     hold = mechanism_check(df_all, mech, a.train_max)
 
     # ---- du doan
     preds = []
-    for feature, scale in CELLS:
+    for feature, scale in cells_for(a.feature_set):
         feat = None if feature == 'base' else feature
         variants = [('P0', dict(mode='P0')), ('P1', dict(mode='P1'))]
         if feat:
             variants.append(('P1_ctrl', dict(mode='P1', chain=FP.wrong_chain(feat, 0))))
+            if p2:
+                variants.append(('P2', dict(mode='P2')))
         for name, kw in variants:
             if name == 'P0' and feat is None:
                 continue                                   # baseline: P0 == P1 (khong co tinh nang)
@@ -124,6 +155,10 @@ def main():
         commit = ''
     doc = {
         'created': time.strftime('%Y-%m-%d %H:%M:%S'), 'dev': a.dev, 'post_hoc': post_hoc,
+        'stage': (('PRE-REGISTERED cho tinh nang DOC LAP (P2 fit chi tren promo/recs; dong bang TRUOC khi agent cai)' if a.feature_set == 'indep' else
+                   'DEVELOPMENT model P2 (tham so fit tren promo/recs), dong bang TRUOC khi mo tap khoa') if p2 else 'pre-registered'),
+        'feature_set': a.feature_set,
+        'p2_params': ({'file': os.path.basename(a.p2_params), 'sha256': sha_file(a.p2_params), **p2['params']} if p2 else None),
         'params': {'limits': a.limits, 'cores': cores, 'train_max_rps': a.train_max, 'u_star': round(u_star, 4),
                    'u_margin': FP.U_MARGIN, 'scored': FP.SCORED, 'grid_rps': GRID},
         'u_star_calibration': u_detail,
@@ -158,7 +193,7 @@ def main():
     t = pd.DataFrame([{'cell': f"{p['feature']}x{p['scale']:g}", 'predictor': p['predictor'], 'R*': p['breakpoint_rps'],
                        'bottleneck': p['bottleneck']} for p in preds])
     print(t.pivot(index='cell', columns='predictor', values='R*').reindex(
-        [f"{f}x{s:g}" for f, s in CELLS]).to_string())
+        [f"{f}x{s:g}" for f, s in cells_for(a.feature_set)]).to_string())
     print(f'\nfile: {a.out}\nSHA-256: {digest}')
 
 

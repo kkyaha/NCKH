@@ -13,6 +13,10 @@ Can thiep len mot yeu cau moi (Delta = expected_delta_pct * scale / 100, chain =
         W_s = rho_s * L * (1 + Delta)
   * P1 (chain lam DIEM DAT TAI): request tinh nang KHONG lan ra ngoai chain:
         W_s = L * (rho_s + Delta * k_s * [s in chain]),  k_s mac dinh 1
+  * P2 (PHAT TRIEN, tham so hoc tu ramp promo/recs -- KHONG phai du doan truoc): nhu P1 nhung
+        backend trong chain:  W_s = L*(rho_s + Delta*k_s*c_s)   c_s = he so chi phi MOI LAN GOI cua tinh nang so voi trung binh nen
+        gateway            :  W_fe = L*(rho + Delta*(1 + x*n_calls)),  n_calls = |chain|-1 (taxonomy)  -- chi phi dieu phoi
+    (do duoc: chain dung tuyen duong, k_s~1; sai so P1 gan nhu HOAN TOAN o chi phi moi lan goi: orders ~0.5x, gateway ~1.3x)
   * P1_ctrl (doi chung): nhu P1 nhung chain NGAU NHIEN cung kich thuoc -- neu khong te hon P1 thi chain
         chua chung minh duoc gia tri.
 Phan quyet: u_s = CPU_s / C_s (C_s = 100 * cores, cung don vi cot `_cpu`), tren 5 node chinh;
@@ -41,7 +45,10 @@ GATEWAY = 'front-end'
 SERVICES = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shipping']
 SCORED = ['front-end', 'catalogue', 'user', 'carts', 'orders']      # docs/DATA_FRAMEWORK.md muc 3
 FEATURE_ARCHETYPE = {'promo': 'APPLY_PROMO_CODE', 'recs': 'RECOMMEND_PRODUCTS',
-                     'track': 'TRACK_PACKAGE', 'review': 'WRITE_PRODUCT_REVIEW'}
+                     'track': 'TRACK_PACKAGE', 'review': 'WRITE_PRODUCT_REVIEW',
+                     # tinh nang DOC LAP (cai boi agent rieng, khong thay taxonomy): REQ-06, REQ-05, REQ-10
+                     'cartsum': 'VIEW_CART', 'quickadd': 'ADD_TO_CART', 'express': 'PLACE_ORDER'}
+FEATURE_SETS = {'main': ['promo', 'recs', 'track', 'review'], 'indep': ['cartsum', 'quickadd', 'express']}
 U_MARGIN = 0.10           # MARGINAL khi max_u trong 10% duoi u*
 
 
@@ -113,8 +120,9 @@ def wrong_chain(feature, seed=0):
 
 
 class FeasibilityPredictor:
-    def __init__(self, mech, cores, u_star, margin=U_MARGIN, scored=SCORED):
+    def __init__(self, mech, cores, u_star, margin=U_MARGIN, scored=SCORED, feature_cost=None):
         self.mech, self.u_star, self.margin, self.scored = mech, float(u_star), margin, list(scored)
+        self.feature_cost = feature_cost or {'c': {}, 'x': 0.0}      # chi dung cho mode P2
         self.cap = {s: 100.0 * float(cores[s]) for s in SERVICES if s in cores}
         missing = [s for s in self.scored if s not in self.cap]
         if missing:
@@ -137,6 +145,12 @@ class FeasibilityPredictor:
                 out[s] = rho * L * (1.0 + delta)
             elif mode == 'P1':
                 out[s] = L * (rho + (delta * k.get(s, 1.0) if s in ch else 0.0))
+            elif mode == 'P2':
+                fc = self.feature_cost
+                if s == GATEWAY:
+                    out[s] = L * (rho + delta * (1.0 + fc['x'] * max(len(ch) - 1, 0)))
+                else:
+                    out[s] = L * (rho + (delta * k.get(s, 1.0) * fc['c'].get(s, 1.0) if s in ch else 0.0))
             else:
                 raise ValueError(mode)
         return out
@@ -197,6 +211,32 @@ def calibrate_u_star(ramp_root, cores, scored=SCORED):
     if not vals:
         raise ValueError('khong co ramp baseline nao co diem gay de hieu chinh u*')
     return float(np.median(vals)), detail
+
+
+def fit_feature_cost(rows, mech):
+    """Hieu chinh he so chi phi cua P2 tu cac hang do duoc (CHI tap phat trien).
+    rows: DataFrame cot feature, node, L, delta, chain(set|list), n_calls, w_meas, c_meas (moi hang = 1 buoc tai truoc diem gay).
+      c_s : chi phi CPU do tinh nang gay ra / (beta * tai tinh nang DO DUOC)  -> chi phi MOI LAN GOI (khong lan voi boi so k)
+      x   : chi phi gateway cua 1 request tinh nang = (1 + x*n_calls) lan request nen; hoi quy qua goc tren cac hang gateway."""
+    c, detail = {}, {}
+    be = rows[(rows['node'] != GATEWAY) & rows.apply(lambda r: r['node'] in r['chain'], axis=1)]
+    for s, g in be.groupby('node'):
+        m = mech[s]
+        extra_cpu = g['c_meas'] - (m['alpha'] + m['beta'] * m['rho'] * g['L'])
+        extra_w = g['w_meas'] - m['rho'] * g['L']
+        den = float((m['beta'] * extra_w).sum())
+        if den > 0:
+            c[s] = float(extra_cpu.sum() / den)
+            detail[s] = {'n': int(len(g)), 'features': sorted(g['feature'].unique().tolist())}
+    gw = rows[rows['node'] == GATEWAY]
+    m = mech[GATEWAY]
+    base_unit = m['beta'] * gw['delta'] * gw['L']                        # chi phi neu request tinh nang tot nhu request nen
+    extra = gw['c_meas'] - (m['alpha'] + m['beta'] * m['rho'] * gw['L'])
+    z = base_unit * gw['n_calls']
+    x = float(((extra - base_unit) * z).sum() / max((z * z).sum(), 1e-12))
+    per_feature = {f: float(((g['c_meas'] - (m['alpha'] + m['beta'] * m['rho'] * g['L'])).sum()) /
+                            max((m['beta'] * g['delta'] * g['L']).sum(), 1e-12)) for f, g in gw.groupby('feature')}
+    return {'c': c, 'x': x, 'gateway_multiple_by_feature': per_feature, 'detail': detail}
 
 
 def sha256_files(paths):

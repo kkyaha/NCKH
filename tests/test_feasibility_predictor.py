@@ -117,3 +117,51 @@ def test_anchors_consistent_with_harness():
 def test_extrapolation_flag(pred):
     assert not pred.verdict(100)['extrapolating']
     assert pred.verdict(400)['extrapolating']
+
+
+# ---------------- P2 (phat trien): chi phi moi lan goi + chi phi gateway ----------------
+def test_p2_reduces_to_p1_when_costs_neutral(pred):
+    p2 = FP.FeasibilityPredictor(pred.mech, CORES, 0.87, feature_cost={'c': {}, 'x': 0.0})
+    for f in FP.FEATURE_ARCHETYPE:
+        assert p2.workloads(100, mode='P2', feature=f) == pytest.approx(pred.workloads(100, mode='P1', feature=f))
+
+
+def test_p2_applies_backend_cost_and_gateway_orchestration(pred):
+    p2 = FP.FeasibilityPredictor(pred.mech, CORES, 0.87, feature_cost={'c': {'orders': 0.5}, 'x': 0.1})
+    base = p2.workloads(100, mode='P1')
+    w = p2.workloads(100, mode='P2', feature='promo')        # chain: front-end,carts,orders,payment -> n_calls=3
+    assert w['orders'] == pytest.approx(base['orders'] + 20 * 0.5)         # k=1, c=0.5
+    assert w['carts'] == pytest.approx(base['carts'] + 20.0)               # c mac dinh = 1
+    assert w['front-end'] == pytest.approx(100 + 20 * (1 + 0.1 * 3))       # gateway: 1 + x*n_calls
+    assert w['catalogue'] == pytest.approx(base['catalogue'])              # ngoai chain khong doi
+    r_p1 = pred.breakpoint(mode='P1', feature='promo')[0]
+    r_p2 = p2.breakpoint(mode='P2', feature='promo')[0]
+    assert r_p2 < r_p1                                                     # chi phi gateway cao hon => diem gay som hon
+
+
+def test_fit_feature_cost_recovers_known_parameters(pred):
+    mech, C_TRUE, X_TRUE = pred.mech, {'orders': 0.5, 'carts': 1.2, 'user': 1.1}, 0.08
+    rows = []
+    for f, chain, delta in (('promo', ['front-end', 'carts', 'orders', 'payment'], 0.2),
+                            ('recs', ['front-end', 'user', 'catalogue', 'orders'], 0.3)):
+        for L in (40, 80, 120, 160):
+            for s in FP.SCORED:
+                m = mech[s]
+                if s == 'front-end':
+                    w = L * (m['rho'] + delta * (1 + X_TRUE * (len(chain) - 1)))
+                elif s in chain:
+                    w = L * (m['rho'] + delta)
+                else:
+                    w = L * m['rho']
+                # cpu: phan nen theo rho, phan tinh nang theo he so chi phi that
+                cpu = m['alpha'] + m['beta'] * m['rho'] * L
+                if s == 'front-end':
+                    cpu += m['beta'] * L * delta * (1 + X_TRUE * (len(chain) - 1))
+                elif s in chain:
+                    cpu += m['beta'] * L * delta * C_TRUE.get(s, 1.0)
+                rows.append({'feature': f, 'node': s, 'L': L, 'delta': delta, 'chain': set(chain),
+                             'n_calls': len(chain) - 1, 'w_meas': w, 'c_meas': cpu})
+    fit = FP.fit_feature_cost(pd.DataFrame(rows), mech)
+    for s, c in C_TRUE.items():
+        assert fit['c'][s] == pytest.approx(c, rel=1e-6), s
+    assert fit['x'] == pytest.approx(X_TRUE, rel=1e-6)
