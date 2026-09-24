@@ -1,5 +1,9 @@
 # Bộ khung paper V2 — bản để duyệt
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 > Dựng lại sau toàn bộ kết quả phiên 2026-09-13/14. Mỗi tuyên bố dưới đây đều
 > trỏ tới bằng chứng cụ thể. Ô ⚠️ là chỗ còn thiếu.
 

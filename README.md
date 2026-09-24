@@ -17,6 +17,33 @@ vực ứng dụng hoàn toàn chưa biết.
 
 ---
 
+## ⚠️ ĐỌC TRƯỚC TIÊN: repo có BA thế hệ đánh số RQ, và chúng KHÔNG khớp nhau
+
+Đây là nguồn nhầm lẫn lớn nhất khi đọc repo. Chữ "RQ3" trong tên file, trong báo cáo cũ, và
+trong bài báo hiện tại là **ba thứ khác nhau**. Bảng dịch:
+
+| Bài báo **hiện tại** (`paper_draft.tex`) | Khung V3 (`RQ_FRAMEWORK_V3.md`, đã lỗi thời) | Hệ **cũ** RQ1–RQ12 (tên file `rq*_.py`, `docs/RQ*_REPORT.md`) |
+|---|---|---|
+| **RQ1 Necessity** — verifier có cần không | RQ1 Necessity | RQ3 (benchmark parser 50 prompt) |
+| **RQ2 Guarantee** — bảo đảm gì, ngừng đúng ở đâu | RQ2 Attainability **+** RQ3 Realisation *(đã gộp)* | — |
+| **RQ3 Measurability** — dữ liệu đỡ được tuyên bố dự báo không | RQ4 Measurability | RQ1 (SCM accuracy), RQ2 (model comparison) |
+| **RQ4 Attribution** — graph hay do-operator mang nội dung nhân quả | RQ5 Attribution | RQ4 (propagation value), RQ7–RQ11 |
+| **RQ5 Prospective** — phán quyết khả thi có đúng khi có ground truth | *(chưa tồn tại khi viết V3)* | RQ12 (prospective attribution) |
+| — | — | RQ5 (coordination overhead) → còn trong bài, mục RQ1 |
+| — | — | RQ6 (attribution validity) → **tách sang bài đồng hành** `docs/xai_attribution_paper_draft.tex` |
+
+**Quy tắc khi đọc:**
+- Nhãn LaTeX `sec:rq2`…`sec:rq6` trong `paper_draft.tex` **giữ nguyên tên cũ có chủ đích**
+  (để 67 tham chiếu chéo không gãy) nên **số trong nhãn lệch số hiển thị** — mỗi chỗ lệch có
+  một comment `% NOTE:` ngay trên đó.
+- File `experiments/rq<số>_*.py` và `docs/RQ<số>_*_REPORT.md` **đều thuộc hệ cũ**. Giữ lại vì
+  chúng là nguồn gốc của các kết quả âm đã báo cáo, **không phải** vì còn được dùng.
+- Khi viết script mới: **đừng đặt tên theo số RQ.** Đặt theo cơ chế mà nó đo.
+
+📂 **Mục lục toàn bộ 82 script thực nghiệm**: [`experiments/README.md`](experiments/README.md)
+
+---
+
 ## 📂 CẤU TRÚC REPO
 
 Repo tách rõ **hệ thống lõi** (sản phẩm thật, mô tả trong Section III của bài báo) khỏi

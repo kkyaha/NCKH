@@ -1,4 +1,8 @@
 # Zero-Shot Capacity Planning trong Vi dịch vụ bằng SCM & Do-Calculus
+
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
 ## Tài liệu Tham chiếu Thống nhất — Bản chuẩn bị Public
 
 > Đây là tài liệu hợp nhất TOÀN BỘ quyết định thiết kế cuối cùng, thay thế các file rời rạc trước đó (`Reference_C1-C11`, `Ke_hoach_thu_nghiem`, `Parser_Agent_Tong_hop`, `Cau_truc_du_lieu_Test`). Dùng file này làm nguồn duy nhất khi viết paper/code/README.

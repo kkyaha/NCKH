@@ -1,5 +1,9 @@
 # Chuyển đánh giá forecasting sang Alibaba v2021 — báo cáo
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 > Sinh trong phiên 2026-09-14. Mọi số liệu dưới đây đến từ các script trong
 > `experiments/alibaba_*.py`, dữ liệu thô lưu ở
 > `data/processed/scm_results/alibaba_*.csv`.

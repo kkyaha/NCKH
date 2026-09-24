@@ -1,5 +1,9 @@
 # RQ1 — Độ chính xác dự báo OOD của SCM (do-calculus)
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 > **RQ1:** SCM kết hợp do-calculus dự đoán tài nguyên (CPU/Memory/Socket) chính xác đến mức nào
 > khi ngoại suy sang vùng tải cao chưa từng quan sát (Out-of-Distribution)?
 

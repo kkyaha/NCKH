@@ -1,5 +1,9 @@
 # 📊 BÁO CÁO RQ6 (Phần A) — KIỂM CHỨNG ĐỘ TIN CẬY CỦA INTERVENTIONAL SHAPLEY ATTRIBUTION
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 Tài liệu này được **sinh tự động** từ `rq6_null_condition_fp_rate.csv` và
 `rq6_dose_response.csv`, kiểm chứng `experiments/future_rca.py` (module gọi
 `gcm.attribute_anomalies` trên mẫu can thiệp `do(x)`, KHÔNG phải Capacity

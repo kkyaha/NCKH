@@ -1,5 +1,9 @@
 # Báo cáo tiến độ nghiên cứu
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 **Ngày:** 16/09/2026
 **Đề tài:** Xác minh và chứng nhận đầu ra LLM trong pipeline phân tích dung năng microservice (dự phóng tải cho yêu cầu tính năng chưa xây)
 

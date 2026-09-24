@@ -1,5 +1,9 @@
 # 📊 BÁO CÁO RQ5 — CHI PHÍ ĐIỀU PHỐI ĐA TÁC TỬ vs. SINGLE-LLM-CALL
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 Tài liệu này được **sinh tự động** từ `rq5_coordination_overhead.csv` để trả lời RQ5:
 > **RQ5**: *"Kiến trúc đa tác tử (Parser Agent + Architecture Agent + Capacity Agent
 > với dual-path SCM) có vượt trội một lời gọi LLM đơn lẻ (single-LLM-call) không,

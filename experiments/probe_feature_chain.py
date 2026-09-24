@@ -31,7 +31,19 @@ SVCS = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shippin
 PORT = {'front-end': 8079}
 
 
+_LABEL = re.compile(r'(\w+)="((?:[^"\\]|\\.)*)"')      # cung quy uoc voi collector.py
+
+
 def counts():
+    """Bo dem request moi service, TACH THEO METHOD.
+
+    Truoc day ham nay cong don moi nhan lai thanh mot so. Nhan `method` VAN CO
+    trong `/metrics` (collector.py da doc no de dung routes.csv) -- giu lai thi
+    tach duoc loi goi DOC khoi loi goi GHI ma khong ton them mot lan goi nao.
+    Ly do can: chi phi mot loi goi ghi do duoc dat hon mot loi goi doc 1.83x o
+    `carts` va 4.0x o `carts-db` (13.9x disk I/O), nen boi so k dem theo SO LUOT
+    goi danh gia thap chi phi that cua tinh nang thien ve ghi.
+    """
     script = ('for t in ' + ' '.join(f'{s}:{PORT.get(s, 80)}' for s in SVCS) +
               '; do echo "@@$t"; curl -s http://$t/metrics | grep "^request_duration_seconds_count"; done')
     out = subprocess.run(['docker', 'run', '--rm', '--network', 'sockshop_default', 'curlimages/curl:8.10.1', 'sh', '-c', script],
@@ -40,11 +52,15 @@ def counts():
     for l in out.splitlines():
         if l.startswith('@@'):
             cur = l[2:].split(':')[0]
-            res[cur] = 0.0
+            res[cur] = {'total': 0.0, 'by_method': {}}
             continue
         m = re.match(r'^request_duration_seconds_count\{(.*)\}\s+(\S+)', l)
-        if m and 'metrics' not in m.group(1):
-            res[cur] += float(m.group(2))
+        if not m or 'metrics' in m.group(1):
+            continue
+        lb, val = dict(_LABEL.findall(m.group(1))), float(m.group(2))
+        res[cur]['total'] += val
+        meth = lb.get('method', '?').upper()
+        res[cur]['by_method'][meth] = res[cur]['by_method'].get(meth, 0.0) + val
     return res
 
 
@@ -78,6 +94,13 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--features', required=True)
     ap.add_argument('--n', type=int, default=20)
+    ap.add_argument('--n-latency', type=int, default=200,
+                    help='so loi goi RIENG de do do tre luc he RANH (D_feat). Tach khoi --n '
+                         'de phep do k giu nguyen bit-for-bit so voi cac lan chay truoc; '
+                         'n=20 khong du uoc luong phan vi cao nen mac dinh lon hon.')
+    ap.add_argument('--user-every', type=int, default=20,
+                    help='xoay sang tai khoan moi sau bao nhieu loi goi trong pha do do tre '
+                         '(tranh gio hang/don hang cong don lam do tre trôi)')
     ap.add_argument('--save', default='', help='ghi ket qua k do duoc ra JSON (dung cho P3)')
     a = ap.parse_args()
     c = httpx.Client(base_url='http://127.0.0.1', timeout=30)
@@ -100,8 +123,39 @@ def main():
             codes[r.status_code] += 1
             sample = sample or r.text[:200]
         after = counts()
-        per = {s: round((after[s] - before[s]) / a.n, 2) for s in SVCS}
+        per = {s: round((after[s]['total'] - before[s]['total']) / a.n, 2) for s in SVCS}
         hit = [s for s in SVCS if per[s] >= 0.5]
+
+        # --- boi so goi TACH THEO METHOD (doc vs ghi), cung mot lan probe
+        per_meth = {}
+        for s in SVCS:
+            d = {m: round((after[s]['by_method'].get(m, 0.0) - before[s]['by_method'].get(m, 0.0)) / a.n, 2)
+                 for m in set(before[s]['by_method']) | set(after[s]['by_method'])}
+            d = {m: v for m, v in d.items() if v}
+            if d:
+                per_meth[s] = d
+
+        # --- D_feat: do tre cua CHINH tinh nang khi he RANH, khong dung du lieu tai nao
+        # PHAI XOAY TAI KHOAN: body_for() co TAC DUNG PHU TICH LUY (quickadd them hang vao
+        # gio, express dat don). Goi lien tuc tren MOT tai khoan thi gio phinh dan va phep
+        # do tu bop meo chinh no -- do tre tang vi lich su, khong phai vi tinh nang. Harness
+        # do tai da ne bang pool tai khoan (docs/DATA_FRAMEWORK.md muc 7); o day xoay tai
+        # khoan moi `--user-every` loi goi de D_feat do dung thu ma ramp se gap.
+        lat = []
+        for i in range(a.n_latency):
+            if i and i % a.user_every == 0:
+                cheap, items = make_user(c)          # ngoai vung bam gio
+            b2 = body_for(feat, cheap, items)
+            kw2 = {'json': b2} if b2 is not None else {}
+            t0 = time.perf_counter()
+            c.request(method, url, **kw2)
+            lat.append(time.perf_counter() - t0)
+        lat.sort()
+        q = lambda p: lat[min(len(lat) - 1, int(round(p * (len(lat) - 1))))]
+        d_feat = {'n': len(lat), 'mean': round(sum(lat) / len(lat), 5),
+                  'p50': round(q(.50), 5), 'p90': round(q(.90), 5),
+                  'p95': round(q(.95), 5), 'p99': round(q(.99), 5), 'max': round(lat[-1], 5),
+                  'samples_ms': [round(x * 1000, 3) for x in lat]}
         print(f'\n[{feat}] {method} {url} -> ma tra ve {dict(codes)}')
         print(f'  mau than tra ve: {sample}')
         print(f'  so lan moi service bi goi cho MOI lan dung: { {s: v for s, v in per.items() if v} }')
@@ -109,8 +163,14 @@ def main():
         print(f'  chain taxonomy ({meta["archetype"]}):    {tax}')
         print(f'  => {"KHOP" if set(hit) == set(tax) else "KHAC"}'
               + ('' if set(hit) == set(tax) else f'  (thua: {sorted(set(hit) - set(tax))}, thieu: {sorted(set(tax) - set(hit))})'))
+        w = {s: sum(v for m, v in d.items() if m != 'GET') for s, d in per_meth.items()}
+        print(f'  boi so theo METHOD: {per_meth}')
+        print(f'    -> luot GHI (khong phai GET) moi lan dung: { {s: v for s, v in w.items() if v} or "khong co" }')
+        print(f'  D_feat khi he RANH ({d_feat["n"]} loi goi): p50={d_feat["p50"]*1000:.1f}ms  '
+              f'p95={d_feat["p95"]*1000:.1f}ms  p99={d_feat["p99"]*1000:.1f}ms  max={d_feat["max"]*1000:.1f}ms')
         out[feat] = {'measured_per_use': per, 'chain_measured': hit, 'chain_taxonomy': tax,
-                     'archetype': meta['archetype'], 'n_probes': a.n}
+                     'archetype': meta['archetype'], 'n_probes': a.n,
+                     'per_use_by_method': per_meth, 'latency_idle': d_feat}
 
     if a.save:
         os.makedirs(os.path.dirname(os.path.abspath(a.save)) or '.', exist_ok=True)

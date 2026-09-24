@@ -1,5 +1,9 @@
 # RQ4 — Giá trị của lan truyền qua đồ thị phụ thuộc thật (Tầng 1)
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 > **RQ4:** Lan truyền workload qua đồ thị phụ thuộc THẬT giữa các service (Tầng 1: Workload→Workload)
 > có dự báo chính xác hơn giả định đơn giản "mọi service hạ nguồn đổi cùng % với front-end"
 > (naive/delta-đều) hay không?

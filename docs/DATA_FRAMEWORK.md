@@ -179,12 +179,29 @@ Tập khoá (`track`, `review`) **chưa mở** (không có `locked_access.log`).
 | recs ×2 | [100, 120) | P0/ctrl 129 (+29%); **P1 119 (đúng, nghẽn dự đoán ở orders)** | |
 
 * Phân quyết trên lưới tải (96 điểm): P1 acc 0,906, 9 "khả thi giả"; P0 và ctrl acc 0,885, 11 khả thi giả; **0 báo động giả** ở cả ba.
+  ⚠ Con số của `ctrl` cũng là một lần bốc: chạy lại 200 lần, `chain sai` có acc **trung vị 0,913 = đúng bằng chain thật**, khả thi giả **trung vị 9 = đúng bằng chain thật**; `seed=0` (acc 0,894, 11 khả thi giả) nằm ở **phân vị ~95**, tức lần bốc *bất lợi nhất* cho đối chứng. Ở ba split còn lại (khoá, độc lập, tiến cứu), acc và số khả thi giả của chain sai **giống hệt chain thật trong cả 200 lần bốc, không dao động một đơn vị nào**.
+  ⇒ **Ở mức phán quyết hệ thống, đối chứng chain-sai không có sức phân biệt** — vì nút nghẽn luôn là gateway, mà gateway nằm trong *mọi* chain theo đúng định nghĩa. Chỉ phép so ở **mức node** mới có chút sức phân biệt (xem hiệu chỉnh dưới), và ngay cả ở đó 8/16 ô vẫn hoà.
 * Mức sử dụng từng node (điểm % của trần, trước điểm gãy): gateway sai **9 điểm (promo) và 16 điểm (recs)**, giống nhau cho mọi bộ dự đoán (chi phí điều phối bị bỏ qua, front-end bị dự đoán thấp ~21%);
-  node backend TRONG chain: P0 8,8/10,2, P1 8,5/9,5, **chain sai 7,0/7,7** (promo/recs); node ngoài chain: P1 tốt nhất ở promo (0,63) nhưng kém P0 ở recs (3,8 so với 2,0).
+  node backend TRONG chain: P0 8,8/10,2, P1 8,5/9,5, chain sai 7,0/7,7 (promo/recs); node ngoài chain: P1 tốt nhất ở promo (0,63) nhưng kém P0 ở recs (3,8 so với 2,0).
   orders: P0 thấp −71%, **P1 cao +103%**, ctrl −77%.
+  ⚠ **Mọi con số "chain sai" ở trên là MỘT lần bốc ngẫu nhiên** (`FP.wrong_chain` mặc định `seed=0`) — xem hiệu chỉnh ngay dưới.
+
+**⚠ HIỆU CHỈNH (đối chứng chain-sai chạy lại dưới dạng phân phối, `experiments/control_chain_distribution.py`, 200 lần bốc):**
+Kết luận (3) bên dưới **đã sai và được đảo lại**. `seed=0` là một lần bốc bất thường có lợi cho đối chứng: gộp mọi split, nó rơi vào **phân vị 8** của phân phối (riêng split dev và tiến cứu: **phân vị 0**, tức lần bốc *thuận lợi nhất* cho chain sai trong 200 lần).
+Khi lấy phân phối thay vì một lần bốc, trên 16 ô (tính năng × node trong chain):
+
+| | sai số mức sử dụng (điểm % của trần) |
+|---|---|
+| chain THẬT | **5,53** |
+| chain SAI | trung vị **6,56**, khoảng 5–95% [5,71 – 7,31] |
+| chain SAI tại `seed=0` | 5,86 (phân vị 8) |
+
+**98%** trong 200 lần bốc cho chain thật tốt hơn; đếm theo ô: chain thật thắng 6, chain sai thắng 2, **hoà 8/16**.
+Nhưng hiệu ứng **nhỏ** (16% tương đối) và **8/16 ô không phân biệt được** — đối chứng yếu *do cấu tạo*: chain ngẫu nhiên cùng kích thước luôn chứa gateway nên trùng lặp nhiều với chain thật. Phát biểu đúng: *chain thật tốt hơn chain sai một cách nhất quán về hướng, nhưng chưa đạt ý nghĩa thống kê ở n = 16 (Wilcoxon p trung vị 0,19 qua các lần bốc, khoảng [0,008 – 1,000])*.
+Bản đóng băng `predictions_frozen_RE2.json` (SHA-256 `f05c8eb5…bc8e2`) **giữ nguyên** — `P1_ctrl` trong đó vẫn là đối chứng tiền đăng ký hợp lệ; phân phối ở đây là lớp robustness hậu kiểm, bổ sung chứ không thay thế.
 
 **Đọc kết quả:** (1) cơ chế đúng cho baseline; (2) với tính năng chưa từng có cả hai bộ đều lạc quan nguy hiểm ở 4/5 ô (15–85%), nguyên nhân chính là chi phí gateway;
-(3) giả thuyết "chain thật tốt hơn tỉ lệ nền và tốt hơn chain sai" **không được ủng hộ ở mức node** (chain sai thậm chí thấp hơn ở node chain); chain chỉ giúp ở ô mà orders là nút nghẽn thật (recs ×2).
+(3) ~~giả thuyết "chain thật tốt hơn tỉ lệ nền và tốt hơn chain sai" **không được ủng hộ ở mức node**~~ → **xem hiệu chỉnh ở trên**: chain thật *có* tốt hơn chain sai (98% số lần bốc), hiệu ứng nhỏ và chưa đạt ý nghĩa; chain giúp rõ nhất ở ô mà orders là nút nghẽn thật (recs ×2).
 Nguồn sai số nghi ngờ (chưa tách): độ lớn (k_s = 1 và chi phí mỗi lần gọi bằng trung bình nền, orders bị dự đoán gấp đôi) và chi phí gateway; cần phân tích P2 (bội số đo được từ `routes.csv`) trên dữ liệu phát triển.
 Mọi chỉnh mô hình từ đây là **phát triển**, chỉ dùng promo/recs; tập khoá mở đúng một lần khi kết thúc.
 
@@ -200,7 +217,7 @@ Bốn mô hình chấm trên hai tính năng chưa từng dùng để chỉnh: P
 | track ×2 | [140, 160) | 158,9 (+14%) | 135,8 (−3%) |
 
 * **P2 sai trong ±4% ở cả 4 ô, không ô nào dự đoán muộn** (0 "khả thi giả"); 3/4 nghiêng về an toàn. Trên lưới tải P2 có 6 báo động giả, tất cả nằm sát biên (bước lưới 20 req/s).
-* Mức sử dụng node (điểm % của trần): track P0 3,9 / P1 4,8 / chain-sai 4,6 / **P2 1,9**; review 2,5 / 2,1 / 2,9 / **1,7**. Riêng node TRONG chain: track P1 13,3 → **P2 0,8**; review P1 1,0 → **0,6**. Gateway: 3,9–5,0 → 2,8–2,9.
+* Mức sử dụng node (điểm % của trần): track P0 3,9 / P1 4,8 / chain-sai 4,6 / **P2 1,9**; review 2,5 / 2,1 / 2,9 / **1,7**. ⚠ Cột `chain-sai` là một lần bốc (`seed=0`); trên 200 lần bốc, split khoá cho chain thật 5,09 so với chain sai trung vị 5,89 (khoảng 5–95% [4,74 – 7,20]), `seed=0` = 7,20 nằm ở **phân vị 89** — lần này lệch theo hướng *bất lợi* cho đối chứng. Xem `experiments/control_chain_distribution.py`. Riêng node TRONG chain: track P1 13,3 → **P2 0,8**; review P1 1,0 → **0,6**. Gateway: 3,9–5,0 → 2,8–2,9.
 * orders (sai tương đối): P0 −26%, P1 +41%, **P2 −2%**; front-end: −8,7% → **+0,8%**.
 * Giả thuyết chưa kiểm ở dev, nay được kiểm: chi phí gateway theo số lời gọi backend (dev đều n_calls=3, khoá n_calls=2) **đứng vững**.
 * Không giải thích được: `carts` bị dự đoán thấp ~22% dù không thuộc chain (cả P1 và P2), nghi do tác động gián tiếp; sai số tuyệt đối nhỏ.

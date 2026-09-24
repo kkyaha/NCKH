@@ -1,5 +1,17 @@
 # Bộ khung RQ v3 — "Admissible Evaluation"
 
+> ⚠️ **ĐÃ LỖI THỜI — `docs/paper_draft.tex` là nguồn đúng.** Tài liệu này mô tả khung V3 với
+> 5 RQ **trước** hai thay đổi đã áp vào bản thảo (2026‑09‑23):
+> 1. **RQ2 Attainability + RQ3 Realisation đã GỘP** thành một RQ2 "Guarantee" — chúng là cùng
+>    một mệnh đề ở hai hiện thân (bảo đảm được công bố, nhưng đánh giá thiết lập nó không có
+>    khả năng bác bỏ nó), khác nhau chỉ ở chỗ đóng không gian kết cục: cỡ mẫu hay topology.
+> 2. **Thêm RQ5 "Prospective Validation"** — không có trong tài liệu này vì khi viết nó,
+>    testbed `SS-LIMITS*` chưa tồn tại.
+>
+> Khung đúng hiện tại: **RQ1 Necessity · RQ2 Guarantee · RQ3 Measurability · RQ4 Attribution ·
+> RQ5 Prospective**. Số claim sống sót giờ là **hai**, không phải một. Xem bảng dịch ở đầu
+> `README.md` gốc.
+
 Tài liệu này định nghĩa lại 5 RQ của bài từ **một nguyên lý duy nhất**, thay vì
 năm chủ đề rời rạc. Không yêu cầu thí nghiệm mới để *phát biểu*; phần cuối liệt
 kê chính xác chỗ nào cần tăng `n` để *chống đỡ* được ở mức Q1.

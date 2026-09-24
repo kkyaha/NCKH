@@ -1,5 +1,9 @@
 # RQ2 — SCM (nhân quả) so với các mô hình tương quan/hộp đen trong vùng OOD
 
+> ⚠️ **TÀI LIỆU THEO HỆ ĐÁNH SỐ RQ CŨ (RQ1–RQ12).** Số RQ trong file này **không khớp**
+> khung 5 RQ hiện tại của `docs/paper_draft.tex`. Xem bảng dịch ở đầu `README.md` gốc.
+> Giữ lại làm hồ sơ gốc; **không dùng làm nguồn số liệu**.
+
 > **RQ2:** Mô hình nhân quả (SCM + do-calculus) có vượt trội các mô hình tương quan/hộp đen
 > truyền thống (Linear Regression, Gradient Boosting, Gaussian Process) khi dự báo ngoài
 > phân phối (OOD) hay không?

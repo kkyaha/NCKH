@@ -199,3 +199,76 @@ def test_breakpoint_works_with_raw_archetype_name(pred):
     r_named, _ = pred.breakpoint(mode='P1', feature='promo')
     r_raw, _ = pred.breakpoint(mode='P1', feature='APPLY_PROMO_CODE')
     assert r_named == pytest.approx(r_raw)
+
+
+# ---------------------------------------------------------------- cong nhu cau phuc vu (P5)
+@pytest.fixture(scope='module')
+def pred_demand():
+    """Nhu `pred` nhung BAT cong nhu cau phuc vu: D_feat gia dinh + nguong SLO."""
+    return FP.FeasibilityPredictor(
+        FP.fit_mechanism(synth()), CORES, u_star=0.87,
+        feature_demand={'promo': 0.080, 'recs': 0.072, 'track': 0.057}, slo_p99=0.25)
+
+
+def test_demand_gate_off_by_default_leaves_breakpoint_unchanged(pred):
+    """Khong co D_feat/SLO -> gated PHAI trung khop breakpoint cu. Day la rang buoc
+    tuong thich nguoc: ban dong bang va 7 noi goi khac deu dua vao breakpoint()."""
+    for feat in ('promo', 'recs', 'track'):
+        r, node = pred.breakpoint(mode='P2', feature=feat)
+        g = pred.breakpoint_gated(mode='P2', feature=feat)
+        assert g['R'] == r and g['bottleneck'] == node
+        assert g['binding'] == 'cpu' and g['demand_gate'] == 'off' and g['R_demand'] is None
+
+
+def test_demand_latency_reduces_to_probe_value_at_zero_load(pred_demand):
+    """Tinh chat kiem tra duoc: L -> 0 thi moi u_s -> 0 va R_feat -> D_feat, tuc quy ve
+    dung con so probe do luc he RANH. Neu tinh chat nay vo thi trong so dang bi sai."""
+    for feat, d in (('promo', 0.080), ('track', 0.057)):
+        assert pred_demand.demand_latency(1e-3, mode='P2', feature=feat) == pytest.approx(d, rel=0.02)
+
+
+def test_demand_latency_monotone_in_load(pred_demand):
+    vals = [pred_demand.demand_latency(L, mode='P2', feature='promo') for L in (10, 40, 80, 120)]
+    assert all(b >= a for a, b in zip(vals, vals[1:]))
+
+
+def test_breakpoint_demand_lands_on_the_slo_threshold(pred_demand):
+    """Tai R*_demand, do tre du bao phai bang DUNG nguong SLO -- neu khong, phep chia doi
+    hoac ham don dieu co van de."""
+    R = pred_demand.breakpoint_demand(mode='P2', feature='promo')
+    assert pred_demand.demand_latency(R, mode='P2', feature='promo') == pytest.approx(0.25, rel=1e-3)
+
+
+def test_gated_breakpoint_is_min_and_names_the_binding_gate(pred_demand):
+    g = pred_demand.breakpoint_gated(mode='P2', feature='promo')
+    assert g['R'] == pytest.approx(min(g['R_cpu'], g['R_demand']))
+    assert g['binding'] == ('demand' if g['R_demand'] < g['R_cpu'] else 'cpu')
+    assert g['demand_gate'] == 'on'
+
+
+def test_larger_demand_never_raises_the_breakpoint(pred_demand):
+    """Tinh nang ton nhieu thoi gian phuc vu hon khong the co diem gay MUON hon --
+    day la huong an toan, va la tinh chat bai dua vao khi goi P5 la mot cong AN TOAN."""
+    mech = FP.fit_mechanism(synth())
+    lo = FP.FeasibilityPredictor(mech, CORES, u_star=0.87,
+                                 feature_demand={'promo': 0.05}, slo_p99=0.25)
+    hi = FP.FeasibilityPredictor(mech, CORES, u_star=0.87,
+                                 feature_demand={'promo': 0.20}, slo_p99=0.25)
+    assert hi.breakpoint_gated(mode='P2', feature='promo')['R'] <= \
+           lo.breakpoint_gated(mode='P2', feature='promo')['R']
+
+
+def test_slo_is_read_from_file_not_hardcoded():
+    slo = FP.load_slo()
+    assert 0 < slo['p99_s'] <= 1.0 and 0 < slo['err_rate'] < 1.0
+
+
+def test_demand_from_probe_skips_features_without_timing(tmp_path):
+    """File probe CU (truoc khi them bam gio) khong co `latency_idle` -- tinh nang do phai
+    bi BO QUA de cong tu tat, thay vi doan mot gia tri."""
+    import json
+    p = tmp_path / 'k.json'
+    p.write_text(json.dumps({'features': {
+        'cu': {'measured_per_use': {}},
+        'moi': {'measured_per_use': {}, 'latency_idle': {'p99': 0.123}}}}), encoding='utf-8')
+    assert FP.demand_from_probe(str(p)) == {'moi': 0.123}
