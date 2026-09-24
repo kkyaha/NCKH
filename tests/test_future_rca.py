@@ -2,7 +2,8 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'scm')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'experiments')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'experiments', 'legacy')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'experiments', 'model_eval')))
 
 from data_processor import load_normal_data
 from future_rca import OODGuard

@@ -52,7 +52,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, f
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 

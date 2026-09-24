@@ -23,7 +23,7 @@ from collections import Counter
 
 import httpx
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 import load_sweep_collect as L  # noqa: E402  (FEATURES, taxonomy)
 import feasibility_predictor as FP  # noqa: E402
 

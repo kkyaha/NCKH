@@ -39,7 +39,7 @@ from dowhy.gcm import AdditiveNoiseModel
 from dowhy.gcm.ml import SklearnRegressionModel
 from sklearn.linear_model import LinearRegression
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'agents'))
 

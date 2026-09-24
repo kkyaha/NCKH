@@ -27,7 +27,7 @@ import time
 import numpy as np
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(BASE, 'src', 'scm'))
 import feasibility_predictor as FP  # noqa: E402
 

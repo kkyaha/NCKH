@@ -8,6 +8,7 @@ os.environ['OPENBLAS_NUM_THREADS']='1'
 import numpy as np, pandas as pd
 from scipy import stats
 from sklearn.linear_model import LinearRegression
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0,'/Users/ngkky/NCKH/NCKH/experiments')
 from rq7_interventional_validity import _iter_runs, mape, SERVICES, MIN_PRE, MIN_POST
 

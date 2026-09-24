@@ -29,7 +29,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score, precision_score, recall_score, f1_score
 
 sys.stdout.reconfigure(encoding='utf-8')
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))
 from data_processor import load_multi_service_data, SERVICES

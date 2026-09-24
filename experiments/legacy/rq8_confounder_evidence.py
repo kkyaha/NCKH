@@ -42,11 +42,11 @@ import pandas as pd
 from scipy import stats
 from sklearn.linear_model import LinearRegression
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 RAW_DIR = os.path.join(BASE_DIR, 'data', 'raw', 'RE2-SS')
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 from rq7_interventional_validity import _iter_runs, SERVICES, MIN_PRE
 
 # Cap co canh truc tiep trong call graph SockShop -- de tach "co duong nhan qua"

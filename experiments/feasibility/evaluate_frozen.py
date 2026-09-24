@@ -29,7 +29,7 @@ import time
 import numpy as np
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 DEV = ('base', 'promo', 'recs')
 LOCKED = ('track', 'review')
 INDEP = ('cartsum', 'quickadd', 'express')     # tinh nang DOC LAP (cai boi agent rieng)

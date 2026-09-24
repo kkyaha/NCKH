@@ -29,9 +29,9 @@ import sys
 import numpy as np
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0, os.path.join(BASE, 'src', 'scm'))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import feasibility_predictor as FP  # noqa: E402
 import evaluate_frozen as EF  # noqa: E402
 

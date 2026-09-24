@@ -66,11 +66,11 @@ warnings.filterwarnings('ignore')
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 os.environ['OMP_NUM_THREADS'] = '1'
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'agents'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'scm'))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # de import parser_benchmark_suite
 
 from request_router import CALL_CHAINS
 from architecture_agent import ArchitectureAgent
@@ -579,7 +579,7 @@ Theo nhóm:
   `data/processed/scm_results/rq5_coordination_overhead.csv`
 * Chi tiết status agreement theo từng prompt: `data/processed/scm_results/rq5_status_agreement.csv`
 """
-    md_path = os.path.join(DOCS_DIR, 'RQ5_COORDINATION_OVERHEAD_REPORT.md')
+    md_path = os.path.join(DOCS_DIR, 'docs/HE_THONG.md (muc 6)')
     with open(md_path, 'w', encoding='utf-8') as f:
         f.write(md_report)
     print(f"[OK] Scientific markdown report generated: {md_path}")

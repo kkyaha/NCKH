@@ -19,7 +19,7 @@ va `<service>_workload` ma toan bo repo da dung):
   2. evaluate_node_stability(): node nao co CO CHE DU BAO on dinh/chinh
      xac, node nao khong nen tin? Danh gia held-out THEO DUNG protocol OOD
      Gold Standard da dung cho Fast Path (train 67% gia tri THAP, test 33%
-     gia tri CAO -- xem docs/RQ1_SCM_ACCURACY_REPORT.md) nhung ap dung cho
+     gia tri CAO -- xem docs/HE_THONG.md (muc 6)) nhung ap dung cho
      CHINH co che cua node do trong DAG (co the nhieu cha, vd canh
      backpressure), khong phai mo hinh Bivariate rieng nhu Fast Path.
 
@@ -58,7 +58,7 @@ def _is_degenerate_mechanism(sk, atol: float = 1e-9) -> bool:
     dieu nay xay ra tren mot target co bien do gia tri nho/hep (vd latency
     dao dong 0.01-0.05), MAPE co the VAN thap (du bao hang so gan trung
     binh, sai % tuong doi nho) du R2 am va he so =0 -- MAPE mot minh KHONG
-    du de phat hien truong hop nay (dung y voi RQ1_SCM_ACCURACY_REPORT.md
+    du de phat hien truong hop nay (dung y voi docs/HE_THONG.md (muc 6)
     ve viec khong the chi dung MAPE), nen kiem coef_ TRUC TIEP thay vi suy
     tu MAPE/R2, cung tinh than voi _check_monotone_precondition() (capacity_
     agent.py) da kiem coef_ truc tiep cho dau, o day kiem cho GAN-KHONG."""

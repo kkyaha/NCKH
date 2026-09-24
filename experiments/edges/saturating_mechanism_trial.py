@@ -61,7 +61,7 @@ from scipy.optimize import curve_fit
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -87,7 +87,7 @@ class SigmoidSaturationRegressor(BaseEstimator, RegressorMixin):
     L (tran tiem can) duoc UOC LUONG, khong co dinh = 100: du lieu CPU o day
     (xem data_processor.METRICS) khong chuan hoa ve thang % 0-100 dong deu qua
     cac service (vd catalogue_cpu max quan sat ~49 nhung p99 chi ~0.23 -- phan
-    phoi lech nang, xem docs/UNIFIED_REFERENCE_DOC.md muc "Gioi han da biet" #4
+    phoi lech nang, xem docs/HE_THONG.md muc "Gioi han da biet" #4
     ve catalogue_cpu). Vi vay tran duoc rang buoc trong [1.05, 6.0] x max(y_train)
     -- du rong de duong cong khong bi ep bao hoa som hon ca du lieu train da
     thay, nhung van huu han (khac linear_pos ngoai suy vo han).

@@ -22,7 +22,7 @@ vực ứng dụng hoàn toàn chưa biết.
 Đây là nguồn nhầm lẫn lớn nhất khi đọc repo. Chữ "RQ3" trong tên file, trong báo cáo cũ, và
 trong bài báo hiện tại là **ba thứ khác nhau**. Bảng dịch:
 
-| Bài báo **hiện tại** (`paper_draft.tex`) | Khung V3 (`RQ_FRAMEWORK_V3.md`, đã lỗi thời) | Hệ **cũ** RQ1–RQ12 (tên file `rq*_.py`, `docs/RQ*_REPORT.md`) |
+| Bài báo **hiện tại** (`paper_draft.tex`) | Khung V3 *(tài liệu đã xoá)* | Hệ **cũ** RQ1–RQ12 (tên file `rq*_.py`) |
 |---|---|---|
 | **RQ1 Necessity** — verifier có cần không | RQ1 Necessity | RQ3 (benchmark parser 50 prompt) |
 | **RQ2 Guarantee** — bảo đảm gì, ngừng đúng ở đâu | RQ2 Attainability **+** RQ3 Realisation *(đã gộp)* | — |
@@ -36,11 +36,12 @@ trong bài báo hiện tại là **ba thứ khác nhau**. Bảng dịch:
 - Nhãn LaTeX `sec:rq2`…`sec:rq6` trong `paper_draft.tex` **giữ nguyên tên cũ có chủ đích**
   (để 67 tham chiếu chéo không gãy) nên **số trong nhãn lệch số hiển thị** — mỗi chỗ lệch có
   một comment `% NOTE:` ngay trên đó.
-- File `experiments/rq<số>_*.py` và `docs/RQ<số>_*_REPORT.md` **đều thuộc hệ cũ**. Giữ lại vì
-  chúng là nguồn gốc của các kết quả âm đã báo cáo, **không phải** vì còn được dùng.
+- File `experiments/rq<số>_*.py` **thuộc hệ cũ**. Giữ lại vì chúng là nguồn gốc của các kết quả
+  âm đã báo cáo, **không phải** vì còn được dùng. Các báo cáo `docs/RQ*_REPORT.md` đã được gộp
+  vào [`docs/HE_THONG.md`](docs/HE_THONG.md) và xoá.
 - Khi viết script mới: **đừng đặt tên theo số RQ.** Đặt theo cơ chế mà nó đo.
 
-📂 **Mục lục toàn bộ 82 script thực nghiệm**: [`experiments/README.md`](experiments/README.md)
+📂 **Mục lục toàn bộ 83 script thực nghiệm**: [`experiments/README.md`](experiments/README.md)
 
 ---
 
@@ -70,34 +71,17 @@ NCKH/
 │       └── extract_trainticket_graph.py    # Trích xuất topology Train Ticket
 │
 ├── experiments/                    # ==== HẠ TẦNG THỰC NGHIỆM (sinh số liệu cho paper) ====
-│   │                                 # Xem bảng "Bản đồ Claim ↔ Code ↔ Data" bên dưới để tra
-│   │                                 # đúng script/CSV cho từng RQ hoặc từng phát hiện về guard.
-│   ├── evaluation_suite.py             # RQ1, RQ2, RQ4 (Sock Shop): accuracy, model comparison,
-│   │                                     #   propagation value, multi-split replication
-│   ├── model_comparison.py             # RQ2: SCM vs LinearReg/GradBoost/GaussianProcess
-│   ├── scm_pipeline.py                 # Helper (hàm `mape`) — import bởi evaluation_suite.py
-│   ├── compare_with_ground_truth.py    # RQ1: ground-truth direct match (không bucket)
-│   ├── download_trainticket_data.py    # Tải dữ liệu Train Ticket thật (RCAEval, Hugging Face)
-│   ├── trainticket_evaluation.py       # RQ1/RQ2 áp cho Train Ticket (90 kịch bản)
-│   ├── parser_benchmark_suite.py       # RQ3: ablation 4-config parser, LLM thật, hỗ trợ
-│   │                                     #   --only=<config> để re-run 1 config không tốn quota
-│   ├── rq5_coordination_overhead.py    # RQ5: single-LLM-call vs Guarded MAS pipeline
-│   ├── g_threshold_sensitivity.py      # Sensitivity sweep G2 (knee-point) / G3 / G5
-│   ├── g3_independent_verification.py  # Kiểm chứng G3 độc lập với chỉ dẫn prompt
-│   ├── g1_g3_adversarial_stress_test.py# Adversarial 18 prompt (G1) + 12 prompt (G3) — cả 2 pass
-│   ├── g6_scope_gate_adversarial_test.py# Phát hiện gốc: 11 prompt evade Scope Gate cũ (100%)
-│   ├── scope_gate_embedding_calibration.py # Thử semantic embedding cho Scope Gate — ĐÃ LOẠI BỎ
-│   │                                     #   (kết quả: F1~0.31, không dùng được — xem paper)
-│   ├── g6_scope_gate_layerA_test.py    # Kiểm chứng fix Layer A (self-declare) — LỊCH SỬ, đã bị
-│   │                                     #   thay bằng g6_scope_gate_hitl_test.py (xem ghi chú)
-│   ├── g6_scope_gate_hitl_test.py      # Kiểm chứng CUỐI CÙNG, đúng pipeline parse() thật, có
-│   │                                     #   HITL — SỐ LIỆU TRONG PAPER LẤY TỪ ĐÂY
-│   ├── g7_ood_guard_test.py            # G7: sweep OOD-confidence trong dải delta hợp lệ [5,50]
-│   ├── future_rca.py                   # Pre-mortem RCA (Shapley attribution) — nhánh XAI, TẠM
-│   │                                     #   GÁC LẠI (xem docs/xai_attribution_paper_draft.tex)
-│   ├── rq6_attribution_validity.py     # Nhánh XAI (RQ6 cũ) — tạm gác lại
-│   ├── rq6_topology_check.py           # Nhánh XAI (RQ6 cũ) — tạm gác lại
-│   └── rq6_tier_decomposition.py       # Nhánh XAI (RQ6 cũ) — tạm gác lại
+│   │                                 # Gom theo VAI TRÒ. Mục lục đầy đủ: experiments/README.md
+│   ├── collect/      (6)               # Thu thập dữ liệu — CẦN hệ thật đang chạy
+│   │                                   #   load_sweep_collect, probe_feature_chain, data_contract_check
+│   ├── feasibility/  (7)               # RQ5: đóng băng → đánh giá  (freeze_* CHẠY TRƯỚC khi đo ramp)
+│   │                                   #   freeze_predictions, evaluate_frozen, evaluate_p3
+│   ├── model_eval/   (9)               # RQ3: so sánh mô hình, thống kê Holm, hình cho bài
+│   │                                   #   model_comparison, statistical_rigor, make_figures
+│   ├── parser/      (13)               # RQ1/RQ2: parser, các lớp guard, scope gate
+│   ├── edges/       (19)               # RQ4: chọn cạnh SCM, so sánh lớp cơ chế
+│   ├── datasets/    (10)               # Alibaba, Train Ticket, Online Boutique, BARO
+│   └── legacy/      (19)               # ⚠ hệ đánh số CŨ (RQ6–RQ12) — giữ để tái lập, không còn dùng
 │
 ├── run_all_experiments.py          # Entry point: chạy chuỗi RQ1/RQ2/RQ4 cho SockShop, RỒI RQ3
 │                                     #   (live LLM, cần GOOGLE_API_KEY trong .env)
@@ -105,7 +89,12 @@ NCKH/
 │   ├── raw/                            # RE2-SS (SockShop) + trainticket/ (tải qua download script)
 │   ├── benchmark/                      # 50 prompt cho RQ3 (parser_benchmark_prompts.json)
 │   └── processed/scm_results/          # Toàn bộ output CSV — xem bảng bên dưới
-├── docs/                            # Báo cáo mỗi RQ (sinh tự động từ CSV) + bản thảo bài báo
+├── docs/
+│   ├── HE_THONG.md                     # ★ TÀI LIỆU TIẾNG VIỆT DUY NHẤT — đọc file này trước
+│   ├── paper_draft.tex                 # bản thảo — NGUỒN SỐ LIỆU CHÍNH THỨC DUY NHẤT
+│   ├── DATA_FRAMEWORK.md               # nhật ký thực nghiệm chi tiết chiến dịch SS-*
+│   ├── xai_attribution_paper_draft.tex # bài đồng hành (nhánh XAI, tạm gác)
+│   └── figures/                        # hình PDF, sinh bởi experiments/model_eval/make_figures.py
 └── tests/                           # Unit test (smoke test, không thay thế đánh giá khoa học)
 ```
 
@@ -126,7 +115,7 @@ Dùng bảng này để đi từ 1 câu trong `paper_draft.tex` thẳng tới đ
 | §V RQ1 (accuracy, Sock Shop) | `run_all_experiments.py` → `evaluation_suite.py` | `test_f1_rmse_evaluation.csv`, `ground_truth_direct_match*.csv` |
 | §V RQ1/RQ2 (Train Ticket, 90 kịch bản) | `download_trainticket_data.py --all` rồi `trainticket_evaluation.py` | `trainticket_*.csv` |
 | §V RQ2 (SCM vs 3 baseline) | `model_comparison.py`, kiểm định trong `evaluation_suite.run_statistical_significance` | `05_model_comparison.csv`, `p_value_statistical_test.csv` |
-| §V RQ3 (4-config ablation, live LLM) | `parser_benchmark_suite.py --live-llm` | `parser_ablation_benchmark.csv`, `docs/RQ3_LLM_PARSER_BENCHMARK_REPORT.md` |
+| §V RQ3 (4-config ablation, live LLM) | `parser_benchmark_suite.py --live-llm` | `parser_ablation_benchmark.csv`, `docs/HE_THONG.md (muc 6)` |
 | §V RQ4 (graph propagation vs uniform) | `evaluation_suite.run_rq4_propagation_value_test` + `run_rq4_multisplit_replication` | `rq4_propagation_value_test.csv`, `rq4_multisplit_summary.csv` |
 | §V RQ5 (single-call vs Guarded MAS) | `rq5_coordination_overhead.py` | `rq5_coordination_overhead.csv`, `rq5_status_agreement.csv` |
 | §III-B (G2) knee-point cho `[5,50]` | `g_threshold_sensitivity.py` | `g_threshold_sensitivity.csv`, `g2_sensitivity_vs_unguarded_raw.csv` |
@@ -137,7 +126,7 @@ Dùng bảng này để đi từ 1 câu trong `paper_draft.tex` thẳng tới đ
 | Fix cuối (self-declare + HITL + bỏ fast-path), **số liệu chính thức trong paper** | `g6_scope_gate_hitl_test.py` | `g6_scope_gate_hitl_validation.csv` |
 | §"Post-Simulation Uncertainty" (G7) — sweep + đánh giá quy mô RQ3 | `g7_ood_guard_test.py` | `g7_ood_feasibility*.csv`, `g7_rq3_scale_evaluation.csv` |
 | §"General Specification" — path enumeration khớp `services` | (kiểm chứng thủ công bằng `networkx.all_simple_paths`, không có script riêng — xem lịch sử hội thoại) | — |
-| Nhánh XAI/attribution (RQ6 cũ, tạm gác) | `future_rca.py`, `rq6_attribution_validity.py`, `rq6_topology_check.py`, `rq6_tier_decomposition.py` | `rq6_*.csv`, `docs/RQ6_ATTRIBUTION_VALIDITY_REPORT.md`, `docs/xai_attribution_paper_draft.tex` |
+| Nhánh XAI/attribution (RQ6 cũ, tạm gác) | `future_rca.py`, `rq6_attribution_validity.py`, `rq6_topology_check.py`, `rq6_tier_decomposition.py` | `rq6_*.csv`, `docs/HE_THONG.md (muc 6)`, `docs/xai_attribution_paper_draft.tex` |
 
 **Lưu ý về `g6_scope_gate_layerA_test.py` vs `g6_scope_gate_hitl_test.py`**: cả hai cùng kiểm chứng
 Scope Gate nhưng ở 2 thời điểm khác nhau. `layerA_test.py` gọi thẳng `_llm_full_parse()` (bỏ qua
@@ -212,8 +201,8 @@ ghi chú chung:
 - `khungtoanhoc.tex` — khung toán học nền tảng (ngoài phạm vi công việc hiện tại).
 - `table_rq3_parser_ablation.tex` — bảng LaTeX RQ3, sinh tự động bởi `parser_benchmark_suite.py`.
 - `RQ*_REPORT.md` — báo cáo tự động sinh từ CSV cho từng RQ.
-- `RQ6_ATTRIBUTION_VALIDITY_REPORT.md` — báo cáo nhánh XAI (Part A/B), phục vụ bài đồng hành.
-- `UNIFIED_REFERENCE_DOC.md` — nhật ký quyết định thiết kế qua các giai đoạn.
+- `docs/HE_THONG.md (muc 6)` — báo cáo nhánh XAI (Part A/B), phục vụ bài đồng hành.
+- `docs/HE_THONG.md` — nhật ký quyết định thiết kế qua các giai đoạn.
 
 ---
 
@@ -262,7 +251,7 @@ ghi chú chung:
    `'unstable'` cho cả 28/28 node này — nhưng ban đầu suýt không bắt được, vì latency của
    Train Ticket có biên độ rất hẹp (~0.01-0.05) nên một dự báo HẰNG SỐ vẫn có MAPE trông thấp
    (5-30%, có node còn tới mức "EXCELLENT") dù R² âm mọi node (-4.3 đến -0.002) và hệ số = 0 —
-   đúng cái bẫy MAPE-một-mình mà `docs/RQ1_SCM_ACCURACY_REPORT.md` đã cảnh báo. Đã sửa bằng
+   đúng cái bẫy MAPE-một-mình mà `docs/HE_THONG.md (muc 6)` đã cảnh báo. Đã sửa bằng
    cách kiểm `coef_` trực tiếp (`node_impact._is_degenerate_mechanism`) thay vì chỉ suy từ
    MAPE/R² — coef≈0 luôn ép tag về `'POOR'`/`'unstable'` bất kể MAPE nói gì.
 

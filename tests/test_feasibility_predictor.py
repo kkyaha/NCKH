@@ -10,7 +10,8 @@ import pytest
 
 _PROJ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(_PROJ, 'src', 'scm'))
-sys.path.insert(0, os.path.join(_PROJ, 'experiments'))
+sys.path.insert(0, os.path.join(_PROJ, 'experiments', 'feasibility'))
+sys.path.insert(0, os.path.join(_PROJ, 'experiments', 'collect'))   # load_sweep_collect
 
 import feasibility_predictor as FP  # noqa: E402
 
@@ -272,3 +273,54 @@ def test_demand_from_probe_skips_features_without_timing(tmp_path):
         'cu': {'measured_per_use': {}},
         'moi': {'measured_per_use': {}, 'latency_idle': {'p99': 0.123}}}}), encoding='utf-8')
     assert FP.demand_from_probe(str(p)) == {'moi': 0.123}
+
+
+# ---------------------------------------------------------------- giai trinh phan quyet
+def test_explain_matches_verdict_exactly(pred):
+    """explain() phai PHOI BAY tinh toan cua verdict(), khong duoc tinh lai theo duong khac --
+    neu lech thi bang giai trinh dang noi doi ve chinh he thong."""
+    for L in (40, 90, 150):
+        kw = dict(mode='P2', feature='promo')
+        e, v = pred.explain(L, **kw), pred.verdict(L, **kw)
+        assert e['phan_quyet'] == v['verdict']
+        assert e['max_u'] == v['max_u']
+        assert e['nut_nghen'] == v['bottleneck']
+        assert e['ngoai_suy'] == v['extrapolating']
+
+
+def test_explain_arithmetic_is_internally_consistent(pred):
+    """W nen + W tinh nang = W tong, va CPU = alpha + beta*W. Day la cot loi cua mot
+    bang giai trinh: moi dong phai tu kiem duoc bang tay."""
+    for s in pred.explain(120, mode='P2', feature='recs')['buoc']:
+        assert s['W_nen'] + s['W_tinh_nang'] == pytest.approx(s['W_tong'], abs=0.02)
+        assert s['alpha'] + s['beta'] * s['W_tong'] == pytest.approx(s['CPU'], abs=0.02)
+        assert s['CPU'] / s['C_s'] == pytest.approx(s['u'], abs=1e-3)
+
+
+def test_explain_reports_where_k_came_from(pred):
+    """Nguon cua k la thong tin PHAN QUYET phu thuoc vao: k=1 mac dinh la GIA DINH chua do,
+    va bang giai trinh phai noi ro dieu do thay vi de nguoi doc tuong da do."""
+    assert 'CHUA DO' in pred.explain(100, mode='P2', feature='promo')['nguon_k']
+    e = pred.explain(100, mode='P2', feature='promo', k={'carts': 2.0})
+    assert 'probe' in e['nguon_k']
+
+
+def test_explain_marks_out_of_chain_services_as_untouched(pred):
+    e = pred.explain(100, mode='P1', feature='promo')
+    chain = set(e['chain'])
+    for s in e['buoc']:
+        if not s['trong_chain']:
+            assert s['W_tinh_nang'] == 0.0 and s['service'] not in chain
+
+
+def test_explain_text_marks_the_bottleneck(pred):
+    t = pred.explain_text(150, mode='P2', feature='recs')
+    assert 'PHAN QUYET' in t and 'nut nghen' in t
+    bott = pred.verdict(150, mode='P2', feature='recs')['bottleneck']
+    assert any(line.strip().startswith(bott) and line.rstrip().endswith('!')
+               for line in t.split('\n'))
+
+
+def test_explain_omits_latency_gate_when_it_is_off(pred, pred_demand):
+    assert 'cong_do_tre' not in pred.explain(100, mode='P2', feature='promo')
+    assert 'cong_do_tre' in pred_demand.explain(100, mode='P2', feature='promo')

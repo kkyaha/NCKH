@@ -2,7 +2,7 @@
 
 > Phạm vi: **chỉ** định nghĩa bài toán, hợp đồng dữ liệu và kế hoạch thu. **Không** tối ưu mô hình
 > (làm sau khi có dữ liệu). Các mục đánh dấu ⚠ là giả định CHƯA kiểm chứng.
-> Đọc kèm: `docs/HANDOFF.md` (bối cảnh), `experiments/load_sweep_collect.py --help`.
+> Đọc kèm: `docs/HE_THONG.md` (bối cảnh), `experiments/collect/load_sweep_collect.py --help`.
 
 ---
 
@@ -100,11 +100,11 @@ khi có tính năng mới**. Mỗi run có bốn tệp chuẩn và một lớp n
 không có traces (Sock Shop tắt Zipkin); một máy Docker thay vì K8s nhiều node; timestamp log do Docker daemon gắn.
 
 **Lớp ground truth** là toàn bộ cột `gt_*` cộng `steps.json`. Bỏ chúng đi thì còn đúng telemetry sản xuất, tức đầu vào
-mà bộ dự đoán sẽ gặp khi triển khai. Cưỡng chế bằng `experiments/data_contract_check.py` (mục "tuân thủ schema chuẩn").
+mà bộ dự đoán sẽ gặp khi triển khai. Cưỡng chế bằng `experiments/collect/data_contract_check.py` (mục "tuân thủ schema chuẩn").
 Đã kiểm chứng: **RE2-SS thật đạt 0 FAIL** (chỉ thiếu `routes.csv`), run dựng bằng harness đạt 0 FAIL / 0 WARN (offline).
 
-Phát hiện khi đối chiếu: `metrics.csv` của RE2-SS **có giới hạn CPU** (`container-spec-cpu-quota`), nên nhận định trong
-`HANDOFF.md` ("không dataset nào có K8s limit") **không đúng với RE2-SS**. Trần `C_s` là telemetry chuẩn đọc được
+Phát hiện khi đối chiếu: `metrics.csv` của RE2-SS **có giới hạn CPU** (`container-spec-cpu-quota`), nên nhận định cũ
+("không dataset nào có K8s limit") **không đúng với RE2-SS**. Trần `C_s` là telemetry chuẩn đọc được
 từ cAdvisor, không phải đầu vào tự chế.
 
 ## 5. Ma trận thu thập
@@ -115,7 +115,7 @@ Thư mục gốc **tách riêng** để loader không trộn dữ liệu có tí
 |---|---|---|---|---|
 | **0** hiệu chuẩn | xác nhận trần RE2, chốt SLO, kiểm tính bất biến của CPU/request khi có trần | `--ramp --limits RE2 --features base --repeats 3` | `SS-LIMITS` | ~40 ph |
 | **A** huấn luyện | học cơ chế; KHÔNG tính năng, KHÔNG trần | `--levels 10,25,50,75,100,150,200,250 --repeats 2 --hold 240 --warmup 45` | `SS-TRAIN` | ~75 ph |
-| — đóng băng | ghi dự đoán P0/P1/P1_ctrl (hash) từ Pha A + Phase 0 **trước** khi chạy B | `experiments/freeze_predictions.py` | `data/processed/frozen/predictions_frozen_<cfg>.json` | vài giây |
+| — đóng băng | ghi dự đoán P0/P1/P1_ctrl (hash) từ Pha A + Phase 0 **trước** khi chạy B | `experiments/feasibility/freeze_predictions.py` | `data/processed/frozen/predictions_frozen_<cfg>.json` | vài giây |
 | **B** đáp án (chỉ cấu hình `RE2`, hợp lệ duy nhất) | điểm gãy VÀ mức sử dụng từng node theo (tính năng × cường độ) | `--ramp --limits RE2 --features base,promo,recs,track,review --feature-scales 1,2 --repeats 2 --interval 3 --cooldown 60` | `SS-LIMITS` | ~2,5 h |
 
 Tổng ≈ 4,5 giờ (Phase 0 + Pha A đã xong; còn lại Pha B ~2,5 giờ). Các pha độc lập; mỗi lượt ghi ngay khi xong nên dừng giữa chừng không mất dữ liệu.
@@ -186,7 +186,7 @@ Tập khoá (`track`, `review`) **chưa mở** (không có `locked_access.log`).
   orders: P0 thấp −71%, **P1 cao +103%**, ctrl −77%.
   ⚠ **Mọi con số "chain sai" ở trên là MỘT lần bốc ngẫu nhiên** (`FP.wrong_chain` mặc định `seed=0`) — xem hiệu chỉnh ngay dưới.
 
-**⚠ HIỆU CHỈNH (đối chứng chain-sai chạy lại dưới dạng phân phối, `experiments/control_chain_distribution.py`, 200 lần bốc):**
+**⚠ HIỆU CHỈNH (đối chứng chain-sai chạy lại dưới dạng phân phối, `experiments/feasibility/control_chain_distribution.py`, 200 lần bốc):**
 Kết luận (3) bên dưới **đã sai và được đảo lại**. `seed=0` là một lần bốc bất thường có lợi cho đối chứng: gộp mọi split, nó rơi vào **phân vị 8** của phân phối (riêng split dev và tiến cứu: **phân vị 0**, tức lần bốc *thuận lợi nhất* cho chain sai trong 200 lần).
 Khi lấy phân phối thay vì một lần bốc, trên 16 ô (tính năng × node trong chain):
 
@@ -217,7 +217,7 @@ Bốn mô hình chấm trên hai tính năng chưa từng dùng để chỉnh: P
 | track ×2 | [140, 160) | 158,9 (+14%) | 135,8 (−3%) |
 
 * **P2 sai trong ±4% ở cả 4 ô, không ô nào dự đoán muộn** (0 "khả thi giả"); 3/4 nghiêng về an toàn. Trên lưới tải P2 có 6 báo động giả, tất cả nằm sát biên (bước lưới 20 req/s).
-* Mức sử dụng node (điểm % của trần): track P0 3,9 / P1 4,8 / chain-sai 4,6 / **P2 1,9**; review 2,5 / 2,1 / 2,9 / **1,7**. ⚠ Cột `chain-sai` là một lần bốc (`seed=0`); trên 200 lần bốc, split khoá cho chain thật 5,09 so với chain sai trung vị 5,89 (khoảng 5–95% [4,74 – 7,20]), `seed=0` = 7,20 nằm ở **phân vị 89** — lần này lệch theo hướng *bất lợi* cho đối chứng. Xem `experiments/control_chain_distribution.py`. Riêng node TRONG chain: track P1 13,3 → **P2 0,8**; review P1 1,0 → **0,6**. Gateway: 3,9–5,0 → 2,8–2,9.
+* Mức sử dụng node (điểm % của trần): track P0 3,9 / P1 4,8 / chain-sai 4,6 / **P2 1,9**; review 2,5 / 2,1 / 2,9 / **1,7**. ⚠ Cột `chain-sai` là một lần bốc (`seed=0`); trên 200 lần bốc, split khoá cho chain thật 5,09 so với chain sai trung vị 5,89 (khoảng 5–95% [4,74 – 7,20]), `seed=0` = 7,20 nằm ở **phân vị 89** — lần này lệch theo hướng *bất lợi* cho đối chứng. Xem `experiments/feasibility/control_chain_distribution.py`. Riêng node TRONG chain: track P1 13,3 → **P2 0,8**; review P1 1,0 → **0,6**. Gateway: 3,9–5,0 → 2,8–2,9.
 * orders (sai tương đối): P0 −26%, P1 +41%, **P2 −2%**; front-end: −8,7% → **+0,8%**.
 * Giả thuyết chưa kiểm ở dev, nay được kiểm: chi phí gateway theo số lời gọi backend (dev đều n_calls=3, khoá n_calls=2) **đứng vững**.
 * Không giải thích được: `carts` bị dự đoán thấp ~22% dù không thuộc chain (cả P1 và P2), nghi do tác động gián tiếp; sai số tuyệt đối nhỏ.
@@ -236,7 +236,7 @@ Mục đích: bỏ hai điểm yếu còn lại: (a) tập khoá `track`/`review
    SHA-256 `f9853d23…3390`, tạo 06:34:45. Chỉ phụ thuộc mô tả tiếng Việt → archetype → chain, u\* và cơ chế của bản gốc, tham số P2 fit trên promo/recs.
 3. Agent cài trong **thư mục cách ly** ngoài repo (`indep_sandbox`): chỉ có mã front-end gốc, danh mục API backend trung lập và yêu cầu (nguyên văn tiếng Việt + giao diện HTTP bắt buộc).
    Đã quét không có dấu vết taxonomy, chain, dự đoán, mã tính năng của người xây dựng hay bài báo. Agent không được chạy hệ thống.
-4. Người xây dựng chỉ build, thử chức năng (`experiments/probe_feature_chain.py`) và đo; lỗi chức năng được chuyển lại cho agent, KHÔNG chuyển gợi ý về thiết kế.
+4. Người xây dựng chỉ build, thử chức năng (`experiments/collect/probe_feature_chain.py`) và đo; lỗi chức năng được chuyển lại cho agent, KHÔNG chuyển gợi ý về thiết kế.
 5. Đo ramp: baseline + 3 tính năng × 2 cường độ × 2 lần lặp dưới trần `RE2`. Đánh giá bằng `evaluate_frozen.py --split indep`, kèm so chuỗi gọi THỰC TẾ với chain taxonomy.
 
 **Giao diện HTTP (bên yêu cầu cố định, backend nào bị gọi do người cài quyết định):** `GET /cart/summary`, `POST /cart/quick {id}`, `POST /checkout/express {id}`.
@@ -256,7 +256,7 @@ Mục đích: bỏ hai điểm yếu còn lại: (a) tập khoá `track`/`review
 | express ×1 | [40, 50) | 165 (**+313%**) | 115 (+187%) |
 | express ×2 | vỡ ngay từ bậc đầu (40) | 138 | 79 |
 
-**Nguyên nhân đo trực tiếp** (`experiments/probe_feature_chain.py`, độc lập với ramp): bội số gọi thật mỗi lần dùng tính năng
+**Nguyên nhân đo trực tiếp** (`experiments/collect/probe_feature_chain.py`, độc lập với ramp): bội số gọi thật mỗi lần dùng tính năng
 
 | Tính năng | Taxonomy giả định (k=1 mỗi node trong chain) | Đo được |
 |---|---|---|
@@ -274,7 +274,7 @@ khi đưa ra phán quyết cuối, giống `probe_feature_chain.py`), hoặc ch�
 ## 5h. P3 (k đo được thay k=1 giả định) — chẩn đoán hồi cứu, sửa được một phần, lộ thêm nguyên nhân thứ hai
 
 **Không phải mô hình mới:** `FeasibilityPredictor.workloads(mode='P2', k=...)` đã nhận tham số `k` từ trước; `freeze_predictions.py` chỉ chưa từng truyền nó (mặc định k=1 mọi node). P3 = P2 (giữ nguyên `c_s`, `x` đã fit trên promo/recs) + `k` đo bằng probing chức năng nhẹ
-(`experiments/probe_feature_chain.py --save`, ~20 lời gọi/tính năng, KHÔNG dùng dữ liệu tải/điểm gãy). Sửa thêm một chỗ: công thức chi phí gateway trước đó dùng **độ dài chain** làm số lượt gọi backend;
+(`experiments/collect/probe_feature_chain.py --save`, ~20 lời gọi/tính năng, KHÔNG dùng dữ liệu tải/điểm gãy). Sửa thêm một chỗ: công thức chi phí gateway trước đó dùng **độ dài chain** làm số lượt gọi backend;
 đổi thành **Σk** (tổng bội số thật) — khi k mặc định thì Σk = độ dài chain, tương thích ngược hoàn toàn (18/18 test cũ vẫn qua).
 
 ⚠ **Đây là chẩn đoán HỒI CỨU**, không phải dự đoán đóng băng mới: dữ liệu độc lập đã được xem (`evaluate_frozen.py --split indep` chạy trước đó). Việc đo `k` tự nó không cần dữ liệu tải nên về nguyên tắc
@@ -302,7 +302,7 @@ dev và tập khoá gần như không đổi (chúng vốn có k≈1 đo đượ
 Với express và quickadd, độ trễ vỡ ngưỡng SLO (p99 ≤ 250ms) ở mức sử dụng CPU **thấp hơn nhiều** so với `u*` hiệu chỉnh từ baseline. Đây là hiệu ứng **hàng đợi/độ trễ đuôi** do tính năng gọi
 nhiều lượt backend (song song hoặc tuần tự): độ trễ đầu-cuối cộng dồn qua nhiều hop tăng nhanh hơn mức sử dụng CPU của bất kỳ node đơn lẻ nào. Không mô hình nào trong P0–P3 theo dõi độ trễ
 đầu-cuối — cả bốn chỉ so **mức sử dụng CPU với một ngưỡng duy nhất**. Đây khớp với hạn chế đã biết từ trước của dự án (latency không dự báo được bằng cơ chế tuyến tính/hàng đợi hiện có,
-xem `docs/RQ6_ATTRIBUTION_VALIDITY_REPORT.md`), không phải lỗi mới — nhưng đây là **lần đầu nó ảnh hưởng trực tiếp đến phán quyết khả thi** thay vì chỉ ảnh hưởng độ chính xác dự báo một con số.
+xem `docs/HE_THONG.md (muc 6)`), không phải lỗi mới — nhưng đây là **lần đầu nó ảnh hưởng trực tiếp đến phán quyết khả thi** thay vì chỉ ảnh hưởng độ chính xác dự báo một con số.
 
 **Kết luận cho bài báo:** hai nguyên nhân sai số ĐỘC LẬP, cần hai hướng khắc phục khác nhau —
 (1) bội số gọi k≠1 — sửa được bằng đo trước khi phán quyết (P3, đã kiểm chứng hồi cứu, cần dữ liệu mới để xác nhận tiến cứu);

@@ -50,8 +50,8 @@ warnings.filterwarnings('ignore')
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 os.environ['OMP_NUM_THREADS'] = '1'
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))       # experiments/ itself
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'scm'))
 
 from evaluation_suite import build_and_train_global_dag
@@ -244,7 +244,7 @@ Kiểm tra khớp topology trên Train Ticket (đồ thị đủ lớn để có
 không downstream của injection point — Sock Shop quá nhỏ để có phép thử này
 sạch) — cần train thêm 1 Global DAG cho Train Ticket, chưa nối vào script này.
 """
-    md_path = os.path.join(DOCS_DIR, 'RQ6_ATTRIBUTION_VALIDITY_REPORT.md')
+    md_path = os.path.join(DOCS_DIR, 'docs/HE_THONG.md (muc 6)')
     with open(md_path, 'w', encoding='utf-8') as f:
         f.write(md)
     print(f"\n[OK] Scientific markdown report generated: {md_path}")

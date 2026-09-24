@@ -3,7 +3,7 @@
 QUET TAI CO KIEM SOAT SOCK SHOP + THU THAP TELEMETRY
 ====================================================
 Sinh bo du lieu ma khong bo cong khai nao co: ten service THAT + bien do tai
-THAT (xem docs/HANDOFF.md muc 3.1 va 5). RE2-SS giu tai phang (CV workload
+THAT (xem docs/HE_THONG.md muc 3.1 va 5). RE2-SS giu tai phang (CV workload
 ~0.18, R^2 workload->CPU ~0.015) nen do chinh xac du bao khong do duoc.
 
 Kien truc:
@@ -59,10 +59,10 @@ import math
 import numpy as np
 import pandas as pd
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))
 from request_router import SOCKSHOP_CALL_CHAINS  # noqa: E402  (nguon su that duy nhat cua taxonomy)
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import forecast_traces as FT  # noqa: E402
 DEPLOY_DIR = os.path.join(BASE_DIR, 'deploy', 'sockshop')
 COMPOSE = os.path.join(DEPLOY_DIR, 'docker-compose.yml')

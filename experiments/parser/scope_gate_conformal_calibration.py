@@ -50,7 +50,7 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 DATA_PATH = os.path.join(PROJECT_ROOT, 'data', 'processed', 'scm_results',
                           'g6_scope_gate_layerA_validation.csv')
 

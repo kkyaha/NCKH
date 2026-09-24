@@ -45,9 +45,9 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import GradientBoostingRegressor
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 from alibaba_signal_check import load_resource, load_mcr   # noqa: E402
 
 MIN_POINTS = 60

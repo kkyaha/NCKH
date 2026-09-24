@@ -45,7 +45,7 @@ os.environ['OPENBLAS_NUM_THREADS'] = '1'
 os.environ['OMP_NUM_THREADS'] = '1'
 
 # Path resolution
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'agents'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'scm'))
@@ -86,7 +86,7 @@ for _a in sys.argv:
     if _a.startswith('--backend='):
         PARSER_BENCH_BACKEND = _a.split('=', 1)[1]
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src', 'agents'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'src', 'agents'))
 from llm_backends import get_llm as _factory_get_llm, BACKENDS as _BACKENDS, has_credentials
 
 LLM_MODEL_NAME = _BACKENDS.get(PARSER_BENCH_BACKEND, {}).get('model', PARSER_BENCH_BACKEND)

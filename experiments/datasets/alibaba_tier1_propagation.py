@@ -38,9 +38,9 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 from alibaba_signal_check import load_mcr, DATA_DIR   # noqa: E402
 
 SERVICE_RPC = ('rpc', 'http')      # loi goi giua service; bo db/mq/mc/userDefined

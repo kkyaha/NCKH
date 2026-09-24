@@ -214,6 +214,87 @@ class FeasibilityPredictor:
         return {'verdict': v, 'max_u': round(mu, 4), 'bottleneck': bott, 'extrapolating': bool(extrap),
                 'extrap_nodes': extrap, 'u': {k: round(x, 4) for k, x in u.items()}}
 
+    # ---------------------------------------------------------------- giai trinh phan quyet
+    # verdict() tra ve KET LUAN nhung khong tra ve SUY LUAN. Mot ky su doc
+    # "INFEASIBLE, max_u=0.93, bottleneck=front-end" khong biet con so do tu dau ra:
+    # bao nhieu den tu tai nen, bao nhieu tu tinh nang, boi so goi lay o dau, va vi sao
+    # node DO nghen chu khong phai node khac. explain() tra ve day du day tinh toan --
+    # KHONG tinh lai gi, chi phoi bay ra tung buoc cua chinh workloads()/cpu()/verdict().
+
+    def explain(self, L, **kw):
+        """Day suy luan day du dan toi phan quyet tai tai nen L. Tra ve dict long nhau."""
+        feature, scale = kw.get('feature'), kw.get('scale', 1.0)
+        delta, ch = self.spec(feature, scale, kw.get('chain'))
+        k, mode = kw.get('k') or {}, kw.get('mode', 'P1')
+        fc = self.feature_cost
+        W, cpu = self.workloads(L, **kw), None
+        cpu = self.cpu(W)
+        v = self.verdict(L, **kw)
+
+        steps = []
+        for s in self.scored:
+            m = self.mech[s]
+            w_base = m['rho'] * L
+            in_chain = s in ch
+            ks = float(k.get(s, 1.0)) if in_chain else 0.0
+            cs = fc['c'].get(s, 1.0) if mode == 'P2' else 1.0
+            if s == GATEWAY and mode == 'P2':
+                n_calls = sum(k.get(x, 1.0) for x in ch if x != GATEWAY)
+                w_feat = L * delta * (1.0 + fc['x'] * n_calls)
+                why = f'gateway: moi request di qua + chi phi dieu phoi x={fc["x"]:.3f} x Sum k={n_calls:g}'
+            elif mode == 'P0':
+                w_feat = m['rho'] * L * delta
+                why = 'P0: rai deu theo ti le nen (khong dung chain)'
+            else:
+                w_feat = L * delta * ks * cs if in_chain else 0.0
+                why = (f'trong chain: Delta={delta:.3f} x k={ks:g}' + (f' x c_s={cs:.3f}' if mode == 'P2' else '')
+                       if in_chain else 'ngoai chain: tinh nang khong them tai')
+            steps.append({
+                'service': s, 'trong_chain': in_chain,
+                'W_nen': round(w_base, 2), 'W_tinh_nang': round(w_feat, 2), 'W_tong': round(W[s], 2),
+                'alpha': round(m['alpha'], 4), 'beta': round(m['beta'], 4),
+                'CPU': round(cpu[s], 3), 'C_s': self.cap[s], 'u': round(cpu[s] / self.cap[s], 4),
+                'vuot_dai_train': W[s] > m['w_max_train'], 'vi_sao': why})
+
+        out = {'tai_nen_L': L, 'tinh_nang': feature, 'che_do': mode,
+               'Delta': round(delta, 4), 'chain': list(ch),
+               'nguon_k': 'do bang probe' if k else 'mac dinh 1 (CHUA DO -- bat dinh)',
+               'buoc': steps, 'u_star': self.u_star,
+               'nut_nghen': v['bottleneck'], 'max_u': v['max_u'], 'phan_quyet': v['verdict'],
+               'ngoai_suy': v['extrapolating'], 'node_ngoai_suy': v['extrap_nodes']}
+        R = self.demand_latency(L, **kw)
+        if R is not None:
+            out['cong_do_tre'] = {'D_feat': self.feature_demand.get(feature),
+                                  'R_feat_du_bao': round(R, 4), 'SLO_p99': self.slo_p99,
+                                  'vuot_SLO': R > self.slo_p99}
+        return out
+
+    def explain_text(self, L, **kw):
+        """Ban in duoc cua explain() -- dan truc tiep vao bao cao cho ky su doc."""
+        e = self.explain(L, **kw)
+        li = [f"Yeu cau '{e['tinh_nang']}' o tai nen L = {e['tai_nen_L']:g} req/s  (che do {e['che_do']})",
+              f"  Delta = {e['Delta']:.3f} (tinh nang them {e['Delta']*100:.1f}% tai so voi nen)",
+              f"  chain = {e['chain']}",
+              f"  boi so goi k: {e['nguon_k']}", '',
+              f"  {'service':11s} {'W nen':>8s} {'+tinh nang':>11s} {'= W':>8s} "
+              f"{'CPU':>7s} {'/ tran':>7s} {'= u':>7s}"]
+        for s in e['buoc']:
+            flag = ' !' if s['service'] == e['nut_nghen'] else ('  *' if s['vuot_dai_train'] else '')
+            li.append(f"  {s['service']:11s} {s['W_nen']:8.1f} {s['W_tinh_nang']:11.1f} {s['W_tong']:8.1f} "
+                      f"{s['CPU']:7.2f} {s['C_s']:7.0f} {s['u']:7.3f}{flag}")
+        li += ['', f"  ! nut nghen = {e['nut_nghen']} voi u = {e['max_u']:.3f}; nguong u* = {e['u_star']:.3f}",
+               f"  => PHAN QUYET: {e['phan_quyet']}"]
+        if e['ngoai_suy']:
+            li.append(f"  * CANH BAO ngoai suy: {e['node_ngoai_suy']} vuot dai tai da quan sat khi huan luyen")
+        if 'cong_do_tre' in e:
+            g = e['cong_do_tre']
+            li.append(f"  cong do tre: R_feat = {g['R_feat_du_bao']*1000:.0f} ms vs SLO "
+                      f"{g['SLO_p99']*1000:.0f} ms -> {'VUOT' if g['vuot_SLO'] else 'dat'}")
+        for s in e['buoc']:
+            if s['trong_chain']:
+                li.append(f"     · {s['service']}: {s['vi_sao']}")
+        return '\n'.join(li)
+
     def breakpoint(self, **kw):
         """R* dong: tai L lon nhat de max_s u_s(L) <= u*. Tuyen tinh theo L nen giai dong tung node.
 

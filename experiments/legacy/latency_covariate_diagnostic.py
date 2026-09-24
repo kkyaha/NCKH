@@ -27,7 +27,7 @@ HTTP that (src/graph/sockshop_agent_graph.json):
 Phuong phap: GIU NGUYEN protocol quantile OOD (train LOW 67% -> test HIGH
 33%) va do MAPE tren bucket trung binh -- CHINH XAC nhu da dung xuyen suot
 hoi thoai nay, khong dung R2 in-sample (de tranh vacuity da canh bao trong
-RQ_FRAMEWORK_V3.md). Bao gom LinearRegression KHONG rang buoc dau (positive=
+docs/HE_THONG.md (muc 5)). Bao gom LinearRegression KHONG rang buoc dau (positive=
 False) o ca 2 bien, vi da biet rang buoc duong triet tieu tin hieu am.
 
 Output: data/processed/scm_results/latency_covariate_diagnostic.csv
@@ -46,7 +46,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 sys.stdout.reconfigure(encoding='utf-8')
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))

@@ -2,7 +2,7 @@
 """
 RQ MOI (thay the C_5b da bi bac): "gap" giua CAN THIEP DONG THOI va CONG DON LE
 ==================================================================================
-Boi canh: RQ5b (RQ_FRAMEWORK_V3.md) da bac bo claim rang do-calculus co uu the
+Boi canh: RQ5b (docs/HE_THONG.md (muc 5)) da bac bo claim rang do-calculus co uu the
 uoc luong hon conditioning O DUNG mien can thiep hien tai cua he thong (do(x)
 tai 1 gateway, in-degree=0 -> P(Y|do(x))=P(Y|x) theo dinh ly Pearl, khong cat
 canh backdoor nao ca). Hai phuong an thay the (do tren node noi bo/CPU-quota;
@@ -39,7 +39,7 @@ khac nhau" ma la "2 yeu cau CUNG gateway, delta khac nhau, duyet cung luc":
                                           d1+d2), khop voi dinh nghia delta
                                           ADDITIVE dang dung trong Bounded
                                           Projection Pi (xem parser_agent.py,
-                                          docs/UNIFIED_REFERENCE_DOC.md muc 4).
+                                          docs/HE_THONG.md muc 4).
 
 Gia thuyet (theo Proposition 3): voi node CPU/Mem (affine, sieu vi tuyen tinh
 positive coefficients) gap ~ 0 (sieu vi cong tinh dung). Voi node Latency
@@ -70,7 +70,7 @@ import pandas as pd
 
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 

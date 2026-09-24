@@ -58,7 +58,7 @@ class QueueingLatencyRegressor(BaseEstimator, RegressorMixin):
         # Da xac nhan la nguyen nhan that: mo rong cua so Alibaba tu 5h len
         # 10h lam max(X) tang, day capacity_ len theo, xoa mat tin hieu phi
         # tuyen va lam bang chung Proposition 3 tren du lieu that sup ve 0
-        # (xem PROGRESS_REPORT muc 3.3).
+        # (xem docs/HE_THONG.md muc 8).
         self.capacity_ = np.percentile(X, 99, axis=0) * 1.5
         self.capacity_[self.capacity_ == 0] = 1.0
         # Khac voi truoc day (max(X)*1.5 dam bao > moi diem X), P99*1.5

@@ -6,7 +6,7 @@ Boi canh: hoi thoai truoc da CHAN DOAN TAY cho dung 2 node (carts_latency-50,
 orders_latency-50) va tim ra 1 canh moi (carts_latency->orders_latency, MAPE
 100.4%->7.6%). Nhung quy trinh do (i) chon tay dua tren doc code graph, (ii)
 CHON VA DANH GIA TREN CUNG MOT TAP TEST -- dung loai "vacuity" ma
-RQ_FRAMEWORK_V3.md tu canh bao (data snooping: thu nhieu canh ung vien roi
+docs/HE_THONG.md (muc 5) tu canh bao (data snooping: thu nhieu canh ung vien roi
 bao cao canh tot nhat tren chinh tap dùng de chon). Script nay SUA loi do va
 TONG QUAT HOA thanh 1 thu tuc chay tu dong tren MOI node cua CA HAI he thong
 (SockShop 7 service, Train Ticket 28 service), dung DUY NHAT dau vao la:
@@ -50,7 +50,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 
 sys.stdout.reconfigure(encoding='utf-8')
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))

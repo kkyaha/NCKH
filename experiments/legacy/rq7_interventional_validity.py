@@ -66,7 +66,7 @@ from sklearn.linear_model import LinearRegression
 
 warnings.filterwarnings('ignore')
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 RAW_DIR = os.path.join(BASE_DIR, 'data', 'raw', 'RE2-SS')
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)

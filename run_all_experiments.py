@@ -102,7 +102,7 @@ def run_full_suite():
     print("    - parser_ablation_benchmark.csv       (RQ3: LLM thật, N lần lặp, mean±std)")
     print("    - parser_ablation_by_category.csv     (RQ3: breakdown theo 4 nhóm prompt)")
     print("    - docs/table_rq3_parser_ablation.tex  (Bảng LaTeX)")
-    print("    - docs/RQ3_LLM_PARSER_BENCHMARK_REPORT.md (Báo cáo RQ3, sinh tự động từ CSV)")
+    print("    - docs/HE_THONG.md (muc 6) (Báo cáo RQ3, sinh tự động từ CSV)")
     print("=" * 95)
 
 

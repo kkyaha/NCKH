@@ -2,7 +2,7 @@
 """
 RQ6 (Part A.3) — Does Shapley Attribution Respect Graph Topology?
 ====================================================================
-The deferred check from RQ6 Part A (docs/RQ6_ATTRIBUTION_VALIDITY_REPORT.md):
+The deferred check from RQ6 Part A (docs/HE_THONG.md (muc 6)):
 Sock Shop's 7-service graph is too small and too densely connected from its
 single gateway (front-end) for a clean "this node is genuinely NOT
 downstream of the injection point" test — nearly every node is reachable.
@@ -35,8 +35,8 @@ warnings.filterwarnings('ignore')
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 os.environ['OMP_NUM_THREADS'] = '1'
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'agents'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'scm'))
@@ -184,7 +184,7 @@ topology.
 * `data/processed/scm_results/rq6_topology_check.csv` — {len(df)} rows ({n_repeats} repeats x {len(reachable)+len(unreachable)+1} CPU nodes).
 * `data/processed/scm_results/rq6_topology_check_summary.csv` — grouped summary.
 """
-    md_path = os.path.join(DOCS_DIR, 'RQ6_ATTRIBUTION_VALIDITY_REPORT.md')
+    md_path = os.path.join(DOCS_DIR, 'docs/HE_THONG.md (muc 6)')
     with open(md_path, 'a', encoding='utf-8') as f:
         f.write(addendum)
     print(f"\n[OK] Appended Part A.3 results to: {md_path}")

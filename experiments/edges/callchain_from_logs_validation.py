@@ -19,7 +19,7 @@ import os
 import sys
 import time
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))
 
 from callchain_from_logs import mine_call_chains_from_multiple  # noqa: E402
