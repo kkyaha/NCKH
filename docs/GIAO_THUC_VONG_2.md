@@ -147,7 +147,7 @@ Probe đo ba thứ, **tất cả đều không cần tải**:
 
 ## BƯỚC 3 — ĐÓNG BĂNG (5 phút) · **cổng không thể quay lui**
 
-Đặt `F=login,register,<4 tính năng còn lại>` cho gọn.
+Dùng biến `F` đã đặt ở Bước 0.
 
 ```bash
 # P0/P1/P1_ctrl + P2 cho các tính năng mới
