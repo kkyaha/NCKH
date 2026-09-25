@@ -62,6 +62,7 @@ os.environ['OMP_NUM_THREADS'] = '1'
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
+import _paths  # noqa: F401  -- dua cac nhom con khac vao sys.path
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'agents'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'scm'))

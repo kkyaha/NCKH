@@ -1,19 +1,46 @@
 # -*- coding: utf-8 -*-
 """
-Orchestrator — MAS Feasibility Analyzer
-=========================================
-Luan do 4 buoc (Plan v4 — Dual-Path Architecture):
+Orchestrator — DIEM VAO DUY NHAT cua he thong
+===============================================
+MOT DIEM VAO. Khong co gi de chon:
 
+    from agents.orchestrator import assess
+    assess("them tinh nang ap ma giam gia", L_peak=150)
+
+Ben trong co HAI TANG, nhung nguoi goi khong can biet:
+
+    NL -> ParserAgent -> (archetype, Delta, chain)
+                              |
+        TANG 1  DU BAO    W_s , CPU_s tung service
+                              |
+        TANG 2  PHAN QUYET u_s vs u*, cong SLO  ->  FEASIBLE/MARGINAL/INFEASIBLE + R*
+
+Bo L_peak thi dung o tang 1 (chi du bao tai nguyen, CHUA phan quyet). Hai ham
+forecast_resource_impact() / assess_feasibility_at_peak() la TUNG TANG RIENG LE, giu cong
+khai cho truong hop dac biet -- binh thuong dung assess().
+
+VI SAO BEN TRONG VAN LA HAI NGAN XEP
+  Hai cau hoi nay la HAI TANG cua cung mot viec: phan quyet SLO doi phai co du bao tai
+  nguyen truoc. Hien tai hai tang dang nam trong hai ngan xep rieng vi ly do LICH SU:
+  CapacityAgent hoc tu RCAEval fault-injection va da sinh ra cac so lieu DA CONG BO,
+  nen duong kha thi duoc viet tach ra de khong cham vao no.
+
+  Do KHONG phai mot khac biet ve mo hinh. Da do: `rho_s` cua bo du doan kha thi tai tao
+  DUNG lan truyen Tier-1 cua CapacityAgent, lech <= 0.5% tren moi service -- chung la
+  mot mo hinh viet o hai dang. Hop nhat thanh hai tang la THIET KE MUC TIEU
+  (docs/HE_THONG.md muc 2); chua ap vi se doi bo du doan sau khi da xem dap an.
+
+TU VUNG PHAN QUYET
+  Ben trong, hai agent dung hai bo nhan khac nhau (`SAFE/WARNING/CRITICAL` va
+  `FEASIBLE/MARGINAL/INFEASIBLE`) -- KHONG doi duoc vi cac script sinh so da in phu
+  thuoc vao chung. Bat ky ham cong khai nao o day cung tra ve them truong `verdict`
+  da CHUAN HOA ve mot bo duy nhat: FEASIBLE | MARGINAL | INFEASIBLE.
+
+LUONG 4 BUOC cua forecast_resource_impact()
   [parse_requirement] -> [map_impact] -> [simulate] -> [generate_report]
-         |                    |               |               |
-   ParserAgent          ArchAgent       Dual-path:       LLM report
-   (LLM+rule)           (Graph)       FAST (bivariate)  (ca 2 nguon)
-   core_services                      ACCURATE (DAG)
-   injection_delta
-
-Dual-Path:
-  Fast Path   = PerformanceAgent (Bivariate, 21 model) — nhanh, per-service doc lap
-  Accurate Path = SimulationAgent (Global DAG 28-node) — cascade attenuation thuc te
+    ParserAgent          ArchAgent      CapacityAgent      LLM report
+    (LLM + rule)         (BFS graph)    fast: bivariate
+                                        accurate: DAG 28-node
 """
 
 import os
@@ -369,6 +396,94 @@ workflow.add_edge("simulate",          "generate_report")
 workflow.add_edge("generate_report",   END)
 
 feasibility_analyzer = workflow.compile()
+
+
+# ==========================================
+# 5b. BE MAT CONG KHAI THONG NHAT
+# ==========================================
+# Hai ham duoi day la DIEM VAO DUY NHAT nen dung. Ten noi ro CAU HOI chung tra loi,
+# khong noi bo may nao chay ben trong -- de doi bo may sau nay khong pha ma goi.
+
+#: Chuan hoa hai bo nhan noi bo ve MOT. Khong doi nhan trong agent (script sinh so da
+#: in phu thuoc vao `SAFE`/`CRITICAL`), chi chuan hoa o bien cong khai.
+_VERDICT = {'SAFE': 'FEASIBLE', 'WARNING': 'MARGINAL', 'CRITICAL': 'INFEASIBLE',
+            'FEASIBLE': 'FEASIBLE', 'MARGINAL': 'MARGINAL', 'INFEASIBLE': 'INFEASIBLE'}
+
+
+def assess(text: str, L_peak: float = None, k: dict = None) -> dict:
+    """DIEM VAO DUY NHAT. Dua yeu cau bang tieng Viet/Anh vao, nhan phan quyet ra.
+
+        assess("them tinh nang ap ma giam gia", L_peak=150)
+
+    Khong co gi de CHON. Ben trong co hai tang -- du bao tai nguyen, roi phan quyet SLO
+    dat len tren no -- nhung do la chuyen ben trong; nguoi goi chi thay mot ham.
+
+      L_peak = None  -> chi chay tang DU BAO, tra ve tai nguyen du kien tung service.
+                        Dung khi chua biet tai dinh ky vong.
+      L_peak = <so>  -> chay CA hai tang, tra ve them phan quyet SLO va diem gay R*.
+      k              -> boi so goi DO DUOC (experiments/collect/probe_feature_chain.py).
+                        Co thi dung P3; khong co thi P2 (gia dinh k=1, it lac quan hon).
+
+    Tra ve dict luon co:
+      verdict   FEASIBLE | MARGINAL | INFEASIBLE   (mot bo nhan duy nhat)
+      forecast  tai nguyen du kien tung service    (dau ra tang 1)
+      slo       phan quyet + R* + khoang tin cay   (dau ra tang 2; None neu thieu L_peak)
+    """
+    fc = forecast_resource_impact(text)
+    out = {'verdict': fc['verdict'], 'forecast': fc, 'slo': None,
+           'requirement': text, 'L_peak': L_peak}
+    if L_peak is None:
+        out['note'] = ('chua co L_peak nen CHUA phan quyet SLO -- con so o `forecast` la '
+                       'du bao tai nguyen, khong phai ket luan kha thi')
+        return out
+    sl = assess_feasibility_at_peak(text, L_peak, k=k)
+    out['slo'] = sl
+    out['verdict'] = sl['verdict']          # tang phan quyet noi tieng noi cuoi
+    return out
+
+
+def forecast_resource_impact(text: str) -> dict:
+    """Tang 1 rieng le: them tinh nang nay thi tai nguyen tung service thanh bao nhieu?
+
+    Thuong KHONG goi truc tiep -- dung assess(). Giu cong khai cho truong hop chi can
+    du bao ma khong can phan quyet.
+
+    Chay luong 4 buoc day du (parse -> map -> simulate -> report) qua CapacityAgent.
+    KHONG tra loi duoc "co dap ung SLO o tai L khong" -- dung assess_feasibility_at_peak()
+    cho cau hoi do.
+
+    Tra ve dict cua workflow, THEM `verdict` da chuan hoa.
+    """
+    out = dict(feasibility_analyzer.invoke({'input_requirement': text}))
+    raw = (out.get('capacity_assessment') or {}).get('status')
+    out['verdict'] = _VERDICT.get(raw, raw)
+    out['answers'] = 'du bao tai nguyen (khong phai phan quyet SLO)'
+    return out
+
+
+def assess_feasibility_at_peak(text: str, L_peak: float, k: dict = None,
+                               bootstrap: bool = True) -> dict:
+    """Tang 2 rieng le: o tai dinh L_peak, he con dap ung SLO khong, gay o dau?
+
+    Thuong KHONG goi truc tiep -- dung assess(text, L_peak).
+
+    k: boi so goi DO DUOC (vd experiments/collect/probe_feature_chain.py). Truyen vao
+       thi dung P3; khong truyen thi P2 (gia dinh k=1, it lac quan hon). Nguon cua k
+       duoc ghi lai trong ket qua vi phan quyet phu thuoc vao no.
+    """
+    out = dict(assess_new_feature_requirement(text, L_peak, k=k, bootstrap=bootstrap))
+    f = out.get('feasibility')
+    raw = getattr(f, 'verdict', None) if f is not None else None
+    out['verdict'] = _VERDICT.get(raw, raw)
+    out['answers'] = 'phan quyet SLO tai tai dinh'
+    return out
+
+
+__all__ = ['assess',                      # <- dung cai nay
+           'forecast_resource_impact', 'assess_feasibility_at_peak',   # tung tang rieng le,
+           # ten cu, giu lai de ma san co khong gay:
+           'feasibility_analyzer', 'assess_new_feature_requirement',
+           'capacity_agent', 'parser_agent']
 
 
 # ==========================================

@@ -41,6 +41,7 @@ from sklearn.pipeline import Pipeline
 
 BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
+import _paths  # noqa: F401  -- dua cac nhom con khac vao sys.path
 sys.path.insert(0, os.path.join(BASE, 'src', 'scm'))
 import feasibility_predictor as FP  # noqa: E402
 from queueing_regressor import QueueingLatencyRegressor  # noqa: E402

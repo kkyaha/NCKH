@@ -50,6 +50,7 @@ OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 os.makedirs(OUT_DIR, exist_ok=True)
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
+import _paths  # noqa: F401  -- dua cac nhom con khac vao sys.path
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))    # core scm lib (data_processor)
 from data_processor import TRAINTICKET_SERVICES, load_trainticket_data
 from evaluation_suite import mape, smape  # dung LAI dung cong thuc da kiem chung, khong viet lai

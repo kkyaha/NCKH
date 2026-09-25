@@ -43,6 +43,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
+import _paths  # noqa: F401  -- dua cac nhom con khac vao sys.path
 sys.path.append(os.path.join(BASE_DIR, 'src', 'scm'))       # core scm lib (data_processor)
 from data_processor import SERVICES
 

@@ -43,9 +43,46 @@ vậy có thể khớp một archetype sẵn có rồi nhận phán quyết tự
 
 ---
 
-## 2. Kiến trúc: hai hệ tách biệt, có chủ đích
+## 2. Kiến trúc
 
-Repo chứa **hai bộ dự đoán khác nhau**. Nhầm lẫn giữa chúng là nguồn hiểu sai lớn nhất.
+### Bắt đầu từ đây: hệ trả lời **hai câu hỏi**, không phải một
+
+| Bạn muốn biết gì | Gọi hàm | Cần thêm |
+|---|---|---|
+| *"Thêm tính năng này thì CPU/mem/latency từng service thành bao nhiêu?"* | `forecast_resource_impact(text)` | — |
+| *"Ở tải đỉnh L req/s, hệ còn đáp ứng SLO không, gãy ở đâu?"* | `assess_feasibility_at_peak(text, L_peak)` | `L_peak` |
+
+Cả hai nằm trong `src/agents/orchestrator.py` và **đều trả về trường `verdict` đã chuẩn hoá**
+về một bộ nhãn duy nhất: `FEASIBLE | MARGINAL | INFEASIBLE`.
+
+*(Bên trong, hai agent vẫn dùng hai bộ nhãn khác nhau — `SAFE/WARNING/CRITICAL` và
+`FEASIBLE/MARGINAL/INFEASIBLE`. **Không đổi được** vì `experiments/parser/rq5_coordination_overhead.py`
+sinh số đã in phụ thuộc vào chúng. Chuẩn hoá chỉ ở bề mặt công khai.)*
+
+### Hai câu hỏi này là **hai tầng**, không phải hai đối thủ
+
+Phán quyết SLO **bắt buộc phải có** dự báo tài nguyên trước đã:
+
+```
+NL → ParserAgent → (archetype, Δ, chain)
+                        ↓
+   TẦNG DỰ BÁO     W_s , CPU_s        ← forecast_resource_impact() dừng ở đây
+                        ↓
+   TẦNG PHÁN QUYẾT u_s vs u*, cổng SLO → assess_feasibility_at_peak()
+```
+
+Hiện hai tầng đang bị **nhân bản trong hai ngăn xếp riêng**, vì lý do **lịch sử**:
+`CapacityAgent` học từ RCAEval fault-injection và đã sinh ra các số liệu **đã công bố**, nên
+đường khả thi được viết tách ra để không chạm vào nó.
+
+**Đó không phải khác biệt về mô hình.** Đã đo: `ρ_s` của bộ dự đoán khả thi **tái tạo đúng**
+lan truyền Tier-1 của `CapacityAgent`, lệch **≤ 0,5%** trên mọi service — chúng là *một* mô
+hình viết ở hai dạng. Hợp nhất thành hai tầng là **thiết kế mục tiêu**; chưa áp vì sẽ đổi bộ
+dự đoán **sau khi đã xem đáp án**, làm mọi con số mới thành hồi cứu.
+
+---
+
+### Chi tiết hai ngăn xếp hiện tại
 
 ### Hệ A — `CapacityAgent`: DAG nhân quả 2 tầng, 28 node
 
@@ -399,7 +436,7 @@ pytest tests/ -q                                    # 44 test
 | # | Việc | Vì sao |
 |---|---|---|
 | 1 | **Làm lại con số signal gate có nguồn gốc** | nó nằm trong **Abstract** và hiện không tái lập được |
-| 2 | **Một vòng đo tiến cứu mới** | trụ cột hiện là **n=2**; không sửa được bằng phân tích |
+| 2 | **Một vòng đo tiến cứu mới** — runbook: [`GIAO_THUC_VONG_2.md`](GIAO_THUC_VONG_2.md) | trụ cột hiện là **n=2**; không sửa được bằng phân tích |
 | 3 | **Phát hành dữ liệu** (Zenodo + DOI) | testbed là đóng góp chính; `data/raw/` đang gitignore |
 | 4 | Sửa `§rq6-latency` | đang viết "không có hướng khắc phục" — **không còn đúng** |
 | 5 | Đối chứng chain‑sai mạnh hơn (loại gateway) | đối chứng hiện tại không đủ sức bác bỏ |
