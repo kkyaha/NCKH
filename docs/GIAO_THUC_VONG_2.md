@@ -38,6 +38,11 @@ luỹ trong Docker Desktop/WSL sau phiên dài.
 - [ ] Khởi động lại Docker Desktop
 - [ ] `docker compose -f deploy/sockshop/docker-compose.yml up -d` → kiểm `docker ps` thấy ~15 container
 - [ ] `python experiments/collect/load_sweep_collect.py --check`
+- [ ] Kiểm dữ liệu cũ **có mặt và đúng layout phẳng**: `data\raw\SS-TRAIN` (16 run) và
+      `data\raw\SS-LIMITS` (21 run). Git **không** mang theo `data/raw/` — nó nằm trong
+      `.gitignore`. Nếu còn lồng trong `SS_Deployed\` thì phải gỡ ra một cấp.
+- [ ] Tạo thư mục **rỗng** `data\raw\SS-PROSP2` — bước đóng băng cần nó tồn tại và chưa có ramp
+- [ ] Đặt biến cho gọn: `set F=login,register,...` (Windows) hoặc `F=login,register,...` (bash)
 
 **Chốt chặn:** nếu `vm_cpu_util` vượt **0,85** ở bất kỳ bậc nào → dừng, restart, chạy lại
 ramp đó. Đừng cố đo tiếp.
@@ -76,9 +81,12 @@ Agent **không được thấy**: `SOCKSHOP_CALL_CHAINS`, bất kỳ file nào t
 > sẽ ánh xạ vào archetype đã có — **điều đó không sao**. Tính tiến cứu đến từ *dự đoán được
 > đóng băng trước khi đo* và *người cài mù*, không đến từ archetype mới.
 
-### Đăng ký tính năng — **BA chỗ trong mã, thiếu một là hỏng giữa chừng**
+### Đăng ký tính năng — **BA chỗ trong mã, tất cả làm TRƯỚC khi probe**
 
-Đây là bước dễ bị bỏ sót nhất. Làm đủ cả ba **trước** khi probe.
+Trước đây phải sửa 6 chỗ; ba chỗ còn lại nằm ở khâu *phân tích* nay đã nhận tham số dòng lệnh,
+nên **không còn phải sửa mã sau khi đã đo** — điều đó sẽ phá tính tiến cứu của cả vòng.
+
+Ba chỗ dưới đây là kiến thức miền, không tự suy ra được, nên vẫn phải khai báo tay.
 
 **(a) `experiments/collect/load_sweep_collect.py`** — bảng `FEATURES` cắm cứng (~dòng 213):
 
@@ -87,17 +95,15 @@ Agent **không được thấy**: `SOCKSHOP_CALL_CHAINS`, bất kỳ file nào t
 ```
 `anchor` = `expected_delta_pct` của archetype trong `SOCKSHOP_CALL_CHAINS`.
 
-**(b) `src/scm/feasibility_predictor.py`** — HAI bảng:
+**(b) `src/scm/feasibility_predictor.py`** — **chỉ một bảng**:
 
 ```python
 FEATURE_ARCHETYPE = { ..., 'login': 'LOGIN', 'register': 'REGISTER', ... }
-
-FEATURE_SETS = { ..., 'prosp2': ['login', 'register', ...] }   # tập MỚI, đừng sửa 'prosp'
 ```
 
-⚠️ `freeze_predictions.py --feature-set` chỉ nhận các khoá có trong `FEATURE_SETS`. Hiện là
-`{main, indep, prosp}` — **`prosp2` chưa tồn tại**, phải thêm. Tạo **tập mới**, tuyệt đối
-không sửa `prosp` (đó là dấu vết của vòng `browse` đã đóng băng).
+> `FEATURE_SETS` **không cần đụng tới nữa**. `freeze_predictions.py` và `evaluate_frozen.py`
+> nay nhận `--features login,register,...` trực tiếp. Tuyệt đối không sửa `prosp` — đó là dấu
+> vết của vòng `browse` đã đóng băng.
 
 **(c) `experiments/collect/probe_feature_chain.py`** — hàm `body_for()`, nếu endpoint cần body:
 
@@ -106,7 +112,10 @@ if feat == 'login':
     return {'username': ..., 'password': ...}
 ```
 
-- [ ] Sau khi sửa: `python -c "import sys; sys.path.insert(0,'src/scm'); import feasibility_predictor as F; print(F.FEATURE_SETS['prosp2'])"`
+Chốt chặn có sẵn: nếu quên (b), `freeze_predictions.py` **từ chối chạy** với thông báo
+`TU CHOI: [...] chua co trong FEATURE_ARCHETYPE`. Không có đường đi vòng — thiếu ánh xạ
+archetype thì không có call chain để dự đoán.
+
 - [ ] Chạy `pytest tests/ -q` — phải vẫn **50 passed**
 
 ---
@@ -115,7 +124,7 @@ if feat == 'login':
 
 ```bash
 python experiments/collect/probe_feature_chain.py \
-    --features login,register,<4 tính năng còn lại> \
+    --features $F \
     --n 20 --n-latency 200 --user-every 20 \
     --save data/processed/frozen/k_measured_v2.json
 ```
@@ -138,18 +147,31 @@ Probe đo ba thứ, **tất cả đều không cần tải**:
 
 ## BƯỚC 3 — ĐÓNG BĂNG (5 phút) · **cổng không thể quay lui**
 
+Đặt `F=login,register,<4 tính năng còn lại>` cho gọn.
+
 ```bash
 # P0/P1/P1_ctrl + P2 cho các tính năng mới
-python experiments/feasibility/freeze_predictions.py --feature-set prosp2 ...
+python experiments/feasibility/freeze_predictions.py \
+    --train-dir data/raw/SS-TRAIN \
+    --ramp-dir  data/raw/SS-PROSP2 \
+    --limits RE2 \
+    --feature-set prosp2 --features $F \
+    --p2-params data/processed/frozen/p2_params_dev.json
+# -> data/processed/frozen/predictions_frozen_RE2_P2_prosp2.json
 
-# P3 (dùng k vừa probe)
+# P3 (dùng k vừa probe) — lặp cho TỪNG tính năng
 python experiments/feasibility/freeze_p3_prospective.py \
     --feature login \
     --k-file data/processed/frozen/k_measured_v2.json \
-    --base-frozen data/processed/frozen/predictions_frozen_RE2_P2_prosp.json \
+    --base-frozen data/processed/frozen/predictions_frozen_RE2_P2_prosp2.json \
     --ramp-dir data/raw/SS-PROSP2
-# lặp cho từng tính năng
 ```
+
+⚠️ `--feature-set prosp2` là **nhãn đặt tên file**, `--features` mới là danh sách thật. Vì
+nhãn khác `main`, script tự bật chốt chặn tiền đăng ký: bắt buộc `--p2-params`, và **từ chối
+nếu `--ramp-dir` đã có ramp của các tính năng đó**.
+
+Thư mục `data/raw/SS-PROSP2` phải **tồn tại và rỗng** ở bước này.
 
 `freeze_p3_prospective.py` **tự từ chối** nếu `--ramp-dir` đã có dữ liệu ramp của tính năng
 đó — chốt chặn có sẵn, đừng tìm cách đi vòng.
@@ -172,31 +194,30 @@ Lưới 20 req/s tuyệt đối của các vòng trước có khuyết tật: đ
 điểm gãy 200 nhưng **50%** ở điểm gãy 40. Sai số tương đối vì thế **không so sánh được giữa
 các ô** — `quickadd×2` bị thổi phồng một phần vì lý do này.
 
-```
---ramp-start 40 --ramp-stop 260 --ramp-step 20     # cũ, giữ để so sánh
-```
+Bậc **≈ ×1,25**: `40, 50, 65, 80, 100, 125, 155, 195, 240` → độ phân giải tương đối **~25%
+đồng đều** ở mọi mức, thay vì 10% ở điểm gãy 200 và 50% ở điểm gãy 40.
 
-Đề xuất thay bằng các bậc **≈ ×1,25**: `40, 50, 65, 80, 100, 125, 155, 195, 240`
-→ độ phân giải tương đối **~25% đồng đều** ở mọi mức.
-
-- [ ] Ghi rõ trong manifest là vòng này dùng lưới khác vòng trước
+Truyền bằng `--ramp-levels`; cờ này **đè lên** `--ramp-start/stop/step`.
 
 ### Lệnh
 
 ```bash
 python experiments/collect/load_sweep_collect.py --ramp \
     --limits RE2 \
-    --features base,login,register,<4 tính năng còn lại> \
+    --features base,$F \
     --feature-scales 1 \
+    --ramp-levels 40,50,65,80,100,125,155,195,240 \
     --repeats 2 --base-repeats 2 \
     --interval 3 --cooldown 60 \
     --out-dir data/raw/SS-PROSP2
 ```
 
+Lưới được ghi tự động vào `ramp_manifest_*.json` (`steps_rps` và `args`) — không phải chép tay.
+
 ### Chống trôi — quan trọng ngang phép đo
 
-- [ ] **Xen ramp `base` giữa các tính năng** (không dồn hết `base` vào đầu). Nếu điểm gãy
-      baseline trôi thì phát hiện **ngay**, không phải sau khi đo xong tất cả.
+- [x] ~~Xen ramp `base` giữa các tính năng~~ — **đã tự động**: script trộn kế hoạch bằng
+      `random.Random(--seed).shuffle(plan)`, nên `base` rải đều. Không phải làm gì.
 - [ ] Sau mỗi ~2 giờ: dừng, `wsl --shutdown`, restart Docker Desktop, chạy lại một ramp `base`
       để xác nhận điểm gãy chưa trôi
 - [ ] **Điều kiện huỷ:** nếu điểm gãy baseline lệch quá **một bậc lưới** so với đầu phiên →
@@ -218,13 +239,30 @@ python experiments/collect/data_contract_check.py --dir data/raw/SS-PROSP2 --rol
 ## BƯỚC 6 — Đánh giá
 
 ```bash
+# P0/P1/P1_ctrl/P2 trên tính năng MỚI
 python experiments/feasibility/evaluate_frozen.py \
-    --frozen data/processed/frozen/predictions_frozen_RE2.json \
-    --ramp-dir data/raw/SS-PROSP2 --split prosp
+    --frozen data/processed/frozen/predictions_frozen_RE2_P2_prosp2.json \
+    --ramp-dir data/raw/SS-PROSP2 \
+    --split prosp2 --features $F
 
-python experiments/feasibility/evaluate_p3.py
-python experiments/model_eval/statistical_rigor.py
+# P3 — thêm tập mới, KHÔNG động vào 4 tập cũ
+python experiments/feasibility/evaluate_p3.py \
+    --k-file data/processed/frozen/k_measured_v2.json \
+    --extra-set "TIEN CUU 2:SS-PROSP2:$F"
+
+# Thống kê + khoảng tin cậy bootstrap
+python experiments/model_eval/statistical_rigor.py \
+    --roots SS-LIMITS,SS-LIMITS-CLEAN,SS-PROSP2 \
+    --k-file data/processed/frozen/k_measured_v2.json \
+    --extra-split "tien cuu 2=$F"
 ```
+
+⚠️ **Thiếu `--features` / `--extra-set` / `--extra-split` là hỏng âm thầm.** `evaluate_frozen.py`
+sẽ báo lỗi (tốt), nhưng hai script kia **vẫn chạy trót lọt và in lại số của vòng cũ** — không
+có dấu hiệu gì báo rằng dữ liệu mới chưa hề được chấm.
+
+Mốc hồi quy: chạy `evaluate_p3.py` **không cờ nào** phải in đúng `119.7 / 87.5 / 72.6` cho tập
+`DOC LAP`. Lệch nghĩa là có gì đó đã đổi ngoài ý muốn — dừng lại tìm nguyên nhân.
 
 **Báo cáo bắt buộc gồm:**
 
@@ -261,3 +299,5 @@ trị hơn** một con số đẹp thu được bằng cách chỉnh mô hình s
 | Trôi hiệu năng giữa phiên | Ramp `base` xen kẽ + restart định kỳ |
 | Tính năng vỡ SLO ngay bậc đầu (như `express×2`) | Ghi nhận, giữ trong dữ liệu, **loại khỏi phép tính sai số** (không có điểm gãy đo được) |
 | Hai cổng mới chưa có script đóng băng | Chỉ tuyên bố tiến cứu cho P1/P2/P3; ghi rõ hai cổng là hồi cứu |
+| **Quên cờ ở Bước 6** → in lại số vòng cũ, không báo lỗi | Đối chiếu mốc hồi quy `119.7/87.5/72.6`; nếu bảng không có dòng `TIEN CUU 2` thì cờ đã bị bỏ sót |
+| Sửa mã phân tích giữa chiến dịch | Đã dọn trước khi bàn giao. Nếu vẫn phát sinh: **ghi lại và báo cáo là hồi cứu**, đừng sửa lặng lẽ |

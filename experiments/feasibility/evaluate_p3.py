@@ -21,6 +21,7 @@ Hai bien the:
     python experiments/evaluate_p3.py
 """
 
+import argparse
 import glob
 import json
 import os
@@ -38,11 +39,13 @@ import evaluate_frozen as EF  # noqa: E402
 FROZEN_DIR = os.path.join(BASE, 'data', 'processed', 'frozen')
 
 
-def load_predictor():
+def load_predictor(extra_k_files=()):
     base = json.load(open(os.path.join(FROZEN_DIR, 'predictions_frozen_RE2.json'), encoding='utf-8'))
     p2 = json.load(open(os.path.join(FROZEN_DIR, 'p2_params_dev.json'), encoding='utf-8'))
     kmeas = json.load(open(os.path.join(FROZEN_DIR, 'k_measured.json'), encoding='utf-8'))['features']
     kmeas.update(json.load(open(os.path.join(FROZEN_DIR, 'k_measured_prosp.json'), encoding='utf-8'))['features'])
+    for kf in extra_k_files:                     # vd k_measured_v2.json cua vong tien cuu 2
+        kmeas.update(json.load(open(kf, encoding='utf-8'))['features'])
     P = FP.FeasibilityPredictor(base['mechanism'], base['params']['cores'], base['params']['u_star'],
                                 feature_cost=p2['params'])
     return P, kmeas
@@ -86,8 +89,31 @@ def eval_set(P, kmeas, ramp_dir, features, label):
     return pd.DataFrame(rows), pd.DataFrame(node_rows)
 
 
-def main():
-    P, kmeas = load_predictor()
+def parse_set_spec(spec):
+    """'NHAN:RAMP_DIR:f1,f2' -> (duong_dan_ramp, (f1, f2), NHAN). RAMP_DIR tuong doi data/raw/."""
+    try:
+        label, rd, feats = spec.split(':', 2)
+    except ValueError:
+        raise SystemExit(f'--extra-set sai dang: {spec!r}; can NHAN:RAMP_DIR:f1,f2')
+    rd = rd if os.path.isabs(rd) else os.path.join(BASE, 'data', 'raw', rd)
+    if not os.path.isdir(rd):
+        raise SystemExit(f'--extra-set: khong thay thu muc ramp {rd}')
+    fl = tuple(x.strip() for x in feats.split(',') if x.strip())
+    if not fl:
+        raise SystemExit(f'--extra-set {label}: danh sach tinh nang rong')
+    return rd, fl, label
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__.split('\n')[1])
+    ap.add_argument('--k-file', action='append', default=[], metavar='JSON',
+                    help='file k do duoc THEM (vd data/processed/frozen/k_measured_v2.json); lap nhieu lan')
+    ap.add_argument('--extra-set', action='append', default=[], metavar='NHAN:RAMP_DIR:f1,f2',
+                    help='danh gia them mot tap MOI (vd "TIEN CUU 2:SS-PROSP2:login,register"). '
+                         'Khong co co nay thi ket qua GIU NGUYEN bit-for-bit so voi truoc.')
+    a = ap.parse_args(argv)
+
+    P, kmeas = load_predictor(a.k_file)
     print('\n=== He so k DO DUOC (bang probing chuc nang, doc lap voi du lieu tai) ===')
     for f, m in kmeas.items():
         extra = set(m['chain_measured']) - set(m['chain_taxonomy'])
@@ -97,11 +123,12 @@ def main():
               + (f"  [chain THIEU: {sorted(missing)}]" if missing else ''))
 
     all_bp, all_node = [], []
-    for ramp_dir, feats, label in [
-            (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS-CLEAN'), EF.INDEP, 'DOC LAP (chinh, du lieu SACH)'),
+    SETS = [(os.path.join(BASE, 'data', 'raw', 'SS-LIMITS-CLEAN'), EF.INDEP, 'DOC LAP (chinh, du lieu SACH)'),
             (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS-CLEAN'), EF.PROSP, 'TIEN CUU (browse, du lieu SACH)'),
             (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS'), ('promo', 'recs'), 'dev (kiem tra khong hoi quy)'),
-            (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS'), ('track', 'review'), 'khoa (k~1 do duoc, ky vong khong doi)')]:
+            (os.path.join(BASE, 'data', 'raw', 'SS-LIMITS'), ('track', 'review'), 'khoa (k~1 do duoc, ky vong khong doi)')]
+    SETS += [parse_set_spec(s) for s in a.extra_set]
+    for ramp_dir, feats, label in SETS:
         bp, nd = eval_set(P, kmeas, ramp_dir, feats, label)
         all_bp.append(bp)
         all_node.append(nd)

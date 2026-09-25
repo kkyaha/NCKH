@@ -70,7 +70,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--frozen', required=True)
     ap.add_argument('--ramp-dir', required=True)
-    ap.add_argument('--split', choices=['dev', 'locked', 'all', 'indep', 'prosp'], default='dev')
+    ap.add_argument('--split', default='dev',
+                    help='ten tap co san (dev/locked/all/indep/prosp) HOAC nhan tuy y khi dung --features')
+    ap.add_argument('--features', default='',
+                    help='danh sach tinh nang phay-ngan, dung cho vong do MOI (vd login,register). '
+                         'Khi co co nay, --split chi con la NHAN de ghi nhat ky -- khong can sua ma nguon.')
     ap.add_argument('--open-locked', action='store_true', help='bat buoc de doc tap KHOA (track, review); ghi nhat ky kiem toan')
     ap.add_argument('--out', default='')
     a = ap.parse_args()
@@ -81,7 +85,15 @@ def main():
         with open(os.path.join(os.path.dirname(os.path.abspath(a.frozen)), 'locked_access.log'), 'a', encoding='utf-8') as f:
             f.write(f'{time.strftime("%Y-%m-%d %H:%M:%S")} MO TAP KHOA split={a.split} frozen_sha256='
                     f'{hashlib.sha256(open(a.frozen, "rb").read()).hexdigest()[:16]} ramp_dir={a.ramp_dir}\n')
-    feats = {'dev': DEV, 'locked': LOCKED + ('base',), 'all': DEV + LOCKED, 'indep': INDEP + ('base',), 'prosp': PROSP + ('base',)}[a.split]
+    NAMED = {'dev': DEV, 'locked': LOCKED + ('base',), 'all': DEV + LOCKED,
+             'indep': INDEP + ('base',), 'prosp': PROSP + ('base',)}
+    if a.features:
+        feats = tuple(x.strip() for x in a.features.split(',') if x.strip()) + ('base',)
+    elif a.split in NAMED:
+        feats = NAMED[a.split]
+    else:
+        sys.exit(f'--split {a.split} khong phai tap co san ({", ".join(NAMED)}); '
+                 f'neu day la vong do MOI thi phai kem --features f1,f2,...')
 
     fz = json.load(open(a.frozen, encoding='utf-8'))
     if fz.get('dev') or fz.get('post_hoc'):

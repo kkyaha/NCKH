@@ -20,6 +20,7 @@ lech cua chi bao nghen) CHUA tung duoc hieu chinh. Script nay lam ba viec:
     python experiments/statistical_rigor.py
 """
 
+import argparse
 import glob
 import json
 import os
@@ -171,7 +172,16 @@ def report_family(M, name):
 
 
 # ---------------------------------------------------------------- main
-def main():
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--roots', default='SS-LIMITS,SS-LIMITS-CLEAN',
+                    help='thu muc ramp duoi data/raw/ dung cho phan [2]; them SS-PROSP2 cho vong tien cuu 2')
+    ap.add_argument('--k-file', action='append', default=[], metavar='JSON',
+                    help='file k do duoc THEM (vd k_measured_v2.json); lap nhieu lan')
+    ap.add_argument('--extra-split', action='append', default=[], metavar='NHAN=f1,f2',
+                    help='them mot tap vao phan [2] (vd "tien cuu 2=login,register")')
+    a = ap.parse_args(argv)
+
     print('=' * 96)
     print('  [1] SO SANH MO HINH -- Friedman -> Wilcoxon -> Holm, moi bo du lieu la MOT ho')
     print('=' * 96)
@@ -205,8 +215,10 @@ def main():
                                           'k_measured_prosp.json'), encoding='utf-8'))['features'])
     P = FP.FeasibilityPredictor(fz['mechanism'], fz['params']['cores'], fz['params']['u_star'],
                                 feature_cost=p2)
+    for kf in a.k_file:                          # vd k_measured_v2.json cua vong tien cuu 2
+        KM.update(json.load(open(kf, encoding='utf-8'))['features'])
     cells = {}
-    for root in ('SS-LIMITS', 'SS-LIMITS-CLEAN'):
+    for root in [x.strip() for x in a.roots.split(',') if x.strip()]:
         for sp in sorted(glob.glob(os.path.join(BASE, 'data', 'raw', root, 'ramp_*', 'run*', 'steps.json'))):
             j = json.load(open(sp, encoding='utf-8'))
             feat = j.get('feature', 'base')
@@ -216,6 +228,11 @@ def main():
             cells.setdefault((feat, sc), []).append(j['breakpoint']['lo'])
     SPLITS = [('dev', ['promo', 'recs']), ('khoa', ['track', 'review']),
               ('doc lap', ['cartsum', 'quickadd', 'express']), ('tien cuu', ['browse'])]
+    for spec in a.extra_split:
+        if '=' not in spec:
+            sys.exit(f'--extra-split sai dang: {spec!r}; can NHAN=f1,f2')
+        nm, fl = spec.split('=', 1)
+        SPLITS.append((nm.strip(), [x.strip() for x in fl.split(',') if x.strip()]))
     print(f"\n  {'split':10s} {'n':>2s} {'mo hinh':12s} {'|sai so| TB':>12s} {'KTC 95%':>20s}")
     for nm, feats in SPLITS:
         errs = {'P1': [], 'P2': [], 'P3': []}

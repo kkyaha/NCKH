@@ -788,7 +788,14 @@ def run_ramp(a, out_dir):
     plan = [(ft, sc, k + 1) for ft in feats for sc in ([1.0] if ft == 'base' else scales)
             for k in range(a.repeats)]
     random.Random(a.seed).shuffle(plan)
-    steps_rps = list(range(a.ramp_start, a.ramp_stop + 1, a.ramp_step))
+    if a.ramp_levels:
+        steps_rps = sorted({int(x) for x in a.ramp_levels.split(',') if x.strip()})
+        if len(steps_rps) < 2:
+            sys.exit('--ramp-levels can it nhat 2 bac')
+        step_desc = 'viet tay: ' + ','.join(map(str, steps_rps))
+    else:
+        steps_rps = list(range(a.ramp_start, a.ramp_stop + 1, a.ramp_step))
+        step_desc = f'buoc {a.ramp_step}'
     interval, warm_frac = a.interval, 0.4
     tag = time.strftime('%Y%m%d_%H%M%S')
     fname = f'collector_{tag}.csv'
@@ -801,7 +808,7 @@ def run_ramp(a, out_dir):
     with open(manifest_path, 'w', encoding='utf-8') as f:      # PRE-REGISTRATION: truoc khi do
         json.dump(manifest, f, indent=1, default=str)
     est = len(plan) * (len(steps_rps) * (a.ramp_dwell + 5) * 0.6 + a.cooldown) / 60 + 3
-    print(f'\n{len(plan)} ramp, buoc tai {steps_rps[0]}..{steps_rps[-1]} req/s (buoc {a.ramp_step}, giu {a.ramp_dwell}s), '
+    print(f'\n{len(plan)} ramp, buoc tai {steps_rps[0]}..{steps_rps[-1]} req/s ({step_desc}, giu {a.ramp_dwell}s), '
           f'SLO p99<={slo["p99_s"]}s loi<={slo["err_rate"]:.1%}, tran={CURRENT_LIMITS["name"]}; '
           f'uoc tinh ~{est:.0f} phut')
     print('  thu tu:', [f'{f}x{sc:g}#{k}' for f, sc, k in plan])
@@ -1008,6 +1015,10 @@ def main():
     ap.add_argument('--ramp-start', type=int, default=40)
     ap.add_argument('--ramp-stop', type=int, default=260)
     ap.add_argument('--ramp-step', type=int, default=20)
+    ap.add_argument('--ramp-levels', default='',
+                    help='cac bac tai req/s VIET TAY, phay-ngan -- DE len --ramp-start/stop/step. Dung cho luoi '
+                         'HINH HOC (vd 40,50,65,80,100,125,155,195,240): buoc cap so cong cho do phan giai tuong doi '
+                         '10%% o diem gay 200 nhung 50%% o diem gay 40, khien sai so tuong doi khong so duoc giua cac o.')
     ap.add_argument('--ramp-dwell', type=int, default=45, help='giay moi bac (40%% dau bi loai khi cham SLO)')
     ap.add_argument('--ramp-extra', type=int, default=1, help='so bac vi pham THEM sau bac vi pham dau tien')
     ap.add_argument('--slo-p99', type=float, default=None, help='ghi de p99 (giay) trong slo.json')

@@ -32,8 +32,9 @@ sys.path.insert(0, os.path.join(BASE, 'src', 'scm'))
 import feasibility_predictor as FP  # noqa: E402
 
 GRID = list(range(40, 261, 20))
-def cells_for(feature_set):
-    return [('base', 1.0)] + [(f, s) for f in FP.FEATURE_SETS[feature_set] for s in (1.0, 2.0)]
+def cells_for(feature_set, features=None):
+    fs = features if features else FP.FEATURE_SETS[feature_set]
+    return [('base', 1.0)] + [(f, s) for f in fs for s in (1.0, 2.0)]
 
 
 def sha_file(p):
@@ -67,22 +68,38 @@ def main():
     ap.add_argument('--out', default='', help='mac dinh data/processed/frozen/predictions_frozen_<limits>.json (MOI cau hinh tran mot file)')
     ap.add_argument('--dev', action='store_true', help='thu code: train tu chinh ramp baseline (co tran); KHONG phai dong bang')
     ap.add_argument('--allow-post-hoc', action='store_true')
-    ap.add_argument('--feature-set', choices=list(FP.FEATURE_SETS), default='main',
-                    help='main = promo/recs/track/review; indep = cartsum/quickadd/express (tinh nang DOC LAP)')
+    ap.add_argument('--feature-set', default='main',
+                    help='main = promo/recs/track/review; indep = cartsum/quickadd/express (tinh nang DOC LAP); '
+                         'hoac mot NHAN tuy y khi dung --features')
+    ap.add_argument('--features', default='',
+                    help='danh sach tinh nang phay-ngan cho vong do MOI (vd login,register) -- khong can sua '
+                         'FEATURE_SETS trong ma nguon. Khi co co nay, --feature-set la nhan dat ten file dong bang.')
     ap.add_argument('--base-frozen', default=os.path.join(BASE, 'data', 'processed', 'frozen', 'predictions_frozen_RE2.json'),
                     help='ban dong bang goc (dung khi --p2-params: lay u* va doi chieu co che)')
     ap.add_argument('--p2-params', default='', help='JSON tu fit_feature_costs --save: them du doan P2 (PHAT TRIEN, dong bang TRUOC khi mo tap khoa)')
     a = ap.parse_args()
+
+    if a.features:
+        feats_list = [x.strip() for x in a.features.split(',') if x.strip()]
+    elif a.feature_set in FP.FEATURE_SETS:
+        feats_list = list(FP.FEATURE_SETS[a.feature_set])
+    else:
+        sys.exit(f'--feature-set {a.feature_set} khong phai tap co san ({", ".join(FP.FEATURE_SETS)}); '
+                 f'neu day la vong do MOI thi phai kem --features f1,f2,...')
+    unknown = [f for f in feats_list if f not in FP.FEATURE_ARCHETYPE]
+    if unknown:
+        sys.exit(f'TU CHOI: {unknown} chua co trong FEATURE_ARCHETYPE (src/scm/feasibility_predictor.py). '
+                 f'Phai anh xa tinh nang -> archetype TRUOC khi dong bang, neu khong se khong co chain de du doan.')
 
     if not a.out:
         a.out = os.path.join(BASE, 'data', 'processed', 'frozen',
                              f'predictions_frozen_{a.limits}{"_P2" if a.p2_params else ""}'
                              f'{"_" + a.feature_set if a.feature_set != "main" else ""}{"_dev" if a.dev else ""}.json')
     p2 = None
-    if a.feature_set in ('indep', 'prosp'):
+    if a.feature_set != 'main':      # moi tap NGOAI main deu phai qua chot chan tien dang ky
         if not a.p2_params:
             sys.exit(f'--feature-set {a.feature_set} can --p2-params (tham so P2 da dong bang tu promo/recs)')
-        exist = [d for f in FP.FEATURE_SETS[a.feature_set] for d in glob.glob(os.path.join(a.ramp_dir, f'ramp_{f}_*'))]
+        exist = [d for f in feats_list for d in glob.glob(os.path.join(a.ramp_dir, f'ramp_{f}_*'))]
         if exist:
             sys.exit(f'TU CHOI: da co du lieu ramp cua tinh nang {a.feature_set} {exist[:2]}; dong bang bay gio khong con la du doan truoc.')
     if a.p2_params:
@@ -131,7 +148,7 @@ def main():
 
     # ---- du doan
     preds = []
-    for feature, scale in cells_for(a.feature_set):
+    for feature, scale in cells_for(a.feature_set, feats_list):
         feat = None if feature == 'base' else feature
         variants = [('P0', dict(mode='P0')), ('P1', dict(mode='P1'))]
         if feat:
@@ -194,7 +211,7 @@ def main():
     t = pd.DataFrame([{'cell': f"{p['feature']}x{p['scale']:g}", 'predictor': p['predictor'], 'R*': p['breakpoint_rps'],
                        'bottleneck': p['bottleneck']} for p in preds])
     print(t.pivot(index='cell', columns='predictor', values='R*').reindex(
-        [f"{f}x{s:g}" for f, s in cells_for(a.feature_set)]).to_string())
+        [f"{f}x{s:g}" for f, s in cells_for(a.feature_set, feats_list)]).to_string())
     print(f'\nfile: {a.out}\nSHA-256: {digest}')
 
 
