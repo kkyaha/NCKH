@@ -220,7 +220,50 @@ FEATURES = {
     'quickadd': {'req': ('POST', '/cart/quick'),         'anchor': 15, 'archetype': 'ADD_TO_CART'},
     'express':  {'req': ('POST', '/checkout/express'),   'anchor': 25, 'archetype': 'PLACE_ORDER'},
     'browse':   {'req': ('GET', '/catalogue/browse?tags=sport'), 'anchor': 10, 'archetype': 'GET_CATALOGUE'},
+    # VONG TIEN CUU 2 (docs/GIAO_THUC_VONG_2.md): 6 tinh nang do MOT agent mu cai (REQ-11..16).
+    # anchor = expected_delta_pct cua archetype gan nhat trong taxonomy, khai bao TRUOC khi probe.
+    'login':      {'req': ('POST', '/login/quick'),       'anchor': 10, 'archetype': 'LOGIN'},
+    'register':   {'req': ('POST', '/register/quick'),    'anchor': 10, 'archetype': 'REGISTER'},
+    'wishlist':   {'req': ('POST', '/wishlist'),          'anchor': 15, 'archetype': 'ADD_TO_CART'},
+    'catsearch':  {'req': ('GET', '/catalogue/search'),   'anchor': 10, 'archetype': 'GET_CATALOGUE'},
+    'account':    {'req': ('GET', '/account/overview'),   'anchor': 30, 'archetype': 'RECOMMEND_PRODUCTS'},
+    'preview':    {'req': ('GET', '/checkout/preview'),   'anchor': 10, 'archetype': 'VIEW_CART'},
+    # bo sung n=8 (REQ-17,18, agent mu KHAC): archetype gan nhat, khai bao TRUOC probe
+    'orderhist':  {'req': ('GET', '/orders/history'),     'anchor': 15, 'archetype': 'TRACK_PACKAGE'},
+    'related':    {'req': ('GET', '/catalogue/related'),  'anchor': 10, 'archetype': 'GET_CATALOGUE'},
+    # VONG 2c: hai tinh nang NANG, chon de MO RONG DAI diem gay (docs muc 5n: dai 127-195 qua hep
+    # nen mot hang so cung ngang mo hinh). Chon theo do NANG, KHONG chon theo do de doan dung.
+    'orderfull':  {'req': ('GET', '/orders/detailed'),    'anchor': 30, 'archetype': 'RECOMMEND_PRODUCTS'},
+    'reorder':    {'req': ('POST', '/orders/reorder'),    'anchor': 25, 'archetype': 'PLACE_ORDER'},
 }
+SEARCH_WORDS = ['sock', 'blue', 'sport', 'magic', 'red', 'geek', 'black', 'holy', 'green', 'formal']
+
+# ------------------------------------------------------------------ chot chan: nhiem TRANG THAI giua cac ramp
+# Ca mot chien dich dung CHUNG mot pool tai khoan tinh nang (FEAT_POOL_SIZE), va pool do KHONG duoc
+# dat lai giua cac ramp. Nen mot tinh nang SINH don hang se lam phinh lich su don cua chinh nhung
+# tai khoan ma mot tinh nang DOC lich su don se doc o ramp sau -> diem gay cua tinh nang doc phu
+# thuoc vao THU TU chay, khong phai vao ban than no.
+# Da xay ra that (2026-09-25, SS-PROSP4): `orderfull` cho 155-195 va 125-155 khi chay TRUOC cac ramp
+# `reorder`, roi tut xuong 80-100 va vo ngay o 40 req/s sau khi 2-3 ramp `reorder` da chay.
+# Cung ho voi bay da biet "dung chung tai khoan -> gio hang cong don -> 406".
+WRITES_ORDER_HISTORY = {'reorder', 'express'}          # moi lan dung tao them mot don cho tai khoan pool
+READS_ORDER_HISTORY = {'orderfull', 'orderhist', 'account', 'recs', 'track'}   # doc TOAN BO don cua khach
+
+
+def check_state_conflict(feats, strict=True):
+    """Tu choi (hoac canh bao) khi mot chien dich co CA tinh nang sinh don va tinh nang doc lich su don."""
+    w = sorted(WRITES_ORDER_HISTORY & set(feats))
+    r = sorted(READS_ORDER_HISTORY & set(feats))
+    if not (w and r):
+        return None
+    msg = (f"TU CHOI: chien dich co ca tinh nang SINH don {w} lan tinh nang DOC lich su don {r}. "
+           f"Pool tai khoan dung chung va khong duoc dat lai giua cac ramp, nen {r} se cham dan theo "
+           f"so ramp {w} da chay truoc do -> diem gay phu thuoc THU TU chay, phep do vo nghia. "
+           f"Hay tach thanh hai chien dich (hai --out-dir khac nhau).")
+    if strict:
+        sys.exit(msg)
+    print('[CANH BAO] ' + msg)
+    return msg
 
 
 class LoadGen:
@@ -238,7 +281,10 @@ class LoadGen:
         self.nonce = f'{int(time.time()):x}'
         self.pool = asyncio.Queue()
         self.feat_pool = []
+        self.feat_creds = []         # (user, pass) song song voi feat_pool -- cho tinh nang `login`
+        self.feat_orders = {}        # chi so pool -> id mot don DA DAT, cho tinh nang `reorder`
         self.n_reg = 0
+        self.n_freg = 0              # bo dem ten duy nhat cho tinh nang `register`
         self.record_lat = False      # che do ramp: luu (t_xong, do_tre, la_tinh_nang, la_loi) tung request
 
     @staticmethod
@@ -289,9 +335,14 @@ class LoadGen:
                     'longNum': '5544154011345918', 'expires': '08/23', 'ccv': '123'})
                 item = self.cheap[i % len(self.cheap)]
                 await self._req(jar, 'POST', '/cart', json={'id': item, 'quantity': 1})
-                await self._req(jar, 'POST', '/orders', json={})     # co lich su don cho recs/track/promo
+                r_ord = await self._req(jar, 'POST', '/orders', json={})   # co lich su don cho recs/track/promo
+                try:        # id don vua tao: `reorder` can mot don cu de mua lai
+                    self.feat_orders[i] = (r_ord.json() or {}).get('id')
+                except Exception:
+                    self.feat_orders[i] = None
                 await self._req(jar, 'POST', '/cart', json={'id': item, 'quantity': 1})   # don xoa gio -> them lai
                 self.feat_pool.append(jar)
+                self.feat_creds.append((u, 'pw123456'))
         await asyncio.gather(*[mk(i) for i in range(FEAT_POOL_SIZE)])
 
     async def feature_call(self, feat):
@@ -309,7 +360,33 @@ class LoadGen:
                 kw['json'] = {'id': self.rng.choice(self.items)}
             elif feat == 'express':
                 kw['json'] = {'id': self.rng.choice(self.cheap)}    # payment tu choi don > 100 USD
-            await self._req(self.rng.choice(self.feat_pool), method, url, _f=True, **kw)
+            elif feat == 'login':
+                pass                                              # chon tai khoan o duoi (can chi so)
+            elif feat == 'register':
+                self.n_freg += 1
+                u = f'lg{self.nonce}g{self.n_freg}'
+                kw['json'] = {'username': u, 'password': 'pw123456', 'email': f'{u}@x.io'}
+            elif feat == 'wishlist':
+                kw['json'] = {'id': self.rng.choice(self.items)}
+            elif feat == 'catsearch':
+                url = f'{url}?q={self.rng.choice(SEARCH_WORDS)}'
+            elif feat == 'related':
+                url = f'{url}?id={self.rng.choice(self.items)}'
+            elif feat == 'reorder':
+                pass                                              # can orderId cua chinh tai khoan, chon o duoi
+            idx = self.rng.randrange(len(self.feat_pool))
+            if feat == 'reorder':
+                cand = [i for i, o in self.feat_orders.items() if o]
+                if not cand:
+                    return                                        # chua co don nao de mua lai
+                idx = self.rng.choice(cand)
+                kw['json'] = {'orderId': self.feat_orders[idx]}
+            if feat == 'login':
+                u, pw = self.feat_creds[idx]
+                kw['json'] = {'username': u, 'password': pw}
+            # `register` la khach VANG LAI (jar trong): dang ky se doi danh tinh phien, khong duoc lam hong jar cua pool
+            jar = {} if feat == 'register' else self.feat_pool[idx]
+            await self._req(jar, method, url, _f=True, **kw)
         finally:
             st['inflight'] -= 1
 
@@ -1035,6 +1112,7 @@ def main():
     if a.report:
         return report(out_dir)
     feats = a.features.split(',')
+    check_state_conflict([f for f in feats if f != 'base'])
     bad = [f for f in feats if f != 'base' and f not in FEATURES]
     if bad:
         sys.exit(f'--features khong hop le: {bad} (chon trong base,{",".join(FEATURES)})')

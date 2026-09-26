@@ -180,6 +180,9 @@ def main(argv=None):
                     help='file k do duoc THEM (vd k_measured_v2.json); lap nhieu lan')
     ap.add_argument('--extra-split', action='append', default=[], metavar='NHAN=f1,f2',
                     help='them mot tap vao phan [2] (vd "tien cuu 2=login,register")')
+    ap.add_argument('--extra-x1-only', action='store_true',
+                    help='tap --extra-split chi tinh o x1 (MOT o moi tinh nang DOC LAP): cac cuong do cua cung tinh nang '
+                         'dung chung k/chain/ban cai nen KHONG phai quan sat doc lap (pseudo-replication)')
     a = ap.parse_args(argv)
 
     print('=' * 96)
@@ -232,12 +235,14 @@ def main(argv=None):
         if '=' not in spec:
             sys.exit(f'--extra-split sai dang: {spec!r}; can NHAN=f1,f2')
         nm, fl = spec.split('=', 1)
-        SPLITS.append((nm.strip(), [x.strip() for x in fl.split(',') if x.strip()]))
+        SPLITS.append((nm.strip() + (' [x1]' if a.extra_x1_only else ''), [x.strip() for x in fl.split(',') if x.strip()]))
     print(f"\n  {'split':10s} {'n':>2s} {'mo hinh':12s} {'|sai so| TB':>12s} {'KTC 95%':>20s}")
     for nm, feats in SPLITS:
         errs = {'P1': [], 'P2': [], 'P3': []}
         for (feat, sc), los in sorted(cells.items()):
             if feat not in feats:
+                continue
+            if a.extra_x1_only and nm.endswith(' [x1]') and sc != 1.0:
                 continue
             meas = float(np.median(los))
             k = KM[feat]['measured_per_use']

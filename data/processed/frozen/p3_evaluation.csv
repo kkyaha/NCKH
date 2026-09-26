@@ -59,3 +59,43 @@ dev (kiem tra khong hoi quy),recsx2,P3+chain,83.2,front-end,100.0,120.0,-16.8,SO
 "khoa (k~1 do duoc, ky vong khong doi)",trackx2,"P2 (c,x; k=1)",135.8,front-end,140.0,160.0,-3.0,SOM (an toan)
 "khoa (k~1 do duoc, ky vong khong doi)",trackx2,P3 (k do duoc),135.8,front-end,140.0,160.0,-3.0,SOM (an toan)
 "khoa (k~1 do duoc, ky vong khong doi)",trackx2,P3+chain,135.8,front-end,140.0,160.0,-3.0,SOM (an toan)
+TIEN CUU 2,accountx1,P1 (k=1),158.9,front-end,127.5,160.0,24.7,TRONG khoang
+TIEN CUU 2,accountx1,"P2 (c,x; k=1)",126.6,front-end,127.5,160.0,-0.7,SOM (an toan)
+TIEN CUU 2,accountx1,P3 (k do duoc),118.6,front-end,127.5,160.0,-7.0,SOM (an toan)
+TIEN CUU 2,accountx1,P3+chain,118.6,front-end,127.5,160.0,-7.0,SOM (an toan)
+TIEN CUU 2,catsearchx1,P1 (k=1),187.8,front-end,195.0,240.0,-3.7,SOM (an toan)
+TIEN CUU 2,catsearchx1,"P2 (c,x; k=1)",181.8,front-end,195.0,240.0,-6.8,SOM (an toan)
+TIEN CUU 2,catsearchx1,P3 (k do duoc),181.8,front-end,195.0,240.0,-6.8,SOM (an toan)
+TIEN CUU 2,catsearchx1,P3+chain,181.8,front-end,195.0,240.0,-6.8,SOM (an toan)
+TIEN CUU 2,loginx1,P1 (k=1),187.8,front-end,140.0,175.0,34.2,MUON (kha thi gia)
+TIEN CUU 2,loginx1,"P2 (c,x; k=1)",181.8,front-end,140.0,175.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,loginx1,P3 (k do duoc),181.8,front-end,140.0,175.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,loginx1,P3+chain,176.0,front-end,140.0,175.0,25.7,MUON (kha thi gia)
+TIEN CUU 2,loginx2,P1 (k=1),172.2,front-end,125.0,155.0,37.8,MUON (kha thi gia)
+TIEN CUU 2,loginx2,"P2 (c,x; k=1)",162.2,front-end,125.0,155.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,loginx2,P3 (k do duoc),162.2,front-end,125.0,155.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,loginx2,P3+chain,153.4,front-end,125.0,155.0,22.7,TRONG khoang
+TIEN CUU 2,orderhistx1,P1 (k=1),179.7,front-end,155.0,195.0,15.9,TRONG khoang
+TIEN CUU 2,orderhistx1,"P2 (c,x; k=1)",163.9,front-end,155.0,195.0,5.8,TRONG khoang
+TIEN CUU 2,orderhistx1,P3 (k do duoc),171.4,front-end,155.0,195.0,10.6,TRONG khoang
+TIEN CUU 2,orderhistx1,P3+chain,171.4,front-end,155.0,195.0,10.6,TRONG khoang
+TIEN CUU 2,previewx1,P1 (k=1),187.8,front-end,175.0,217.5,7.3,TRONG khoang
+TIEN CUU 2,previewx1,"P2 (c,x; k=1)",181.8,front-end,175.0,217.5,3.9,TRONG khoang
+TIEN CUU 2,previewx1,P3 (k do duoc),181.8,front-end,175.0,217.5,3.9,TRONG khoang
+TIEN CUU 2,previewx1,P3+chain,170.7,front-end,175.0,217.5,-2.5,SOM (an toan)
+TIEN CUU 2,registerx1,P1 (k=1),187.8,front-end,140.0,175.0,34.2,MUON (kha thi gia)
+TIEN CUU 2,registerx1,"P2 (c,x; k=1)",181.8,front-end,140.0,175.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,registerx1,P3 (k do duoc),181.8,front-end,140.0,175.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,registerx1,P3+chain,176.0,front-end,140.0,175.0,25.7,MUON (kha thi gia)
+TIEN CUU 2,registerx2,P1 (k=1),172.2,front-end,125.0,155.0,37.8,MUON (kha thi gia)
+TIEN CUU 2,registerx2,"P2 (c,x; k=1)",162.2,front-end,125.0,155.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,registerx2,P3 (k do duoc),162.2,front-end,125.0,155.0,29.8,MUON (kha thi gia)
+TIEN CUU 2,registerx2,P3+chain,153.4,front-end,125.0,155.0,22.7,TRONG khoang
+TIEN CUU 2,relatedx1,P1 (k=1),187.8,front-end,175.0,217.5,7.3,TRONG khoang
+TIEN CUU 2,relatedx1,"P2 (c,x; k=1)",181.8,front-end,175.0,217.5,3.9,TRONG khoang
+TIEN CUU 2,relatedx1,P3 (k do duoc),176.0,front-end,175.0,217.5,0.6,TRONG khoang
+TIEN CUU 2,relatedx1,P3+chain,176.0,front-end,175.0,217.5,0.6,TRONG khoang
+TIEN CUU 2,wishlistx1,P1 (k=1),179.7,front-end,140.0,175.0,28.3,MUON (kha thi gia)
+TIEN CUU 2,wishlistx1,"P2 (c,x; k=1)",163.9,front-end,140.0,175.0,17.1,TRONG khoang
+TIEN CUU 2,wishlistx1,P3 (k do duoc),156.7,front-end,140.0,175.0,11.9,TRONG khoang
+TIEN CUU 2,wishlistx1,P3+chain,156.7,front-end,140.0,175.0,11.9,TRONG khoang

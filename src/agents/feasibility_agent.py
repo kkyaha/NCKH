@@ -52,6 +52,14 @@ CI = (5, 95)
 # hien tai P0-P3 chi mo hinh CPU; tinh nang co nhieu luot goi backend (Sigma k lon) co rui ro
 # do tre hang doi khong duoc mo hinh (docs/DATA_FRAMEWORK.md muc 5h) -- nguong canh bao thuc nghiem.
 LATENCY_RISK_N_CALLS = 4
+# CONG THROTTLING (docs/DATA_FRAMEWORK.md muc 5c). Tien de "SLO vo quanh u* ~ 0.88" CHI duoc kiem
+# chung o han ngach >= 0.5 core (front-end, cau hinh RE2). O han ngach nho hon, CFS throttling la
+# co che rang buoc: cau hinh C1 (carts 0.15 core, JVM) va C2 (catalogue 0.08 core, Go) vo SLO o muc
+# su dung TRUNG BINH 20-45%, khong phai ~88% -- catalogue bi throttle 0% (<=80 req/s) -> 32% (160
+# req/s) va vo o 140 req/s thay vi ~223 nhu du doan. Duoi nguong nay bo du doan KHONG con hop le,
+# nen phai tra UNDECIDED thay vi mot con so tu tin. Nguong lay tu CAU HINH han ngach (quyet dinh o
+# Phase 0b), khong phai fit tren tinh nang nao.
+QUOTA_MIN_VALIDATED_CORES = 0.5
 
 
 @dataclass
@@ -65,6 +73,9 @@ class FeasibilityVerdict:
     extrapolating: bool
     extrap_nodes: List[str]
     latency_risk: bool                 # Sigma k >= LATENCY_RISK_N_CALLS -> CPU khong du, xem muc 5h
+    throttling_risk: bool              # han ngach cua node nghen < QUOTA_MIN_VALIDATED_CORES -> ngoai
+                                       # pham vi da kiem chung (che do CFS throttling), xem muc 5c
+    bottleneck_cores: float            # han ngach (core) cua node nghen, de nguoi doc tu kiem
     model: str                         # 'P2' hoac 'P3' (co k do duoc)
     k_source: str                      # 'gia dinh (k=1)' hoac 'do bang probe'
     cores_source: str                  # 'docker (song)' hoac 'limits.json (tinh, du phong)'
@@ -157,6 +168,16 @@ class NewFeatureFeasibilityAgent:
         mu = u[bott]
         verdict = ('INFEASIBLE' if mu > u_star else
                   ('MARGINAL' if mu > u_star * (1 - self.u_margin) else 'FEASIBLE'))
+        # CONG THROTTLING: han ngach cua node nghen quyet dinh bo du doan co hop le hay khong.
+        # Duoi nguong da kiem chung, CFS throttling (khong phai bao hoa CPU) lam vo SLO -> bo du doan
+        # nay khong ap dung duoc; tra UNDECIDED chu KHONG doan mot con so. Xem muc 5c.
+        bott_cores = float(cores.get(bott, float('nan')))
+        throttling_risk = bool(bott_cores < QUOTA_MIN_VALIDATED_CORES)
+        if throttling_risk:
+            verdict = 'UNDECIDED'
+            warn.append(f"node nghen '{bott}' co han ngach {bott_cores:g} core < "
+                        f"{QUOTA_MIN_VALIDATED_CORES:g} core -- vung CFS throttling, NGOAI pham vi da "
+                        f"kiem chung (docs/DATA_FRAMEWORK.md muc 5c); khong phan quyet kha thi.")
         mech = self.frozen['mechanism']
         extrap = [s for s in P.scored if W[s] > mech[s]['w_max_train']]
         arch = FP.SOCKSHOP_CALL_CHAINS[FP.FEATURE_ARCHETYPE.get(feature, feature)] if feature else None
@@ -168,6 +189,7 @@ class NewFeatureFeasibilityAgent:
             utilization_by_node={s: round(v, 4) for s, v in u.items()},
             extrapolating=bool(extrap), extrap_nodes=extrap,
             latency_risk=bool(n_calls >= LATENCY_RISK_N_CALLS),
+            throttling_risk=throttling_risk, bottleneck_cores=round(bott_cores, 4),
             model=('P3' if k else 'P2'), k_source=('do bang probe' if k else 'gia dinh (k=1)'),
             cores_source=cores_src, n_bootstrap=n_bootstrap, warnings=warn)
 

@@ -180,6 +180,12 @@ Thư mục `data/raw/SS-PROSP2` phải **tồn tại và rỗng** ở bước n�
 - [ ] `git add` + commit các file đóng băng **trước khi chạy ramp** (dấu thời gian của git là
       bằng chứng độc lập với hash)
 
+> **CẬP NHẬT 2026-09-25 (xem `DATA_FRAMEWORK.md` mục 5m):** cổng throttling **đã cài** trong
+> `feasibility_agent.py` (`QUOTA_MIN_VALIDATED_CORES`: trả `UNDECIDED` khi node nghẽn có hạn ngạch dưới
+> mức đã kiểm chứng; kiểm trên C1/C2 bằng `validate_throttling_gate.py`). Cổng nhu cầu phục vụ **đã được
+> đánh giá tiến cứu và cho kết quả ÂM**: cờ `latency_risk` (Σk ≥ 4) bỏ sót cả 2/2 ô sai hướng nguy hiểm và
+> báo động sai 1 ô; chưa có dạng thay thế nào đứng vững nên vẫn là việc mở. Nguyên văn cũ:
+>
 > ⚠️ **Cổng nhu cầu phục vụ và cổng throttling hiện CHƯA có script đóng băng riêng.** Nếu
 > muốn kiểm chứng tiến cứu cả hai cổng này, phải viết bước đóng băng cho chúng **trước** khi
 > đo. Nếu không kịp, chỉ báo cáo P1/P2/P3 là tiến cứu và ghi rõ hai cổng vẫn là hồi cứu.

@@ -64,8 +64,15 @@ def counts():
     return res
 
 
+LAST_USER = {}
+PROBE_ITEMS = []
+_REG_N = [0]
+SEARCH_WORDS = ['sock', 'blue', 'sport', 'magic', 'red', 'geek', 'black', 'holy', 'green', 'formal']
+
+
 def make_user(c):
     u = f'probe{time.time_ns() % 10**10}'
+    LAST_USER['u'] = u
     c.post('/register', json={'username': u, 'password': 'pw123456', 'email': u + '@x.io'})
     c.get('/login', auth=(u, 'pw123456'))
     c.post('/addresses', json={'street': 'S', 'number': '1', 'country': 'US', 'city': 'N', 'postcode': '1'})
@@ -73,8 +80,13 @@ def make_user(c):
     cat = c.get('/catalogue?size=50').json()
     cheap = [i['id'] for i in cat if i['price'] <= 50]
     c.post('/cart', json={'id': cheap[0], 'quantity': 1})
-    c.post('/orders', json={})                       # don cu (don xoa gio)
+    r_ord = c.post('/orders', json={})               # don cu (don xoa gio)
+    try:
+        LAST_USER['order'] = (r_ord.json() or {}).get('id')   # `reorder` can mot don cu de mua lai
+    except Exception:
+        LAST_USER['order'] = None
     c.post('/cart', json={'id': cheap[0], 'quantity': 1})
+    PROBE_ITEMS[:] = [i['id'] for i in cat]
     return cheap, [i['id'] for i in cat]
 
 
@@ -87,7 +99,28 @@ def body_for(feat, cheap, items):
         return {'id': items[1]}
     if feat == 'express':
         return {'id': cheap[1]}
+    # ---- vong tien cuu 2
+    if feat == 'login':
+        return {'username': LAST_USER['u'], 'password': 'pw123456'}
+    if feat == 'register':
+        _REG_N[0] += 1
+        u = f'pr{time.time_ns() % 10**10}x{_REG_N[0]}'
+        return {'username': u, 'password': 'pw123456', 'email': u + '@x.io'}
+    if feat == 'wishlist':
+        return {'id': items[_REG_N[0] % len(items)]}
+    if feat == 'reorder':
+        return {'orderId': LAST_USER.get('order')}
     return None
+
+
+def url_for(feat, url):
+    if feat == 'catsearch':
+        _REG_N[0] += 1
+        return f'{url}?q={SEARCH_WORDS[_REG_N[0] % len(SEARCH_WORDS)]}'
+    if feat == 'related':
+        _REG_N[0] += 1
+        return f'{url}?id={PROBE_ITEMS[_REG_N[0] % len(PROBE_ITEMS)]}'
+    return url
 
 
 def main():
@@ -112,6 +145,9 @@ def main():
         method, url = meta['req']
         tax = FP.SOCKSHOP_CALL_CHAINS[meta['archetype']]['services']
         codes, sample = Counter(), None
+        if feat in ('login', 'register', 'wishlist', 'account', 'preview', 'orderhist', 'related',
+                    'orderfull', 'reorder'):
+            cheap, items = make_user(c)                 # khach moi cho moi tinh nang (register doi danh tinh phien)
         counts()                                        # lam nong ket noi
         before = counts()
         for _ in range(a.n):
@@ -119,7 +155,7 @@ def main():
             b = body_for(feat, cheap, items)
             if b is not None:
                 kw['json'] = b
-            r = c.request(method, url, **kw)
+            r = c.request(method, url_for(feat, url), **kw)
             codes[r.status_code] += 1
             sample = sample or r.text[:200]
         after = counts()
@@ -148,7 +184,7 @@ def main():
             b2 = body_for(feat, cheap, items)
             kw2 = {'json': b2} if b2 is not None else {}
             t0 = time.perf_counter()
-            c.request(method, url, **kw2)
+            c.request(method, url_for(feat, url), **kw2)
             lat.append(time.perf_counter() - t0)
         lat.sort()
         q = lambda p: lat[min(len(lat) - 1, int(round(p * (len(lat) - 1))))]

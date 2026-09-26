@@ -111,3 +111,28 @@ def test_assess_without_train_dir_warns_instead_of_crashing(monkeypatch, agent):
     agent.train_dir = '/khong/ton/tai'
     v = agent.assess('recs', scale=1.0, L_peak=100, bootstrap=True, n_bootstrap=10)
     assert v.n_bootstrap == 0 and any('khong ton tai' in w for w in v.warnings)
+
+
+# ---------------- CONG THROTTLING (docs muc 5c): duoi han ngach da kiem chung -> UNDECIDED ----------------
+def test_throttling_gate_refuses_when_bottleneck_quota_below_validated(monkeypatch):
+    """C1/C2 that bai vi CFS throttling o han ngach nho: phai tra UNDECIDED, KHONG doan mot con so."""
+    def tiny_cores(services, *a, **kw):
+        # carts 0.15 core = cau hinh C1 da that bai; cac node khac giu 0.5 de carts la node nghen
+        return {s: (0.15 if s == 'carts' else 0.5) for s in services}, 'gia lap C1', []
+    monkeypatch.setattr(FA, 'read_live_cores', tiny_cores)
+    agent = FA.NewFeatureFeasibilityAgent()
+    v = agent.assess('promo', scale=1.0, L_peak=100, bootstrap=False)
+    assert v.bottleneck == 'carts' and v.bottleneck_cores == 0.15
+    assert v.throttling_risk is True
+    assert v.verdict == 'UNDECIDED', 'duoi nguong kiem chung thi khong duoc phan quyet kha thi'
+    assert any('throttling' in w.lower() for w in v.warnings)
+    # van bao cao con so de nguoi doc tu danh gia, nhung phan quyet phai la UNDECIDED
+    assert v.breakpoint_rps > 0
+
+
+def test_throttling_gate_does_not_fire_at_validated_quota(agent):
+    """RE2 (node nghen = front-end, 0.5 core) la vung DA kiem chung: cong khong duoc chan."""
+    v = agent.assess('promo', scale=1.0, L_peak=100, bootstrap=False)
+    assert v.bottleneck == 'front-end' and v.bottleneck_cores == 0.5
+    assert v.throttling_risk is False
+    assert v.verdict in ('FEASIBLE', 'MARGINAL', 'INFEASIBLE')

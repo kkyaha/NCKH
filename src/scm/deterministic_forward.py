@@ -30,7 +30,10 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import networkx as nx
-from dowhy.graph import get_ordered_predecessors
+try:                                        # dowhy >= 0.9
+    from dowhy.graph import get_ordered_predecessors
+except ImportError:                         # dowhy 0.8 (ban dang cai tren may nay)
+    from dowhy.gcm.graph import get_ordered_predecessors
 
 sys.path.insert(0, os.path.dirname(__file__))
 from queueing_regressor import QueueingLatencyRegressor  # noqa: E402

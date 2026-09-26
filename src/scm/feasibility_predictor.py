@@ -49,7 +49,12 @@ FEATURE_ARCHETYPE = {'promo': 'APPLY_PROMO_CODE', 'recs': 'RECOMMEND_PRODUCTS',
                      # tinh nang DOC LAP (cai boi agent rieng, khong thay taxonomy): REQ-06, REQ-05, REQ-10
                      'cartsum': 'VIEW_CART', 'quickadd': 'ADD_TO_CART', 'express': 'PLACE_ORDER',
                      # tinh nang KIEM DINH TIEN CUU cho P3 (mot agent DOC LAP khac, sau khi P0/P1/P2 da dong bang)
-                     'browse': 'GET_CATALOGUE'}
+                     'browse': 'GET_CATALOGUE',
+                     # VONG TIEN CUU 2 (agent mu cai REQ-11..16, docs/GIAO_THUC_VONG_2.md)
+                     'login': 'LOGIN', 'register': 'REGISTER', 'wishlist': 'ADD_TO_CART',
+                     'catsearch': 'GET_CATALOGUE', 'account': 'RECOMMEND_PRODUCTS', 'preview': 'VIEW_CART',
+                     'orderhist': 'TRACK_PACKAGE', 'related': 'GET_CATALOGUE',
+                     'orderfull': 'RECOMMEND_PRODUCTS', 'reorder': 'PLACE_ORDER'}
 FEATURE_SETS = {'main': ['promo', 'recs', 'track', 'review'], 'indep': ['cartsum', 'quickadd', 'express'], 'prosp': ['browse']}
 U_MARGIN = 0.10           # MARGINAL khi max_u trong 10% duoi u*
 

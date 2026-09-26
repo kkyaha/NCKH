@@ -35,6 +35,15 @@ LOCKED = ('track', 'review')
 INDEP = ('cartsum', 'quickadd', 'express')     # tinh nang DOC LAP (cai boi agent rieng)
 PROSP = ('browse',)                            # tinh nang KIEM DINH TIEN CUU P3 (agent doc lap khac)
 ANCHOR = {'promo': 20, 'recs': 30, 'track': 15, 'review': 10, 'cartsum': 10, 'quickadd': 15, 'express': 25, 'browse': 10}
+# Bang tren tung thieu tinh nang moi -> anchor=None -> scale luon 1.0 -> ramp x2 bi GOP NHAM vao o x1 (phat hien luc danh gia vong
+# tien cuu 2, 2026-09-25). Nguon su that duy nhat cua anchor la FEATURES trong harness (khai bao truoc probe) -> bo sung tu do.
+sys.path.insert(0, os.path.join(BASE, 'experiments', 'collect'))
+try:
+    import load_sweep_collect as _L
+    for _f, _m in _L.FEATURES.items():
+        ANCHOR.setdefault(_f, _m['anchor'])
+except Exception as _e:     # khong co httpx/docker khi chay tren may khac: giu bang cung, in canh bao
+    print(f'[CANH BAO] khong nap duoc FEATURES tu harness ({_e}); chi dung bang ANCHOR cung')
 
 
 def load_ramps(ramp_dir, features):
