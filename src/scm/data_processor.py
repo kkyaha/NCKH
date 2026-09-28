@@ -18,7 +18,8 @@ import numpy as np
 import pandas as pd
 
 warnings.filterwarnings('ignore')
-sys.stdout.reconfigure(encoding='utf-8')
+if hasattr(sys.stdout, 'reconfigure'):   # Jupyter: sys.stdout la OutStream, khong co reconfigure
+    sys.stdout.reconfigure(encoding='utf-8')
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 RAW_DATA_DIR = os.path.join(BASE_DIR, 'data', 'raw')
