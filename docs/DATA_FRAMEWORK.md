@@ -49,9 +49,12 @@ Phase 0 ramp thứ ba vi phạm ở 140 req/s trong khi hai ramp kia đạt SLO 
    (Phase 0), không đặt tay. ⚠ Mô hình đơn giản giả định SLO vỡ quanh `u ≈ 0,85`; phải đo.
 4. **Độ tin cậy** (tách khỏi phán quyết): nếu dự đoán vượt vùng dữ liệu train (P99, guard G7) → cờ ngoại suy/`UNDECIDED`.
 
-Mã hiện tại lệch khung ở 4 điểm (KHÔNG sửa ở giai đoạn này, sửa sau khi có dữ liệu):
-`capacity_agent.py:724` (baseline = trung bình gộp), `:1351` (trần = P99 của train),
-`parser_agent.py:451` (Δ = prior archetype), `assess_capacity:1491` (chain chỉ là mặt nạ chọn phạm vi).
+Mã hiện tại lệch khung ở 4 điểm: `capacity_agent.py:724` (baseline = trung bình gộp), `:1351`
+(trần = P99 của train), `parser_agent.py:451` (Δ = prior archetype), `assess_capacity:1491` (chain chỉ là
+mặt nạ chọn phạm vi). **ĐÃ GIẢI QUYẾT (2026-09-25, xem mục 5m(d)):** cả bốn nằm ở đường CŨ (`CapacityAgent`,
+dùng cho RQ1–RQ4); cơ chế đúng khung được cài thành thành phần RIÊNG (`feasibility_predictor` +
+`NewFeatureFeasibilityAgent`) và `assess_new_feature_requirement` trỏ tới đó, có test chốt
+(`tests/test_orchestrator_feasibility_path.py`). Không vá `capacity_agent` vì sẽ phá các số RQ1–RQ4 đã báo cáo.
 
 ## 3. Phạm vi node
 
@@ -345,6 +348,154 @@ Container hoá loadgen — vốn định sửa lỗi NAT — **tự nó gây ra 
 **Kết luận:** lớp NAT của Docker Desktop là có thật và đo được, nhưng độ lớn (~17ms) quá nhỏ so với ngưỡng SLO (250ms) để là nguyên nhân của các đợt trôi điểm gãy quan sát được — đó KHÔNG phải nguyên nhân gốc. Nguyên nhân trôi thực sự nhiều khả năng vẫn là tranh chấp tài nguyên host/VM tích luỹ sau phiên chạy dài (đã chẩn đoán ở mục 5j: restart Docker Desktop + `wsl --shutdown` phục hồi hoàn toàn điểm gãy về 240/260, tốt hơn cả mức gốc). Đã BỎ hướng container hoá harness: xoá `deploy/sockshop/harness-runner/`, revert phần đường dẫn `_host_path()`/`SS_HOST_ROOT` trong `load_sweep_collect.py` (giữ `SS_TARGET` như một override chung, không còn dùng để né NAT). Ghi vào Threats to Validity: độ trễ NAT ~17ms dưới tải là một giới hạn nhỏ, đã định lượng, của việc đo trên Windows/Docker Desktop thay vì Linux gốc.
 
 Chiến dịch đo sạch `SS-LIMITS-CLEAN` (baseline + cartsum + quickadd + express + browse, 2 cường độ × 2 lần lặp, trần RE2) được chạy LẠI TỪ ĐẦU trên host sau khi sửa xong, thay thế mọi số liệu độc lập/tiến cứu trước đó.
+
+## 5l. Vòng TIẾN CỨU 2 (2026-09-25) — 8 tính năng do 2 agent mù cài, dự đoán đóng băng trước ramp
+
+**Quy trình (đúng thứ tự runbook, mỗi đợt riêng):** agent mù (sandbox ngoài repo, chỉ thấy mã front-end gốc + API trung lập + yêu cầu) → probe `k` không dùng dữ liệu tải → đóng băng + commit → ramp. Đợt 1: 6 tính năng (REQ-11..16), commit `ccb932e`, mã agent SHA-256 `7c89c44c…`. Đợt 2: 2 tính năng (REQ-17,18, agent KHÁC, sandbox riêng không chứa mã đợt 1), commit `ed70378`, mã agent SHA-256 `13fcce5c…`. Tất cả gộp vào SS-PROSP2 (26 ramp, hợp đồng dữ liệu 0 FAIL). Ánh xạ archetype khai báo trước probe: login→LOGIN, register→REGISTER, wishlist→ADD_TO_CART, catsearch→GET_CATALOGUE, account→RECOMMEND_PRODUCTS, preview→VIEW_CART, orderhist→TRACK_PACKAGE, related→GET_CATALOGUE. `cartremove` bị thay bằng `preview` vì front-end gốc đã có `DELETE /cart/:id`.
+
+**Chuỗi gọi thật lệch taxonomy ở 5/8** (dữ liệu, không phải lỗi): login/register thêm `carts`; account thiếu `catalogue`, `user`×3; preview thêm `catalogue`+`user`; orderhist thiếu `shipping`; wishlist, catsearch, related khớp.
+
+**Sai số điểm gãy, n = 8 đơn vị độc lập (chỉ ô ×1, |sai số| TB so với `lo`, bootstrap 10.000 lần):** P1 19,5% [11,3; 27,5] · P2 12,2% [4,9; 20,4] · P3 12,6% [5,8; 20,3]. Theo ô (P3, dương = dự đoán MUỘN = khả thi giả): account −7,0 · catsearch −6,8 · related +0,6 · preview +3,9 · orderhist +10,6 · wishlist +11,9 · login +29,8 · register +29,8.
+
+**Các ô ×2 của login/register** (đã đóng băng trước): điểm gãy 125–155, dự đoán 162,2 → +29,8% cả hai, nhất quán với ×1. KHÔNG cộng vào n vì dùng chung `k`/chuỗi/bản cài (pseudo-replication).
+
+**Tiêu chí thành công:** số ô ≥ 6 (đạt, 8). **Khả thi giả KHÔNG đạt 0:** 2/8 ô (login, register) có dự đoán vượt cận trên vùng vỡ (181,8 > 175). 6/8 ô còn lại nằm trong hoặc sớm hơn khoảng đo; 0 báo động sai hướng nguy hiểm ở chiều ngược lại ở P0–P2 trên 2 ô đợt 2.
+
+**Giải thích login/register (ĐÃ SỬA):** trước đây tôi ghi một phần do baseline phiên chậm hơn. SAI: sau khi có 6 ramp `base` phân bố cả đầu lẫn cuối phiên, baseline đo 195–240 (dự đoán 206,6, +5,9%), nên nền chậm KHÔNG giải thích được +30%. Nguyên nhân còn lại chưa kiểm chứng (nghi: xác thực + merge giỏ ở gateway, chi phí gateway bị đánh giá thấp cho route ghi phiên).
+
+**Lỗi công cụ tìm thấy khi đánh giá (đã sửa, không đụng dự đoán/mô hình):** (1) `evaluate_frozen.py` có bảng `ANCHOR` cứng thiếu tính năng mới → cường độ luôn 1,0 → ramp ×2 bị gộp nhầm vào ô ×1 (vòng đầu chỉ có ×1 nên số đã báo không đổi); nay lấy anchor từ `FEATURES` của harness. (2) `statistical_rigor.py` đếm mỗi cường độ là một ô → n = 10; thêm `--extra-x1-only`. (3) `--base-repeats` KHÔNG có tác dụng ở chế độ `--ramp` (chỉ `--repeats`). (4) Mỗi lần chạy `--ramp` đánh số run từ 1 nên chạy vào thư mục cũ sẽ GHI ĐÈ; đợt bổ sung chạy vào thư mục riêng rồi đổi số run khi gộp.
+
+**Lỗi tài liệu của người thực hiện:** danh mục API ghi đơn hàng có trường `id`; backend thật chỉ có trong `_links.self.href`. Phát hiện ở REQ-17 (agent sửa theo đính chính thực tế, không kèm gợi ý thiết kế). REQ-15 (`account`, đợt 1) dùng cùng tài liệu sai và ĐÃ đo với mã nguyên bản → `recentOrders[].id` có thể thiếu; không sửa hậu kiểm (sẽ phá tính tiến cứu), chỉ ghi nhận: lỗi này không đổi chuỗi gọi backend.
+
+**Ổn định baseline:** 6 ramp `base` (đầu, giữa và cuối phiên): 195–240 ×4, 155–195 ×2 — không lệch quá một bậc lưới, không trôi đơn điệu. Hai lần lặp cùng một ô đôi khi lệch một bậc (wishlist, preview, login, register, account).
+
+**Hạn chế còn lại:** hai cổng (nhu cầu phục vụ, throttling) chưa có script đóng băng → hồi cứu. `tests/test_capacity_agent.py` lỗi thu thập từ trước (`dowhy.graph`), 47 test còn lại qua. n=8 vẫn nhỏ: khoảng tin cậy rộng, chỉ có ý nghĩa như bằng chứng tiến cứu về giới hạn mô hình. Mốc hồi quy 119,7 / 87,5 / 72,6 giữ nguyên.
+
+## 5m. Hoàn thiện sau vòng tiến cứu 2 (2026-09-25): chẩn đoán `login`/`register`, hai cổng, và 4 điểm lệch khung
+
+### (a) Vì sao `login`/`register` bị dự đoán muộn ~30% — đã khoanh vùng, chưa có cách sửa
+
+Bốn giả thuyết bị **bác bỏ bằng dữ liệu**, không phải bằng suy luận:
+
+| Giả thuyết | Bác bỏ bằng |
+|---|---|
+| Nền hệ thống chậm hơn lúc huấn luyện | 6 ramp `base` rải đầu/giữa/cuối phiên: đo 195–240, dự đoán 206,6 (+5,9%) |
+| Bội số gọi `k` (thứ P3 đã sửa) | `u_break` vs Σk: Spearman rho = **+0,01**, p = 0,98 (n = 8) |
+| Nhu cầu phục vụ lúc rảnh (D_feat) | rho = −0,64, p = 0,086 — đúng hướng nhưng **có phản ví dụ quyết định**: `track` có D_p99 = 139,0 ms (gần hệt `login` 138,7 ms) mà vỡ ở u = 0,859 chứ không phải 0,717 |
+| Băm mật khẩu ở `user` (trần 0,2 core) | đo trực tiếp lúc rảnh: `GET user/login` 1,5–2,4 ms, `POST user/register` 1,8–10 ms; p99 từng node tại bậc vỡ: `user` ≈ 0, front-end ≈ 200 ms |
+| Rò bộ nhớ phiên ở front-end | `review` tăng 151 MB mà vỡ ở 0,848; `login` tăng 87 MB vỡ ở 0,717 |
+
+**Khoanh vùng được:** độ trễ nằm **toàn bộ ở gateway**, và chính tuyến của tính năng là thứ vỡ trước.
+p99 của riêng request tính năng (`feat_p99`) so với p99 tổng: `login` 340 ms vs 171 ms ở 125 req/s
+(tuyến tính năng đã vượt SLO 250 ms trong khi hỗn hợp chung chưa), còn `catsearch` 113 ms vs 124 ms ở
+155 req/s (tuyến tính năng còn **nhanh hơn** nền). Đây đúng là cơ chế hàng đợi ở mục 5h, nay ở dạng nhẹ hơn.
+
+**Chưa giải quyết:** không tìm được biến **đo trước khi chạy tải** nào dự báo được nó — D_feat thất bại
+vì `track`, Σk thất bại vì rho ≈ 0. Đây là việc mở, và là giới hạn phải ghi vào Threats to Validity.
+
+### (b) Cổng nhu cầu phục vụ — đánh giá TIẾN CỨU, kết quả ÂM
+
+Cờ `latency_risk` (ngưỡng Σk ≥ 4) được commit **2026-09-22**, trước khi 8 tính năng tồn tại, nên chấm nó
+trên dữ liệu 2026-09-25 là tiến cứu thật. Chạy `evaluate_deployed_agent.py` trên chính đường ra của hệ
+(`FeasibilityVerdict`, không phải con số offline):
+
+- Phán quyết đúng **6/8** ở bậc còn đạt SLO và **6/8** ở bậc đã vỡ.
+- Sai hướng nguy hiểm **2/8**: `login`, `register` trả MARGINAL tại bậc đã vỡ.
+- Cờ `latency_risk`: bắt đúng **0**, bỏ sót **2**, báo động sai **1** (`account`).
+
+Kết luận: cờ dựa trên tổng số lượt gọi **không** bắt được đúng những ô mà phán quyết CPU thất bại —
+nhất quán với rho ≈ 0 ở mục (a). **Không** đặt ngưỡng mới cho cổng này: mọi dạng thử đều đã có phản ví dụ,
+và fit một ngưỡng trên chính 8 ô vừa xem thì không còn là dự đoán trước.
+
+### (c) Cổng throttling — ĐÃ CÀI, và lấp một lỗ hổng an toàn thật
+
+Trước đây bộ dự đoán vẫn trả một con số tự tin ở những trần CPU mà chính mục 5c đã chứng minh là nó sai.
+Nay `feasibility_agent.py` có `QUOTA_MIN_VALIDATED_CORES = 0.5`: nếu **node nghẽn** có hạn ngạch nhỏ hơn
+mức đã kiểm chứng thì phán quyết là `UNDECIDED` kèm cảnh báo, thay vì một con số. Ngưỡng lấy từ **cấu hình
+hạn ngạch** (quyết định ở Phase 0b), không fit trên tính năng nào.
+
+`validate_throttling_gate.py` trên dữ liệu đã có:
+
+| Cấu hình | Node nghẽn | Hạn ngạch | Cổng chặn | R\* dự đoán | Đo được | Throttle |
+|---|---|---|---|---|---|---|
+| RE2 | front-end | 0,50 | không | 206,6 | 195–240 | 0,189 |
+| C1 | carts | 0,15 | **có** | (189,1) | vỡ ở 40 | — |
+| C2 | catalogue | 0,08 | **có** | (223,1) | 120–140 | 0,118 |
+
+Cổng chặn đúng hai cấu hình đã thất bại và không chặn RE2, tức không mất độ phủ của các kết quả hợp lệ.
+Riêng C2, con số bị chặn là +86% khả thi giả. **Hạn chế:** chỉ xác nhận 0,5 core hợp lệ và ≤ 0,15 core
+không hợp lệ; khoảng (0,15; 0,5) chưa đo nên cổng còn bảo thủ trong khoảng đó.
+
+### (d) Bốn điểm mã lệch khung (mục 2) — giải quyết bằng KIẾN TRÚC, không vá `capacity_agent`
+
+Cả bốn điểm nằm trong đường **cũ** (`CapacityAgent` + StateGraph), dùng cho RQ1–RQ4. Vá lại chúng sẽ phá
+các số RQ1–RQ4 đã báo cáo mà không giúp gì cho phán quyết khả thi, vì cơ chế đúng khung đã được cài thành
+thành phần **riêng** (`feasibility_predictor` + `NewFeatureFeasibilityAgent`) và `assess_new_feature_requirement`
+trỏ thẳng tới đó. `tests/test_orchestrator_feasibility_path.py` (4 test) chốt điều này để nó không âm thầm
+quay lại đường cũ: trả `FeasibilityVerdict` của P2/P3, **không** gọi `CapacityAgent.assess_capacity`, tôn trọng
+Δ riêng của yêu cầu thay vì anchor của archetype, và từ chối rõ ràng khi archetype ngoài taxonomy.
+
+### (e) Test bị hỏng từ trước — đã sửa
+
+`tests/test_capacity_agent.py` không thu thập được vì `dowhy 0.8` trên máy này không có `dowhy.graph`
+(hàm nằm ở `dowhy.gcm.graph`). Đã cho import chịu cả hai phiên bản thay vì nâng cấp gói — `.venv` dùng chung
+site-packages với Python hệ thống nên nâng cấp sẽ ảnh hưởng toàn máy. **54 test qua** (trước: 47 chạy được
+trên tổng 50 + 4 test mới về đường đi + 2 test cổng throttling).
+
+## 5n. Hiệu năng dự phóng có thật sự tốt không? — kiểm tra trước khi viết bài (2026-09-25)
+
+Con số "sai số 12,6%" tự nó vô nghĩa nếu chưa so với dự đoán tầm thường và với nhiễu đo.
+`experiments/feasibility/assess_predictive_performance.py` trả lời ba câu, trên n = 8 ô độc lập (×1).
+
+### Sai số so với hai mốc nền
+
+| Mô hình | Sai số TB (%) | Trung vị (%) | Xấu nhất (%) | Sai số TB (req/s) |
+|---|---|---|---|---|
+| P1 (B4, mốc tiền đăng ký) | 19,4 | 20,3 | 34,1 | 28,0 |
+| **P2** | **12,2** | 6,3 | 29,9 | **18,0** |
+| P3 (k đo được) | 12,6 | 8,8 | 29,9 | 18,3 |
+| `const_base` (bỏ qua tính năng, luôn đoán điểm gãy baseline = 195) | 27,4 | 32,5 | 52,9 | 39,1 |
+| `const_oracle` (hằng số TỐT NHẤT có thể = trung vị của chính đáp án) | 11,5 | 10,5 | 24,4 | 19,1 |
+
+Wilcoxon ghép cặp trên cùng 8 ô (sàn của kiểm định với n = 8 là p = 0,0078):
+
+- **P2 hơn P1**: p = 0,0156. **P2 và P3 hơn `const_base`**: p = 0,0156.
+- **P3 không hơn P2**: p = 0,875 (P2 còn nhỉnh hơn về trung bình).
+- **P2/P3 không hơn `const_oracle`**: p = 1,000.
+
+### Ba kết luận
+
+1. **Có, so với mốc nền trung thực.** Mô hình hơn hẳn "bỏ qua tính năng" (27,4% → 12,2%) và hơn mốc
+   tiền đăng ký B4/P1 (19,4% → 12,2%), cả hai đều đạt gần sàn của kiểm định. Đây là điều có thể tuyên bố.
+
+2. **Chưa, theo nghĩa mạnh.** Mô hình **không** hơn một hằng số chọn khéo (11,5%). Dải điểm gãy thật của
+   8 tính năng chỉ từ 127,5 đến 195 req/s, đủ hẹp để một hằng số ở giữa cũng ngang ngửa. Nghĩa là dữ liệu
+   **chưa** chứng minh mô hình phân biệt được giữa các tính năng, mới chỉ chứng minh nó biết mức điển hình.
+   Lưu ý `const_oracle` dùng chính đáp án nên không dùng được trong thực tế; nó là **cận dưới** của mọi
+   hằng số, đặt ra để đo xem mô hình có đáng giá hơn một hằng số hay không.
+
+3. **P3 không còn cải thiện gì trong vòng này** (p = 0,875). Hiệu ứng bội số `k` — đóng góp chính của vòng
+   trước — không lặp lại ở đây, nhất quán với rho ≈ 0 giữa sai số và Σk ở mục 5m(a).
+
+### Sàn nhiễu của phép đo — giới hạn quan trọng nhất
+
+Biên độ giữa hai lần lặp cùng một ô (trung vị) là **21,4%**; lưới hình học ×1,25 nên một bậc ≈ 25%.
+Quy ra sai số chuẩn của giá trị đo mỗi ô là khoảng **13%**, tức **cùng bậc với sai số 12,6% của mô hình**.
+
+Hệ quả phải nói rõ khi viết bài:
+- Mức sai số **tuyệt đối** ("12,2%") **không phân giải được** dưới ~13% — không được trình bày như một
+  phép đo chính xác.
+- Các so sánh **ghép cặp** vẫn hợp lệ, vì mọi mô hình đều bị chấm trên cùng một giá trị đo của cùng một ô,
+  nên nhiễu là chung và bị khử khi lấy hiệu. Kết luận "P2 hơn P1, hơn `const_base`" đứng vững.
+- Ô `account` lệch tới 43% giữa hai lần lặp (155 so với 100) — ô kém tin cậy nhất.
+- Cách sửa: tăng số lần lặp mỗi ô (sai số chuẩn giảm theo √n) và/hoặc làm mịn lưới quanh điểm gãy.
+
+### Hướng nguy hiểm (tách riêng khỏi sai số trung bình)
+
+Số ô dự đoán hệ sống sót ở đúng mức tải đã làm vỡ SLO: **P1 3/8** (login, register, wishlist) →
+**P2 2/8** và **P3 2/8** (login, register). Hiệu chỉnh chi phí bỏ được một ô báo khả thi giả.
+Đây là chỉ số phải báo cáo riêng: một mô hình có sai số trung bình đẹp vẫn có thể báo KHẢ THI ở
+đúng mức tải đã làm vỡ hệ.
 
 ## 6. Chia dữ liệu và chống rò rỉ
 

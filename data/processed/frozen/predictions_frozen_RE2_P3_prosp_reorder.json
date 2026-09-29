@@ -1,0 +1,537 @@
+{
+ "base_frozen_file": "predictions_frozen_RE2_P2_prosp4.json",
+ "base_frozen_sha256": "822502dace44d6553aa1bb37aa7efe299dc9a256eade7828288c35f72ed2b9b4",
+ "code_sha256": {
+  "feasibility_predictor.py": "6a4ca9505d44169af689311ebff577a9578831e717f67c2b7db661bf685bf13f",
+  "freeze_p3_prospective.py": "9a6e09ef60adf37f950f8e010b786954ecd4f9e53afc11f05f3c87eba0338d06"
+ },
+ "created": "2026-09-25 22:00:16",
+ "feature": "reorder",
+ "k_source_file": "k_measured_v4new.json",
+ "k_source_sha256": "de77c9566e4d5b6b57c9dc3bda04f861db7926b864844d4e63300839013e8dd5",
+ "predictions": [
+  {
+   "bottleneck": "front-end",
+   "breakpoint_rps": 81.4,
+   "chain": [
+    "front-end",
+    "catalogue",
+    "user",
+    "carts",
+    "orders",
+    "payment",
+    "shipping"
+   ],
+   "feature": "reorder",
+   "grid": {
+    "100": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.0744,
+     "u": {
+      "carts": 0.5377,
+      "catalogue": 0.0928,
+      "front-end": 1.0744,
+      "orders": 0.2969,
+      "user": 0.7747
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "120": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.2848,
+     "u": {
+      "carts": 0.6449,
+      "catalogue": 0.1111,
+      "front-end": 1.2848,
+      "orders": 0.3557,
+      "user": 0.9291
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "140": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.4953,
+     "u": {
+      "carts": 0.752,
+      "catalogue": 0.1294,
+      "front-end": 1.4953,
+      "orders": 0.4144,
+      "user": 1.0835
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "160": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.7057,
+     "u": {
+      "carts": 0.8592,
+      "catalogue": 0.1478,
+      "front-end": 1.7057,
+      "orders": 0.4731,
+      "user": 1.2379
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "180": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.9161,
+     "u": {
+      "carts": 0.9663,
+      "catalogue": 0.1661,
+      "front-end": 1.9161,
+      "orders": 0.5319,
+      "user": 1.3923
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "200": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 2.1265,
+     "u": {
+      "carts": 1.0735,
+      "catalogue": 0.1844,
+      "front-end": 2.1265,
+      "orders": 0.5906,
+      "user": 1.5467
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "220": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 2.3369,
+     "u": {
+      "carts": 1.1807,
+      "catalogue": 0.2027,
+      "front-end": 2.3369,
+      "orders": 0.6494,
+      "user": 1.7011
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "240": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 2.5473,
+     "u": {
+      "carts": 1.2878,
+      "catalogue": 0.221,
+      "front-end": 2.5473,
+      "orders": 0.7081,
+      "user": 1.8555
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "260": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 2.7577,
+     "u": {
+      "carts": 1.395,
+      "catalogue": 0.2394,
+      "front-end": 2.7577,
+      "orders": 0.7669,
+      "user": 2.0099
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "40": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "user",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 0.4432,
+     "u": {
+      "carts": 0.2162,
+      "catalogue": 0.0378,
+      "front-end": 0.4432,
+      "orders": 0.1207,
+      "user": 0.3114
+     },
+     "verdict": "FEASIBLE"
+    },
+    "60": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 0.6536,
+     "u": {
+      "carts": 0.3234,
+      "catalogue": 0.0561,
+      "front-end": 0.6536,
+      "orders": 0.1794,
+      "user": 0.4658
+     },
+     "verdict": "FEASIBLE"
+    },
+    "80": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 0.864,
+     "u": {
+      "carts": 0.4306,
+      "catalogue": 0.0745,
+      "front-end": 0.864,
+      "orders": 0.2382,
+      "user": 0.6202
+     },
+     "verdict": "MARGINAL"
+    }
+   },
+   "k_used": {
+    "carts": 3.0,
+    "catalogue": 1.0,
+    "front-end": 1.0,
+    "orders": 2.0,
+    "payment": 1.0,
+    "shipping": 1.0,
+    "user": 6.0
+   },
+   "predictor": "P3",
+   "scale": 1.0
+  },
+  {
+   "bottleneck": "front-end",
+   "breakpoint_rps": 50.7,
+   "chain": [
+    "front-end",
+    "catalogue",
+    "user",
+    "carts",
+    "orders",
+    "payment",
+    "shipping"
+   ],
+   "feature": "reorder",
+   "grid": {
+    "100": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.7122,
+     "u": {
+      "carts": 0.9352,
+      "catalogue": 0.1219,
+      "front-end": 1.7122,
+      "orders": 0.55,
+      "user": 1.437
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "120": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 2.0502,
+     "u": {
+      "carts": 1.1218,
+      "catalogue": 0.1461,
+      "front-end": 2.0502,
+      "orders": 0.6594,
+      "user": 1.7239
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "140": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 2.3882,
+     "u": {
+      "carts": 1.3085,
+      "catalogue": 0.1703,
+      "front-end": 2.3882,
+      "orders": 0.7687,
+      "user": 2.0107
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "160": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 2.7262,
+     "u": {
+      "carts": 1.4951,
+      "catalogue": 0.1944,
+      "front-end": 2.7262,
+      "orders": 0.8781,
+      "user": 2.2976
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "180": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 3.0641,
+     "u": {
+      "carts": 1.6818,
+      "catalogue": 0.2186,
+      "front-end": 3.0641,
+      "orders": 0.9874,
+      "user": 2.5845
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "200": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 3.4021,
+     "u": {
+      "carts": 1.8684,
+      "catalogue": 0.2427,
+      "front-end": 3.4021,
+      "orders": 1.0968,
+      "user": 2.8714
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "220": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 3.7401,
+     "u": {
+      "carts": 2.0551,
+      "catalogue": 0.2669,
+      "front-end": 3.7401,
+      "orders": 1.2062,
+      "user": 3.1582
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "240": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 4.0781,
+     "u": {
+      "carts": 2.2417,
+      "catalogue": 0.291,
+      "front-end": 4.0781,
+      "orders": 1.3155,
+      "user": 3.4451
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "260": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "catalogue",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 4.416,
+     "u": {
+      "carts": 2.4284,
+      "catalogue": 0.3152,
+      "front-end": 4.416,
+      "orders": 1.4249,
+      "user": 3.732
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "40": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 0.6983,
+     "u": {
+      "carts": 0.3752,
+      "catalogue": 0.0495,
+      "front-end": 0.6983,
+      "orders": 0.2219,
+      "user": 0.5764
+     },
+     "verdict": "FEASIBLE"
+    },
+    "60": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.0363,
+     "u": {
+      "carts": 0.5619,
+      "catalogue": 0.0736,
+      "front-end": 1.0363,
+      "orders": 0.3313,
+      "user": 0.8632
+     },
+     "verdict": "INFEASIBLE"
+    },
+    "80": {
+     "bottleneck": "front-end",
+     "extrap_nodes": [
+      "front-end",
+      "user",
+      "carts",
+      "orders"
+     ],
+     "extrapolating": true,
+     "max_u": 1.3743,
+     "u": {
+      "carts": 0.7485,
+      "catalogue": 0.0978,
+      "front-end": 1.3743,
+      "orders": 0.4406,
+      "user": 1.1501
+     },
+     "verdict": "INFEASIBLE"
+    }
+   },
+   "k_used": {
+    "carts": 3.0,
+    "catalogue": 1.0,
+    "front-end": 1.0,
+    "orders": 2.0,
+    "payment": 1.0,
+    "shipping": 1.0,
+    "user": 6.0
+   },
+   "predictor": "P3",
+   "scale": 2.0
+  }
+ ],
+ "stage": "P3 TIEN CUU: k do bang probing SAU khi agent doc lap viet code, TRUOC khi chay ramp/xem dap an cho reorder"
+}
