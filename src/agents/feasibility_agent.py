@@ -4,7 +4,7 @@ NewFeatureFeasibilityAgent -- tich hop feasibility_predictor.py vao he thong
 =============================================================================
 KHONG dung chung class/pipeline voi CapacityAgent (train() tren du lieu RCAEval fault-injection,
 phuc vu RQ1-RQ12 da cong bo). Day la mot agent RIENG cho dung mot cau hoi khac: "them tinh nang
-CHUA TUNG CO thi he thong con dap ung SLO o tai dinh L khong" (docs/DATA_FRAMEWORK.md muc 1),
+CHUA TUNG CO thi he thong con dap ung SLO o tai dinh L khong" (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 1),
 tach biet de KHONG dung cham vao pipeline/test da co (an toan tai hien cac RQ da cong bo).
 
 Ba diem hoan thien so voi feasibility_predictor.py dung doc lap (script):
@@ -20,7 +20,7 @@ Ba diem hoan thien so voi feasibility_predictor.py dung doc lap (script):
 
 Han che con lai (chua giai quyet, ghi vao Threats to Validity):
   * hieu ung hang doi/do tre duoi tu quat-ra nhieu backend KHONG duoc mo hinh (xem
-    docs/DATA_FRAMEWORK.md muc 5h) -- assess() luon tra `latency_risk` de nguoi doc tu canh giac,
+    papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 5h) -- assess() luon tra `latency_risk` de nguoi doc tu canh giac,
     khong tinh vao phan quyet CPU.
   * k_s (boi so goi) mac dinh 1 tru khi nguoi goi tu do va truyen vao (vd bang probe_feature_chain.py).
 """
@@ -50,9 +50,9 @@ DOCKER_PROJECT = 'sockshop'
 BOOTSTRAP_B = 200
 CI = (5, 95)
 # hien tai P0-P3 chi mo hinh CPU; tinh nang co nhieu luot goi backend (Sigma k lon) co rui ro
-# do tre hang doi khong duoc mo hinh (docs/DATA_FRAMEWORK.md muc 5h) -- nguong canh bao thuc nghiem.
+# do tre hang doi khong duoc mo hinh (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 5h) -- nguong canh bao thuc nghiem.
 LATENCY_RISK_N_CALLS = 4
-# CONG THROTTLING (docs/DATA_FRAMEWORK.md muc 5c). Tien de "SLO vo quanh u* ~ 0.88" CHI duoc kiem
+# CONG THROTTLING (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 5c). Tien de "SLO vo quanh u* ~ 0.88" CHI duoc kiem
 # chung o han ngach >= 0.5 core (front-end, cau hinh RE2). O han ngach nho hon, CFS throttling la
 # co che rang buoc: cau hinh C1 (carts 0.15 core, JVM) va C2 (catalogue 0.08 core, Go) vo SLO o muc
 # su dung TRUNG BINH 20-45%, khong phai ~88% -- catalogue bi throttle 0% (<=80 req/s) -> 32% (160
@@ -177,7 +177,7 @@ class NewFeatureFeasibilityAgent:
             verdict = 'UNDECIDED'
             warn.append(f"node nghen '{bott}' co han ngach {bott_cores:g} core < "
                         f"{QUOTA_MIN_VALIDATED_CORES:g} core -- vung CFS throttling, NGOAI pham vi da "
-                        f"kiem chung (docs/DATA_FRAMEWORK.md muc 5c); khong phan quyet kha thi.")
+                        f"kiem chung (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 5c); khong phan quyet kha thi.")
         mech = self.frozen['mechanism']
         extrap = [s for s in P.scored if W[s] > mech[s]['w_max_train']]
         arch = FP.SOCKSHOP_CALL_CHAINS[FP.FEATURE_ARCHETYPE.get(feature, feature)] if feature else None

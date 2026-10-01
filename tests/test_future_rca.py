@@ -1,9 +1,12 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src', 'scm')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'experiments', 'legacy')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'experiments', 'model_eval')))
+_GOC = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/
+while _GOC != os.path.dirname(_GOC) and not os.path.isdir(os.path.join(_GOC, 'src')):
+    _GOC = os.path.dirname(_GOC)
+sys.path.append(os.path.join(_GOC, 'src', 'scm'))
+sys.path.insert(0, os.path.join(_GOC, 'experiments'))
+import _paths  # noqa: E402,F401  -- dua MOI nhom script cua ca hai bai vao sys.path
 
 from data_processor import load_normal_data
 from future_rca import OODGuard

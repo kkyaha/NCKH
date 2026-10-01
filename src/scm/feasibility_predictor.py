@@ -2,7 +2,7 @@
 """
 BO DU DOAN KHA THI -- P0 / P1 (KHONG toi uu; dung de DONG BANG du doan truoc khi do dap an)
 ============================================================================================
-Khung: docs/DATA_FRAMEWORK.md muc 1-2. Cau hoi: them mot tinh nang CHUA TUNG CO thi he thong con
+Khung: papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 1-2. Cau hoi: them mot tinh nang CHUA TUNG CO thi he thong con
 dap ung SLO o tai dinh L khong, va node nao nghen truoc.
 
 Co che (hoc CHI tu du lieu KHONG co tinh nang):
@@ -43,14 +43,14 @@ from request_router import SOCKSHOP_CALL_CHAINS  # noqa: E402  (nguon su that du
 
 GATEWAY = 'front-end'
 SERVICES = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shipping']
-SCORED = ['front-end', 'catalogue', 'user', 'carts', 'orders']      # docs/DATA_FRAMEWORK.md muc 3
+SCORED = ['front-end', 'catalogue', 'user', 'carts', 'orders']      # papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 3
 FEATURE_ARCHETYPE = {'promo': 'APPLY_PROMO_CODE', 'recs': 'RECOMMEND_PRODUCTS',
                      'track': 'TRACK_PACKAGE', 'review': 'WRITE_PRODUCT_REVIEW',
                      # tinh nang DOC LAP (cai boi agent rieng, khong thay taxonomy): REQ-06, REQ-05, REQ-10
                      'cartsum': 'VIEW_CART', 'quickadd': 'ADD_TO_CART', 'express': 'PLACE_ORDER',
                      # tinh nang KIEM DINH TIEN CUU cho P3 (mot agent DOC LAP khac, sau khi P0/P1/P2 da dong bang)
                      'browse': 'GET_CATALOGUE',
-                     # VONG TIEN CUU 2 (agent mu cai REQ-11..16, docs/GIAO_THUC_VONG_2.md)
+                     # VONG TIEN CUU 2 (agent mu cai REQ-11..16, papers/p1_du_phong/docs/GIAO_THUC_VONG_2.md)
                      'login': 'LOGIN', 'register': 'REGISTER', 'wishlist': 'ADD_TO_CART',
                      'catsearch': 'GET_CATALOGUE', 'account': 'RECOMMEND_PRODUCTS', 'preview': 'VIEW_CART',
                      'orderhist': 'TRACK_PACKAGE', 'related': 'GET_CATALOGUE',

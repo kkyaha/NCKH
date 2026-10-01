@@ -4901,7 +4901,7 @@ OnlineBoutique,emailservice,loss,2,fault5,chi_cpu,KHONG-DOC,5,3,mang
 OnlineBoutique,emailservice,loss,2,fault5,chi_latency,BARO,5,1,mang
 OnlineBoutique,emailservice,loss,2,fault5,chi_latency,MEANSHIFT,5,1,mang
 OnlineBoutique,emailservice,loss,2,fault5,chi_latency,KHONG-DOC,5,3,mang
-OnlineBoutique,emailservice,loss,2,fault5,chi_workload,BARO,5,1,mang
+OnlineBoutique,emailservice,loss,2,fault5,chi_workload,BARO,5,2,mang
 OnlineBoutique,emailservice,loss,2,fault5,chi_workload,MEANSHIFT,5,1,mang
 OnlineBoutique,emailservice,loss,2,fault5,chi_workload,KHONG-DOC,5,3,mang
 OnlineBoutique,emailservice,loss,2,fault5,moi_cot,BARO,5,1,mang
@@ -4913,7 +4913,7 @@ OnlineBoutique,emailservice,loss,2,app,chi_cpu,KHONG-DOC,10,5,mang
 OnlineBoutique,emailservice,loss,2,app,chi_latency,BARO,10,1,mang
 OnlineBoutique,emailservice,loss,2,app,chi_latency,MEANSHIFT,10,1,mang
 OnlineBoutique,emailservice,loss,2,app,chi_latency,KHONG-DOC,10,5,mang
-OnlineBoutique,emailservice,loss,2,app,chi_workload,BARO,11,1,mang
+OnlineBoutique,emailservice,loss,2,app,chi_workload,BARO,11,2,mang
 OnlineBoutique,emailservice,loss,2,app,chi_workload,MEANSHIFT,11,1,mang
 OnlineBoutique,emailservice,loss,2,app,chi_workload,KHONG-DOC,11,5,mang
 OnlineBoutique,emailservice,loss,2,app,moi_cot,BARO,11,1,mang
@@ -4925,7 +4925,7 @@ OnlineBoutique,emailservice,loss,2,all,chi_cpu,KHONG-DOC,11,5,mang
 OnlineBoutique,emailservice,loss,2,all,chi_latency,BARO,10,1,mang
 OnlineBoutique,emailservice,loss,2,all,chi_latency,MEANSHIFT,10,1,mang
 OnlineBoutique,emailservice,loss,2,all,chi_latency,KHONG-DOC,10,5,mang
-OnlineBoutique,emailservice,loss,2,all,chi_workload,BARO,11,1,mang
+OnlineBoutique,emailservice,loss,2,all,chi_workload,BARO,11,2,mang
 OnlineBoutique,emailservice,loss,2,all,chi_workload,MEANSHIFT,11,1,mang
 OnlineBoutique,emailservice,loss,2,all,chi_workload,KHONG-DOC,11,5,mang
 OnlineBoutique,emailservice,loss,2,all,moi_cot,BARO,12,2,mang
@@ -9413,7 +9413,7 @@ TrainTicket,ts-travel-service,loss,1,app,chi_cpu,KHONG-DOC,28,25,mang
 TrainTicket,ts-travel-service,loss,1,app,chi_latency,BARO,26,1,mang
 TrainTicket,ts-travel-service,loss,1,app,chi_latency,MEANSHIFT,28,2,mang
 TrainTicket,ts-travel-service,loss,1,app,chi_latency,KHONG-DOC,28,25,mang
-TrainTicket,ts-travel-service,loss,1,app,chi_workload,BARO,28,18,mang
+TrainTicket,ts-travel-service,loss,1,app,chi_workload,BARO,28,19,mang
 TrainTicket,ts-travel-service,loss,1,app,chi_workload,MEANSHIFT,28,14,mang
 TrainTicket,ts-travel-service,loss,1,app,chi_workload,KHONG-DOC,28,25,mang
 TrainTicket,ts-travel-service,loss,1,app,moi_cot,BARO,28,5,mang
@@ -9425,7 +9425,7 @@ TrainTicket,ts-travel-service,loss,1,all,chi_cpu,KHONG-DOC,68,60,mang
 TrainTicket,ts-travel-service,loss,1,all,chi_latency,BARO,26,1,mang
 TrainTicket,ts-travel-service,loss,1,all,chi_latency,MEANSHIFT,28,2,mang
 TrainTicket,ts-travel-service,loss,1,all,chi_latency,KHONG-DOC,28,25,mang
-TrainTicket,ts-travel-service,loss,1,all,chi_workload,BARO,28,18,mang
+TrainTicket,ts-travel-service,loss,1,all,chi_workload,BARO,28,19,mang
 TrainTicket,ts-travel-service,loss,1,all,chi_workload,MEANSHIFT,28,14,mang
 TrainTicket,ts-travel-service,loss,1,all,chi_workload,KHONG-DOC,28,25,mang
 TrainTicket,ts-travel-service,loss,1,all,moi_cot,BARO,68,11,mang

@@ -1,11 +1,24 @@
 # Mục lục `experiments/`
+
+> ⚠️ **Đã tách hai bài.** Các nhóm bên dưới **không còn** nằm trong `experiments/`:
+>
+> | nhóm | vị trí mới |
+> |---|---|
+> | `collect/`, `feasibility/`, `edges/`, `model_eval/`, `parser/`, `datasets/` | `papers/p1_du_phong/experiments/` |
+> | `rq6_*`, `recalibrate_risk_threshold`, `baro_on_real_rcaeval_scenarios` | `papers/p2_khop_tang/experiments/` |
+> | `rq7`–`rq12`, `alibaba_*`, `future_rca`, `rq_joint_gateway_gap` | `experiments/chua_phan_loai/` |
+>
+> Chỉ mục theo bài, có kèm bảng thực nghiệm → script → CSV:
+> [bài 1](../papers/p1_du_phong/README.md) · [bài 2](../papers/p2_khop_tang/README.md)
+>
+> Tên file dưới đây vẫn đúng; chỉ đường dẫn thư mục là đã đổi.
 Gom theo **vai trò**. Mỗi script có docstring đầy đủ ở đầu file — dòng dưới chỉ là tóm tắt.
 > Các file import lẫn nhau dùng một dòng `sys.path.insert` trỏ về `experiments/`, nên chạy
 > được từ bất kỳ thư mục con nào: `python experiments/<nhóm>/<file>.py`
 
 ## `collect/` — Thu thập dữ liệu — chạy trên hệ thống THẬT đang chạy
 *Cần Sock Shop (hoặc hệ đích) đang lên. Không chạy được offline.*
-- **`data_contract_check.py`** — KIEM TRA HOP DONG DU LIEU (docs/DATA_FRAMEWORK.md muc 4 va 6)
+- **`data_contract_check.py`** — KIEM TRA HOP DONG DU LIEU (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 4 va 6)
 - **`download_onlineboutique_data.py`** — DOWNLOAD ONLINE BOUTIQUE TELEMETRY DATA FROM HUGGING FACE
 - **`download_trainticket_data.py`** — DOWNLOAD TRAIN TICKET TELEMETRY DATA FROM HUGGING FACE
 - **`forecast_traces.py`** — BO SINH CHUOI TAI CHO BAI TOAN FORECASTING (thuan numpy, khong can Docker)
@@ -28,7 +41,7 @@ Gom theo **vai trò**. Mỗi script có docstring đầy đủ ở đầu file �
 - **`cpu_mape_theoretical_floor.py`** — "TRAN LY THUYET" cua CPU MAPE: neu dung ham workload->CPU TOT NHAT CO THE
 - **`evaluation_suite.py`** — HỆ THỐNG ĐÁNH GIÁ TỔNG HỢP (EVALUATION SUITE) CHO SCM
 - **`forecast_data_audit.py`** — KIEM DINH DU LIEU THEO CHUAN FORECASTING
-- **`make_figures.py`** — SINH HINH CHO BAI BAO -> docs/figures/*.pdf
+- **`make_figures.py`** — SINH HINH CHO BAI BAO -> papers/p1_du_phong/docs/figures/*.pdf
 - **`model_comparison.py`** — Model Comparison: SCM vs Linear Regression vs Gradient Boosting vs Gaussian Process
 - **`rq2_statistical_analysis.py`** — RQ2 statistical analysis, corrected
 - **`scm_pipeline.py`** — SCM Impact Prediction Pipeline - Structured Evaluation

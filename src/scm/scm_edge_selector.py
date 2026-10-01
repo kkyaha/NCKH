@@ -31,7 +31,7 @@ Pha 4 (validate_ood_safety) tai lap experiments/backpressure_edge_ood_safety_tes
 o dang ham dung lai duoc: quet do() qua nhieu delta workload, dem so ca
 sign-inversion VOI vs KHONG co tung canh ung vien -- day la phan "toi uu
 phep do" thuc su: khong con canh nao duoc dua vao do() model chi vi MAPE
-held-out giam (bai hoc tu paper, xem docs/paper_draft.tex Section
+held-out giam (bai hoc tu paper, xem papers/p1_du_phong/docs/paper_draft.tex Section
 "The Backpressure Extension: A Cautionary Case"), ma phai qua ca gate an
 toan duoi can thiep that.
 

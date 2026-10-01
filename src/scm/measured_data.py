@@ -7,7 +7,7 @@ Vi sao can lop nay (moi muc duoi day la mot khiem khuyet DA DO, khong phai lo xa
   1. HAI kieu long thu muc. `SS-TRAIN`, `SS-LIMITS*`, `SS-VERIFY` long 2 cap
      (`<scenario>/<run>/simple_metrics.csv`); `SS-PROSP2` long 3 cap
      (`<batch>/<scenario>/<run>/...`). Ca `data_processor.load_multi_service_data()`
-     LAN `experiments/collect/data_contract_check.py` (glob `*/*/simple_metrics.csv`)
+     LAN `papers/p1_du_phong/experiments/collect/data_contract_check.py` (glob `*/*/simple_metrics.csv`)
      deu MU voi kieu 3 cap: goi loader tren 'data/raw/SS-PROSP2' tra ve None.
 
   2. Vai (role) la thuoc tinh CUA HANG, khong phai cua thu muc. `SS-LIMITS` chua
@@ -17,7 +17,7 @@ Vi sao can lop nay (moi muc duoi day la mot khiem khuyet DA DO, khong phai lo xa
      tap dap an cua RQ5.
 
   3. Hang warm-up. ~36-38% hang moi goc co `gt_step_warm == 1`. Hop dong du lieu
-     (docs/DATA_FRAMEWORK.md muc 1, dinh nghia nhan) tinh tren 60% CUOI moi bac.
+     (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 1, dinh nghia nhan) tinh tren 60% CUOI moi bac.
 
   4. Hang sau vi pham SLO (`gt_step_violated == 1`): 12%-100% tuy goc. `SS-LIMITS-C1`
      co ti le 1.000 -- MOI hang deu sau vi pham.
@@ -78,10 +78,10 @@ WHY = {
     'invalid_limits': 'cau hinh tran _INVALID (deploy/sockshop/limits.json:_status): '
                       'han ngach nho -> CFS throttling, SLO vo o u~20-45% thay vi ~88%, ngoai pham vi mo hinh',
     'unlabelled':     'khong co cot gt_* nao + co cot la load_level '
-                      '(experiments/collect/data_contract_check.py --role train: 1 FAIL) -> khong biet tran/tinh nang',
+                      '(papers/p1_du_phong/experiments/collect/data_contract_check.py --role train: 1 FAIL) -> khong biet tran/tinh nang',
     'empty_root':     'goc khong co run nao (chi con mot tep collector_*.csv roi)',
     'locked':         'thuoc tap KHOA LOCKED_FEATURES (data_contract_check.py:38), khong dung khi chinh mo hinh',
-    'has_feature':    'run co luu luong tinh nang -> khong phai du lieu hoc co che (docs/DATA_FRAMEWORK.md muc 5 pha A)',
+    'has_feature':    'run co luu luong tinh nang -> khong phai du lieu hoc co che (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 5 pha A)',
     'no_feature':     'run base -> khong thuoc tap danh gia tinh nang',
     'under_ceiling':  'chay duoi tran CPU: hop dong role=train yeu cau limits_cfg == none '
                       '(data_contract_check.py:96-103)',
@@ -184,7 +184,7 @@ def load(purpose: str = 'baseline', roots: Optional[List[str]] = None,
     """Tra ve (df, report).
 
     purpose:
-      'train'    -- hop dong role=train (docs/DATA_FRAMEWORK.md muc 4,
+      'train'    -- hop dong role=train (papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 4,
                     data_contract_check.py:96-103): base, KHONG tran, KHONG bac vi pham.
                     Chi SS-TRAIN qua duoc -> tap nho nhung dung hop dong tuyet doi.
       'baseline' -- moi run base duoi tran HOP LE (none hoac RE2). Rong hon 'train';

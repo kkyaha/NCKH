@@ -28,7 +28,7 @@ VI SAO BEN TRONG VAN LA HAI NGAN XEP
   Do KHONG phai mot khac biet ve mo hinh. Da do: `rho_s` cua bo du doan kha thi tai tao
   DUNG lan truyen Tier-1 cua CapacityAgent, lech <= 0.5% tren moi service -- chung la
   mot mo hinh viet o hai dang. Hop nhat thanh hai tang la THIET KE MUC TIEU
-  (docs/HE_THONG.md muc 2); chua ap vi se doi bo du doan sau khi da xem dap an.
+  (papers/p1_du_phong/docs/HE_THONG.md muc 2); chua ap vi se doi bo du doan sau khi da xem dap an.
 
 TU VUNG PHAN QUYET
   Ben trong, hai agent dung hai bo nhan khac nhau (`SAFE/WARNING/CRITICAL` va
@@ -118,7 +118,7 @@ sim_agent  = capacity_agent
 # CapacityAgent.train() hoc tu du lieu RCAEval fault-injection, phuc vu RQ1-RQ12 da cong bo -- KHONG
 # dung chung pipeline voi duong nay de khong dung cham vao no. NewFeatureFeasibilityAgent tra loi mot
 # cau hoi khac: "them mot tinh nang CHUA TUNG CO thi he thong Sock Shop dang chay con dap ung SLO o tai
-# dinh L khong" (docs/DATA_FRAMEWORK.md), hoc tu SS-TRAIN/SS-LIMITS (khong phai RCAEval). Tao lazy (chi
+# dinh L khong" (papers/p1_du_phong/docs/DATA_FRAMEWORK.md), hoc tu SS-TRAIN/SS-LIMITS (khong phai RCAEval). Tao lazy (chi
 # khi goi assess_new_feature_requirement) de import nay khong lam hong moi truong thieu file dong bang.
 _feasibility_agent = None
 
@@ -133,7 +133,7 @@ def _get_feasibility_agent():
 
 def assess_new_feature_requirement(text: str, L_peak: float, k: dict = None, bootstrap: bool = True) -> dict:
     """Duong rieng NL -> archetype -> kha thi, dung ParserAgent (da co) + NewFeatureFeasibilityAgent
-    (P2/P3, docs/DATA_FRAMEWORK.md). KHONG dung StateGraph `feasibility_analyzer` o duoi (duong do dung
+    (P2/P3, papers/p1_du_phong/docs/DATA_FRAMEWORK.md). KHONG dung StateGraph `feasibility_analyzer` o duoi (duong do dung
     CapacityAgent cho muc dich khac); goi ham nay TRUC TIEP, khong qua workflow.invoke().
 
     k: boi so goi do duoc (vd tu experiments/probe_feature_chain.py) neu tinh nang DA duoc cai va do --
@@ -421,7 +421,7 @@ def assess(text: str, L_peak: float = None, k: dict = None) -> dict:
       L_peak = None  -> chi chay tang DU BAO, tra ve tai nguyen du kien tung service.
                         Dung khi chua biet tai dinh ky vong.
       L_peak = <so>  -> chay CA hai tang, tra ve them phan quyet SLO va diem gay R*.
-      k              -> boi so goi DO DUOC (experiments/collect/probe_feature_chain.py).
+      k              -> boi so goi DO DUOC (papers/p1_du_phong/experiments/collect/probe_feature_chain.py).
                         Co thi dung P3; khong co thi P2 (gia dinh k=1, it lac quan hon).
 
     Tra ve dict luon co:
@@ -467,7 +467,7 @@ def assess_feasibility_at_peak(text: str, L_peak: float, k: dict = None,
 
     Thuong KHONG goi truc tiep -- dung assess(text, L_peak).
 
-    k: boi so goi DO DUOC (vd experiments/collect/probe_feature_chain.py). Truyen vao
+    k: boi so goi DO DUOC (vd papers/p1_du_phong/experiments/collect/probe_feature_chain.py). Truyen vao
        thi dung P3; khong truyen thi P2 (gia dinh k=1, it lac quan hon). Nguon cua k
        duoc ghi lai trong ket qua vi phan quyet phu thuoc vao no.
     """

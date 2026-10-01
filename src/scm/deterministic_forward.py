@@ -16,7 +16,7 @@ noise cong them). Duoc dung boi:
     se dat gap ~100x cham hon khong can thiet cho mot con so trung binh
     tat dinh da co cong thuc dong (dung cong thuc paper da xac nhan tuong
     duong o RQ1: E[Target|do(w)] = model.predict(w), xem
-    docs/HE_THONG.md (muc 6)).
+    papers/p1_du_phong/docs/HE_THONG.md (muc 6)).
 
 Truoc day logic nay lap lai 2 lan gan giong het nhau trong capacity_agent.py
 (`_deterministic_forward` cho 1 injection, `_deterministic_forward_multi`

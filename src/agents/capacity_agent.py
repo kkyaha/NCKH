@@ -185,7 +185,7 @@ class CapacityAgent:
             # Vi sao them he nay: hai phat hien ve QUY MO (ti phan nhu cau giam
             # 81% -> 15,7%; don vi quy gan node -> canh, 1x -> 32x) hien chi co
             # HAI diem tren truc quy mo (7 va 28 service). OB co 11 service
-            # trong metrics -> diem GIUA. Xem docs/PHAT_HIEN_KHOP_TANG.md muc 6
+            # trong metrics -> diem GIUA. Xem papers/p2_khop_tang/docs/PHAT_HIEN_KHOP_TANG.md muc 6
             # va 2b.
             self.system_type = 'onlineboutique'
             if data_dir is None:

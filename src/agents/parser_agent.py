@@ -26,7 +26,7 @@ Guards (bat buoc, kiem tra TRUOC khi tra ket qua):
       (_SCOPE_GATE_CONFORMAL_TAU_PASS / _TAU_REFUSE): duoi nguong duoi ->
       cho qua, tren nguong tren -> REFUSED (is_out_of_scope=True), o giua ->
       needs_human_review=True thay vi tu dong quyet dinh. Thay the mot luat
-      OR hai-tin-hieu truoc do (xem docs/paper_draft.tex, "Behavior at the
+      OR hai-tin-hieu truoc do (xem papers/p1_du_phong/docs/paper_draft.tex, "Behavior at the
       Edge of the Declared Scope" de biet qua trinh dan den thiet ke nay).
 
 Phu hop Q1 paper: "Grounded LLM Estimation anchored to empirical calibration table"
@@ -148,7 +148,7 @@ def _compute_similarity(text: str, request_type: str, call_chains: dict = None) 
 # collecting raw features for a full refit on the larger set below. Only the
 # TWO THRESHOLDS immediately below were recalibrated using the larger n, and
 # both are evaluated on the SAME 81 points used to set them, not a further
-# held-out set -- see docs/paper_draft.tex Section "Behavior at the Edge of
+# held-out set -- see papers/p1_du_phong/docs/paper_draft.tex Section "Behavior at the Edge of
 # the Declared Scope" ("Toward a Calibrated Threshold") for the full history
 # (including the two-signal OR-rule this design replaced, and why).
 _SCOPE_GATE_LR_COEF = {
@@ -344,7 +344,7 @@ class ParserAgent:
         split-conformal (TAU_PASS / TAU_REFUSE, xem docstring cac hang so o
         tren) -- day LA co che duy nhat tu phien ban nay, thay hoan toan cho
         luat OR/HITL rieng le truoc do (da go bo, xem lich su commit va
-        docs/paper_draft.tex Section "Behavior at the Edge of the Declared
+        papers/p1_du_phong/docs/paper_draft.tex Section "Behavior at the Edge of the Declared
         Scope" de biet qua trinh dan den thiet ke nay). Vung giua 2 nguong
         tra ve NEEDS_HUMAN_REVIEW. Da kiem tra tren 20 prompt hoan toan moi
         (khong dung de hieu chinh): bo don-nguong ban dau (chi co TAU_REFUSE,
@@ -507,7 +507,7 @@ class ParserAgent:
         # was found to evade 100% of an 11-prompt polysemous-keyword
         # adversarial set in its keyword-only precursor, then to over-refuse
         # 12/50 legitimate RQ3 prompts even after the self-declaration fix
-        # (docs/paper_draft.tex Section "Behavior at the Edge of the
+        # (papers/p1_du_phong/docs/paper_draft.tex Section "Behavior at the Edge of the
         # Declared Scope" has the full history). cf_confidence remains
         # available from the same LLM extraction call but no longer drives
         # this decision -- the two calibrated thresholds below subsume its

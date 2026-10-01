@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Chot DUONG DI cua cau hoi "tinh nang moi co kha thi khong?" trong orchestrator.
 
-Vi sao can test nay: `docs/DATA_FRAMEWORK.md` muc 2 ghi 4 diem ma LECH KHUNG, tat ca nam trong
+Vi sao can test nay: `papers/p1_du_phong/docs/DATA_FRAMEWORK.md` muc 2 ghi 4 diem ma LECH KHUNG, tat ca nam trong
 duong CU (`CapacityAgent` + StateGraph, dung cho RQ1-RQ4):
   * capacity_agent.py:724   baseline = trung binh GOP (khung: baseline tai L_peak)
   * capacity_agent.py:1351  tran = P99 cua train (khung: C_s that tu telemetry)
