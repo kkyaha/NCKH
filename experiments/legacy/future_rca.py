@@ -213,11 +213,19 @@ class FutureRCAEngine:
         self.n_samples = 500
         self.n_shapley_samples = 2000
     
+    # Nguong cong z cho risk_level. MAC DINH giu nguyen 1.0/2.0 de moi so da bao
+    # cao truoc day tai lap duoc bit-for-bit. Nhung XEM CANH BAO o docstring analyze():
+    # voi co che da fit tren du lieu nay, 1.0 la nguong KHONG THE DAT DUOC.
+    Z_WARN_DEFAULT = 1.0
+    Z_CRIT_DEFAULT = 2.0
+
     def analyze(
         self,
         scenario_name: str,
         interventions: Dict[str, float],
         target_metrics: Optional[List[str]] = None,
+        z_warn: Optional[float] = None,
+        z_crit: Optional[float] = None,
     ) -> FutureRCAResult:
         """
         Chạy toàn bộ pipeline Future RCA cho một kịch bản can thiệp.
@@ -226,6 +234,25 @@ class FutureRCAEngine:
             scenario_name: Tên kịch bản (vd: "Flash Sale +150%")
             interventions: Dict {node_name: value} cho do(·)
             target_metrics: Danh sách node cần đánh giá. Nếu None, dùng tất cả CPU nodes.
+            z_warn, z_crit: ngưỡng cổng z cho risk_level. None -> Z_WARN_DEFAULT/Z_CRIT_DEFAULT.
+
+        CẢNH BÁO ĐÃ ĐO ĐƯỢC — ngưỡng mặc định 1.0/2.0 KHÔNG THỂ ĐẠT ĐƯỢC:
+        `z_score = |predicted - baseline| / train_std` (dòng ~335). Trên dữ liệu đã
+        chạy, z đạt tối đa **0.175** ở điều kiện null và **0.448** ở chính node bị
+        tiêm lỗi — tức cổng z >= 1.0 chặn MỌI cảnh báo, kể cả node bị tiêm có
+        `change_pct = 37%` (vượt ngưỡng critical 30%). Hệ quả: `rq6_topology_check.py`
+        và `rq6_null_condition_fp_rate.py` cho `flagged_rate = 0` ở MỌI nhóm, nên
+        tuyên bố "zero false positive" là RỖNG — không có đối chứng dương.
+
+        Nguyên nhân cơ chế (khớp với chẩn đoán trong xai_attribution_paper_draft.tex):
+        can thiệp dịch WORKLOAD của node đích 0.60–1.20 sigma, nhưng cơ chế fit chỉ
+        gán 1.5–10.8% phương sai CPU cho lan truyền workload, nên CPU chỉ dịch
+        <= 0.175 sigma.
+
+        Ngưỡng hiệu chỉnh từ nửa null giữ lại (`experiments/legacy/recalibrate_risk_threshold.py`):
+        z_warn=0.20, z_crit=0.40 cho 0% FP trên nửa null held-out, 100% phát hiện
+        node bị tiêm (10/10), 0% trên node không tới được. Phân tách không sát sao:
+        null <= 0.175, unreachable <= 0.112, injection 0.341-0.448.
         
         Returns:
             FutureRCAResult chứa toàn bộ kết quả phân tích.
@@ -355,9 +382,11 @@ class FutureRCAEngine:
             # an essentially negligible actual deviation for this specific
             # fitted mechanism. z_score is therefore required as a gate for
             # BOTH paths, not only the percentage one.
-            if z_score >= 2.0 and (abs(change_pct) >= 30.0 or a_score >= 3.0):
+            zw = self.Z_WARN_DEFAULT if z_warn is None else float(z_warn)
+            zc = self.Z_CRIT_DEFAULT if z_crit is None else float(z_crit)
+            if z_score >= zc and (abs(change_pct) >= 30.0 or a_score >= 3.0):
                 risk_level = "critical"
-            elif z_score >= 1.0 and (abs(change_pct) >= 15.0 or a_score >= 2.0):
+            elif z_score >= zw and (abs(change_pct) >= 15.0 or a_score >= 2.0):
                 risk_level = "warning"
             else:
                 risk_level = "normal"

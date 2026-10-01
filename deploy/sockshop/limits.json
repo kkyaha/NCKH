@@ -37,6 +37,51 @@
       "shipping": 0.5,
       "user": 0.1,
       "user-db": 0.5
+    },
+    "RE2-P10": {
+      "_doc": "X1: CUNG dung luong CPU trung binh nhu RE2 (quota/period = cores), chi khac CHU KY CFS -> khac dung sai bung no. Neu 'kha thi = nguong tren muc su dung' dung thi u tai DIEM GAY phai GIONG nhau o ca ba; neu throttling la co che thi u tai diem gay se KHAC nhau. Chu ky hop le cua Docker: 1000-1000000 us; quota toi thieu 1000 us (payment 0.1 core x chu ky 10ms = 1000us, sat san).",
+      "_period_us": 10000,
+      "carts": 0.5,
+      "carts-db": 0.5,
+      "catalogue": 0.5,
+      "front-end": 0.5,
+      "orders": 0.5,
+      "orders-db": 0.5,
+      "payment": 0.1,
+      "queue-master": 0.5,
+      "shipping": 0.5,
+      "user": 0.2,
+      "user-db": 0.5
+    },
+    "RE2-P100": {
+      "_doc": "X1: CUNG dung luong CPU trung binh nhu RE2 (quota/period = cores), chi khac CHU KY CFS -> khac dung sai bung no. Neu 'kha thi = nguong tren muc su dung' dung thi u tai DIEM GAY phai GIONG nhau o ca ba; neu throttling la co che thi u tai diem gay se KHAC nhau. Chu ky hop le cua Docker: 1000-1000000 us; quota toi thieu 1000 us (payment 0.1 core x chu ky 10ms = 1000us, sat san).",
+      "_period_us": 100000,
+      "carts": 0.5,
+      "carts-db": 0.5,
+      "catalogue": 0.5,
+      "front-end": 0.5,
+      "orders": 0.5,
+      "orders-db": 0.5,
+      "payment": 0.1,
+      "queue-master": 0.5,
+      "shipping": 0.5,
+      "user": 0.2,
+      "user-db": 0.5
+    },
+    "RE2-P500": {
+      "_doc": "X1: CUNG dung luong CPU trung binh nhu RE2 (quota/period = cores), chi khac CHU KY CFS -> khac dung sai bung no. Neu 'kha thi = nguong tren muc su dung' dung thi u tai DIEM GAY phai GIONG nhau o ca ba; neu throttling la co che thi u tai diem gay se KHAC nhau. Chu ky hop le cua Docker: 1000-1000000 us; quota toi thieu 1000 us (payment 0.1 core x chu ky 10ms = 1000us, sat san).",
+      "_period_us": 500000,
+      "carts": 0.5,
+      "carts-db": 0.5,
+      "catalogue": 0.5,
+      "front-end": 0.5,
+      "orders": 0.5,
+      "orders-db": 0.5,
+      "payment": 0.1,
+      "queue-master": 0.5,
+      "shipping": 0.5,
+      "user": 0.2,
+      "user-db": 0.5
     }
   }
 }

@@ -54,6 +54,7 @@ from data_processor import (
     split_quantile,
     SERVICES,
     TRAINTICKET_SERVICES,
+    ONLINEBOUTIQUE_SERVICES,
     METRICS
 )
 from queueing_regressor import QueueingLatencyRegressor
@@ -174,6 +175,24 @@ class CapacityAgent:
             if graph_path is None:
                 graph_path = os.path.join(BASE_DIR, 'src', 'graph', 'trainticket_agent_graph.json')
             self.services = services or TRAINTICKET_SERVICES
+        elif system_type == 'onlineboutique' or (data_dir and 're2-ob' in data_dir.lower()):
+            # He thu BA (RCAEval RE2-OB). Khong can sua gi trong duong NAP du
+            # lieu: load_multi_service_data() nhan dinh dang theo FILE THUC TE
+            # (_detect_metric_file_format) va load_trainticket_data() tim thu muc
+            # scenario theo su ton tai cua metrics.parquet + inject_time.txt chu
+            # khong theo tien to ten -- ca hai da duoc viet san cho truong hop nay.
+            #
+            # Vi sao them he nay: hai phat hien ve QUY MO (ti phan nhu cau giam
+            # 81% -> 15,7%; don vi quy gan node -> canh, 1x -> 32x) hien chi co
+            # HAI diem tren truc quy mo (7 va 28 service). OB co 11 service
+            # trong metrics -> diem GIUA. Xem docs/PHAT_HIEN_KHOP_TANG.md muc 6
+            # va 2b.
+            self.system_type = 'onlineboutique'
+            if data_dir is None:
+                data_dir = os.path.join(BASE_DIR, 'data', 'raw', 'RE2-OB')
+            if graph_path is None:
+                graph_path = os.path.join(BASE_DIR, 'src', 'graph', 'onlineboutique_agent_graph.json')
+            self.services = services or ONLINEBOUTIQUE_SERVICES
         else:
             if data_dir is None:
                 data_dir = os.path.join(BASE_DIR, 'data', 'raw')

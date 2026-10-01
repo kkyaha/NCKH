@@ -88,6 +88,23 @@ def load_normal_data(service: str, metric_col: str) -> pd.DataFrame:
     return pd.concat(dfs, ignore_index=True) if dfs else None
 
 
+# Online Boutique (RCAEval RE2-OB). Lay theo TEN COT TRONG METRICS, khong theo
+# ten trong trace: trace ghi 'frontendservice' con metrics ghi 'frontend'
+# (src/graph/onlineboutique_agent_graph.json da dung ten metrics).
+#
+# BON SERVICE CUOI (adservice, cartservice, shippingservice, redis) co trong
+# metrics nhung KHONG XUAT HIEN trong trace cua bat ky scenario nao (da kiem:
+# gop ca 90 tep traces.parquet chi ra dung 7 service va 9 cap goi, trung khop
+# do thi san co). Tuc tai cua bo du lieu nay khong he goi den chung. Giu lai
+# trong danh sach vi: (a) chung co du cot workload/cpu nen van fit duoc co che
+# tier-2 (intra), (b) chung thanh DOI CHUNG AM san co cho phep kiem reachability
+# -- node khong bao gio duoc goi thi khong the la hau due cua gateway.
+ONLINEBOUTIQUE_SERVICES = [
+    'frontend', 'checkoutservice', 'currencyservice', 'productcatalogservice',
+    'recommendationservice', 'paymentservice', 'emailservice',
+    'adservice', 'cartservice', 'shippingservice', 'redis'
+]
+
 TRAINTICKET_SERVICES = [
     'ts-admin-basic-info-service', 'ts-admin-travel-service', 'ts-assurance-service',
     'ts-auth-service', 'ts-basic-service', 'ts-config-service',

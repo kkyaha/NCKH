@@ -1,4 +1,4 @@
 group,n_service_repeats,mean_shapley,mean_anomaly,mean_change_pct,flagged_rate_pct
-injection_self,10,0.1614,0.4639,37.019,0.0
-reachable,170,0.2416,0.3797,7.5023,0.0
-unreachable,100,0.1917,0.4703,3.2738,0.0
+injection_self,10,0.1589,0.5063,39.105,100.0
+reachable,170,0.1587,0.464,5.5253,3.5294
+unreachable,100,0.1733,0.4939,2.9928,0.0

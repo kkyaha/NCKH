@@ -755,16 +755,62 @@ def apply_limits(name):
     if '_INVALID' in cfgs[name]:
         sys.exit(f'--limits {name} bi danh dau KHONG HOP LE: {cfgs[name]["_INVALID"]}')
     ncpu = int(run(['docker', 'info', '--format', '{{.NCPU}}']).stdout.strip())
+    period = cfgs[name].get('_period_us')          # None -> duong CU (--cpus), giu nguyen bit-for-bit
     for svc in sorted(set().union(*[{k for k in c if not k.startswith('_')} for c in cfgs.values()])):
         want = float(cfgs[name].get(svc, ncpu))
-        r = run(['docker', 'update', '--cpus', str(want), f'{PROJECT}-{svc}-1'])
-        if r.returncode != 0:
-            sys.exit(f'docker update {svc} that bai: {r.stderr.strip()}')
-        got = float(run(['docker', 'inspect', f'{PROJECT}-{svc}-1', '--format', '{{.HostConfig.NanoCpus}}']).stdout.strip() or 0) / 1e9
-        if abs(got - want) > 1e-6:
-            sys.exit(f'XAC MINH THAT BAI: {svc} yeu cau {want} core nhung thuc te {got} -- KHONG tiep tuc (du lieu se sai)')
-    CURRENT_LIMITS.update(name=name, cores=cfgs[name], ncpu=ncpu)
-    print(f'  tran CPU: {name} {cfgs[name] or f"(khong tran = {ncpu} core)"}  [da xac minh bang docker inspect]')
+        if period is None:
+            r = run(['docker', 'update', '--cpus', str(want), f'{PROJECT}-{svc}-1'])
+            if r.returncode != 0:
+                sys.exit(f'docker update {svc} that bai: {r.stderr.strip()}')
+            got = float(run(['docker', 'inspect', f'{PROJECT}-{svc}-1', '--format', '{{.HostConfig.NanoCpus}}']).stdout.strip() or 0) / 1e9
+            if abs(got - want) > 1e-6:
+                sys.exit(f'XAC MINH THAT BAI: {svc} yeu cau {want} core nhung thuc te {got} -- KHONG tiep tuc (du lieu se sai)')
+        else:
+            _apply_period_quota(svc, want, int(period))
+    CURRENT_LIMITS.update(name=name, cores=cfgs[name], ncpu=ncpu,
+                          period_us=(int(period) if period else None))
+    extra = f', chu ky CFS {int(period)} us' if period else ''
+    print(f'  tran CPU: {name} {cfgs[name] or f"(khong tran = {ncpu} core)"}{extra}  [da xac minh bang docker inspect]')
+
+
+def _apply_period_quota(svc, cores, period_us):
+    """Dat tran bang CHU KY + HAN NGACH thay vi --cpus (thi nghiem X1, docs/CO_CHE_KHA_THI.md).
+
+    Vi sao can: `--cpus` chi dat dung luong TRUNG BINH; no khong doi duoc DUNG SAI BUNG NO.
+    Cung 0.5 core co the la chu ky 10ms/quota 5ms (gan nhu khong chiu duoc bung no) hoac chu ky
+    500ms/quota 250ms (chiu bung no rat tot). Do la bien can thiep cua X1: neu 'kha thi = nguong
+    tren muc su dung' dung thi u tai DIEM GAY phai giong nhau o moi chu ky; neu throttling la co
+    che thi u tai diem gay se KHAC nhau.
+
+    CANH BAO chua kiem chung tren may nay (may nay khong co Docker): Docker tu choi dat
+    --cpu-period khi container da co NanoCpus (do --cpus dat truoc do) voi loi "Conflicting
+    options: Nano CPUs and CPU Period cannot both be set". Neu gap loi do, tao lai container
+    voi cpu_period/cpu_quota trong compose -- ham nay in dung huong dan roi THOAT, khong bao
+    gio chay tiep voi tran sai.
+    """
+    quota = int(round(cores * period_us))
+    if quota < 1000:
+        sys.exit(f'{svc}: quota {quota}us < 1000us (san cua Docker) -- giam so core hoac tang chu ky')
+    cn = f'{PROJECT}-{svc}-1'
+    r = run(['docker', 'update', '--cpu-period', str(period_us), '--cpu-quota', str(quota), cn])
+    if r.returncode != 0:
+        err = r.stderr.strip()
+        if 'Nano CPUs' in err or 'cannot both be set' in err:
+            sys.exit(
+                f'{svc}: Docker tu choi vi container da co NanoCpus.\n'
+                f'  Khac phuc (mot lan, roi chay lai lenh nay):\n'
+                f'    1. them vao deploy/sockshop/docker-compose.yml cho MOI service:\n'
+                f'         cpu_period: {period_us}\n'
+                f'         cpu_quota: <cores x {period_us}>\n'
+                f'    2. docker compose -p {PROJECT} up -d --force-recreate\n'
+                f'    3. chay lai voi --limits <ten cau hinh co _period_us>\n'
+                f'  Loi goc: {err}')
+        sys.exit(f'docker update {svc} that bai: {err}')
+    got_p = run(['docker', 'inspect', cn, '--format', '{{.HostConfig.CpuPeriod}}']).stdout.strip()
+    got_q = run(['docker', 'inspect', cn, '--format', '{{.HostConfig.CpuQuota}}']).stdout.strip()
+    if int(got_p or 0) != period_us or int(got_q or 0) != quota:
+        sys.exit(f'XAC MINH THAT BAI: {svc} yeu cau chu ky {period_us}/quota {quota} nhung thuc te '
+                 f'{got_p}/{got_q} -- KHONG tiep tuc (du lieu se sai)')
 
 
 def load_slo(a):

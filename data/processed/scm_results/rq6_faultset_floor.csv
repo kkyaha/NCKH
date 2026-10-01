@@ -1,0 +1,811 @@
+system,injected,fault,layer,n_all,rank_all,r_inj,r_max,top_svc,t1_all,t3_all,n_fs,rank_fs,t1_fs,t3_fs,nhom
+SockShop,carts,cpu,workload,7,1,0.15733571541858346,0.15733571541858346,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,cpu,cpu,15,1,132.31029654156967,132.31029654156967,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,cpu,latency-50,7,1,15.160047333748507,15.160047333748507,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,cpu,workload,7,3,0.20162564488984788,0.25571501706804595,catalogue,False,True,5,2,False,True,tai nguyen
+SockShop,carts,cpu,cpu,15,1,170.7859776657703,170.7859776657703,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,cpu,latency-50,7,1,5.17358806104674,5.17358806104674,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,cpu,workload,7,7,0.04913166206854795,0.10863759106245569,catalogue,False,False,5,5,False,False,tai nguyen
+SockShop,carts,cpu,cpu,15,1,117.17302623369487,117.17302623369487,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,cpu,latency-50,7,1,6.569327860278919,6.569327860278919,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,delay,workload,7,3,1.027050713986284,1.8307515359838495,front-end,False,True,5,2,False,True,mang
+SockShop,carts,delay,cpu,15,6,0.841459012885536,1.5493206987517285,carts-db,False,False,5,3,False,True,mang
+SockShop,carts,delay,latency-50,7,1,1072.500184038183,1072.500184038183,carts,True,True,5,1,True,True,mang
+SockShop,carts,delay,workload,7,4,0.8417587219547542,2.0624209021861692,front-end,False,False,5,3,False,True,mang
+SockShop,carts,delay,cpu,15,10,0.38257770993025214,0.9938796813634913,catalogue,False,False,5,5,False,False,mang
+SockShop,carts,delay,latency-50,7,1,3867.0734553663838,3867.0734553663838,carts,True,True,5,1,True,True,mang
+SockShop,carts,delay,workload,7,4,0.6829868730530259,1.8127680795296792,front-end,False,False,5,3,False,True,mang
+SockShop,carts,delay,cpu,15,13,0.13120546740937744,1.0468563884114563,catalogue,False,False,5,4,False,False,mang
+SockShop,carts,delay,latency-50,7,2,3922.2382544366055,5937.128470433336,orders,False,True,5,2,False,True,mang
+SockShop,carts,disk,workload,7,6,0.024692580999594482,0.08739576520697673,front-end,False,False,5,4,False,False,tai nguyen
+SockShop,carts,disk,cpu,15,1,16.0735422688783,16.0735422688783,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,disk,latency-50,7,1,4.871881144387482,4.871881144387482,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,disk,workload,7,6,0.019163248950403413,0.04982531439945939,shipping,False,False,5,4,False,False,tai nguyen
+SockShop,carts,disk,cpu,15,1,116.52556119627911,116.52556119627911,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,disk,latency-50,7,2,52.55684268798307,57.10000461200788,orders,False,True,5,2,False,True,tai nguyen
+SockShop,carts,disk,workload,7,3,0.2521603785382968,0.28038601030012006,catalogue,False,True,5,2,False,True,tai nguyen
+SockShop,carts,disk,cpu,15,1,120.19485047039304,120.19485047039304,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,disk,latency-50,7,1,48.95466419879308,48.95466419879308,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,loss,workload,7,1,4.1041642510034295,4.1041642510034295,carts,True,True,5,1,True,True,mang
+SockShop,carts,loss,cpu,15,9,0.29290719494886214,0.9548091477922191,carts-db,False,False,5,3,False,True,mang
+SockShop,carts,loss,latency-50,7,1,734.8870869545192,734.8870869545192,carts,True,True,5,1,True,True,mang
+SockShop,carts,loss,workload,7,3,0.5302197180831746,1.128053724992538,front-end,False,True,5,2,False,True,mang
+SockShop,carts,loss,cpu,15,2,1.0728291239681493,3.716215988877541,carts-db,False,True,5,1,True,True,mang
+SockShop,carts,loss,latency-50,7,1,166.65069366943257,166.65069366943257,carts,True,True,5,1,True,True,mang
+SockShop,carts,loss,workload,7,1,1.401260315500899,1.401260315500899,carts,True,True,5,1,True,True,mang
+SockShop,carts,loss,cpu,15,4,0.5453449616097444,1.3541062800899075,carts-db,False,False,5,1,True,True,mang
+SockShop,carts,loss,latency-50,7,1,582.6294007820685,582.6294007820685,carts,True,True,5,1,True,True,mang
+SockShop,carts,mem,workload,7,5,0.08066286988183029,0.13808696663390774,catalogue,False,False,5,4,False,False,tai nguyen
+SockShop,carts,mem,cpu,15,1,18.914020979547967,18.914020979547967,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,mem,latency-50,7,1,4.814873781625675,4.814873781625675,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,mem,workload,7,1,0.2012500313106038,0.2012500313106038,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,mem,cpu,15,1,250.87298074224563,250.87298074224563,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,mem,latency-50,7,1,12.152726879892233,12.152726879892233,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,mem,workload,7,7,0.01702463145928515,0.09396911312440173,front-end,False,False,5,5,False,False,tai nguyen
+SockShop,carts,mem,cpu,15,1,28.68667069910221,28.68667069910221,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,mem,latency-50,7,1,4.252335127205632,4.252335127205632,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,socket,workload,7,3,0.1072438572045497,0.11978213482701992,user,False,True,5,3,False,True,tai nguyen
+SockShop,carts,socket,cpu,15,1,5.478761118906111,5.478761118906111,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,socket,latency-50,7,3,3.0323392957459623,7.488137009354591,orders,False,True,5,3,False,True,tai nguyen
+SockShop,carts,socket,workload,7,4,0.12222432171562055,0.20512771535322363,front-end,False,False,5,3,False,True,tai nguyen
+SockShop,carts,socket,cpu,15,1,110.83984496995113,110.83984496995113,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,socket,latency-50,7,1,31.64209874714534,31.64209874714534,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,socket,workload,7,4,0.3694026553716646,0.5951571020691727,front-end,False,False,5,3,False,True,tai nguyen
+SockShop,carts,socket,cpu,15,1,229.13057649101523,229.13057649101523,carts,True,True,5,1,True,True,tai nguyen
+SockShop,carts,socket,latency-50,7,2,120.1872456272195,140.46419392981537,orders,False,True,5,2,False,True,tai nguyen
+SockShop,catalogue,cpu,workload,7,7,0.4983617066139618,0.5747847138559156,user,False,False,5,5,False,False,tai nguyen
+SockShop,catalogue,cpu,cpu,15,1,835.2845643343228,835.2845643343228,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,cpu,latency-50,7,1,25.468821346783756,25.468821346783756,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,cpu,workload,7,7,0.6331352875507646,0.6679880805514474,user,False,False,5,5,False,False,tai nguyen
+SockShop,catalogue,cpu,cpu,15,1,805.9294487120565,805.9294487120565,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,cpu,latency-50,7,1,9.516070152950636,9.516070152950636,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,cpu,workload,7,3,0.13640375371398786,0.14458292391587652,carts,False,True,5,3,False,True,tai nguyen
+SockShop,catalogue,cpu,cpu,15,1,15.653393221989361,15.653393221989361,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,cpu,latency-50,7,1,12.876196250014997,12.876196250014997,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,delay,workload,7,3,0.389168135913742,0.6004122770976495,front-end,False,True,5,2,False,True,mang
+SockShop,catalogue,delay,cpu,15,1,2.6458240049623596,2.6458240049623596,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,delay,latency-50,7,1,25078.091977755066,25078.091977755066,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,delay,workload,7,2,0.3698238204784522,0.8099352615608135,front-end,False,True,5,1,True,True,mang
+SockShop,catalogue,delay,cpu,15,11,0.121360141054522,2.9444233900503605,catalogue-db,False,False,5,5,False,False,mang
+SockShop,catalogue,delay,latency-50,7,1,1535.9538161792946,1535.9538161792946,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,delay,workload,7,3,1.2230302721283575,2.3312693217626372,front-end,False,True,5,2,False,True,mang
+SockShop,catalogue,delay,cpu,15,13,0.04813634244478247,1.6983163110683988,carts-db,False,False,5,5,False,False,mang
+SockShop,catalogue,delay,latency-50,7,1,14783.490937353572,14783.490937353572,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,disk,workload,7,3,0.44386504833246093,0.474391496099349,user,False,True,5,3,False,True,tai nguyen
+SockShop,catalogue,disk,cpu,15,1,318.49999021878256,318.49999021878256,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,disk,latency-50,7,1,0.947230730370563,0.947230730370563,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,disk,workload,7,5,0.033638503054773866,0.12294163224844909,front-end,False,False,5,3,False,True,tai nguyen
+SockShop,catalogue,disk,cpu,15,1,300.5661766057232,300.5661766057232,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,disk,latency-50,7,4,0.7404320165044779,1.3330749453745954,carts,False,False,5,2,False,True,tai nguyen
+SockShop,catalogue,disk,workload,7,3,0.11342982882794904,0.17627108809290323,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,catalogue,disk,cpu,15,1,12.904422940425182,12.904422940425182,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,disk,latency-50,7,1,2.345654847389025,2.345654847389025,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,loss,workload,7,2,7.39286274236508,10.254725044960416,front-end,False,True,5,1,True,True,mang
+SockShop,catalogue,loss,cpu,15,5,4.580149304580029,7.112323083680065,carts-db,False,False,5,3,False,True,mang
+SockShop,catalogue,loss,latency-50,7,1,20316.678111592737,20316.678111592737,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,loss,workload,7,4,1.537663610444659,4.002177719888197,front-end,False,False,5,3,False,True,mang
+SockShop,catalogue,loss,cpu,15,1,1.5664583336075137,1.5664583336075137,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,loss,latency-50,7,1,2824.249738758566,2824.249738758566,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,loss,workload,7,4,5.473856873578815,6.55094402800547,carts,False,False,5,3,False,True,mang
+SockShop,catalogue,loss,cpu,15,10,1.157836925481398,5.601251452007188,user,False,False,5,5,False,False,mang
+SockShop,catalogue,loss,latency-50,7,1,26.98713391679165,26.98713391679165,catalogue,True,True,5,1,True,True,mang
+SockShop,catalogue,mem,workload,7,4,0.1850370183726234,0.29851193023171035,front-end,False,False,5,3,False,True,tai nguyen
+SockShop,catalogue,mem,cpu,15,1,786.9219247458409,786.9219247458409,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,mem,latency-50,7,1,101.48245479208006,101.48245479208006,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,mem,workload,7,2,0.3806544854013989,0.5298478211901141,front-end,False,True,5,1,True,True,tai nguyen
+SockShop,catalogue,mem,cpu,15,1,14.43337843852426,14.43337843852426,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,mem,latency-50,7,1,54.26401362529081,54.26401362529081,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,mem,workload,7,6,0.017048977859461186,0.055451456465270374,front-end,False,False,5,4,False,False,tai nguyen
+SockShop,catalogue,mem,cpu,15,1,13.565865371951848,13.565865371951848,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,mem,latency-50,7,1,12.213403736069566,12.213403736069566,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,socket,workload,7,3,0.007351577045748628,0.1589804126900853,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,catalogue,socket,cpu,15,1,2689.02999068313,2689.02999068313,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,socket,latency-50,7,1,882.8386628153382,882.8386628153382,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,socket,workload,7,1,0.061942872308586056,0.061942872308586056,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,socket,cpu,15,1,41.80760304026281,41.80760304026281,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,socket,latency-50,7,1,936.5180769013439,936.5180769013439,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,socket,workload,7,2,0.12667097430074598,0.14834071847730773,user,False,True,5,2,False,True,tai nguyen
+SockShop,catalogue,socket,cpu,15,1,13.724749181973975,13.724749181973975,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,catalogue,socket,latency-50,7,1,54.25642118770383,54.25642118770383,catalogue,True,True,5,1,True,True,tai nguyen
+SockShop,orders,cpu,workload,7,6,0.08338186410695737,0.16568753462320407,catalogue,False,False,5,4,False,False,tai nguyen
+SockShop,orders,cpu,cpu,15,1,368.25207738736685,368.25207738736685,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,cpu,latency-50,7,1,42.61609450773194,42.61609450773194,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,cpu,workload,7,3,0.07201193792714058,0.08198037836757321,shipping,False,True,5,2,False,True,tai nguyen
+SockShop,orders,cpu,cpu,15,1,220.63066591538544,220.63066591538544,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,cpu,latency-50,7,1,14.309505599214125,14.309505599214125,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,cpu,workload,7,6,0.08809793615686554,0.16302573131787015,user,False,False,5,4,False,False,tai nguyen
+SockShop,orders,cpu,cpu,15,1,79.39195307049462,79.39195307049462,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,cpu,latency-50,7,1,25.451781968030264,25.451781968030264,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,delay,workload,7,5,0.12423838208531028,0.2882338761265142,front-end,False,False,5,4,False,False,mang
+SockShop,orders,delay,cpu,15,13,0.07743769911606953,0.617683071041223,catalogue-db,False,False,5,5,False,False,mang
+SockShop,orders,delay,latency-50,7,3,5.807543356675543,1608.0103959657313,shipping,False,True,5,2,False,True,mang
+SockShop,orders,delay,workload,7,7,0.14788312616978563,0.698216197313478,front-end,False,False,5,5,False,False,mang
+SockShop,orders,delay,cpu,15,3,0.8107142102703132,2.248821946850039,carts-db,False,True,5,2,False,True,mang
+SockShop,orders,delay,latency-50,7,1,570.5277861170789,570.5277861170789,orders,True,True,5,1,True,True,mang
+SockShop,orders,delay,workload,7,6,0.12343448730645293,0.33814649100037836,front-end,False,False,5,4,False,False,mang
+SockShop,orders,delay,cpu,15,8,0.33398194903442596,0.6339337008579274,carts-db,False,False,5,2,False,True,mang
+SockShop,orders,delay,latency-50,7,1,1258.3515731039417,1258.3515731039417,orders,True,True,5,1,True,True,mang
+SockShop,orders,disk,workload,7,1,2.795133985433611,2.795133985433611,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,disk,cpu,15,8,3.4605342203201035,91.76960987730564,rabbitmq-exporter,False,False,5,2,False,True,tai nguyen
+SockShop,orders,disk,latency-50,7,4,2.9256893777977946,52.21041528453016,shipping,False,False,5,3,False,True,tai nguyen
+SockShop,orders,disk,workload,7,1,2.1183723579890597,2.1183723579890597,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,disk,cpu,15,1,2.9521117140578874,2.9521117140578874,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,disk,latency-50,7,3,0.7538326287848647,1.160409280275325,carts,False,True,5,3,False,True,tai nguyen
+SockShop,orders,disk,workload,7,5,0.038261494573489895,0.1427701590569617,front-end,False,False,5,4,False,False,tai nguyen
+SockShop,orders,disk,cpu,15,1,8.770759584385905,8.770759584385905,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,disk,latency-50,7,7,0.009323367966649563,1.79189366671283,carts,False,False,5,5,False,False,tai nguyen
+SockShop,orders,loss,workload,7,2,3.0326395205950605,3.3270866014749516,shipping,False,True,5,1,True,True,mang
+SockShop,orders,loss,cpu,15,2,3.61699373868484,3.8172189887020322,user,False,True,5,2,False,True,mang
+SockShop,orders,loss,latency-50,7,1,2561.227844439333,2561.227844439333,orders,True,True,5,1,True,True,mang
+SockShop,orders,loss,workload,7,3,2.5254462993882165,3.307449472402119,shipping,False,True,5,2,False,True,mang
+SockShop,orders,loss,cpu,15,1,1.6037428208752489,1.6037428208752489,orders,True,True,5,1,True,True,mang
+SockShop,orders,loss,latency-50,7,1,984.7687767212763,984.7687767212763,orders,True,True,5,1,True,True,mang
+SockShop,orders,loss,workload,7,3,2.0565890759241077,2.9296199001403878,shipping,False,True,5,2,False,True,mang
+SockShop,orders,loss,cpu,15,6,0.3044037375071172,0.6862578673429369,carts-db,False,False,5,2,False,True,mang
+SockShop,orders,loss,latency-50,7,1,1562.699542673296,1562.699542673296,orders,True,True,5,1,True,True,mang
+SockShop,orders,mem,workload,7,7,0.0018196198497544285,0.28533649944090733,front-end,False,False,5,5,False,False,tai nguyen
+SockShop,orders,mem,cpu,15,1,198.85155038248206,198.85155038248206,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,mem,latency-50,7,1,18.155025334323593,18.155025334323593,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,mem,workload,7,3,0.02736176276585423,0.03370106322064949,payment,False,True,5,3,False,True,tai nguyen
+SockShop,orders,mem,cpu,15,1,33.340824729738635,33.340824729738635,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,mem,latency-50,7,1,134.31263273670245,134.31263273670245,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,mem,workload,7,6,0.017237347344296737,0.034424863745679976,carts,False,False,5,5,False,False,tai nguyen
+SockShop,orders,mem,cpu,15,1,21.37616653499438,21.37616653499438,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,mem,latency-50,7,1,7.306545795231104,7.306545795231104,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,socket,workload,7,3,0.24441437388229936,0.3201166435680965,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,orders,socket,cpu,15,1,3.205801946569841,3.205801946569841,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,socket,latency-50,7,3,2.2994222348251765,2.490982862377395,user,False,True,5,3,False,True,tai nguyen
+SockShop,orders,socket,workload,7,6,0.01744980836634769,0.07426076007420651,carts,False,False,5,5,False,False,tai nguyen
+SockShop,orders,socket,cpu,15,1,11.076166466318886,11.076166466318886,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,socket,latency-50,7,1,33.1350437751635,33.1350437751635,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,socket,workload,7,4,0.03233359559587578,0.09418014073980589,front-end,False,False,5,3,False,True,tai nguyen
+SockShop,orders,socket,cpu,15,1,105.02572921870338,105.02572921870338,orders,True,True,5,1,True,True,tai nguyen
+SockShop,orders,socket,latency-50,7,1,1491.984958394744,1491.984958394744,orders,True,True,5,1,True,True,tai nguyen
+SockShop,payment,cpu,workload,7,4,0.022671514288236192,0.04207167841367435,carts,False,False,5,4,False,False,tai nguyen
+SockShop,payment,cpu,cpu,15,1,1140.2588307312626,1140.2588307312626,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,cpu,latency-50,7,2,4.835137774441125,7.102320408686946,orders,False,True,5,2,False,True,tai nguyen
+SockShop,payment,cpu,workload,7,6,0.058284914416476576,0.13291816211026605,front-end,False,False,5,4,False,False,tai nguyen
+SockShop,payment,cpu,cpu,15,1,653.2424300018715,653.2424300018715,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,cpu,latency-50,7,2,3.1443920158717473,8.091002922508915,orders,False,True,5,2,False,True,tai nguyen
+SockShop,payment,cpu,workload,7,7,0.14200903654423266,0.22480138049896625,carts,False,False,5,5,False,False,tai nguyen
+SockShop,payment,cpu,cpu,15,1,550.6974844340585,550.6974844340585,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,cpu,latency-50,7,2,5.533961432130777,6.6899765219766225,orders,False,True,5,2,False,True,tai nguyen
+SockShop,payment,delay,workload,7,2,0.062109854844604635,0.10870146916372471,carts,False,True,5,2,False,True,mang
+SockShop,payment,delay,cpu,15,5,0.23245553497559443,0.463265897911994,queue-master,False,False,5,3,False,True,mang
+SockShop,payment,delay,latency-50,7,1,168.98445436957857,168.98445436957857,payment,True,True,5,1,True,True,mang
+SockShop,payment,delay,workload,7,3,0.03732781648812557,0.08175719487302484,catalogue,False,True,5,3,False,True,mang
+SockShop,payment,delay,cpu,15,6,0.2831301874421853,0.7040773009715858,front-end,False,False,5,2,False,True,mang
+SockShop,payment,delay,latency-50,7,1,385.97322140213316,385.97322140213316,payment,True,True,5,1,True,True,mang
+SockShop,payment,delay,workload,7,5,0.08195479782716474,0.18532750342778107,front-end,False,False,5,4,False,False,mang
+SockShop,payment,delay,cpu,15,11,0.11478648541625112,2.763052204735234,carts-db,False,False,5,5,False,False,mang
+SockShop,payment,delay,latency-50,7,1,215.4939495249601,215.4939495249601,payment,True,True,5,1,True,True,mang
+SockShop,payment,disk,workload,7,5,0.30920712006555146,0.5724976025439522,front-end,False,False,5,3,False,True,tai nguyen
+SockShop,payment,disk,cpu,15,1,331.085613624228,331.085613624228,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,disk,latency-50,7,1,11.894873748503468,11.894873748503468,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,disk,workload,7,7,0.090202022593768,0.2454178991834379,catalogue,False,False,5,5,False,False,tai nguyen
+SockShop,payment,disk,cpu,15,1,379.4791121580673,379.4791121580673,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,disk,latency-50,7,7,0.03919160187295573,1.5263930909830432,carts,False,False,5,5,False,False,tai nguyen
+SockShop,payment,disk,workload,7,7,0.0014041556102187206,0.03922426122972271,user,False,False,5,5,False,False,tai nguyen
+SockShop,payment,disk,cpu,15,1,395.24294898069314,395.24294898069314,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,disk,latency-50,7,4,0.3918487290844557,2.478112503280827,carts,False,False,5,4,False,False,tai nguyen
+SockShop,payment,loss,workload,7,2,2.809991996390766,3.376887430092394,shipping,False,True,5,1,True,True,mang
+SockShop,payment,loss,cpu,15,1,6.798693854813233,6.798693854813233,payment,True,True,5,1,True,True,mang
+SockShop,payment,loss,latency-50,7,1,24.097206884191195,24.097206884191195,payment,True,True,5,1,True,True,mang
+SockShop,payment,loss,workload,7,1,2.959632481020173,2.959632481020173,payment,True,True,5,1,True,True,mang
+SockShop,payment,loss,cpu,15,2,1.0385441145519105,1.0864456334122417,rabbitmq,False,True,5,1,True,True,mang
+SockShop,payment,loss,latency-50,7,1,37.874709729671,37.874709729671,payment,True,True,5,1,True,True,mang
+SockShop,payment,loss,workload,7,2,2.3983331005224793,2.70698880969837,shipping,False,True,5,1,True,True,mang
+SockShop,payment,loss,cpu,15,1,0.8454500361295814,0.8454500361295814,payment,True,True,5,1,True,True,mang
+SockShop,payment,loss,latency-50,7,2,5.33420713699504,16.440085990308223,orders,False,True,5,2,False,True,mang
+SockShop,payment,mem,workload,7,3,0.2484827642937856,0.29729417491071214,orders,False,True,5,2,False,True,tai nguyen
+SockShop,payment,mem,cpu,15,1,754.5656216361261,754.5656216361261,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,mem,latency-50,7,1,2.046702063532072,2.046702063532072,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,mem,workload,7,5,0.08289153176803357,0.14199432405650134,front-end,False,False,5,4,False,False,tai nguyen
+SockShop,payment,mem,cpu,15,1,713.2040082475679,713.2040082475679,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,mem,latency-50,7,2,9.199622969460679,14.244684006845713,orders,False,True,5,2,False,True,tai nguyen
+SockShop,payment,mem,workload,7,6,0.09583214726434731,0.15964790840283338,catalogue,False,False,5,4,False,False,tai nguyen
+SockShop,payment,mem,cpu,15,1,548.1924540084809,548.1924540084809,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,mem,latency-50,7,2,7.048885457696948,23.198228792029596,orders,False,True,5,2,False,True,tai nguyen
+SockShop,payment,socket,workload,7,4,0.0622358490351408,0.09146468820928529,carts,False,False,5,4,False,False,tai nguyen
+SockShop,payment,socket,cpu,15,1,886.2919783828893,886.2919783828893,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,socket,latency-50,7,1,331.3582642466701,331.3582642466701,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,socket,workload,7,4,0.015077228844382316,0.039634702442422676,catalogue,False,False,5,3,False,True,tai nguyen
+SockShop,payment,socket,cpu,15,1,685.1045537201501,685.1045537201501,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,socket,latency-50,7,1,192.22632406806042,192.22632406806042,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,socket,workload,7,7,0.012254281496545826,0.17581047361612995,front-end,False,False,5,5,False,False,tai nguyen
+SockShop,payment,socket,cpu,15,1,671.996783904826,671.996783904826,payment,True,True,5,1,True,True,tai nguyen
+SockShop,payment,socket,latency-50,7,1,181.52205195701697,181.52205195701697,payment,True,True,5,1,True,True,tai nguyen
+SockShop,user,cpu,workload,7,1,0.5203581470628819,0.5203581470628819,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,cpu,cpu,15,1,42.250179451572144,42.250179451572144,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,cpu,latency-50,7,2,74.3492193184643,115.17617142805545,orders,False,True,5,2,False,True,tai nguyen
+SockShop,user,cpu,workload,7,1,0.508083345685253,0.508083345685253,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,cpu,cpu,15,1,88.70079425981996,88.70079425981996,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,cpu,latency-50,7,2,7.746924551006866,10.20264878247963,orders,False,True,5,2,False,True,tai nguyen
+SockShop,user,cpu,workload,7,3,0.04191847754307758,0.048109978767703766,orders,False,True,5,2,False,True,tai nguyen
+SockShop,user,cpu,cpu,15,1,371.20426252172996,371.20426252172996,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,cpu,latency-50,7,2,11.437051575800824,26.390519142263294,orders,False,True,5,2,False,True,tai nguyen
+SockShop,user,delay,workload,7,3,0.11183968632951556,0.15660427808457586,carts,False,True,5,2,False,True,mang
+SockShop,user,delay,cpu,15,1,1.530242754442883,1.530242754442883,user,True,True,5,1,True,True,mang
+SockShop,user,delay,latency-50,7,1,8728.587586967908,8728.587586967908,user,True,True,5,1,True,True,mang
+SockShop,user,delay,workload,7,4,0.9875032810784222,1.908685759236286,front-end,False,False,5,3,False,True,mang
+SockShop,user,delay,cpu,15,6,0.48535386054971946,0.8466853576287567,user-db,False,False,5,3,False,True,mang
+SockShop,user,delay,latency-50,7,1,7192.954190437145,7192.954190437145,user,True,True,5,1,True,True,mang
+SockShop,user,delay,workload,7,4,0.6825212177761348,1.4798525641936824,front-end,False,False,5,3,False,True,mang
+SockShop,user,delay,cpu,15,5,0.7289208238455881,1.087732868451628,front-end,False,False,5,3,False,True,mang
+SockShop,user,delay,latency-50,7,1,8102.037948928566,8102.037948928566,user,True,True,5,1,True,True,mang
+SockShop,user,disk,workload,7,1,0.37058291588279374,0.37058291588279374,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,disk,cpu,15,1,66.07380154218698,66.07380154218698,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,disk,latency-50,7,1,1.0726131547444309,1.0726131547444309,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,disk,workload,7,2,0.024386373942447543,0.03540670868909314,orders,False,True,5,2,False,True,tai nguyen
+SockShop,user,disk,cpu,15,1,157.51493147322165,157.51493147322165,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,disk,latency-50,7,1,3.9736460011585537,3.9736460011585537,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,disk,workload,7,3,0.02082795478250243,0.04872667521610919,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,user,disk,cpu,15,1,150.28264769766864,150.28264769766864,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,disk,latency-50,7,1,3.5333440499803843,3.5333440499803843,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,loss,workload,7,3,7.868791166201035,14.933773024223832,front-end,False,True,5,2,False,True,mang
+SockShop,user,loss,cpu,15,1,8.411319238042216,8.411319238042216,user,True,True,5,1,True,True,mang
+SockShop,user,loss,latency-50,7,1,912.0957451318004,912.0957451318004,user,True,True,5,1,True,True,mang
+SockShop,user,loss,workload,7,2,7.359593612448301,10.805063791966196,front-end,False,True,5,1,True,True,mang
+SockShop,user,loss,cpu,15,2,5.543023019746838,5.8749963309313,carts-db,False,True,5,1,True,True,mang
+SockShop,user,loss,latency-50,7,1,1930.635353384706,1930.635353384706,user,True,True,5,1,True,True,mang
+SockShop,user,loss,workload,7,1,2.349694238753123,2.349694238753123,user,True,True,5,1,True,True,mang
+SockShop,user,loss,cpu,15,2,1.3500003985947766,1.4366555625149837,shipping,False,True,5,1,True,True,mang
+SockShop,user,loss,latency-50,7,2,998.6571096019435,1629.9812450679808,orders,False,True,5,2,False,True,mang
+SockShop,user,mem,workload,7,2,0.0640212791934677,0.07972046015391654,front-end,False,True,5,1,True,True,tai nguyen
+SockShop,user,mem,cpu,15,1,326.61749492653485,326.61749492653485,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,mem,latency-50,7,1,17.72166781426081,17.72166781426081,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,mem,workload,7,3,0.15182643503415744,0.284741157642613,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,user,mem,cpu,15,1,292.1341544999073,292.1341544999073,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,mem,latency-50,7,1,40.27993103301938,40.27993103301938,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,mem,workload,7,3,0.07014185724467004,0.17402728012433555,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,user,mem,cpu,15,1,206.94638339449992,206.94638339449992,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,mem,latency-50,7,1,21.135562045889564,21.135562045889564,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,socket,workload,7,3,0.1420341660465699,0.18027815689805096,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,user,socket,cpu,15,1,262.167946967592,262.167946967592,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,socket,latency-50,7,1,1669.3010932356415,1669.3010932356415,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,socket,workload,7,3,0.171805373261804,0.2485607254786598,front-end,False,True,5,2,False,True,tai nguyen
+SockShop,user,socket,cpu,15,1,286.4961047773309,286.4961047773309,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,socket,latency-50,7,1,282.651654348428,282.651654348428,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,socket,workload,7,4,0.06849092222400281,0.23980476161438352,front-end,False,False,5,3,False,True,tai nguyen
+SockShop,user,socket,cpu,15,1,422.52966893085267,422.52966893085267,user,True,True,5,1,True,True,tai nguyen
+SockShop,user,socket,latency-50,7,1,714.8903838380867,714.8903838380867,user,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,cpu,workload,11,2,0.121708359498819,0.12710134903290088,paymentservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,cpu,cpu,11,1,226.43273904357292,226.43273904357292,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,cpu,latency-50,10,9,0.2495323968537412,0.895983666384334,currencyservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,checkoutservice,cpu,workload,11,9,0.6173518309162243,3.4659449178168296,productcatalogservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,checkoutservice,cpu,cpu,11,1,42.849764732160175,42.849764732160175,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,cpu,latency-50,10,1,6.187966657500387,6.187966657500387,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,cpu,workload,11,8,0.050637458756265304,0.3226093077881401,productcatalogservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,checkoutservice,cpu,cpu,11,1,235.61380361734763,235.61380361734763,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,cpu,latency-50,10,1,11.329677385505844,11.329677385505844,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,delay,workload,11,9,0.10332098566165306,0.4068090050360264,cartservice,False,False,5,4,False,False,mang
+OnlineBoutique,checkoutservice,delay,cpu,11,1,0.6735430635998769,0.6735430635998769,checkoutservice,True,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,delay,latency-50,10,3,93.2448631630265,1986.8007107619546,emailservice,False,True,5,2,False,True,mang
+OnlineBoutique,checkoutservice,delay,workload,11,9,0.15245570007384984,0.5976180247459779,adservice,False,False,5,4,False,False,mang
+OnlineBoutique,checkoutservice,delay,cpu,11,2,0.43723232181744176,0.5061622418088764,cartservice,False,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,delay,latency-50,10,3,100.28612605237218,1730.6185950849463,emailservice,False,True,5,2,False,True,mang
+OnlineBoutique,checkoutservice,delay,workload,11,8,0.2111746339841087,0.4545588610021481,currencyservice,False,False,5,4,False,False,mang
+OnlineBoutique,checkoutservice,delay,cpu,11,1,1.0680269407697254,1.0680269407697254,checkoutservice,True,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,delay,latency-50,10,3,99.91002190146699,5.583150799478904e+16,emailservice,False,True,5,2,False,True,mang
+OnlineBoutique,checkoutservice,disk,workload,11,5,0.14708988057875388,0.38133715028261467,currencyservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,checkoutservice,disk,cpu,11,1,231.40172179408353,231.40172179408353,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,disk,latency-50,10,2,1.8073453416092642,6.9509313837531765,emailservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,checkoutservice,disk,workload,10,7,0.15658311905018316,0.31476725216237383,frontend,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,checkoutservice,disk,cpu,11,1,226.0265826350289,226.0265826350289,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,disk,latency-50,10,1,6.6831941267342945,6.6831941267342945,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,disk,workload,10,9,0.03951971090048006,0.19885164711443978,currencyservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,checkoutservice,disk,cpu,11,1,228.7832837365025,228.7832837365025,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,disk,latency-50,10,1,5.7855102647283045,5.7855102647283045,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,loss,workload,11,3,2.2544464419506878,2.3134330475854235,shippingservice,False,True,5,2,False,True,mang
+OnlineBoutique,checkoutservice,loss,cpu,11,2,1.516816585884782,1.8465876427251913,paymentservice,False,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,loss,latency-50,10,1,117.63232635822627,117.63232635822627,checkoutservice,True,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,loss,workload,11,1,1.4756441197358914,1.4756441197358914,checkoutservice,True,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,loss,cpu,11,11,0.01580692574755322,0.2530079334799053,redis,False,False,5,5,False,False,mang
+OnlineBoutique,checkoutservice,loss,latency-50,10,1,57.282255850297915,57.282255850297915,checkoutservice,True,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,loss,workload,11,3,1.4754279259465692,1.576532045586911,paymentservice,False,True,5,2,False,True,mang
+OnlineBoutique,checkoutservice,loss,cpu,11,5,0.37014044157954684,1.059876086165343,adservice,False,False,5,2,False,True,mang
+OnlineBoutique,checkoutservice,loss,latency-50,10,1,80.72280454430906,80.72280454430906,checkoutservice,True,True,5,1,True,True,mang
+OnlineBoutique,checkoutservice,mem,workload,11,10,0.08200974907893323,0.4186488019609003,productcatalogservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,checkoutservice,mem,cpu,11,1,219.83970429491535,219.83970429491535,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,mem,latency-50,10,1,53.73298135391723,53.73298135391723,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,mem,workload,11,8,0.04061914473211205,0.17330542746873495,frontend,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,checkoutservice,mem,cpu,11,1,214.56714040933633,214.56714040933633,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,mem,latency-50,10,1,31.20030503726977,31.20030503726977,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,mem,workload,11,6,0.1361306616790013,0.4735418552681853,adservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,checkoutservice,mem,cpu,11,1,292.2061416344026,292.2061416344026,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,mem,latency-50,10,1,40.16226940497221,40.16226940497221,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,workload,11,2,0.27891545350401226,0.31646111479126515,currencyservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,cpu,11,1,62.0377946229016,62.0377946229016,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,latency-50,10,1,3.160414845992564,3.160414845992564,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,workload,11,9,0.23935722606720217,0.6580038327574791,currencyservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,checkoutservice,socket,cpu,11,1,31.85196672496056,31.85196672496056,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,latency-50,10,1,1.4597627627794483,1.4597627627794483,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,workload,11,8,0.06022848435021921,0.24793420969897303,adservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,cpu,11,1,76.51281324321381,76.51281324321381,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,checkoutservice,socket,latency-50,10,1,3.5763498554698363,3.5763498554698363,checkoutservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,workload,11,6,0.5859610510841035,0.8775889287090891,cartservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,cpu,11,1,4.585502671908944,4.585502671908944,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,latency-50,10,1,257.70147477703813,257.70147477703813,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,workload,11,2,0.45818501851743065,0.6277671920575212,adservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,cpu,11,1,4.592248005548022,4.592248005548022,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,latency-50,10,1,227.2682556070799,227.2682556070799,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,workload,11,6,0.6258729861677861,0.7885769059663648,adservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,cpu,11,1,4.695419973079058,4.695419973079058,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,cpu,latency-50,10,1,287.51843931774454,287.51843931774454,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,delay,workload,11,7,1.5750761884794835,2.460107957395832,adservice,False,False,5,3,False,True,mang
+OnlineBoutique,currencyservice,delay,cpu,11,4,0.8909074491753423,1.3477936145581224,recommendationservice,False,False,5,3,False,True,mang
+OnlineBoutique,currencyservice,delay,latency-50,10,1,484.23834842196374,484.23834842196374,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,delay,workload,11,6,2.0415364515513006,3.0893229644953832,adservice,False,False,5,2,False,True,mang
+OnlineBoutique,currencyservice,delay,cpu,11,5,0.6407662112845515,1.4254515923768811,productcatalogservice,False,False,5,2,False,True,mang
+OnlineBoutique,currencyservice,delay,latency-50,10,1,1141.179428501724,1141.179428501724,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,delay,workload,11,7,1.8915526803704292,2.9618518142720673,adservice,False,False,5,3,False,True,mang
+OnlineBoutique,currencyservice,delay,cpu,11,9,0.4835530845121452,1.190205441166655,recommendationservice,False,False,5,3,False,True,mang
+OnlineBoutique,currencyservice,delay,latency-50,10,1,1683.3274139423013,1683.3274139423013,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,disk,workload,11,7,2.258845199618977,3.027309208948085,adservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,disk,cpu,11,10,0.8737503244902685,3.3513783353650664,productcatalogservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,currencyservice,disk,latency-50,10,1,98.67894941775292,98.67894941775292,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,disk,workload,11,7,0.6504666487266016,0.7693047851951803,recommendationservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,disk,cpu,11,1,4.350240623594193,4.350240623594193,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,disk,latency-50,10,1,281.2373696133751,281.2373696133751,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,disk,workload,11,8,0.31012355624848936,0.613382152549961,adservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,disk,cpu,11,1,4.243953931316611,4.243953931316611,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,disk,latency-50,10,1,421.55238203098975,421.55238203098975,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,loss,workload,11,4,9.517660332636975,11.522056969471876,recommendationservice,False,False,5,3,False,True,mang
+OnlineBoutique,currencyservice,loss,cpu,11,3,4.912199205860321,7.431969393575042,frontend,False,True,5,2,False,True,mang
+OnlineBoutique,currencyservice,loss,latency-50,10,1,743.404174212519,743.404174212519,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,loss,workload,11,1,5.088398084399568,5.088398084399568,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,loss,cpu,11,1,5.667314142812559,5.667314142812559,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,loss,latency-50,10,1,704.557367364111,704.557367364111,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,loss,workload,11,1,6.7840942902018595,6.7840942902018595,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,loss,cpu,11,3,3.3302713381066242,6.246919415567458,frontend,False,True,5,2,False,True,mang
+OnlineBoutique,currencyservice,loss,latency-50,10,1,346.617993473851,346.617993473851,currencyservice,True,True,5,1,True,True,mang
+OnlineBoutique,currencyservice,mem,workload,11,7,1.8377254826058596,3.241917980181947,adservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,mem,cpu,11,1,3.687943108735608,3.687943108735608,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,mem,latency-50,10,1,514.636214637134,514.636214637134,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,mem,workload,11,2,1.2294439457752169,1.770216039850215,adservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,mem,cpu,11,1,6.441751013034692,6.441751013034692,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,mem,latency-50,10,1,721.6405343350416,721.6405343350416,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,mem,workload,11,6,1.5077968754444826,2.03003851244908,adservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,mem,cpu,11,1,4.750302468442299,4.750302468442299,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,mem,latency-50,10,1,436.0265779335365,436.0265779335365,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,socket,workload,11,4,0.1752046233161824,0.4575155714401971,recommendationservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,socket,cpu,11,9,0.0915593008199682,0.5360531174865059,productcatalogservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,currencyservice,socket,latency-50,10,6,0.26191007665420596,0.7249534775548925,productcatalogservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,socket,workload,11,8,0.26799781409564377,0.8902997209370856,recommendationservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,currencyservice,socket,cpu,11,1,4.9620445937333075,4.9620445937333075,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,socket,latency-50,10,1,358.786911042756,358.786911042756,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,socket,workload,11,9,0.6174225525714249,1.3412827666176084,recommendationservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,currencyservice,socket,cpu,11,1,4.938334412497231,4.938334412497231,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,currencyservice,socket,latency-50,10,1,493.3865749900979,493.3865749900979,currencyservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,cpu,workload,11,2,0.3275042311097337,0.37392700975661847,currencyservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,emailservice,cpu,cpu,11,1,589.0184090283399,589.0184090283399,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,cpu,latency-50,10,1,552.943620114651,552.943620114651,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,cpu,workload,11,4,0.06692251114113003,0.19374213563227596,frontend-external,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,emailservice,cpu,cpu,11,1,660.2626178208905,660.2626178208905,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,cpu,latency-50,10,1,613.7712544493552,613.7712544493552,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,cpu,workload,11,3,0.172197931443865,0.18815463154750736,paymentservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,emailservice,cpu,cpu,11,1,583.1400546288484,583.1400546288484,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,cpu,latency-50,10,1,422.0669488590477,422.0669488590477,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,delay,workload,11,8,0.23550707489322817,0.4360381362099699,currencyservice,False,False,5,3,False,True,mang
+OnlineBoutique,emailservice,delay,cpu,11,1,0.4354907224465042,0.4354907224465042,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,delay,latency-50,10,1,1619.1583469134564,1619.1583469134564,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,delay,workload,11,8,0.027594096372484056,0.1064916505139209,shippingservice,False,False,5,5,False,False,mang
+OnlineBoutique,emailservice,delay,cpu,11,1,0.2646245990227126,0.2646245990227126,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,delay,latency-50,10,1,1261.8261572907413,1261.8261572907413,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,delay,workload,11,9,0.17072204446446218,0.3221214486606945,frontend-external,False,False,5,4,False,False,mang
+OnlineBoutique,emailservice,delay,cpu,11,6,0.15058371836214762,3.0082722789948297,adservice,False,False,5,1,True,True,mang
+OnlineBoutique,emailservice,delay,latency-50,10,1,1872.8856897390353,1872.8856897390353,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,disk,workload,11,2,0.33172937809781305,0.33801326199863785,shippingservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,disk,cpu,11,1,525.4538274762301,525.4538274762301,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,disk,latency-50,10,1,379.0179555303736,379.0179555303736,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,disk,workload,11,11,0.0016556330318657465,0.14504789653225547,productcatalogservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,emailservice,disk,cpu,11,1,467.27338029311784,467.27338029311784,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,disk,latency-50,10,1,351.88687260528275,351.88687260528275,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,disk,workload,11,9,0.09208398923055865,0.3388575228755824,productcatalogservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,emailservice,disk,cpu,11,1,501.7613474283061,501.7613474283061,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,disk,latency-50,10,1,669.5376447924489,669.5376447924489,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,loss,workload,11,1,1.3662625710528804,1.3662625710528804,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,loss,cpu,11,8,0.12411416280428465,0.6435012991222953,adservice,False,False,5,4,False,False,mang
+OnlineBoutique,emailservice,loss,latency-50,10,1,192.0366294867418,192.0366294867418,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,loss,workload,11,1,0.232959959104022,0.232959959104022,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,loss,cpu,11,1,4.547834957910893,4.547834957910893,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,loss,latency-50,10,1,10.530000272460699,10.530000272460699,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,loss,workload,11,1,0.4665292288724171,0.4665292288724171,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,loss,cpu,11,1,10.146232361431887,10.146232361431887,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,loss,latency-50,10,1,39.157969429922204,39.157969429922204,emailservice,True,True,5,1,True,True,mang
+OnlineBoutique,emailservice,mem,workload,11,10,0.02796668570138929,0.47049899846337623,adservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,emailservice,mem,cpu,11,1,629.7253088561646,629.7253088561646,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,mem,latency-50,10,1,4277.125639694589,4277.125639694589,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,mem,workload,11,6,0.1329177545495146,0.3780506571158095,currencyservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,emailservice,mem,cpu,11,1,554.1364431223932,554.1364431223932,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,mem,latency-50,10,1,4391.263350189638,4391.263350189638,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,mem,workload,11,4,0.2999127403698209,0.570472344889079,currencyservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,emailservice,mem,cpu,11,1,543.4662256711051,543.4662256711051,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,mem,latency-50,10,1,3342.210317692336,3342.210317692336,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,socket,workload,11,9,0.14980422061433918,0.33696026585058464,shippingservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,emailservice,socket,cpu,11,1,304.9882571628471,304.9882571628471,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,socket,latency-50,10,1,202.16833759316324,202.16833759316324,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,socket,workload,11,11,0.23590685343529597,0.4851788441012476,cartservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,emailservice,socket,cpu,11,1,216.9006079077265,216.9006079077265,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,socket,latency-50,10,1,354.9965802808638,354.9965802808638,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,socket,workload,11,3,0.06781033248444099,0.2988131229847391,currencyservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,emailservice,socket,cpu,11,1,205.37346158836098,205.37346158836098,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,emailservice,socket,latency-50,10,1,706.0298337090076,706.0298337090076,emailservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,workload,11,11,0.0032469264296486524,0.5242778610927961,currencyservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,cpu,11,1,36.2209416190154,36.2209416190154,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,latency-50,10,2,10.836588845432049,130.90334988857518,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,workload,11,2,0.7336585310724237,0.9654375097912474,adservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,cpu,11,1,46.38405213367671,46.38405213367671,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,latency-50,10,3,31.066332801502245,793.33617703728,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,workload,11,4,0.38469486139174114,0.4879987338480683,recommendationservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,cpu,11,1,46.477699603137374,46.477699603137374,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,cpu,latency-50,10,3,32.498327101702266,1081.033415783691,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,delay,workload,11,5,4.363490087786912,4.747922154941375,frontend-external,False,False,5,1,True,True,mang
+OnlineBoutique,productcatalogservice,delay,cpu,11,10,0.6400569003776706,1.888616166361736,recommendationservice,False,False,5,4,False,False,mang
+OnlineBoutique,productcatalogservice,delay,latency-50,10,2,649.5272275522904,3241.101160236139,recommendationservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,delay,workload,11,7,2.801566826155407,4.079474281811404,adservice,False,False,5,3,False,True,mang
+OnlineBoutique,productcatalogservice,delay,cpu,11,4,1.1386093642567674,1.4531401731422184,shippingservice,False,False,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,delay,latency-50,10,3,674.8755993487383,1555.7297662466774,frontend,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,delay,workload,11,6,3.584434591698568,4.136989293483461,recommendationservice,False,False,5,3,False,True,mang
+OnlineBoutique,productcatalogservice,delay,cpu,11,11,0.4039678548275157,1.7708003320865828,currencyservice,False,False,5,5,False,False,mang
+OnlineBoutique,productcatalogservice,delay,latency-50,10,3,846.678103763002,1742.6828640136546,recommendationservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,disk,workload,11,2,0.39631633435171465,0.40126020587258854,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,disk,cpu,11,1,48.036846489543116,48.036846489543116,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,disk,latency-50,10,2,24.228332883124676,47.88749449075879,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,disk,workload,11,6,0.8686862939833968,1.5784611442867187,currencyservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,disk,cpu,11,1,35.009759349178786,35.009759349178786,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,disk,latency-50,10,3,52.651478443889964,1320.431807054765,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,disk,workload,11,9,0.12305056319779871,0.5568494081686285,frontend,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,productcatalogservice,disk,cpu,11,1,42.258871760393426,42.258871760393426,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,disk,latency-50,10,2,40.291863441471435,421.1631635143653,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,loss,workload,11,2,11.445916736977804,11.771558893949436,adservice,False,True,5,1,True,True,mang
+OnlineBoutique,productcatalogservice,loss,cpu,11,2,6.771854923234667,6.945954214476892,currencyservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,loss,latency-50,10,2,4080.85657166345,20467.338482858435,recommendationservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,loss,workload,11,2,12.021061741516588,12.136504879688022,currencyservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,loss,cpu,11,3,6.1850877444481895,8.301750632628915,frontend,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,loss,latency-50,10,3,1964.4927212442112,24592.417857407865,recommendationservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,loss,workload,11,1,9.68687474370287,9.68687474370287,productcatalogservice,True,True,5,1,True,True,mang
+OnlineBoutique,productcatalogservice,loss,cpu,11,3,4.021839817314631,5.835130915740778,currencyservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,loss,latency-50,10,3,159.33784765677572,4231.580741886818,recommendationservice,False,True,5,2,False,True,mang
+OnlineBoutique,productcatalogservice,mem,workload,11,3,6.894741178647227,7.240524914344292,cartservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,cpu,11,1,53.23478921155446,53.23478921155446,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,latency-50,10,2,1092.3374060983306,2593.2197034941164,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,workload,11,7,2.574941977856541,3.380795703149787,adservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,cpu,11,1,34.91121468691738,34.91121468691738,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,latency-50,10,2,997.8519812613869,1485.1271791884951,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,workload,11,6,3.405709324102755,5.367605588243931,adservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,cpu,11,1,34.707248889748705,34.707248889748705,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,mem,latency-50,10,2,700.6162375236426,2245.9907833934312,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,workload,11,3,1.6245566626424417,2.5949946628509943,adservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,cpu,11,1,50.63393337032764,50.63393337032764,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,latency-50,10,2,998.3494152063901,1739.5360907915056,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,workload,11,10,0.15047838895224172,0.31830330354481484,frontend-external,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,productcatalogservice,socket,cpu,11,1,13.683182607205682,13.683182607205682,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,latency-50,10,3,11.091188665371924,129.83471427168521,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,workload,11,8,0.04685069712915482,0.32908716325825177,adservice,False,False,5,3,False,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,cpu,11,1,7.426887718496068,7.426887718496068,productcatalogservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,productcatalogservice,socket,latency-50,10,3,4.590763552868854,152.85611844069288,recommendationservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,workload,11,10,0.03956588589427325,0.42674533649371327,currencyservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,recommendationservice,cpu,cpu,11,1,67.44293303586558,67.44293303586558,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,latency-50,10,1,964.2988156340699,964.2988156340699,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,workload,11,2,0.45659955572239164,0.4893278513368077,productcatalogservice,False,True,5,2,False,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,cpu,11,1,60.663870142647056,60.663870142647056,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,latency-50,10,1,1001.15044679518,1001.15044679518,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,workload,11,3,0.49034323934064766,0.6045464198100681,shippingservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,cpu,11,1,54.69780104289338,54.69780104289338,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,cpu,latency-50,10,1,591.9308886183911,591.9308886183911,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,delay,workload,11,4,0.9496738895385337,1.4170950507831828,adservice,False,False,5,2,False,True,mang
+OnlineBoutique,recommendationservice,delay,cpu,11,2,0.6867017855271084,1.083560862622741,cartservice,False,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,delay,latency-50,10,1,4201.680215204768,4201.680215204768,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,delay,workload,11,4,1.1394183267606273,1.51393374811085,adservice,False,False,5,1,True,True,mang
+OnlineBoutique,recommendationservice,delay,cpu,11,7,0.389030951213727,0.7698274670299948,frontend,False,False,5,3,False,True,mang
+OnlineBoutique,recommendationservice,delay,latency-50,10,1,4525.437882826657,4525.437882826657,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,delay,workload,11,2,0.6971581219448947,1.0458190055599785,adservice,False,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,delay,cpu,11,1,0.39279553806976975,0.39279553806976975,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,delay,latency-50,10,1,4437.767958294164,4437.767958294164,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,disk,workload,11,9,0.10819459698375,0.41999062039631296,currencyservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,recommendationservice,disk,cpu,11,1,60.95642671369492,60.95642671369492,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,disk,latency-50,10,1,496.2789399886368,496.2789399886368,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,disk,workload,11,1,0.3914975211832922,0.3914975211832922,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,disk,cpu,11,1,64.64155776555995,64.64155776555995,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,disk,latency-50,10,1,750.3145209337796,750.3145209337796,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,disk,workload,11,6,0.15676442507764274,0.30456477666773724,adservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,recommendationservice,disk,cpu,11,1,45.682264986099874,45.682264986099874,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,disk,latency-50,10,1,840.5033047233089,840.5033047233089,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,loss,workload,11,1,14.204853810220133,14.204853810220133,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,loss,cpu,11,11,0.4723238240484213,5.6181582287681735,productcatalogservice,False,False,5,5,False,False,mang
+OnlineBoutique,recommendationservice,loss,latency-50,10,1,773.7101434622381,773.7101434622381,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,loss,workload,11,1,8.304039194485952,8.304039194485952,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,loss,cpu,11,11,0.06819697677465267,2.91146771615991,productcatalogservice,False,False,5,5,False,False,mang
+OnlineBoutique,recommendationservice,loss,latency-50,10,1,5014.623550758912,5014.623550758912,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,loss,workload,11,1,6.543803406054909,6.543803406054909,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,loss,cpu,11,11,0.29534866805896354,2.611143618732782,productcatalogservice,False,False,5,5,False,False,mang
+OnlineBoutique,recommendationservice,loss,latency-50,10,1,16277.447207990657,16277.447207990657,recommendationservice,True,True,5,1,True,True,mang
+OnlineBoutique,recommendationservice,mem,workload,11,6,0.4916538963646591,1.1738515321818517,adservice,False,False,5,2,False,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,cpu,11,1,52.78625347825028,52.78625347825028,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,latency-50,10,1,1124.004903104342,1124.004903104342,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,workload,11,4,0.7992788994094028,1.1119334425683238,adservice,False,False,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,cpu,11,1,64.38058744048026,64.38058744048026,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,latency-50,10,1,1211.7348353141417,1211.7348353141417,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,workload,11,2,0.961258310955027,1.2078067695173293,adservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,cpu,11,1,55.49424979699186,55.49424979699186,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,mem,latency-50,10,1,1077.5886457141692,1077.5886457141692,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,socket,workload,11,2,0.4802003476715408,0.7384861915637009,adservice,False,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,socket,cpu,11,1,52.539887388234504,52.539887388234504,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,socket,latency-50,10,1,4798.90993448811,4798.90993448811,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,socket,workload,11,7,0.132459148931808,0.3295258917951231,currencyservice,False,False,5,4,False,False,tai nguyen
+OnlineBoutique,recommendationservice,socket,cpu,11,1,10.690686646064847,10.690686646064847,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,socket,latency-50,10,1,245.60763724768745,245.60763724768745,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,socket,workload,11,11,0.02546831683596809,0.2475886116388935,currencyservice,False,False,5,5,False,False,tai nguyen
+OnlineBoutique,recommendationservice,socket,cpu,11,1,5.203107112777525,5.203107112777525,recommendationservice,True,True,5,1,True,True,tai nguyen
+OnlineBoutique,recommendationservice,socket,latency-50,10,1,63.112587366179014,63.112587366179014,recommendationservice,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,workload,28,21,0.19958592025848518,0.47369851630975146,ts-ticketinfo-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-auth-service,cpu,cpu,68,1,30.78543061241883,30.78543061241883,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,latency-50,26,1,42.55858374175975,42.55858374175975,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,workload,28,3,0.6942608146180699,0.7219570347720712,ts-route-service,False,True,5,2,False,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,cpu,68,1,17.643638534281944,17.643638534281944,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,latency-50,28,1,36.251470437009424,36.251470437009424,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,workload,28,1,0.8474701490524744,0.8474701490524744,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,cpu,68,1,12.060651545875556,12.060651545875556,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,cpu,latency-50,28,1,21.345373931211203,21.345373931211203,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,delay,workload,28,3,0.5124836061902638,0.6348945502389856,ts-ui-dashboard,False,True,5,1,True,True,mang
+TrainTicket,ts-auth-service,delay,cpu,68,5,0.813162077917585,1.1416583073604212,ts-ui-dashboard,False,False,5,2,False,True,mang
+TrainTicket,ts-auth-service,delay,latency-50,26,1,126.27131668518274,126.27131668518274,ts-auth-service,True,True,5,1,True,True,mang
+TrainTicket,ts-auth-service,delay,workload,28,15,0.27363687473512543,0.6966918405267123,ts-route-service,False,False,5,5,False,False,mang
+TrainTicket,ts-auth-service,delay,cpu,68,13,0.9516284645144513,1.3927542426939332,ts-order-service,False,False,5,5,False,False,mang
+TrainTicket,ts-auth-service,delay,latency-50,28,2,9.230436238085568,16.963444857748783,ts-user-service,False,True,5,1,True,True,mang
+TrainTicket,ts-auth-service,delay,workload,28,20,0.1185918195235007,0.3691874195244909,ts-preserve-other-service,False,False,5,3,False,True,mang
+TrainTicket,ts-auth-service,delay,cpu,68,40,0.29111232832625583,1.8725294294518513,ts-station-mongo,False,False,5,5,False,False,mang
+TrainTicket,ts-auth-service,delay,latency-50,28,1,8.461345543636828,8.461345543636828,ts-auth-service,True,True,5,1,True,True,mang
+TrainTicket,ts-auth-service,disk,workload,28,18,0.15642205275173018,0.5733780932504418,ts-travel2-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-auth-service,disk,cpu,68,1,2.3941085177543666,2.3941085177543666,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,disk,latency-50,28,7,1.4070620430521048,5.069840574326955,ts-consign-price-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-auth-service,disk,workload,28,3,0.5674024918667702,0.6892622471243197,ts-travel2-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,disk,cpu,68,1,13.672981219711467,13.672981219711467,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,disk,latency-50,28,1,22.16465727350026,22.16465727350026,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,disk,workload,28,1,0.8535650309830503,0.8535650309830503,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,disk,cpu,68,1,8.967817465323565,8.967817465323565,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,disk,latency-50,28,1,28.969776776738932,28.969776776738932,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,loss,workload,28,15,0.055814276960370966,0.3191907236985951,ts-preserve-other-service,False,False,5,4,False,False,mang
+TrainTicket,ts-auth-service,loss,cpu,68,21,0.33865884666318014,2.7562811616625544,ts-ticketinfo-service,False,False,5,1,True,True,mang
+TrainTicket,ts-auth-service,loss,latency-50,27,4,1.6308457755996584,2.7234157740597555,ts-order-other-service,False,False,5,1,True,True,mang
+TrainTicket,ts-auth-service,loss,workload,28,18,0.1865139188174547,0.5300390618334062,ts-contacts-service,False,False,5,3,False,True,mang
+TrainTicket,ts-auth-service,loss,cpu,68,19,0.5430624346825562,1.7581939249789273,ts-travel-plan-service,False,False,5,3,False,True,mang
+TrainTicket,ts-auth-service,loss,latency-50,28,8,1.056939318949816,3.8176696124609384,ts-food-map-service,False,False,5,2,False,True,mang
+TrainTicket,ts-auth-service,loss,workload,28,6,0.24881922804219977,0.44779911575895376,ts-payment-service,False,False,5,2,False,True,mang
+TrainTicket,ts-auth-service,loss,cpu,68,62,0.02127657733393461,2.0439024859430046,ts-preserve-service,False,False,5,4,False,False,mang
+TrainTicket,ts-auth-service,loss,latency-50,28,13,0.7955842470524058,2.8085915314360324,ts-seat-service,False,False,5,5,False,False,mang
+TrainTicket,ts-auth-service,mem,workload,28,1,0.946262731393749,0.946262731393749,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,mem,cpu,68,1,16.721327403794344,16.721327403794344,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,mem,latency-50,28,2,57.68329115711809,130037022545089.94,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,mem,workload,28,7,0.9138031566310735,1.208543403094215,ts-route-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-auth-service,mem,cpu,68,1,18.859039959964853,18.859039959964853,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,mem,latency-50,28,2,53.50447664017333,301431745220766.75,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,mem,workload,28,4,0.402699541311946,0.47095381689650856,ts-food-map-service,False,False,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,mem,cpu,68,1,12.63998336910423,12.63998336910423,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,mem,latency-50,28,1,18.79132678539957,18.79132678539957,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,socket,workload,28,5,0.7745348090613297,0.8342081875233378,ts-train-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-auth-service,socket,cpu,68,1,14.394781150928903,14.394781150928903,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,socket,latency-50,27,1,38.32541336970678,38.32541336970678,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,socket,workload,28,9,0.622082120709421,0.9080217778803618,ts-route-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-auth-service,socket,cpu,68,1,10.566109579574997,10.566109579574997,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,socket,latency-50,27,1,47.07808267132708,47.07808267132708,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,socket,workload,28,2,1.064758753831072,1.1133598819707766,ts-travel2-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,socket,cpu,68,1,14.950662720781478,14.950662720781478,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-auth-service,socket,latency-50,28,1,74.81527256956379,74.81527256956379,ts-auth-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,cpu,workload,28,7,0.28122329478062136,0.5587266911373346,ts-admin-basic-info-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-order-service,cpu,cpu,68,1,10.600995223997824,10.600995223997824,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,cpu,latency-50,28,1,5.638878084206191,5.638878084206191,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,cpu,workload,28,20,0.23740283581701446,0.5442120870939722,ts-food-map-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-order-service,cpu,cpu,68,1,36.14119971937769,36.14119971937769,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,cpu,latency-50,28,1,92.69718095600173,92.69718095600173,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,cpu,workload,28,3,0.2641786239406213,0.49391566110157553,ts-food-map-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,cpu,cpu,68,1,45.51747027315977,45.51747027315977,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,cpu,latency-50,28,1,36.866156392799326,36.866156392799326,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,delay,workload,28,13,0.6996380153240144,1.1351005063085053,ts-travel2-service,False,False,5,4,False,False,mang
+TrainTicket,ts-order-service,delay,cpu,68,32,0.3496561250013601,7.410524716155071,ts-contacts-service,False,False,5,5,False,False,mang
+TrainTicket,ts-order-service,delay,latency-50,27,1,435.5879552981581,435.5879552981581,ts-order-service,True,True,5,1,True,True,mang
+TrainTicket,ts-order-service,delay,workload,21,2,0.15879045688890617,0.38574241148011473,ts-assurance-service,False,True,5,1,True,True,mang
+TrainTicket,ts-order-service,delay,cpu,68,23,0.46978170717648393,0.8073643308338885,ts-payment-service,False,False,5,3,False,True,mang
+TrainTicket,ts-order-service,delay,latency-50,21,1,89.8999735949754,89.8999735949754,ts-order-service,True,True,5,1,True,True,mang
+TrainTicket,ts-order-service,delay,workload,21,15,0.05732534265069485,0.4328132469644378,ts-order-other-service,False,False,5,4,False,False,mang
+TrainTicket,ts-order-service,delay,cpu,68,6,0.46698354616792187,2.6034472303524474,ts-travel2-service,False,False,5,1,True,True,mang
+TrainTicket,ts-order-service,delay,latency-50,21,1,197.7722719020641,197.7722719020641,ts-order-service,True,True,5,1,True,True,mang
+TrainTicket,ts-order-service,disk,workload,28,8,0.20763618536935377,0.5156815288346049,ts-food-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-order-service,disk,cpu,68,2,1.911260723059385,2.435487828098328,ts-consign-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,disk,latency-50,28,26,0.0627910897624299,2.2260412911830345,ts-route-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-order-service,disk,workload,21,15,0.10625720093961262,0.33282124449463685,ts-consign-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-order-service,disk,cpu,68,1,4.388544166207315,4.388544166207315,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,disk,latency-50,21,19,0.09907967302024522,2.5878413892993852,ts-assurance-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-order-service,disk,workload,21,17,0.10855189986768823,0.583000687923791,ts-consign-price-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-order-service,disk,cpu,68,1,53.25006562127663,53.25006562127663,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,disk,latency-50,21,1,7.5291417144635275,7.5291417144635275,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,loss,workload,28,3,0.1783874485306055,0.4004214653304554,ts-inside-payment-service,False,True,5,2,False,True,mang
+TrainTicket,ts-order-service,loss,cpu,68,25,0.3198301880952652,2.224769669288106,ts-travel2-service,False,False,5,3,False,True,mang
+TrainTicket,ts-order-service,loss,latency-50,27,24,0.050689779647317766,112.58746779550162,ts-preserve-service,False,False,5,5,False,False,mang
+TrainTicket,ts-order-service,loss,workload,21,14,0.11813637962509135,0.3517259649707838,ts-ui-dashboard,False,False,5,4,False,False,mang
+TrainTicket,ts-order-service,loss,cpu,68,20,0.2724066821718447,1.0313141423444951,ts-consign-service,False,False,5,3,False,True,mang
+TrainTicket,ts-order-service,loss,latency-50,21,1,6.501061275881864,6.501061275881864,ts-order-service,True,True,5,1,True,True,mang
+TrainTicket,ts-order-service,loss,workload,21,12,0.13031679700491564,0.6003947779741041,ts-assurance-service,False,False,5,3,False,True,mang
+TrainTicket,ts-order-service,loss,cpu,68,20,0.2914163063036814,3.0471841353951366,ts-travel-service,False,False,5,2,False,True,mang
+TrainTicket,ts-order-service,loss,latency-50,21,3,2.9449443823291017,8167324732429.879,ts-admin-basic-info-service,False,True,5,1,True,True,mang
+TrainTicket,ts-order-service,mem,workload,28,20,0.0818468986518463,0.335571580716188,ts-basic-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-order-service,mem,cpu,68,1,6.830542059475203,6.830542059475203,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,mem,latency-50,28,1,7.542687227391456,7.542687227391456,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,mem,workload,28,5,0.4105169787615605,0.49481689781176047,ts-travel-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-order-service,mem,cpu,68,1,9.604586110019026,9.604586110019026,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,mem,latency-50,28,1,5.836023144933044,5.836023144933044,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,mem,workload,28,22,0.12326843814042504,0.5502541738822719,ts-inside-payment-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-order-service,mem,cpu,68,1,31.17170104678771,31.17170104678771,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,mem,latency-50,28,2,59.87482387308447,1338317477038.2097,ts-payment-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,socket,workload,28,19,0.1648276208888743,0.31376470204569357,ts-train-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-order-service,socket,cpu,68,1,17.021581575570657,17.021581575570657,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,socket,latency-50,27,1,86.32959825486971,86.32959825486971,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,socket,workload,21,6,0.15679702785132227,0.3962573919783234,ts-food-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-order-service,socket,cpu,68,1,86.61964735830428,86.61964735830428,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,socket,latency-50,21,2,50.0487578343815,149.39566413937325,ts-inside-payment-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,socket,workload,28,6,0.28589370942952824,0.46032000777011745,ts-inside-payment-service,False,False,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,socket,cpu,68,1,49.68435037694154,49.68435037694154,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-order-service,socket,latency-50,28,1,47.363709790126876,47.363709790126876,ts-order-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,cpu,workload,28,5,0.7369858205695579,1.4080428829525231,ts-auth-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,cpu,cpu,68,1,60.64363434999197,60.64363434999197,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,cpu,latency-50,28,1,133.39037820774465,133.39037820774465,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,cpu,workload,21,8,0.0606849497895385,0.192169909292735,ts-order-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-route-service,cpu,cpu,68,1,40.559430109358004,40.559430109358004,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,cpu,latency-50,21,2,9.160190502783752,10.979630255429122,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,cpu,workload,21,17,0.028015129568329154,0.3061889188728314,ts-order-other-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-route-service,cpu,cpu,68,1,99.49690555256365,99.49690555256365,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,cpu,latency-50,21,3,7.312539430023499,24.626211860431173,ts-travel2-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,delay,workload,28,6,2.8902529335197213,4.200205484113321,ts-auth-service,False,False,5,2,False,True,mang
+TrainTicket,ts-route-service,delay,cpu,68,10,1.4520144836101923,2.6578860041142733,ts-basic-service,False,False,5,3,False,True,mang
+TrainTicket,ts-route-service,delay,latency-50,27,1,3465.9425192598887,3465.9425192598887,ts-route-service,True,True,5,1,True,True,mang
+TrainTicket,ts-route-service,delay,workload,28,2,3.1897387975504135,3.4202729017478295,ts-auth-service,False,True,5,2,False,True,mang
+TrainTicket,ts-route-service,delay,cpu,68,13,1.2131948639705221,3.730001946563422,ts-ui-dashboard,False,False,5,3,False,True,mang
+TrainTicket,ts-route-service,delay,latency-50,28,2,6539.9768408126,1.2259039678105392e+17,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-route-service,delay,workload,28,1,3.4904694185983334,3.4904694185983334,ts-route-service,True,True,5,1,True,True,mang
+TrainTicket,ts-route-service,delay,cpu,68,13,1.1076020112963016,2.8387905047934154,ts-config-service,False,False,5,4,False,False,mang
+TrainTicket,ts-route-service,delay,latency-50,28,1,4042.937346209438,4042.937346209438,ts-route-service,True,True,5,1,True,True,mang
+TrainTicket,ts-route-service,disk,workload,28,8,0.30587913503799186,0.39698001514427944,ts-auth-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-route-service,disk,cpu,68,1,1.4925008772578119,1.4925008772578119,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,disk,latency-50,28,21,0.180393001503298,2.9472228332982,ts-station-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-route-service,disk,workload,28,22,0.08203669730058052,0.7028883419266035,ts-inside-payment-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-route-service,disk,cpu,68,1,68.67561056112505,68.67561056112505,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,disk,latency-50,28,2,23.512915619130414,1757644109093365.8,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,disk,workload,28,18,0.031827382433750356,0.37742440762607765,ts-admin-basic-info-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,disk,cpu,68,1,4.781011058523919,4.781011058523919,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,disk,latency-50,28,7,0.7726288081640262,2.066890326145819,ts-contacts-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,loss,workload,28,4,0.551642021085216,0.6771220575898689,ts-ui-dashboard,False,False,5,2,False,True,mang
+TrainTicket,ts-route-service,loss,cpu,68,31,0.3326516532803982,4.26539626590746,ts-user-service,False,False,5,2,False,True,mang
+TrainTicket,ts-route-service,loss,latency-50,28,9,2.0355687990716373,1.0558253893570944e+16,ts-admin-travel-service,False,False,5,2,False,True,mang
+TrainTicket,ts-route-service,loss,workload,28,6,0.39150710263334687,0.5900083387603985,ts-auth-service,False,False,5,2,False,True,mang
+TrainTicket,ts-route-service,loss,cpu,68,21,0.3079633968169525,0.7679610388194393,ts-user-service,False,False,5,4,False,False,mang
+TrainTicket,ts-route-service,loss,latency-50,28,2,6.953858075753782,9985020709361270.0,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-route-service,loss,workload,28,15,0.09733993019449867,0.28635643237867964,ts-food-map-service,False,False,5,1,True,True,mang
+TrainTicket,ts-route-service,loss,cpu,68,3,1.1549290533217207,1.2447985936580674,ts-station-mongo,False,True,5,1,True,True,mang
+TrainTicket,ts-route-service,loss,latency-50,28,9,0.6993827628218314,1.083219679089277,ts-config-service,False,False,5,3,False,True,mang
+TrainTicket,ts-route-service,mem,workload,28,3,0.5582425204477681,0.6293551200843649,ts-config-service,False,True,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,mem,cpu,68,1,73.78288017508896,73.78288017508896,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,mem,latency-50,28,2,208.42523523847353,224.151507007065,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,mem,workload,28,19,0.06614144546607487,0.4623987545405272,ts-auth-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-route-service,mem,cpu,68,1,8.798611368734745,8.798611368734745,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,mem,latency-50,28,1,6.112868519514575,6.112868519514575,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,mem,workload,28,3,0.5236304418707356,0.6591526341590969,ts-auth-service,False,True,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,mem,cpu,68,1,80.32789740581646,80.32789740581646,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,mem,latency-50,28,1,304.2158600231467,304.2158600231467,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,socket,workload,28,4,0.3835693498483533,0.740645476228768,ts-auth-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,socket,cpu,68,1,62.57277082138331,62.57277082138331,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,socket,latency-50,27,2,174.00143368276127,260.4740579926746,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,socket,workload,28,10,0.15441253118639933,0.3931011602732214,ts-consign-price-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,socket,cpu,68,1,4.426732919072544,4.426732919072544,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,socket,latency-50,28,1,5.419781828785478,5.419781828785478,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,socket,workload,28,2,0.6908340093191451,0.769975060004378,ts-auth-service,False,True,5,2,False,True,tai nguyen
+TrainTicket,ts-route-service,socket,cpu,68,1,97.8820136255707,97.8820136255707,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-route-service,socket,latency-50,28,1,1552.9913911141664,1552.9913911141664,ts-route-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,cpu,workload,28,3,0.3995502407155045,0.4231382223228922,ts-order-service,False,True,5,2,False,True,tai nguyen
+TrainTicket,ts-train-service,cpu,cpu,68,1,70.70575654732369,70.70575654732369,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,cpu,latency-50,26,2,20.52919941194465,65.7630549482074,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,cpu,workload,28,11,0.12400025927428883,0.353265981548579,ts-assurance-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-train-service,cpu,cpu,68,1,89.23156442661579,89.23156442661579,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,cpu,latency-50,28,3,58.90640841652411,134922638932312.34,ts-security-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,cpu,workload,28,22,0.0315639289463057,0.39158968967267743,ts-food-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-train-service,cpu,cpu,68,1,82.31639278817562,82.31639278817562,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,cpu,latency-50,28,2,34.100407877585724,6915287735796752.0,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,delay,workload,28,4,2.23310252946637,2.9226119060979707,ts-auth-service,False,False,5,3,False,True,mang
+TrainTicket,ts-train-service,delay,cpu,68,21,0.7029744984744217,2.0700192868974536,ts-seat-service,False,False,5,5,False,False,mang
+TrainTicket,ts-train-service,delay,latency-50,26,4,3346.032058504743,19215.447003222544,ts-admin-travel-service,False,False,5,2,False,True,mang
+TrainTicket,ts-train-service,delay,workload,28,5,2.521115366847617,3.070198373290089,ts-route-service,False,False,5,3,False,True,mang
+TrainTicket,ts-train-service,delay,cpu,68,16,1.2501567260860753,2.651395886897887,ts-auth-service,False,False,5,4,False,False,mang
+TrainTicket,ts-train-service,delay,latency-50,28,2,1310.4013275089708,2652.362978008737,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-train-service,delay,workload,28,4,2.6466018698943907,3.356256354742497,ts-route-service,False,False,5,3,False,True,mang
+TrainTicket,ts-train-service,delay,cpu,68,5,1.9658047187780445,2.899870828592988,ts-route-service,False,False,5,2,False,True,mang
+TrainTicket,ts-train-service,delay,latency-50,28,1,1834.5767475582516,1834.5767475582516,ts-train-service,True,True,5,1,True,True,mang
+TrainTicket,ts-train-service,disk,workload,28,23,0.07258818347152193,0.46346673716561837,ts-order-other-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-train-service,disk,cpu,68,1,61.05086215064313,61.05086215064313,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,disk,latency-50,28,2,14.385643933996542,39.820155950307665,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,disk,workload,28,26,0.006876367372561855,0.4758682295071739,ts-inside-payment-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-train-service,disk,cpu,68,1,60.66108642695736,60.66108642695736,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,disk,latency-50,28,3,16.23137348997875,8537606215478916.0,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,disk,workload,28,22,0.04839075682653342,0.3300190925555108,ts-order-other-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-train-service,disk,cpu,68,1,65.06105961614745,65.06105961614745,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,disk,latency-50,28,3,9.143484028476113,5700722891128867.0,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,loss,workload,28,19,0.19352630633416174,0.5842999397403542,ts-ui-dashboard,False,False,5,3,False,True,mang
+TrainTicket,ts-train-service,loss,cpu,68,1,2.5459327515160624,2.5459327515160624,ts-train-service,True,True,5,1,True,True,mang
+TrainTicket,ts-train-service,loss,latency-50,27,5,4.783902445152484,1.7371849653120948e+16,ts-admin-travel-service,False,False,5,2,False,True,mang
+TrainTicket,ts-train-service,loss,workload,28,8,0.3224240599489927,0.4393448163876714,ts-ui-dashboard,False,False,5,1,True,True,mang
+TrainTicket,ts-train-service,loss,cpu,68,45,0.177930621435611,7.611452191392096,ts-inside-payment-service,False,False,5,4,False,False,mang
+TrainTicket,ts-train-service,loss,latency-50,28,4,4.838628463631495,178.88383322134928,ts-admin-travel-service,False,False,5,1,True,True,mang
+TrainTicket,ts-train-service,loss,workload,28,19,0.05954339568443704,0.47343038286960193,ts-ui-dashboard,False,False,5,5,False,False,mang
+TrainTicket,ts-train-service,loss,cpu,68,43,0.1295720714374897,0.8595006372189518,ts-preserve-other-service,False,False,5,5,False,False,mang
+TrainTicket,ts-train-service,loss,latency-50,28,3,4.583307514193181,104.5226497069352,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-train-service,mem,workload,28,5,0.4836195586739593,0.9217133938040438,ts-auth-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-train-service,mem,cpu,68,1,6.035524481702796,6.035524481702796,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,mem,latency-50,28,1,16.716875089649,16.716875089649,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,mem,workload,28,12,0.1308832024100537,0.7500923283522319,ts-inside-payment-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-train-service,mem,cpu,68,1,6.683854494919367,6.683854494919367,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,mem,latency-50,28,1,2.2797723797156038,2.2797723797156038,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,mem,workload,28,2,0.5059253392481202,0.5319982496518917,ts-route-service,False,True,5,2,False,True,tai nguyen
+TrainTicket,ts-train-service,mem,cpu,68,1,71.09032721007675,71.09032721007675,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,mem,latency-50,28,2,34.00679567864106,67.04449165592062,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,socket,workload,28,13,0.16243665330503346,0.381628799883427,ts-preserve-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-train-service,socket,cpu,68,1,68.9333608594298,68.9333608594298,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,socket,latency-50,28,1,259.12525519249243,259.12525519249243,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,socket,workload,28,5,0.2132936478133897,0.25754207799113066,ts-route-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-train-service,socket,cpu,68,1,80.90967796773123,80.90967796773123,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,socket,latency-50,28,2,105.82867790975271,1.7046029689823508e+16,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,socket,workload,28,23,0.0307928685973755,0.253438725326879,ts-payment-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-train-service,socket,cpu,68,1,5.838267436219898,5.838267436219898,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-train-service,socket,latency-50,28,1,16.035205870734508,16.035205870734508,ts-train-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,workload,28,12,0.11796184508441075,0.3181307049068074,ts-admin-basic-info-service,False,False,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,cpu,68,1,4.74716513666257,4.74716513666257,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,latency-50,28,1,1.1116585842325588,1.1116585842325588,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,workload,28,13,0.0716596455134496,0.3922959744854399,ts-food-map-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,cpu,68,1,55.354087808757804,55.354087808757804,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,latency-50,28,2,21.650252324108262,4461844902482254.0,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,workload,28,10,0.19436566401486155,0.6650909355470404,ts-travel2-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,cpu,68,1,55.53617524851312,55.53617524851312,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,cpu,latency-50,28,4,24.068164447349222,3519195988534421.0,ts-admin-travel-service,False,False,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,delay,workload,28,15,0.7398647305944697,3.033107991376077,ts-auth-service,False,False,5,4,False,False,mang
+TrainTicket,ts-travel-service,delay,cpu,68,59,0.05318147690461793,3.8289396111430394,ts-config-service,False,False,5,5,False,False,mang
+TrainTicket,ts-travel-service,delay,latency-50,28,2,478.07093439758995,683.3406220336115,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-travel-service,delay,workload,28,23,0.5525845707383449,2.7300195997818073,ts-auth-service,False,False,5,5,False,False,mang
+TrainTicket,ts-travel-service,delay,cpu,68,37,0.3391917379903058,2.4673437849837985,ts-ui-dashboard,False,False,5,5,False,False,mang
+TrainTicket,ts-travel-service,delay,latency-50,28,2,1783.6679475959193,1.2303584704684085e+17,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-travel-service,delay,workload,28,17,0.8314929387905474,2.387315561634869,ts-auth-service,False,False,5,4,False,False,mang
+TrainTicket,ts-travel-service,delay,cpu,68,17,0.6285846884809886,2.5772880689998874,ts-ui-dashboard,False,False,5,5,False,False,mang
+TrainTicket,ts-travel-service,delay,latency-50,28,1,1577.0175091053197,1577.0175091053197,ts-travel-service,True,True,5,1,True,True,mang
+TrainTicket,ts-travel-service,disk,workload,28,9,0.34179662376670156,0.7399122864106464,ts-preserve-service,False,False,5,3,False,True,tai nguyen
+TrainTicket,ts-travel-service,disk,cpu,68,2,1.4774321671442163,2.1551084100009,ts-preserve-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,disk,latency-50,28,26,0.11128392499217042,2.3840609559165036,ts-travel2-service,False,False,5,5,False,False,tai nguyen
+TrainTicket,ts-travel-service,disk,workload,22,14,0.09976854137074771,0.7209743234504328,ts-consign-price-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-travel-service,disk,cpu,68,1,3.759686335309293,3.759686335309293,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,disk,latency-50,21,18,0.11104697615182117,1.2860535802141129,ts-admin-travel-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-travel-service,disk,workload,21,7,0.16621907097088798,0.25634292888771915,ts-basic-service,False,False,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,disk,cpu,68,1,33.596796483273295,33.596796483273295,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,disk,latency-50,21,4,2.923594684805042,11617499798226.059,ts-inside-payment-service,False,False,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,loss,workload,28,14,0.3871839082023545,0.6621006768431539,ts-auth-service,False,False,5,5,False,False,mang
+TrainTicket,ts-travel-service,loss,cpu,68,10,0.8217212816855513,1.8941631340566973,ts-execute-service,False,False,5,1,True,True,mang
+TrainTicket,ts-travel-service,loss,latency-50,28,2,10.754288416682252,5521531691994839.0,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-travel-service,loss,workload,28,17,0.10652301246939981,0.7823263511735835,ts-auth-service,False,False,5,4,False,False,mang
+TrainTicket,ts-travel-service,loss,cpu,68,48,0.11327801542515253,3.4876851446717287,ts-user-service,False,False,5,5,False,False,mang
+TrainTicket,ts-travel-service,loss,latency-50,27,3,7.53208811086434,58.48529471061799,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-travel-service,loss,workload,28,28,0.02145505887368821,0.7363658634527833,ts-auth-service,False,False,5,5,False,False,mang
+TrainTicket,ts-travel-service,loss,cpu,68,12,0.5342236119189664,5.425822122793026,ts-seat-service,False,False,5,3,False,True,mang
+TrainTicket,ts-travel-service,loss,latency-50,28,3,12.566227938539706,85.31965876653487,ts-admin-travel-service,False,True,5,1,True,True,mang
+TrainTicket,ts-travel-service,mem,workload,28,19,0.07467063582658376,0.7015109301318136,ts-consign-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-travel-service,mem,cpu,68,1,44.571917201412326,44.571917201412326,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,mem,latency-50,28,2,77.53678238857503,88.75994175586929,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,mem,workload,28,21,0.1529281045173891,0.7461769379689529,ts-auth-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-travel-service,mem,cpu,68,1,56.52436597114574,56.52436597114574,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,mem,latency-50,28,2,67.11807667398264,9231178051516894.0,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,mem,workload,28,13,0.22081006562606845,0.4238952063220005,ts-assurance-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-travel-service,mem,cpu,68,1,4.137634387852938,4.137634387852938,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,mem,latency-50,28,3,1.2425408510632732,1.4847733390583382,ts-food-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,socket,workload,21,20,0.07101521495364663,0.4693111344331922,ts-assurance-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-travel-service,socket,cpu,68,1,112.91628151965561,112.91628151965561,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,socket,latency-50,21,3,24.699728397223122,1.0955280691771238e+16,ts-admin-travel-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,socket,workload,28,17,0.12292331889432044,0.34202651593830324,ts-admin-basic-info-service,False,False,5,4,False,False,tai nguyen
+TrainTicket,ts-travel-service,socket,cpu,68,1,3.787243260495978,3.787243260495978,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,socket,latency-50,28,2,2.643552354325877,3.517115436933644,ts-user-service,False,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,socket,workload,28,14,0.1795625849048317,0.5844588388203348,ts-auth-service,False,False,5,2,False,True,tai nguyen
+TrainTicket,ts-travel-service,socket,cpu,68,1,36.66313700624418,36.66313700624418,ts-travel-service,True,True,5,1,True,True,tai nguyen
+TrainTicket,ts-travel-service,socket,latency-50,28,1,166.45077709956394,166.45077709956394,ts-travel-service,True,True,5,1,True,True,tai nguyen

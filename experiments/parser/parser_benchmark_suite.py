@@ -100,13 +100,32 @@ LLM_MODEL_NAME = _BACKENDS.get(PARSER_BENCH_BACKEND, {}).get('model', PARSER_BEN
 # mat dung theo kieu do (600 dong Gemini that bi thay bang 200 dong tong hop).
 PRIMARY_BACKEND = 'gemini-flash-lite'
 
+# Backend THUC SU da dung, dat sau get_llm(). Khac PARSER_BENCH_BACKEND (backend
+# duoc YEU CAU) o dung mot truong hop, va truong hop do la mot lo hong THAT:
+# get_llm() lui ve OfflineAblationLLM khi khong goi duoc LLM live (thieu API key,
+# mat mang, --offline), tra ve nhan "SYNTHETIC_OFFLINE_EMULATOR_...", NHUNG
+# PARSER_BENCH_BACKEND van la backend goc -> _out() van tra ve TEN CHUAN
+# (khong hau to) -> lan chay synthetic GHI DE ket qua live.
+#
+# Do dung la cach docs/table_rq3_parser_ablation.tex tung mang nhan
+# "SYNTHETIC_OFFLINE_EMULATOR_DO_NOT_CITE_AS_LLM_RESULT" o duong dan chuan cua
+# bai bao. Cung ho lo hong ma khoi chu thich tren da sua cho backend-thu-hai
+# CO TEN, nhung chua sua cho fallback synthetic.
+ACTUAL_BACKEND = None
+
 
 def _out(name: str, ext: str) -> str:
-    """Duong dan output co hau to backend (tru backend goc)."""
+    """Duong dan output co hau to backend (tru DUNG backend goc chay LIVE).
+
+    Dung ACTUAL_BACKEND (backend thuc su) chu khong phai PARSER_BENCH_BACKEND
+    (backend duoc yeu cau) -- xem chu thich cua ACTUAL_BACKEND: dung sai bien o
+    day tung lam mat 600 dong Gemini that.
+    """
     d = DOCS_DIR if ext == '.tex' or ext == '.md' else OUTPUT_DIR
-    if PARSER_BENCH_BACKEND == PRIMARY_BACKEND:
+    backend = ACTUAL_BACKEND or PARSER_BENCH_BACKEND
+    if backend == PRIMARY_BACKEND:
         return os.path.join(d, f'{name}{ext}')
-    slug = re.sub(r'[^A-Za-z0-9]+', '-', PARSER_BENCH_BACKEND).strip('-')
+    slug = re.sub(r'[^A-Za-z0-9]+', '-', backend).strip('-')
     return os.path.join(d, f'{name}__{slug}{ext}')
 
 
@@ -433,6 +452,8 @@ def run_parser_benchmark(use_live_api=True, models_to_run=None):
     # de moi ablation duoc so sanh cong bang tren cung 1 model & backend).
     arch = ArchitectureAgent(GRAPH_PATH)
     llm, llm_backend = get_llm(use_live_api=use_live_api)
+    global ACTUAL_BACKEND
+    ACTUAL_BACKEND = llm_backend          # PHAI dat truoc moi loi goi _out()
     is_synthetic = llm_backend.startswith("SYNTHETIC")
     if is_synthetic:
         print("\n" + "!" * 75)

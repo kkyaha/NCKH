@@ -201,9 +201,21 @@ def select_edges_for_template(template: EdgeTemplate, graph_json_path: str,
     base_inv = set((r.injection_service, r.service, r.delta_pct) for r in safety[
         (safety['variant'] == 'BASELINE_no_candidate_edges') & safety['sign_inverted']].itertuples())
     with_inv = safety[(safety['variant'] == 'WITH_candidate_edges') & safety['sign_inverted']]
-    new_inv = with_inv[~with_inv.apply(
-        lambda r: (r['injection_service'], r['service'], r['delta_pct']) in base_inv, axis=1)]
-    unsafe = set(new_inv['service'])
+    if with_inv.empty:
+        # KHONG co dao dau nao o bien the WITH_candidate_edges -> moi canh ung
+        # vien deu an toan -> unsafe rong.
+        #
+        # PHAI tach nhanh nay ra: `with_inv.apply(..., axis=1)` tren DataFrame
+        # RONG tra ve mot DataFrame rong (khong phai Series), nen `~` cua no van
+        # la DataFrame va `with_inv[DataFrame]` tra ve mot DataFrame KHONG CON
+        # cot 'service' -> KeyError: 'service'. Loi nay ngu yen tren SockShop va
+        # TrainTicket (hai he luon co it nhat mot dao dau) va chi lo ra khi them
+        # Online Boutique, noi moi canh ung vien deu an toan.
+        unsafe = set()
+    else:
+        new_inv = with_inv[~with_inv.apply(
+            lambda r: (r['injection_service'], r['service'], r['delta_pct']) in base_inv, axis=1)]
+        unsafe = set(new_inv['service'])
     result['final_edges'] = [(p, c) for p, c in selected
                              if c.rsplit('_', 1)[0] not in unsafe]
     return result

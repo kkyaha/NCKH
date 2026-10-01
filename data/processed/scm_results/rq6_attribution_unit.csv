@@ -1,0 +1,91 @@
+system,fault,injected,n_cand,rank_injected,top1,quan_he,shift_injected,shift_top,node_t1,node_t3,edge_t1,edge_t3,path_t1,path_t3
+SockShop,delay,carts,7,1,carts,chinh no,1072.500184038183,1072.500184038183,True,True,True,True,True,True
+SockShop,delay,carts,7,1,carts,chinh no,3867.0734553663838,3867.0734553663838,True,True,True,True,True,True
+SockShop,delay,carts,7,2,orders,CALLER truc tiep,3922.2382544366055,5937.128470433336,False,True,True,True,True,True
+SockShop,loss,carts,7,1,carts,chinh no,734.8870869545192,734.8870869545192,True,True,True,True,True,True
+SockShop,loss,carts,7,1,carts,chinh no,166.65069366943257,166.65069366943257,True,True,True,True,True,True
+SockShop,loss,carts,7,1,carts,chinh no,582.6294007820685,582.6294007820685,True,True,True,True,True,True
+SockShop,delay,catalogue,7,1,catalogue,chinh no,25078.091977755066,25078.091977755066,True,True,True,True,True,True
+SockShop,delay,catalogue,7,1,catalogue,chinh no,1535.9538161792946,1535.9538161792946,True,True,True,True,True,True
+SockShop,delay,catalogue,7,1,catalogue,chinh no,14783.490937353572,14783.490937353572,True,True,True,True,True,True
+SockShop,loss,catalogue,7,1,catalogue,chinh no,20316.678111592737,20316.678111592737,True,True,True,True,True,True
+SockShop,loss,catalogue,7,1,catalogue,chinh no,2824.249738758566,2824.249738758566,True,True,True,True,True,True
+SockShop,loss,catalogue,7,1,catalogue,chinh no,26.98713391679165,26.98713391679165,True,True,True,True,True,True
+SockShop,delay,orders,7,3,shipping,hau due,5.807543356675543,1608.0103959657313,False,True,False,True,False,True
+SockShop,delay,orders,7,1,orders,chinh no,570.5277861170789,570.5277861170789,True,True,True,True,True,True
+SockShop,delay,orders,7,1,orders,chinh no,1258.3515731039417,1258.3515731039417,True,True,True,True,True,True
+SockShop,loss,orders,7,1,orders,chinh no,2561.227844439333,2561.227844439333,True,True,True,True,True,True
+SockShop,loss,orders,7,1,orders,chinh no,984.7687767212763,984.7687767212763,True,True,True,True,True,True
+SockShop,loss,orders,7,1,orders,chinh no,1562.699542673296,1562.699542673296,True,True,True,True,True,True
+SockShop,delay,payment,7,1,payment,chinh no,168.98445436957857,168.98445436957857,True,True,True,True,True,True
+SockShop,delay,payment,7,1,payment,chinh no,385.97322140213316,385.97322140213316,True,True,True,True,True,True
+SockShop,delay,payment,7,1,payment,chinh no,215.4939495249601,215.4939495249601,True,True,True,True,True,True
+SockShop,loss,payment,7,1,payment,chinh no,24.097206884191195,24.097206884191195,True,True,True,True,True,True
+SockShop,loss,payment,7,1,payment,chinh no,37.874709729671,37.874709729671,True,True,True,True,True,True
+SockShop,loss,payment,7,2,orders,CALLER truc tiep,5.33420713699504,16.440085990308223,False,True,True,True,True,True
+SockShop,delay,user,7,1,user,chinh no,8728.587586967908,8728.587586967908,True,True,True,True,True,True
+SockShop,delay,user,7,1,user,chinh no,7192.954190437145,7192.954190437145,True,True,True,True,True,True
+SockShop,delay,user,7,1,user,chinh no,8102.037948928566,8102.037948928566,True,True,True,True,True,True
+SockShop,loss,user,7,1,user,chinh no,912.0957451318004,912.0957451318004,True,True,True,True,True,True
+SockShop,loss,user,7,1,user,chinh no,1930.635353384706,1930.635353384706,True,True,True,True,True,True
+SockShop,loss,user,7,2,orders,CALLER truc tiep,998.6571096019435,1629.9812450679808,False,True,True,True,True,True
+OnlineBoutique,delay,checkoutservice,10,3,emailservice,hau due,93.2448631630265,1986.8007107619546,False,True,False,True,False,True
+OnlineBoutique,delay,checkoutservice,10,3,emailservice,hau due,100.28612605237218,1730.6185950849463,False,True,False,True,False,True
+OnlineBoutique,delay,checkoutservice,10,3,emailservice,hau due,99.91002190146699,5.583150799478904e+16,False,True,False,True,False,True
+OnlineBoutique,loss,checkoutservice,10,1,checkoutservice,chinh no,117.63232635822627,117.63232635822627,True,True,True,True,True,True
+OnlineBoutique,loss,checkoutservice,10,1,checkoutservice,chinh no,57.282255850297915,57.282255850297915,True,True,True,True,True,True
+OnlineBoutique,loss,checkoutservice,10,1,checkoutservice,chinh no,80.72280454430906,80.72280454430906,True,True,True,True,True,True
+OnlineBoutique,delay,currencyservice,10,1,currencyservice,chinh no,484.23834842196374,484.23834842196374,True,True,True,True,True,True
+OnlineBoutique,delay,currencyservice,10,1,currencyservice,chinh no,1141.179428501724,1141.179428501724,True,True,True,True,True,True
+OnlineBoutique,delay,currencyservice,10,1,currencyservice,chinh no,1683.3274139423013,1683.3274139423013,True,True,True,True,True,True
+OnlineBoutique,loss,currencyservice,10,1,currencyservice,chinh no,743.404174212519,743.404174212519,True,True,True,True,True,True
+OnlineBoutique,loss,currencyservice,10,1,currencyservice,chinh no,704.557367364111,704.557367364111,True,True,True,True,True,True
+OnlineBoutique,loss,currencyservice,10,1,currencyservice,chinh no,346.617993473851,346.617993473851,True,True,True,True,True,True
+OnlineBoutique,delay,emailservice,10,1,emailservice,chinh no,1619.1583469134564,1619.1583469134564,True,True,True,True,True,True
+OnlineBoutique,delay,emailservice,10,1,emailservice,chinh no,1261.8261572907413,1261.8261572907413,True,True,True,True,True,True
+OnlineBoutique,delay,emailservice,10,1,emailservice,chinh no,1872.8856897390353,1872.8856897390353,True,True,True,True,True,True
+OnlineBoutique,loss,emailservice,10,1,emailservice,chinh no,192.0366294867418,192.0366294867418,True,True,True,True,True,True
+OnlineBoutique,loss,emailservice,10,1,emailservice,chinh no,10.530000272460699,10.530000272460699,True,True,True,True,True,True
+OnlineBoutique,loss,emailservice,10,1,emailservice,chinh no,39.157969429922204,39.157969429922204,True,True,True,True,True,True
+OnlineBoutique,delay,productcatalogservice,10,2,recommendationservice,CALLER truc tiep,649.5272275522904,3241.101160236139,False,True,True,True,True,True
+OnlineBoutique,delay,productcatalogservice,10,3,frontend,CALLER truc tiep,674.8755993487383,1555.7297662466774,False,True,True,True,True,True
+OnlineBoutique,delay,productcatalogservice,10,3,recommendationservice,CALLER truc tiep,846.678103763002,1742.6828640136546,False,True,True,True,True,True
+OnlineBoutique,loss,productcatalogservice,10,2,recommendationservice,CALLER truc tiep,4080.85657166345,20467.338482858435,False,True,True,True,True,True
+OnlineBoutique,loss,productcatalogservice,10,3,recommendationservice,CALLER truc tiep,1964.4927212442112,24592.417857407865,False,True,True,True,True,True
+OnlineBoutique,loss,productcatalogservice,10,3,recommendationservice,CALLER truc tiep,159.33784765677572,4231.580741886818,False,True,True,True,True,True
+OnlineBoutique,delay,recommendationservice,10,1,recommendationservice,chinh no,4201.680215204768,4201.680215204768,True,True,True,True,True,True
+OnlineBoutique,delay,recommendationservice,10,1,recommendationservice,chinh no,4525.437882826657,4525.437882826657,True,True,True,True,True,True
+OnlineBoutique,delay,recommendationservice,10,1,recommendationservice,chinh no,4437.767958294164,4437.767958294164,True,True,True,True,True,True
+OnlineBoutique,loss,recommendationservice,10,1,recommendationservice,chinh no,773.7101434622381,773.7101434622381,True,True,True,True,True,True
+OnlineBoutique,loss,recommendationservice,10,1,recommendationservice,chinh no,5014.623550758912,5014.623550758912,True,True,True,True,True,True
+OnlineBoutique,loss,recommendationservice,10,1,recommendationservice,chinh no,16277.447207990657,16277.447207990657,True,True,True,True,True,True
+TrainTicket,delay,ts-auth-service,26,1,ts-auth-service,chinh no,126.27131668518274,126.27131668518274,True,True,True,True,True,True
+TrainTicket,delay,ts-auth-service,28,2,ts-user-service,khong lien quan,9.230436238085568,16.963444857748783,False,True,False,True,False,True
+TrainTicket,delay,ts-auth-service,28,1,ts-auth-service,chinh no,8.461345543636828,8.461345543636828,True,True,True,True,True,True
+TrainTicket,loss,ts-auth-service,27,4,ts-order-other-service,khong lien quan,1.6308457755996584,2.7234157740597555,False,False,False,False,False,False
+TrainTicket,loss,ts-auth-service,28,8,ts-food-map-service,khong lien quan,1.056939318949816,3.8176696124609384,False,False,False,False,False,False
+TrainTicket,loss,ts-auth-service,28,13,ts-seat-service,khong lien quan,0.7955842470524058,2.8085915314360324,False,False,False,False,False,False
+TrainTicket,delay,ts-order-service,27,1,ts-order-service,chinh no,435.5879552981581,435.5879552981581,True,True,True,True,True,True
+TrainTicket,delay,ts-order-service,21,1,ts-order-service,chinh no,89.8999735949754,89.8999735949754,True,True,True,True,True,True
+TrainTicket,delay,ts-order-service,21,1,ts-order-service,chinh no,197.7722719020641,197.7722719020641,True,True,True,True,True,True
+TrainTicket,loss,ts-order-service,27,24,ts-preserve-service,CALLER truc tiep,0.050689779647317766,112.58746779550162,False,False,True,True,True,True
+TrainTicket,loss,ts-order-service,21,1,ts-order-service,chinh no,6.501061275881864,6.501061275881864,True,True,True,True,True,True
+TrainTicket,loss,ts-order-service,21,3,ts-admin-basic-info-service,khong lien quan,2.9449443823291017,8167324732429.879,False,True,False,True,False,True
+TrainTicket,delay,ts-route-service,27,1,ts-route-service,chinh no,3465.9425192598887,3465.9425192598887,True,True,True,True,True,True
+TrainTicket,delay,ts-route-service,28,2,ts-admin-travel-service,to tien,6539.9768408126,1.2259039678105392e+17,False,True,False,True,True,True
+TrainTicket,delay,ts-route-service,28,1,ts-route-service,chinh no,4042.937346209438,4042.937346209438,True,True,True,True,True,True
+TrainTicket,loss,ts-route-service,28,9,ts-admin-travel-service,to tien,2.0355687990716373,1.0558253893570944e+16,False,False,False,True,True,True
+TrainTicket,loss,ts-route-service,28,2,ts-admin-travel-service,to tien,6.953858075753782,9985020709361270.0,False,True,False,True,True,True
+TrainTicket,loss,ts-route-service,28,9,ts-config-service,khong lien quan,0.6993827628218314,1.083219679089277,False,False,False,False,False,False
+TrainTicket,delay,ts-train-service,26,4,ts-admin-travel-service,to tien,3346.032058504743,19215.447003222544,False,False,False,True,True,True
+TrainTicket,delay,ts-train-service,28,2,ts-admin-travel-service,to tien,1310.4013275089708,2652.362978008737,False,True,False,True,True,True
+TrainTicket,delay,ts-train-service,28,1,ts-train-service,chinh no,1834.5767475582516,1834.5767475582516,True,True,True,True,True,True
+TrainTicket,loss,ts-train-service,27,5,ts-admin-travel-service,to tien,4.783902445152484,1.7371849653120948e+16,False,False,False,True,True,True
+TrainTicket,loss,ts-train-service,28,4,ts-admin-travel-service,to tien,4.838628463631495,178.88383322134928,False,False,False,False,True,True
+TrainTicket,loss,ts-train-service,28,3,ts-admin-travel-service,to tien,4.583307514193181,104.5226497069352,False,True,False,True,True,True
+TrainTicket,delay,ts-travel-service,28,2,ts-admin-travel-service,CALLER truc tiep,478.07093439758995,683.3406220336115,False,True,True,True,True,True
+TrainTicket,delay,ts-travel-service,28,2,ts-admin-travel-service,CALLER truc tiep,1783.6679475959193,1.2303584704684085e+17,False,True,True,True,True,True
+TrainTicket,delay,ts-travel-service,28,1,ts-travel-service,chinh no,1577.0175091053197,1577.0175091053197,True,True,True,True,True,True
+TrainTicket,loss,ts-travel-service,28,2,ts-admin-travel-service,CALLER truc tiep,10.754288416682252,5521531691994839.0,False,True,True,True,True,True
+TrainTicket,loss,ts-travel-service,27,3,ts-admin-travel-service,CALLER truc tiep,7.53208811086434,58.48529471061799,False,True,True,True,True,True
+TrainTicket,loss,ts-travel-service,28,3,ts-admin-travel-service,CALLER truc tiep,12.566227938539706,85.31965876653487,False,True,True,True,True,True

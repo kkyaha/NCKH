@@ -75,6 +75,22 @@ def run_rq6_part_a(n_repeats_null=20, n_repeats_dose=5):
         if arg.startswith('--dose-repeats='):
             n_repeats_dose = int(arg.split('=', 1)[1])
 
+    # Nguong cong z hieu chinh tu nua null giu lai (xem
+    # experiments/legacy/recalibrate_risk_threshold.py). MAC DINH None -> dung
+    # Z_WARN_DEFAULT/Z_CRIT_DEFAULT (1.0/2.0) nen chay khong co co thi tai lap
+    # bit-for-bit so lieu cu. `--calibrated` bat 0.20/0.40: 0%% FP tren nua null
+    # held-out, 100%% phat hien node bi tiem, 0%% tren node khong toi duoc.
+    z_warn = z_crit = None
+    if '--calibrated' in sys.argv:
+        z_warn, z_crit = 0.20, 0.40
+    for arg in sys.argv:
+        if arg.startswith('--z-warn='):
+            z_warn = float(arg.split('=', 1)[1])
+        if arg.startswith('--z-crit='):
+            z_crit = float(arg.split('=', 1)[1])
+    if z_warn is not None:
+        print(f'  [NGUONG] z_warn={z_warn} z_crit={z_crit} (hieu chinh tu nua null giu lai)')
+
     print("=" * 80)
     print("   RQ6 (Part A): INTERVENTIONAL SHAPLEY ATTRIBUTION — VALIDITY CHECKS")
     print(f"   Null-condition repeats: {n_repeats_null} | Dose-response repeats/level: {n_repeats_dose}")
@@ -97,7 +113,7 @@ def run_rq6_part_a(n_repeats_null=20, n_repeats_dose=5):
     null_rows = []
     any_flag_per_repeat = []
     for i in range(n_repeats_null):
-        result = engine.analyze(f"NULL-{i}", {INJECTION_NODE: base_wl})
+        result = engine.analyze(f"NULL-{i}", {INJECTION_NODE: base_wl}, z_warn=z_warn, z_crit=z_crit)
         flagged_nodes = [nr.node for nr in result.node_risks if nr.risk_level != 'normal']
         any_flag_per_repeat.append(len(flagged_nodes) > 0)
         for nr in result.node_risks:
@@ -135,7 +151,7 @@ def run_rq6_part_a(n_repeats_null=20, n_repeats_dose=5):
     for level_pct in levels_pct:
         wl = base_wl * (1.0 + level_pct / 100.0)
         for i in range(n_repeats_dose):
-            result = engine.analyze(f"DOSE-{level_pct}-{i}", {INJECTION_NODE: wl})
+            result = engine.analyze(f"DOSE-{level_pct}-{i}", {INJECTION_NODE: wl}, z_warn=z_warn, z_crit=z_crit)
             for nr in result.node_risks:
                 dose_rows.append({
                     'level_pct': level_pct, 'repeat': i, 'node': nr.node,
@@ -245,7 +261,10 @@ Kiểm tra khớp topology trên Train Ticket (đồ thị đủ lớn để có
 không downstream của injection point — Sock Shop quá nhỏ để có phép thử này
 sạch) — cần train thêm 1 Global DAG cho Train Ticket, chưa nối vào script này.
 """
-    md_path = os.path.join(DOCS_DIR, 'docs/HE_THONG.md (muc 6)')
+    # BUG DA SUA: truoc day day la os.path.join(DOCS_DIR, 'docs/HE_THONG.md (muc 6)')
+    # -- mot chuoi THAM CHIEU tai lieu bi dung lam TEN TEP, nen script luon crash
+    # FileNotFoundError o buoc cuoi sau khi da chay xong toan bo thi nghiem.
+    md_path = os.path.join(DOCS_DIR, 'RQ6_ATTRIBUTION_VALIDITY_REPORT.md')
     with open(md_path, 'w', encoding='utf-8') as f:
         f.write(md)
     print(f"\n[OK] Scientific markdown report generated: {md_path}")

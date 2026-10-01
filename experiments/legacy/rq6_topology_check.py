@@ -60,6 +60,22 @@ def run_rq6_part_a3(n_repeats=10, intervention_pct=150.0):
         if arg.startswith('--intervention-pct='):
             intervention_pct = float(arg.split('=', 1)[1])
 
+    # Nguong cong z hieu chinh tu nua null giu lai (xem
+    # experiments/legacy/recalibrate_risk_threshold.py). MAC DINH None -> dung
+    # Z_WARN_DEFAULT/Z_CRIT_DEFAULT (1.0/2.0) nen chay khong co co thi tai lap
+    # bit-for-bit so lieu cu. `--calibrated` bat 0.20/0.40: 0%% FP tren nua null
+    # held-out, 100%% phat hien node bi tiem, 0%% tren node khong toi duoc.
+    z_warn = z_crit = None
+    if '--calibrated' in sys.argv:
+        z_warn, z_crit = 0.20, 0.40
+    for arg in sys.argv:
+        if arg.startswith('--z-warn='):
+            z_warn = float(arg.split('=', 1)[1])
+        if arg.startswith('--z-crit='):
+            z_crit = float(arg.split('=', 1)[1])
+    if z_warn is not None:
+        print(f'  [NGUONG] z_warn={z_warn} z_crit={z_crit} (hieu chinh tu nua null giu lai)')
+
     print("=" * 80)
     print("   RQ6 (Part A.3): DOES SHAPLEY ATTRIBUTION RESPECT GRAPH TOPOLOGY?")
     print(f"   Testbed: Train Ticket | Injection: {INJECTION_SERVICE} "
@@ -89,7 +105,7 @@ def run_rq6_part_a3(n_repeats=10, intervention_pct=150.0):
     print(f"\nRunning do({INJECTION_NODE}={wl:.2f}) x {n_repeats} independent repeats...")
     rows = []
     for i in range(n_repeats):
-        result = engine.analyze(f"TOPO-{i}", {INJECTION_NODE: wl})
+        result = engine.analyze(f"TOPO-{i}", {INJECTION_NODE: wl}, z_warn=z_warn, z_crit=z_crit)
         for nr in result.node_risks:
             svc = nr.node.rsplit('_cpu', 1)[0]
             h = hops.get(svc, None)
@@ -184,7 +200,7 @@ topology.
 * `data/processed/scm_results/rq6_topology_check.csv` — {len(df)} rows ({n_repeats} repeats x {len(reachable)+len(unreachable)+1} CPU nodes).
 * `data/processed/scm_results/rq6_topology_check_summary.csv` — grouped summary.
 """
-    md_path = os.path.join(DOCS_DIR, 'docs/HE_THONG.md (muc 6)')
+    md_path = os.path.join(DOCS_DIR, 'RQ6_TOPOLOGY_CHECK_REPORT.md')
     with open(md_path, 'a', encoding='utf-8') as f:
         f.write(addendum)
     print(f"\n[OK] Appended Part A.3 results to: {md_path}")
