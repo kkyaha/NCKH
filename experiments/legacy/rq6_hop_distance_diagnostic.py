@@ -27,7 +27,10 @@ warnings.filterwarnings('ignore')
 os.environ['OPENBLAS_NUM_THREADS'] = '1'
 os.environ['OMP_NUM_THREADS'] = '1'
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while PROJECT_ROOT != os.path.dirname(PROJECT_ROOT) and not os.path.isdir(os.path.join(PROJECT_ROOT, 'src')):
+    PROJECT_ROOT = os.path.dirname(PROJECT_ROOT)
+assert os.path.isdir(os.path.join(PROJECT_ROOT, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src'))
 sys.path.insert(0, os.path.join(PROJECT_ROOT, 'src', 'agents'))

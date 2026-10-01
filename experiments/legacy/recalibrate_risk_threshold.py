@@ -35,7 +35,10 @@ import os
 import numpy as np
 import pandas as pd
 
-_P = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+_P = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while _P != os.path.dirname(_P) and not os.path.isdir(os.path.join(_P, 'src')):
+    _P = os.path.dirname(_P)
+assert os.path.isdir(os.path.join(_P, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 RES = os.path.join(_P, 'data', 'processed', 'scm_results')
 GRID = (1.0, 0.30, 0.25, 0.20, 0.175, 0.15, 0.0817)
 

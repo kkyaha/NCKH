@@ -59,7 +59,10 @@ import math
 import numpy as np
 import pandas as pd
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while BASE_DIR != os.path.dirname(BASE_DIR) and not os.path.isdir(os.path.join(BASE_DIR, 'src')):
+    BASE_DIR = os.path.dirname(BASE_DIR)
+assert os.path.isdir(os.path.join(BASE_DIR, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0, os.path.join(BASE_DIR, 'src', 'scm'))
 from request_router import SOCKSHOP_CALL_CHAINS  # noqa: E402  (nguon su that duy nhat cua taxonomy)

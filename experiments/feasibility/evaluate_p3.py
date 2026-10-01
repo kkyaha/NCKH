@@ -30,7 +30,10 @@ import sys
 import numpy as np
 import pandas as pd
 
-BASE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while BASE != os.path.dirname(BASE) and not os.path.isdir(os.path.join(BASE, 'src')):
+    BASE = os.path.dirname(BASE)
+assert os.path.isdir(os.path.join(BASE, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 sys.path.insert(0, os.path.join(BASE, 'src', 'scm'))
 import feasibility_predictor as FP  # noqa: E402

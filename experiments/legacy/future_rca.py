@@ -41,7 +41,10 @@ from dowhy.gcm.shapley import ShapleyConfig, ShapleyApproximationMethods
 warnings.filterwarnings('ignore')
 sys.stdout.reconfigure(encoding='utf-8')
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while BASE_DIR != os.path.dirname(BASE_DIR) and not os.path.isdir(os.path.join(BASE_DIR, 'src')):
+    BASE_DIR = os.path.dirname(BASE_DIR)
+assert os.path.isdir(os.path.join(BASE_DIR, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # experiments/ (sau khi gom thu muc con)
 import _paths  # noqa: F401  -- dua cac nhom con khac vao sys.path
 sys.path.append(os.path.join(BASE_DIR, 'src', 'scm'))       # core scm lib (data_processor)

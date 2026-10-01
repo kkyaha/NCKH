@@ -60,7 +60,10 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while BASE_DIR != os.path.dirname(BASE_DIR) and not os.path.isdir(os.path.join(BASE_DIR, 'src')):
+    BASE_DIR = os.path.dirname(BASE_DIR)
+assert os.path.isdir(os.path.join(BASE_DIR, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 OUT_DIR = os.path.join(BASE_DIR, 'data', 'processed', 'scm_results')
 
 TRAIN_FRAC = 0.67

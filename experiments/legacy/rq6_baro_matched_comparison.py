@@ -28,7 +28,10 @@ import pandas as pd
 from sklearn.preprocessing import RobustScaler
 
 warnings.filterwarnings('ignore')
-_P = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+_P = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while _P != os.path.dirname(_P) and not os.path.isdir(os.path.join(_P, 'src')):
+    _P = os.path.dirname(_P)
+assert os.path.isdir(os.path.join(_P, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 RAW = os.path.join(_P, 'data', 'raw', 'RE2-SS')
 RES = os.path.join(_P, 'data', 'processed', 'scm_results')
 APP7 = ['front-end', 'catalogue', 'user', 'carts', 'orders', 'payment', 'shipping']

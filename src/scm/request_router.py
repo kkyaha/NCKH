@@ -8,8 +8,10 @@ Based on SockShop architecture and log templates from cluster_info.json.
 import os
 import json
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # leo len den thu muc chua src/ -- KHONG phu thuoc do sau
+while BASE_DIR != os.path.dirname(BASE_DIR) and not os.path.isdir(os.path.join(BASE_DIR, 'src')):
+    BASE_DIR = os.path.dirname(BASE_DIR)
+assert os.path.isdir(os.path.join(BASE_DIR, 'src')), 'khong tim thay goc repo (thu muc chua src/)'
 # Call chain per request type (from SockShop architecture + log template analysis).
 # NOTE: day la taxonomy CUA SOCKSHOP. Moi ham trong module nay deu nhan
 # call_chains lam tham so; hang so nay chi la GIA TRI MAC DINH de khong pha
