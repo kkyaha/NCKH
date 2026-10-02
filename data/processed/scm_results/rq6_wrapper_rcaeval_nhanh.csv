@@ -1,0 +1,537 @@
+he,injected,fault,run,phuong_phap,nhom,tang_chon,don_vi,fallback_0,fallback_1,giay_0,giay_1,n_cand_0,n_cand_1,M0_nhu_xuat_ban,M0b_khop_ung_vien,M1_truc_tang,M2_ca_hai_truc,M0_t3,M2_t3
+SockShop,carts,cpu,1,nsigma,tai nguyen,cpu,node,,,0.009229898452758789,0.002279996871948242,15,13,True,True,True,True,True,True
+SockShop,carts,cpu,1,baro,tai nguyen,cpu,node,,,0.011404991149902344,0.002992868423461914,15,13,False,False,True,True,True,True
+SockShop,carts,cpu,2,nsigma,tai nguyen,cpu,node,,,0.009332895278930664,0.002286672592163086,15,13,False,False,True,True,True,True
+SockShop,carts,cpu,2,baro,tai nguyen,cpu,node,,,0.011962890625,0.0028638839721679688,15,13,False,False,True,True,True,True
+SockShop,carts,cpu,3,nsigma,tai nguyen,latency-50,duong,,,0.008873939514160156,0.0014240741729736328,15,7,False,True,True,True,True,True
+SockShop,carts,cpu,3,baro,tai nguyen,latency-50,duong,,,0.011139631271362305,0.001725912094116211,15,7,False,True,False,True,False,True
+SockShop,carts,delay,1,nsigma,mang,latency-50,duong,,,0.00890493392944336,0.0013968944549560547,15,7,False,False,True,True,True,True
+SockShop,carts,delay,1,baro,mang,latency-50,duong,,,0.011081933975219727,0.0017099380493164062,15,7,False,True,True,True,True,True
+SockShop,carts,delay,2,nsigma,mang,latency-50,duong,,,0.008540868759155273,0.0014400482177734375,14,7,True,True,True,True,True,True
+SockShop,carts,delay,2,baro,mang,latency-50,duong,,,0.010631799697875977,0.0016901493072509766,14,7,False,False,False,True,True,True
+SockShop,carts,delay,3,nsigma,mang,latency-50,duong,,,0.008857965469360352,0.0014371871948242188,14,7,False,False,False,True,True,True
+SockShop,carts,delay,3,baro,mang,latency-50,duong,,,0.01086115837097168,0.0016820430755615234,14,7,False,False,False,True,False,True
+SockShop,carts,disk,1,nsigma,tai nguyen,cpu,node,,,0.008825063705444336,0.0024938583374023438,15,15,True,True,True,True,True,True
+SockShop,carts,disk,1,baro,tai nguyen,cpu,node,,,0.011222124099731445,0.003097057342529297,15,15,False,False,True,True,True,True
+SockShop,carts,disk,2,nsigma,tai nguyen,cpu,node,,,0.009215116500854492,0.002321004867553711,14,14,True,True,True,True,True,True
+SockShop,carts,disk,2,baro,tai nguyen,cpu,node,,,0.01149892807006836,0.0029649734497070312,14,14,False,False,True,True,True,True
+SockShop,carts,disk,3,nsigma,tai nguyen,cpu,node,,,0.009189128875732422,0.002399921417236328,14,14,True,True,True,True,True,True
+SockShop,carts,disk,3,baro,tai nguyen,cpu,node,,,0.011606931686401367,0.002949953079223633,14,14,False,False,True,True,True,True
+SockShop,carts,loss,1,nsigma,mang,latency-50,duong,,,0.009228229522705078,0.0014128684997558594,15,7,False,False,True,True,True,True
+SockShop,carts,loss,1,baro,mang,latency-50,duong,,,0.01140594482421875,0.0016639232635498047,15,7,False,False,True,True,True,True
+SockShop,carts,loss,2,nsigma,mang,latency-50,duong,,,0.008983135223388672,0.0013959407806396484,14,7,True,True,True,True,True,True
+SockShop,carts,loss,2,baro,mang,latency-50,duong,,,0.011256694793701172,0.0017321109771728516,14,7,True,True,False,True,True,True
+SockShop,carts,loss,3,nsigma,mang,latency-50,duong,,,0.008709192276000977,0.0013990402221679688,15,7,True,True,True,True,True,True
+SockShop,carts,loss,3,baro,mang,latency-50,duong,,,0.010865926742553711,0.0017118453979492188,15,7,False,False,True,True,True,True
+SockShop,carts,mem,1,nsigma,tai nguyen,cpu,node,,,0.008498191833496094,0.0020868778228759766,15,12,True,True,True,True,True,True
+SockShop,carts,mem,1,baro,tai nguyen,cpu,node,,,0.010697126388549805,0.002641916275024414,15,12,False,False,True,True,True,True
+SockShop,carts,mem,2,nsigma,tai nguyen,cpu,node,,,0.008446216583251953,0.0021698474884033203,15,12,True,True,True,True,True,True
+SockShop,carts,mem,2,baro,tai nguyen,cpu,node,,,0.010389089584350586,0.002588987350463867,15,12,False,False,True,True,True,True
+SockShop,carts,mem,3,nsigma,tai nguyen,cpu,node,,,0.009957075119018555,0.002355337142944336,15,14,True,True,True,True,True,True
+SockShop,carts,mem,3,baro,tai nguyen,cpu,node,,,0.012362003326416016,0.002880096435546875,15,14,True,True,True,True,True,True
+SockShop,carts,socket,1,nsigma,tai nguyen,cpu,node,,,0.008881807327270508,0.002177000045776367,15,13,False,False,False,False,False,True
+SockShop,carts,socket,1,baro,tai nguyen,cpu,node,,,0.011081933975219727,0.0028018951416015625,15,13,False,False,False,False,False,True
+SockShop,carts,socket,2,nsigma,tai nguyen,cpu,node,,,0.008887052536010742,0.0023202896118164062,14,14,False,False,True,True,True,True
+SockShop,carts,socket,2,baro,tai nguyen,cpu,node,,,0.011288881301879883,0.0028390884399414062,14,14,False,False,True,True,True,True
+SockShop,carts,socket,3,nsigma,tai nguyen,cpu,node,,,0.00925898551940918,0.002468109130859375,15,15,False,False,True,True,True,True
+SockShop,carts,socket,3,baro,tai nguyen,cpu,node,,,0.01178884506225586,0.0030939579010009766,15,15,False,False,True,True,False,True
+SockShop,catalogue,cpu,1,nsigma,tai nguyen,cpu,node,,,0.006324052810668945,0.002089977264404297,14,12,True,True,True,True,True,True
+SockShop,catalogue,cpu,1,baro,tai nguyen,cpu,node,,,0.008173942565917969,0.0026509761810302734,14,12,False,False,True,True,False,True
+SockShop,catalogue,cpu,2,nsigma,tai nguyen,cpu,node,,,0.006928920745849609,0.0023796558380126953,15,14,True,True,True,True,True,True
+SockShop,catalogue,cpu,2,baro,tai nguyen,cpu,node,,,0.009018898010253906,0.002886056900024414,15,14,False,False,True,True,True,True
+SockShop,catalogue,cpu,3,nsigma,tai nguyen,cpu,node,,,0.008776187896728516,0.0019941329956054688,15,11,True,True,True,True,True,True
+SockShop,catalogue,cpu,3,baro,tai nguyen,cpu,node,,,0.01075887680053711,0.0023920536041259766,15,11,False,False,True,True,True,True
+SockShop,catalogue,delay,1,nsigma,mang,latency-50,duong,,,0.00925588607788086,0.0014109611511230469,14,7,True,True,True,True,True,True
+SockShop,catalogue,delay,1,baro,mang,latency-50,duong,,,0.011723995208740234,0.001688241958618164,14,7,False,True,True,True,True,True
+SockShop,catalogue,delay,2,nsigma,mang,latency-50,duong,,,0.008775949478149414,0.0014510154724121094,15,7,True,True,True,True,True,True
+SockShop,catalogue,delay,2,baro,mang,latency-50,duong,,,0.010834932327270508,0.0016808509826660156,15,7,False,True,True,True,True,True
+SockShop,catalogue,delay,3,nsigma,mang,workload,node,,,0.008542776107788086,0.0013780593872070312,15,7,False,False,False,False,True,False
+SockShop,catalogue,delay,3,baro,mang,workload,node,,,0.010526418685913086,0.0016579627990722656,15,7,False,False,False,False,False,False
+SockShop,catalogue,disk,1,nsigma,tai nguyen,workload,node,,,0.006880044937133789,0.0014259815216064453,14,7,True,True,False,False,True,False
+SockShop,catalogue,disk,1,baro,tai nguyen,workload,node,,,0.008503913879394531,0.0016510486602783203,14,7,False,True,False,False,True,True
+SockShop,catalogue,disk,2,nsigma,tai nguyen,cpu,node,,,0.009670019149780273,0.002090930938720703,15,12,True,True,True,True,True,True
+SockShop,catalogue,disk,2,baro,tai nguyen,cpu,node,,,0.012390851974487305,0.002552032470703125,15,12,True,True,True,True,True,True
+SockShop,catalogue,disk,3,nsigma,tai nguyen,latency-50,duong,,,0.009137868881225586,0.0014069080352783203,14,7,True,True,True,True,True,True
+SockShop,catalogue,disk,3,baro,tai nguyen,latency-50,duong,,,0.011466026306152344,0.0018470287322998047,14,7,False,True,True,True,True,True
+SockShop,catalogue,loss,1,nsigma,mang,workload,node,,,0.006861209869384766,0.0014388561248779297,14,7,False,True,False,False,True,False
+SockShop,catalogue,loss,1,baro,mang,workload,node,,,0.008458852767944336,0.0016701221466064453,14,7,False,False,False,False,True,False
+SockShop,catalogue,loss,2,nsigma,mang,workload,node,,,0.007537841796875,0.0014200210571289062,15,7,False,True,True,True,True,True
+SockShop,catalogue,loss,2,baro,mang,workload,node,,,0.009490966796875,0.0016582012176513672,15,7,False,True,True,True,False,True
+SockShop,catalogue,loss,3,nsigma,mang,cpu,node,,,0.0077860355377197266,0.0020751953125,15,12,False,True,False,False,True,False
+SockShop,catalogue,loss,3,baro,mang,cpu,node,,,0.009637832641601562,0.0026061534881591797,15,12,False,False,False,False,True,True
+SockShop,catalogue,mem,1,nsigma,tai nguyen,cpu,node,,,0.009063005447387695,0.002396106719970703,15,14,True,True,True,True,True,True
+SockShop,catalogue,mem,1,baro,tai nguyen,cpu,node,,,0.011103153228759766,0.002887248992919922,15,14,False,False,True,True,True,True
+SockShop,catalogue,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.008903980255126953,0.0014090538024902344,15,7,True,True,True,True,True,True
+SockShop,catalogue,mem,2,baro,tai nguyen,latency-50,duong,,,0.011198043823242188,0.0017018318176269531,15,7,False,True,True,True,True,True
+SockShop,catalogue,mem,3,nsigma,tai nguyen,cpu,node,,,0.008500814437866211,0.0019288063049316406,15,11,True,True,True,True,True,True
+SockShop,catalogue,mem,3,baro,tai nguyen,cpu,node,,,0.010457992553710938,0.0024547576904296875,15,11,True,True,True,True,True,True
+SockShop,catalogue,socket,1,nsigma,tai nguyen,cpu,node,,,0.008534908294677734,0.002351999282836914,15,14,True,True,True,True,True,True
+SockShop,catalogue,socket,1,baro,tai nguyen,cpu,node,,,0.010705232620239258,0.002947092056274414,15,14,False,False,True,True,True,True
+SockShop,catalogue,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.008709907531738281,0.0013861656188964844,14,7,True,True,True,True,True,True
+SockShop,catalogue,socket,2,baro,tai nguyen,latency-50,duong,,,0.010855913162231445,0.001712799072265625,14,7,False,True,True,True,True,True
+SockShop,catalogue,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.009006977081298828,0.0014338493347167969,14,7,True,True,True,True,True,True
+SockShop,catalogue,socket,3,baro,tai nguyen,latency-50,duong,,,0.011408090591430664,0.0017268657684326172,14,7,False,True,True,True,True,True
+SockShop,orders,cpu,1,nsigma,tai nguyen,cpu,node,,,0.009367227554321289,0.0026679039001464844,15,15,True,True,True,True,True,True
+SockShop,orders,cpu,1,baro,tai nguyen,cpu,node,,,0.011700868606567383,0.003137826919555664,15,15,False,False,True,True,False,True
+SockShop,orders,cpu,2,nsigma,tai nguyen,cpu,node,,,0.008749961853027344,0.002357959747314453,15,14,True,True,True,True,True,True
+SockShop,orders,cpu,2,baro,tai nguyen,cpu,node,,,0.010874748229980469,0.0029349327087402344,15,14,False,False,True,True,True,True
+SockShop,orders,cpu,3,nsigma,tai nguyen,cpu,node,,,0.00927281379699707,0.0021190643310546875,14,12,True,True,True,True,True,True
+SockShop,orders,cpu,3,baro,tai nguyen,cpu,node,,,0.010946989059448242,0.0027441978454589844,14,12,False,False,True,True,True,True
+SockShop,orders,delay,1,nsigma,mang,latency-50,duong,,,0.008945941925048828,0.001399993896484375,15,7,False,False,False,False,False,False
+SockShop,orders,delay,1,baro,mang,latency-50,duong,,,0.01137089729309082,0.0016980171203613281,15,7,False,False,False,False,False,False
+SockShop,orders,delay,2,nsigma,mang,latency-50,duong,,,0.009305953979492188,0.0014011859893798828,15,7,False,False,False,False,True,True
+SockShop,orders,delay,2,baro,mang,latency-50,duong,,,0.011787176132202148,0.0017659664154052734,15,7,False,False,True,True,True,True
+SockShop,orders,delay,3,nsigma,mang,latency-50,duong,,,0.009055852890014648,0.0013849735260009766,15,7,True,True,True,True,True,True
+SockShop,orders,delay,3,baro,mang,latency-50,duong,,,0.011514902114868164,0.001680135726928711,15,7,False,True,True,True,True,True
+SockShop,orders,disk,2,nsigma,tai nguyen,workload,node,,,0.008615970611572266,0.0014119148254394531,15,7,True,True,True,True,True,True
+SockShop,orders,disk,2,baro,tai nguyen,workload,node,,,0.010396003723144531,0.0016880035400390625,15,7,False,True,True,True,True,True
+SockShop,orders,disk,3,nsigma,tai nguyen,cpu,node,,,0.007895946502685547,0.0019369125366210938,14,11,True,True,True,True,True,True
+SockShop,orders,disk,3,baro,tai nguyen,cpu,node,,,0.009894132614135742,0.0023469924926757812,14,11,True,True,True,True,True,True
+SockShop,orders,loss,1,nsigma,mang,latency-50,duong,,,0.009140968322753906,0.0014011859893798828,14,7,True,True,True,True,True,True
+SockShop,orders,loss,1,baro,mang,latency-50,duong,,,0.011469125747680664,0.0017101764678955078,14,7,False,True,True,True,True,True
+SockShop,orders,loss,2,nsigma,mang,latency-50,duong,,,0.008212089538574219,0.0013759136199951172,14,7,True,True,True,True,True,True
+SockShop,orders,loss,2,baro,mang,latency-50,duong,,,0.010837078094482422,0.0017108917236328125,14,7,True,True,True,True,True,True
+SockShop,orders,loss,3,nsigma,mang,latency-50,duong,,,0.00886988639831543,0.0014028549194335938,15,7,True,True,True,True,True,True
+SockShop,orders,loss,3,baro,mang,latency-50,duong,,,0.011306047439575195,0.0016942024230957031,15,7,False,True,True,True,True,True
+SockShop,orders,mem,1,nsigma,tai nguyen,cpu,node,,,0.009192943572998047,0.0021941661834716797,14,13,True,True,True,True,True,True
+SockShop,orders,mem,1,baro,tai nguyen,cpu,node,,,0.01139521598815918,0.0027480125427246094,14,13,False,False,True,True,True,True
+SockShop,orders,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.009407997131347656,0.0013928413391113281,14,7,True,True,True,True,True,True
+SockShop,orders,mem,2,baro,tai nguyen,latency-50,duong,,,0.012034177780151367,0.0017049312591552734,14,7,False,True,True,True,True,True
+SockShop,orders,mem,3,nsigma,tai nguyen,cpu,node,,,0.009202957153320312,0.002360820770263672,14,14,True,True,True,True,True,True
+SockShop,orders,mem,3,baro,tai nguyen,cpu,node,,,0.011507034301757812,0.002901792526245117,14,14,True,True,True,True,True,True
+SockShop,orders,socket,1,nsigma,tai nguyen,cpu,node,,,0.008300065994262695,0.0022330284118652344,14,13,False,False,False,False,False,True
+SockShop,orders,socket,1,baro,tai nguyen,cpu,node,,,0.01026296615600586,0.002688884735107422,14,13,False,False,True,True,False,True
+SockShop,orders,socket,2,nsigma,tai nguyen,cpu,node,,,0.008723020553588867,0.0024459362030029297,15,15,True,True,True,True,True,True
+SockShop,orders,socket,2,baro,tai nguyen,cpu,node,,,0.010962963104248047,0.0031511783599853516,15,15,False,False,True,True,True,True
+SockShop,orders,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.00923013687133789,0.0014379024505615234,14,7,True,True,True,True,True,True
+SockShop,orders,socket,3,baro,tai nguyen,latency-50,duong,,,0.01148223876953125,0.0017478466033935547,14,7,False,False,False,False,True,False
+SockShop,payment,cpu,1,nsigma,tai nguyen,cpu,node,,,0.00843191146850586,0.002199888229370117,14,13,True,True,True,True,True,True
+SockShop,payment,cpu,1,baro,tai nguyen,cpu,node,,,0.010582923889160156,0.002760171890258789,14,13,False,False,True,True,True,True
+SockShop,payment,cpu,2,nsigma,tai nguyen,cpu,node,,,0.009050846099853516,0.0023491382598876953,15,14,True,True,True,True,True,True
+SockShop,payment,cpu,2,baro,tai nguyen,cpu,node,,,0.011349916458129883,0.002877950668334961,15,14,False,False,True,True,True,True
+SockShop,payment,cpu,3,nsigma,tai nguyen,cpu,node,,,0.008391141891479492,0.002185821533203125,14,12,True,True,True,True,True,True
+SockShop,payment,cpu,3,baro,tai nguyen,cpu,node,,,0.011489152908325195,0.0027070045471191406,14,12,False,False,True,True,True,True
+SockShop,payment,delay,1,nsigma,mang,latency-50,duong,,,0.008829355239868164,0.00140380859375,14,7,True,True,True,True,True,True
+SockShop,payment,delay,1,baro,mang,latency-50,duong,,,0.011277198791503906,0.0017681121826171875,14,7,False,True,True,True,True,True
+SockShop,payment,delay,2,nsigma,mang,latency-50,duong,,,0.008761882781982422,0.001378774642944336,14,7,True,True,True,True,True,True
+SockShop,payment,delay,2,baro,mang,latency-50,duong,,,0.010995149612426758,0.001695871353149414,14,7,False,True,True,True,True,True
+SockShop,payment,delay,3,nsigma,mang,latency-50,duong,,,0.009499073028564453,0.0014140605926513672,15,7,True,True,True,True,True,True
+SockShop,payment,delay,3,baro,mang,latency-50,duong,,,0.011810779571533203,0.0017359256744384766,15,7,True,True,True,True,True,True
+SockShop,payment,disk,1,nsigma,tai nguyen,cpu,node,,,0.008613109588623047,0.002544879913330078,15,15,True,True,True,True,True,True
+SockShop,payment,disk,1,baro,tai nguyen,cpu,node,,,0.010789871215820312,0.0030782222747802734,15,15,False,False,True,True,False,True
+SockShop,payment,disk,2,nsigma,tai nguyen,cpu,node,,,0.008833169937133789,0.00209808349609375,14,12,True,True,True,True,True,True
+SockShop,payment,disk,2,baro,tai nguyen,cpu,node,,,0.011123180389404297,0.0025680065155029297,14,12,True,True,True,True,True,True
+SockShop,payment,disk,3,nsigma,tai nguyen,cpu,node,,,0.00821685791015625,0.0019309520721435547,14,11,True,True,True,True,True,True
+SockShop,payment,disk,3,baro,tai nguyen,cpu,node,,,0.010285139083862305,0.0024077892303466797,14,11,True,True,True,True,True,True
+SockShop,payment,loss,1,nsigma,mang,workload,node,,,0.009042024612426758,0.0014221668243408203,15,7,True,True,False,False,True,False
+SockShop,payment,loss,1,baro,mang,workload,node,,,0.011018991470336914,0.0017092227935791016,15,7,False,False,False,False,True,False
+SockShop,payment,loss,2,nsigma,mang,workload,node,,,0.007973909378051758,0.0014960765838623047,15,7,False,False,False,False,True,True
+SockShop,payment,loss,2,baro,mang,workload,node,,,0.010135889053344727,0.0017349720001220703,15,7,False,False,False,False,True,True
+SockShop,payment,loss,3,nsigma,mang,workload,node,,,0.009031057357788086,0.001432180404663086,15,7,False,False,False,False,True,False
+SockShop,payment,loss,3,baro,mang,workload,node,,,0.011355876922607422,0.001729726791381836,15,7,False,False,False,False,True,False
+SockShop,payment,mem,1,nsigma,tai nguyen,cpu,node,,,0.008691787719726562,0.0022020339965820312,15,13,True,True,True,True,True,True
+SockShop,payment,mem,1,baro,tai nguyen,cpu,node,,,0.01109623908996582,0.002825021743774414,15,13,False,False,True,True,True,True
+SockShop,payment,mem,2,nsigma,tai nguyen,cpu,node,,,0.008716583251953125,0.0022220611572265625,15,13,True,True,True,True,True,True
+SockShop,payment,mem,2,baro,tai nguyen,cpu,node,,,0.011000871658325195,0.002660989761352539,15,13,True,True,True,True,True,True
+SockShop,payment,mem,3,nsigma,tai nguyen,cpu,node,,,0.009474039077758789,0.002232789993286133,14,13,True,True,True,True,True,True
+SockShop,payment,mem,3,baro,tai nguyen,cpu,node,,,0.011814117431640625,0.0027840137481689453,14,13,True,True,True,True,True,True
+SockShop,payment,socket,1,nsigma,tai nguyen,cpu,node,,,0.008466005325317383,0.0017409324645996094,15,10,True,True,True,True,True,True
+SockShop,payment,socket,1,baro,tai nguyen,cpu,node,,,0.010733842849731445,0.0022258758544921875,15,10,False,False,True,True,False,True
+SockShop,payment,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.008172988891601562,0.0014698505401611328,14,7,True,True,True,True,True,True
+SockShop,payment,socket,2,baro,tai nguyen,latency-50,duong,,,0.010293960571289062,0.0016701221466064453,14,7,False,True,True,True,True,True
+SockShop,payment,socket,3,nsigma,tai nguyen,cpu,node,,,0.008891105651855469,0.0024869441986083984,15,15,True,True,True,True,True,True
+SockShop,payment,socket,3,baro,tai nguyen,cpu,node,,,0.011130094528198242,0.0031280517578125,15,15,False,False,True,True,True,True
+SockShop,user,cpu,1,nsigma,tai nguyen,cpu,node,,,0.02262711524963379,0.0023767948150634766,15,14,False,False,True,True,True,True
+SockShop,user,cpu,1,baro,tai nguyen,cpu,node,,,0.008775949478149414,0.002938985824584961,15,14,False,False,True,True,False,True
+SockShop,user,cpu,2,nsigma,tai nguyen,cpu,node,,,0.006977081298828125,0.002048015594482422,14,12,True,True,True,True,True,True
+SockShop,user,cpu,2,baro,tai nguyen,cpu,node,,,0.00859212875366211,0.002499103546142578,14,12,False,False,True,True,True,True
+SockShop,user,cpu,3,nsigma,tai nguyen,cpu,node,,,0.008748054504394531,0.0020742416381835938,15,12,True,True,True,True,True,True
+SockShop,user,cpu,3,baro,tai nguyen,cpu,node,,,0.010876178741455078,0.002553224563598633,15,12,False,False,True,True,True,True
+SockShop,user,delay,1,nsigma,mang,latency-50,duong,,,0.008833885192871094,0.0013959407806396484,15,7,True,True,True,True,True,True
+SockShop,user,delay,1,baro,mang,latency-50,duong,,,0.011092901229858398,0.0016880035400390625,15,7,False,True,True,True,True,True
+SockShop,user,delay,2,nsigma,mang,latency-50,duong,,,0.008821964263916016,0.0014350414276123047,15,7,True,True,True,True,True,True
+SockShop,user,delay,2,baro,mang,latency-50,duong,,,0.011089801788330078,0.0016779899597167969,15,7,False,True,True,True,True,True
+SockShop,user,delay,3,nsigma,mang,latency-50,duong,,,0.008832931518554688,0.001405954360961914,15,7,True,True,True,True,True,True
+SockShop,user,delay,3,baro,mang,latency-50,duong,,,0.011063098907470703,0.0016951560974121094,15,7,False,True,True,True,True,True
+SockShop,user,disk,1,nsigma,tai nguyen,cpu,node,,,0.007537126541137695,0.002331972122192383,15,14,True,True,True,True,True,True
+SockShop,user,disk,1,baro,tai nguyen,cpu,node,,,0.009370088577270508,0.0029630661010742188,15,14,False,False,True,True,False,True
+SockShop,user,disk,2,nsigma,tai nguyen,cpu,node,,,0.008756875991821289,0.002196073532104492,14,13,True,True,True,True,True,True
+SockShop,user,disk,2,baro,tai nguyen,cpu,node,,,0.011402130126953125,0.0027201175689697266,14,13,True,True,True,True,True,True
+SockShop,user,disk,3,nsigma,tai nguyen,cpu,node,,,0.00833582878112793,0.0017910003662109375,14,10,True,True,True,True,True,True
+SockShop,user,disk,3,baro,tai nguyen,cpu,node,,,0.010464906692504883,0.0021848678588867188,14,10,True,True,True,True,True,True
+SockShop,user,loss,1,nsigma,mang,workload,node,,,0.007117748260498047,0.0013861656188964844,15,7,True,True,False,False,True,True
+SockShop,user,loss,1,baro,mang,workload,node,,,0.008762836456298828,0.0016970634460449219,15,7,False,False,False,False,True,True
+SockShop,user,loss,2,nsigma,mang,workload,node,,,0.006659030914306641,0.0013699531555175781,15,7,False,False,False,False,True,False
+SockShop,user,loss,2,baro,mang,workload,node,,,0.008144855499267578,0.001641988754272461,15,7,False,False,False,False,False,False
+SockShop,user,loss,3,nsigma,mang,workload,node,,,0.007379055023193359,0.0013918876647949219,14,7,False,False,False,False,True,False
+SockShop,user,loss,3,baro,mang,workload,node,,,0.0092620849609375,0.0018680095672607422,14,7,False,False,False,False,False,False
+SockShop,user,mem,1,nsigma,tai nguyen,cpu,node,,,0.008973121643066406,0.0022132396697998047,15,13,True,True,True,True,True,True
+SockShop,user,mem,1,baro,tai nguyen,cpu,node,,,0.01120305061340332,0.0027379989624023438,15,13,False,False,True,True,True,True
+SockShop,user,mem,2,nsigma,tai nguyen,cpu,node,,,0.009139776229858398,0.0021979808807373047,14,13,True,True,True,True,True,True
+SockShop,user,mem,2,baro,tai nguyen,cpu,node,,,0.011837959289550781,0.0027191638946533203,14,13,True,True,True,True,True,True
+SockShop,user,mem,3,nsigma,tai nguyen,latency-50,duong,,,0.008926153182983398,0.001394033432006836,15,7,True,True,True,True,True,True
+SockShop,user,mem,3,baro,tai nguyen,latency-50,duong,,,0.011539936065673828,0.0016918182373046875,15,7,False,True,True,True,True,True
+SockShop,user,socket,1,nsigma,tai nguyen,latency-50,duong,,,0.009446859359741211,0.0014162063598632812,15,7,True,True,True,True,True,True
+SockShop,user,socket,1,baro,tai nguyen,latency-50,duong,,,0.011889934539794922,0.0016512870788574219,15,7,False,False,True,True,True,True
+SockShop,user,socket,2,nsigma,tai nguyen,cpu,node,,,0.00881195068359375,0.0020852088928222656,14,12,True,True,True,True,True,True
+SockShop,user,socket,2,baro,tai nguyen,cpu,node,,,0.010943889617919922,0.0025641918182373047,14,12,False,False,True,True,True,True
+SockShop,user,socket,3,nsigma,tai nguyen,cpu,node,,,0.009687662124633789,0.002412080764770508,15,14,True,True,True,True,True,True
+SockShop,user,socket,3,baro,tai nguyen,cpu,node,,,0.012151002883911133,0.002938985824584961,15,14,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,1,nsigma,tai nguyen,cpu,node,,,0.0085601806640625,0.0016481876373291016,12,9,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,1,baro,tai nguyen,cpu,node,,,0.010710000991821289,0.0021119117736816406,12,9,False,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,2,nsigma,tai nguyen,latency-50,duong,,,0.00656580924987793,0.0014691352844238281,12,8,True,True,False,False,True,False
+OnlineBoutique,checkoutservice,cpu,2,baro,tai nguyen,latency-50,duong,,,0.008191108703613281,0.0017778873443603516,12,8,False,True,False,False,True,True
+OnlineBoutique,checkoutservice,cpu,3,nsigma,tai nguyen,cpu,node,,,0.008636951446533203,0.0019600391387939453,12,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,3,baro,tai nguyen,cpu,node,,,0.010831832885742188,0.0024182796478271484,12,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,delay,1,nsigma,mang,latency-50,duong,,,0.00828099250793457,0.0018138885498046875,12,10,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,delay,1,baro,mang,latency-50,duong,,,0.010319232940673828,0.002165079116821289,12,10,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,delay,2,nsigma,mang,latency-50,duong,,,0.008293867111206055,0.0017971992492675781,12,10,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,delay,2,baro,mang,latency-50,duong,,,0.010294914245605469,0.002276182174682617,12,10,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,delay,3,nsigma,mang,latency-50,duong,,,0.00795292854309082,0.0017669200897216797,12,10,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,delay,3,baro,mang,latency-50,duong,,,0.010308980941772461,0.0022881031036376953,12,10,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,disk,1,nsigma,tai nguyen,cpu,node,,,0.008382797241210938,0.0019390583038330078,12,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,1,baro,tai nguyen,cpu,node,,,0.010505199432373047,0.0023932456970214844,12,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,disk,2,nsigma,tai nguyen,cpu,node,,,0.007750272750854492,0.0016751289367675781,11,9,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,2,baro,tai nguyen,cpu,node,,,0.009674072265625,0.002051115036010742,11,9,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,3,nsigma,tai nguyen,cpu,node,,,0.007988929748535156,0.001956939697265625,11,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,3,baro,tai nguyen,cpu,node,,,0.010094165802001953,0.0022246837615966797,11,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,1,nsigma,mang,latency-50,duong,,,0.008411169052124023,0.0018951892852783203,12,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,1,baro,mang,latency-50,duong,,,0.010662317276000977,0.0021991729736328125,12,10,False,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,2,nsigma,mang,latency-50,duong,,,0.007895946502685547,0.0017840862274169922,12,10,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,loss,2,baro,mang,latency-50,duong,,,0.009796857833862305,0.0021932125091552734,12,10,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,loss,3,nsigma,mang,cpu,node,,,0.0060961246490478516,0.0019600391387939453,12,11,False,False,False,False,True,False
+OnlineBoutique,checkoutservice,loss,3,baro,mang,cpu,node,,,0.0075380802154541016,0.002468109130859375,12,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,mem,1,nsigma,tai nguyen,cpu,node,,,0.008219718933105469,0.0018548965454101562,12,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,1,baro,tai nguyen,cpu,node,,,0.010353803634643555,0.0022127628326416016,12,10,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.006548881530761719,0.0016939640045166016,12,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,2,baro,tai nguyen,latency-50,duong,,,0.008491992950439453,0.002128124237060547,12,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,3,nsigma,tai nguyen,cpu,node,,,0.00841975212097168,0.0019261837005615234,12,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,3,baro,tai nguyen,cpu,node,,,0.010630130767822266,0.0024008750915527344,12,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,1,nsigma,tai nguyen,cpu,node,,,0.007818937301635742,0.0016570091247558594,12,9,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,1,baro,tai nguyen,cpu,node,,,0.009871959686279297,0.0020170211791992188,12,9,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,2,nsigma,tai nguyen,cpu,node,,,0.008113861083984375,0.001961946487426758,12,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,2,baro,tai nguyen,cpu,node,,,0.010185956954956055,0.0023741722106933594,12,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.008410215377807617,0.0018320083618164062,12,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,3,baro,tai nguyen,latency-50,duong,,,0.010665178298950195,0.0022602081298828125,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,1,nsigma,tai nguyen,latency-50,duong,,,0.008683919906616211,0.0018382072448730469,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,1,baro,tai nguyen,latency-50,duong,,,0.010972976684570312,0.002363920211791992,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,2,nsigma,tai nguyen,latency-50,duong,,,0.007922172546386719,0.0017850399017333984,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,cpu,2,baro,tai nguyen,latency-50,duong,,,0.020130634307861328,0.004477977752685547,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,cpu,3,nsigma,tai nguyen,latency-50,duong,,,0.008901834487915039,0.0019497871398925781,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,3,baro,tai nguyen,latency-50,duong,,,0.01063394546508789,0.0023038387298583984,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,1,nsigma,mang,latency-50,duong,,,0.008330106735229492,0.0018608570098876953,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,1,baro,mang,latency-50,duong,,,0.010383129119873047,0.0022063255310058594,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,2,nsigma,mang,latency-50,duong,,,0.008465051651000977,0.001814126968383789,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,2,baro,mang,latency-50,duong,,,0.010400056838989258,0.0022230148315429688,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,3,nsigma,mang,latency-50,duong,,,0.008008003234863281,0.0018048286437988281,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,3,baro,mang,latency-50,duong,,,0.01016688346862793,0.0022420883178710938,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,1,nsigma,tai nguyen,latency-50,duong,,,0.008828878402709961,0.001817941665649414,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,1,baro,tai nguyen,latency-50,duong,,,0.011046886444091797,0.0022017955780029297,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,2,nsigma,tai nguyen,latency-50,duong,,,0.00830984115600586,0.0018219947814941406,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,2,baro,tai nguyen,latency-50,duong,,,0.010560989379882812,0.002212047576904297,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,3,nsigma,tai nguyen,latency-50,duong,,,0.008365869522094727,0.0017938613891601562,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,3,baro,tai nguyen,latency-50,duong,,,0.0105133056640625,0.002232074737548828,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,loss,1,nsigma,mang,workload,node,,,0.006775856018066406,0.0021429061889648438,12,11,False,False,False,False,True,False
+OnlineBoutique,currencyservice,loss,1,baro,mang,workload,node,,,0.008435964584350586,0.0023920536041259766,12,11,False,False,False,False,False,False
+OnlineBoutique,currencyservice,loss,2,nsigma,mang,latency-50,duong,,,0.008237838745117188,0.0017781257629394531,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,loss,2,baro,mang,latency-50,duong,,,0.010395050048828125,0.0021979808807373047,12,10,False,False,True,True,False,True
+OnlineBoutique,currencyservice,loss,3,nsigma,mang,latency-50,duong,,,0.007215976715087891,0.0014107227325439453,12,7,False,False,True,True,True,True
+OnlineBoutique,currencyservice,loss,3,baro,mang,latency-50,duong,,,0.009404897689819336,0.0017619132995605469,12,7,False,False,True,True,True,True
+OnlineBoutique,currencyservice,mem,1,nsigma,tai nguyen,latency-50,duong,,,0.008619070053100586,0.0018279552459716797,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,1,baro,tai nguyen,latency-50,duong,,,0.010503292083740234,0.0023119449615478516,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.008662223815917969,0.0018076896667480469,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,2,baro,tai nguyen,latency-50,duong,,,0.010548114776611328,0.002218008041381836,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,3,nsigma,tai nguyen,latency-50,duong,,,0.008198976516723633,0.001817941665649414,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,3,baro,tai nguyen,latency-50,duong,,,0.01020503044128418,0.0022208690643310547,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,1,nsigma,tai nguyen,workload,node,,,0.008365154266357422,0.0019369125366210938,12,11,False,False,True,True,True,True
+OnlineBoutique,currencyservice,socket,1,baro,tai nguyen,workload,node,,,0.010483980178833008,0.002363920211791992,12,11,False,False,True,True,False,True
+OnlineBoutique,currencyservice,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.008175849914550781,0.0018091201782226562,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,2,baro,tai nguyen,latency-50,duong,,,0.01057577133178711,0.002231121063232422,12,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.00840616226196289,0.00179290771484375,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,socket,3,baro,tai nguyen,latency-50,duong,,,0.010607004165649414,0.002249002456665039,12,10,False,False,True,True,True,True
+OnlineBoutique,emailservice,cpu,1,nsigma,tai nguyen,cpu,node,,,0.008096933364868164,0.001953125,12,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,1,baro,tai nguyen,cpu,node,,,0.010215997695922852,0.0023610591888427734,12,11,False,False,True,True,True,True
+OnlineBoutique,emailservice,cpu,2,nsigma,tai nguyen,cpu,node,,,0.007899761199951172,0.0018000602722167969,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,2,baro,tai nguyen,cpu,node,,,0.01007223129272461,0.0021991729736328125,12,10,False,False,True,True,True,True
+OnlineBoutique,emailservice,cpu,3,nsigma,tai nguyen,cpu,node,,,0.007665872573852539,0.0018031597137451172,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,3,baro,tai nguyen,cpu,node,,,0.00983285903930664,0.0022737979888916016,12,10,False,False,True,True,True,True
+OnlineBoutique,emailservice,delay,1,nsigma,mang,latency-50,duong,,,0.00815892219543457,0.001859903335571289,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,1,baro,mang,latency-50,duong,,,0.010206937789916992,0.0022220611572265625,12,10,False,False,False,True,True,True
+OnlineBoutique,emailservice,delay,2,nsigma,mang,latency-50,duong,,,0.00768589973449707,0.001795053482055664,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,2,baro,mang,latency-50,duong,,,0.009576797485351562,0.002226114273071289,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,3,nsigma,mang,latency-50,duong,,,0.008217096328735352,0.0018019676208496094,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,3,baro,mang,latency-50,duong,,,0.010369062423706055,0.0021800994873046875,12,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,disk,1,nsigma,tai nguyen,latency-50,duong,,,0.00811314582824707,0.001856088638305664,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,1,baro,tai nguyen,latency-50,duong,,,0.009968757629394531,0.0022199153900146484,12,10,False,True,False,False,True,True
+OnlineBoutique,emailservice,disk,2,nsigma,tai nguyen,cpu,node,,,0.007996797561645508,0.0017969608306884766,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,2,baro,tai nguyen,cpu,node,,,0.009966850280761719,0.002218008041381836,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,3,nsigma,tai nguyen,cpu,node,,,0.008317947387695312,0.0017547607421875,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,3,baro,tai nguyen,cpu,node,,,0.010408163070678711,0.0022330284118652344,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,1,nsigma,mang,latency-50,duong,,,0.00827169418334961,0.0018470287322998047,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,1,baro,mang,latency-50,duong,,,0.010376930236816406,0.002228260040283203,12,10,False,True,False,True,True,True
+OnlineBoutique,emailservice,loss,2,nsigma,mang,latency-50,duong,,,0.008025884628295898,0.00180816650390625,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,2,baro,mang,latency-50,duong,,,0.010022878646850586,0.0022132396697998047,12,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,loss,3,nsigma,mang,latency-50,duong,,,0.008275985717773438,0.0018188953399658203,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,3,baro,mang,latency-50,duong,,,0.010515213012695312,0.002145051956176758,12,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,mem,1,nsigma,tai nguyen,cpu,node,,,0.008014678955078125,0.0016536712646484375,12,9,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,1,baro,tai nguyen,cpu,node,,,0.010053873062133789,0.0020411014556884766,12,9,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,2,nsigma,tai nguyen,cpu,node,,,0.008097171783447266,0.001543283462524414,12,8,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,2,baro,tai nguyen,cpu,node,,,0.00999903678894043,0.0018870830535888672,12,8,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,3,nsigma,tai nguyen,cpu,node,,,0.008291244506835938,0.0019550323486328125,12,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,3,baro,tai nguyen,cpu,node,,,0.01026010513305664,0.0023839473724365234,12,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,1,nsigma,tai nguyen,cpu,node,,,0.00839996337890625,0.0019252300262451172,12,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,1,baro,tai nguyen,cpu,node,,,0.010744810104370117,0.002421855926513672,12,11,False,False,True,True,True,True
+OnlineBoutique,emailservice,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.007926702499389648,0.0018041133880615234,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,2,baro,tai nguyen,latency-50,duong,,,0.009989023208618164,0.0022089481353759766,12,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.008568048477172852,0.0018091201782226562,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,3,baro,tai nguyen,latency-50,duong,,,0.010418176651000977,0.002185821533203125,12,10,False,True,False,False,True,True
+OnlineBoutique,productcatalogservice,cpu,1,nsigma,tai nguyen,latency-50,duong,,,0.008562088012695312,0.0017879009246826172,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,cpu,1,baro,tai nguyen,latency-50,duong,,,0.010704994201660156,0.0022552013397216797,12,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,cpu,2,nsigma,tai nguyen,cpu,node,,,0.008271932601928711,0.0019037723541259766,12,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,2,baro,tai nguyen,cpu,node,,,0.010396957397460938,0.0026879310607910156,12,11,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,3,nsigma,tai nguyen,cpu,node,,,0.008138895034790039,0.0017621517181396484,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,3,baro,tai nguyen,cpu,node,,,0.009953022003173828,0.00222015380859375,12,10,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,delay,1,nsigma,mang,latency-50,duong,,,0.008512020111083984,0.0018088817596435547,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,1,baro,mang,latency-50,duong,,,0.010828018188476562,0.002232074737548828,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,2,nsigma,mang,latency-50,duong,,,0.008137226104736328,0.0018117427825927734,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,2,baro,mang,latency-50,duong,,,0.010277271270751953,0.002249002456665039,12,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,3,nsigma,mang,latency-50,duong,,,0.007970094680786133,0.0017910003662109375,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,3,baro,mang,latency-50,duong,,,0.01005411148071289,0.0022068023681640625,12,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,disk,1,nsigma,tai nguyen,cpu,node,,,0.008517265319824219,0.0019621849060058594,12,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,1,baro,tai nguyen,cpu,node,,,0.010476112365722656,0.002418041229248047,12,11,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,2,nsigma,tai nguyen,cpu,node,,,0.008177995681762695,0.0016808509826660156,12,9,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,2,baro,tai nguyen,cpu,node,,,0.010291099548339844,0.002061128616333008,12,9,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,3,nsigma,tai nguyen,cpu,node,,,0.00971221923828125,0.0018749237060546875,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,3,baro,tai nguyen,cpu,node,,,0.02823781967163086,0.002373218536376953,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,loss,1,nsigma,mang,latency-50,duong,,,0.008383989334106445,0.001567840576171875,12,8,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,1,baro,mang,latency-50,duong,,,0.010362863540649414,0.0019311904907226562,12,8,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,2,nsigma,mang,cpu,node,,,0.00598907470703125,0.0018908977508544922,12,10,False,True,False,False,True,True
+OnlineBoutique,productcatalogservice,loss,2,baro,mang,cpu,node,,,0.00743412971496582,0.0022788047790527344,12,10,False,False,False,False,True,True
+OnlineBoutique,productcatalogservice,loss,3,nsigma,mang,latency-50,duong,,,0.008406877517700195,0.0018241405487060547,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,3,baro,mang,latency-50,duong,,,0.010591983795166016,0.0022029876708984375,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,mem,1,nsigma,tai nguyen,cpu,node,,,0.008752822875976562,0.001995086669921875,12,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,1,baro,tai nguyen,cpu,node,,,0.011057376861572266,0.002371072769165039,12,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.00820016860961914,0.002401113510131836,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,mem,2,baro,tai nguyen,latency-50,duong,,,0.010436058044433594,0.002213001251220703,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,mem,3,nsigma,tai nguyen,cpu,node,,,0.008344173431396484,0.001650094985961914,12,9,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,3,baro,tai nguyen,cpu,node,,,0.010300874710083008,0.0020809173583984375,12,9,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,1,nsigma,tai nguyen,cpu,node,,,0.008029937744140625,0.0018706321716308594,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,1,baro,tai nguyen,cpu,node,,,0.009982824325561523,0.0021979808807373047,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.008016109466552734,0.0018112659454345703,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,2,baro,tai nguyen,latency-50,duong,,,0.010274887084960938,0.002228975296020508,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.008075952529907227,0.001798868179321289,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,3,baro,tai nguyen,latency-50,duong,,,0.010088920593261719,0.002275228500366211,12,10,False,True,False,True,True,True
+OnlineBoutique,recommendationservice,cpu,1,nsigma,tai nguyen,latency-50,duong,,,0.008414983749389648,0.0018498897552490234,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,1,baro,tai nguyen,latency-50,duong,,,0.010601997375488281,0.002231597900390625,12,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,2,nsigma,tai nguyen,latency-50,duong,,,0.008183717727661133,0.0017931461334228516,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,2,baro,tai nguyen,latency-50,duong,,,0.010268926620483398,0.0021920204162597656,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,3,nsigma,tai nguyen,latency-50,duong,,,0.007980823516845703,0.0018029212951660156,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,3,baro,tai nguyen,latency-50,duong,,,0.010142087936401367,0.0023081302642822266,12,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,1,nsigma,mang,latency-50,duong,,,0.00832676887512207,0.001882791519165039,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,1,baro,mang,latency-50,duong,,,0.010439872741699219,0.0022089481353759766,12,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,2,nsigma,mang,latency-50,duong,,,0.00829005241394043,0.0017838478088378906,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,2,baro,mang,latency-50,duong,,,0.010329008102416992,0.0022079944610595703,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,3,nsigma,mang,latency-50,duong,,,0.007925033569335938,0.0018229484558105469,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,3,baro,mang,latency-50,duong,,,0.009934186935424805,0.002237081527709961,12,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,1,nsigma,tai nguyen,latency-50,duong,,,0.008404016494750977,0.001809835433959961,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,1,baro,tai nguyen,latency-50,duong,,,0.010644912719726562,0.002195119857788086,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,2,nsigma,tai nguyen,cpu,node,,,0.007763862609863281,0.0013899803161621094,12,7,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,2,baro,tai nguyen,cpu,node,,,0.009725093841552734,0.0017228126525878906,12,7,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,3,nsigma,tai nguyen,latency-50,duong,,,0.00815892219543457,0.001827239990234375,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,3,baro,tai nguyen,latency-50,duong,,,0.010248899459838867,0.002212047576904297,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,2,nsigma,mang,latency-50,duong,,,0.00817418098449707,0.0018498897552490234,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,2,baro,mang,latency-50,duong,,,0.010094881057739258,0.0022618770599365234,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,3,nsigma,mang,workload,node,,,0.00658106803894043,0.0018990039825439453,12,11,False,False,False,False,True,False
+OnlineBoutique,recommendationservice,loss,3,baro,mang,workload,node,,,0.008139610290527344,0.0023653507232666016,12,11,False,False,False,False,True,False
+OnlineBoutique,recommendationservice,mem,1,nsigma,tai nguyen,latency-50,duong,,,0.009429931640625,0.0018200874328613281,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,1,baro,tai nguyen,latency-50,duong,,,0.011844873428344727,0.002346038818359375,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.008613824844360352,0.0018312931060791016,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,2,baro,tai nguyen,latency-50,duong,,,0.010711908340454102,0.0021963119506835938,12,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,3,nsigma,tai nguyen,latency-50,duong,,,0.008321046829223633,0.0018301010131835938,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,3,baro,tai nguyen,latency-50,duong,,,0.010761022567749023,0.002286195755004883,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,1,nsigma,tai nguyen,latency-50,duong,,,0.008529901504516602,0.0018112659454345703,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,1,baro,tai nguyen,latency-50,duong,,,0.010904073715209961,0.0022411346435546875,12,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.007980108261108398,0.0018167495727539062,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,2,baro,tai nguyen,latency-50,duong,,,0.009801864624023438,0.0021920204162597656,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.008196115493774414,0.0018377304077148438,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,3,baro,tai nguyen,latency-50,duong,,,0.010236024856567383,0.0024161338806152344,12,10,False,False,True,True,True,True
+TrainTicket,ts-auth-service,cpu,1,nsigma,tai nguyen,latency-50,duong,,,0.041033029556274414,0.0030889511108398438,68,19,True,True,True,True,True,True
+TrainTicket,ts-auth-service,cpu,1,baro,tai nguyen,latency-50,duong,,,0.05174684524536133,0.00391697883605957,68,19,False,False,True,True,True,True
+TrainTicket,ts-auth-service,cpu,2,nsigma,tai nguyen,cpu,node,,,0.04227089881896973,0.008928060531616211,68,61,False,False,False,False,False,False
+TrainTicket,ts-auth-service,cpu,2,baro,tai nguyen,cpu,node,,,0.05312514305114746,0.011281967163085938,68,61,False,False,False,False,False,False
+TrainTicket,ts-auth-service,cpu,3,nsigma,tai nguyen,latency-50,duong,,,0.04186296463012695,0.003609180450439453,68,22,False,False,True,True,True,True
+TrainTicket,ts-auth-service,cpu,3,baro,tai nguyen,latency-50,duong,,,0.05310988426208496,0.004347801208496094,68,22,False,False,True,True,False,True
+TrainTicket,ts-auth-service,delay,1,nsigma,mang,latency-50,duong,,,0.05921626091003418,0.0037910938262939453,67,24,True,True,True,True,True,True
+TrainTicket,ts-auth-service,delay,1,baro,mang,latency-50,duong,,,0.05390119552612305,0.0048370361328125,67,24,False,False,True,True,False,True
+TrainTicket,ts-auth-service,delay,2,nsigma,mang,latency-50,duong,,,0.040038108825683594,0.0032389163970947266,68,20,False,False,True,True,False,True
+TrainTicket,ts-auth-service,delay,2,baro,mang,latency-50,duong,,,0.05129599571228027,0.004029035568237305,68,20,False,False,True,True,False,True
+TrainTicket,ts-auth-service,delay,3,nsigma,mang,latency-50,duong,,,0.041541099548339844,0.0034978389739990234,68,22,False,True,True,True,False,True
+TrainTicket,ts-auth-service,delay,3,baro,mang,latency-50,duong,,,0.05280613899230957,0.004354000091552734,68,22,False,False,True,True,False,True
+TrainTicket,ts-auth-service,disk,1,nsigma,tai nguyen,cpu,node,,,0.04005289077758789,0.008487939834594727,68,57,True,True,False,False,True,False
+TrainTicket,ts-auth-service,disk,1,baro,tai nguyen,cpu,node,,,0.05038809776306152,0.01036691665649414,68,57,True,True,False,False,True,False
+TrainTicket,ts-auth-service,disk,2,nsigma,tai nguyen,latency-50,duong,,,0.0581357479095459,0.0038089752197265625,68,24,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,2,baro,tai nguyen,latency-50,duong,,,0.05228996276855469,0.004700899124145508,68,24,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,3,nsigma,tai nguyen,latency-50,duong,,,0.041548967361450195,0.00411224365234375,68,24,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,3,baro,tai nguyen,latency-50,duong,,,0.05332303047180176,0.004712820053100586,68,24,True,True,True,True,True,True
+TrainTicket,ts-auth-service,loss,1,nsigma,mang,latency-50,duong,,,0.04203009605407715,0.004036903381347656,67,26,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,1,baro,mang,latency-50,duong,,,0.05391120910644531,0.0051250457763671875,67,26,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,2,nsigma,mang,latency-50,duong,,,0.04489302635192871,0.003961086273193359,68,25,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,2,baro,mang,latency-50,duong,,,0.05323982238769531,0.005006074905395508,68,25,False,False,False,False,False,True
+TrainTicket,ts-auth-service,loss,3,nsigma,mang,latency-50,duong,,,0.04260611534118652,0.0032269954681396484,67,19,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,3,baro,mang,latency-50,duong,,,0.05374002456665039,0.003871917724609375,67,19,False,False,False,False,False,True
+TrainTicket,ts-auth-service,mem,1,nsigma,tai nguyen,latency-50,duong,,,0.04225015640258789,0.003909111022949219,68,25,True,True,False,False,True,True
+TrainTicket,ts-auth-service,mem,1,baro,tai nguyen,latency-50,duong,,,0.05368208885192871,0.004992961883544922,68,25,False,True,False,False,True,True
+TrainTicket,ts-auth-service,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.04156327247619629,0.003161907196044922,68,19,False,False,True,True,True,True
+TrainTicket,ts-auth-service,mem,2,baro,tai nguyen,latency-50,duong,,,0.05218100547790527,0.003866910934448242,68,19,True,True,True,True,True,True
+TrainTicket,ts-auth-service,mem,3,nsigma,tai nguyen,latency-50,duong,,,0.04065299034118652,0.0035331249237060547,68,22,True,True,True,True,True,True
+TrainTicket,ts-auth-service,mem,3,baro,tai nguyen,latency-50,duong,,,0.052204132080078125,0.004370927810668945,68,22,False,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,1,nsigma,tai nguyen,latency-50,duong,,,0.04372596740722656,0.0037841796875,68,24,False,False,True,True,True,True
+TrainTicket,ts-auth-service,socket,1,baro,tai nguyen,latency-50,duong,,,0.07275891304016113,0.0048139095306396484,68,24,False,False,True,True,True,True
+TrainTicket,ts-auth-service,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.04007983207702637,0.003306865692138672,67,21,True,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,2,baro,tai nguyen,latency-50,duong,,,0.05339384078979492,0.004312992095947266,67,21,False,False,True,True,False,True
+TrainTicket,ts-auth-service,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.04145979881286621,0.003638029098510742,68,23,True,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,3,baro,tai nguyen,latency-50,duong,,,0.05327200889587402,0.004557609558105469,68,23,False,False,True,True,True,True
+TrainTicket,ts-order-service,cpu,1,nsigma,tai nguyen,latency-50,duong,,,0.04064512252807617,0.0031218528747558594,68,19,False,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,1,baro,tai nguyen,latency-50,duong,,,0.05172991752624512,0.0038230419158935547,68,19,False,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,2,nsigma,tai nguyen,latency-50,duong,,,0.04342913627624512,0.003907918930053711,68,25,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,2,baro,tai nguyen,latency-50,duong,,,0.0551762580871582,0.004857301712036133,68,25,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,3,nsigma,tai nguyen,latency-50,duong,,,0.05861186981201172,0.0035398006439208984,68,22,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,3,baro,tai nguyen,latency-50,duong,,,0.052819013595581055,0.004310131072998047,68,22,False,True,True,True,True,True
+TrainTicket,ts-order-service,delay,1,nsigma,mang,latency-50,duong,,,0.041346073150634766,0.002769947052001953,67,17,False,False,True,True,True,True
+TrainTicket,ts-order-service,delay,1,baro,mang,latency-50,duong,,,0.05260515213012695,0.0034818649291992188,67,17,False,True,True,True,True,True
+TrainTicket,ts-order-service,delay,2,nsigma,mang,latency-50,duong,,,0.03834795951843262,0.002888917922973633,67,18,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,2,baro,mang,latency-50,duong,,,0.049304962158203125,0.003765106201171875,67,18,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,3,nsigma,mang,latency-50,duong,,,0.04136395454406738,0.0034520626068115234,68,21,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,3,baro,mang,latency-50,duong,,,0.05218386650085449,0.004163026809692383,68,21,True,True,False,True,True,True
+TrainTicket,ts-order-service,disk,1,nsigma,tai nguyen,workload,node,,,0.04099678993225098,0.00432586669921875,68,28,True,True,False,False,True,False
+TrainTicket,ts-order-service,disk,1,baro,tai nguyen,workload,node,,,0.0693960189819336,0.005529165267944336,68,28,True,True,False,False,True,False
+TrainTicket,ts-order-service,disk,2,nsigma,tai nguyen,cpu,node,,,0.040335893630981445,0.009181022644042969,68,64,True,True,False,False,True,False
+TrainTicket,ts-order-service,disk,2,baro,tai nguyen,cpu,node,,,0.051167964935302734,0.011718034744262695,68,64,True,True,False,False,True,False
+TrainTicket,ts-order-service,disk,3,nsigma,tai nguyen,cpu,node,,,0.04168701171875,0.0093231201171875,68,65,True,True,True,True,True,True
+TrainTicket,ts-order-service,disk,3,baro,tai nguyen,cpu,node,,,0.053243160247802734,0.011786937713623047,68,65,True,True,True,True,True,True
+TrainTicket,ts-order-service,loss,1,nsigma,mang,latency-50,duong,,,0.042990922927856445,0.003941774368286133,68,25,False,False,False,True,False,True
+TrainTicket,ts-order-service,loss,1,baro,mang,latency-50,duong,,,0.05421805381774902,0.004923105239868164,68,25,False,False,False,True,False,True
+TrainTicket,ts-order-service,loss,2,nsigma,mang,latency-50,duong,,,0.04027509689331055,0.01935291290283203,67,20,True,True,True,True,True,True
+TrainTicket,ts-order-service,loss,2,baro,mang,latency-50,duong,,,0.05128598213195801,0.0039632320404052734,67,20,False,True,True,True,True,True
+TrainTicket,ts-order-service,loss,3,nsigma,mang,latency-50,duong,,,0.03865766525268555,0.0032279491424560547,68,20,True,True,False,True,True,True
+TrainTicket,ts-order-service,loss,3,baro,mang,latency-50,duong,,,0.048956871032714844,0.003983020782470703,68,20,False,True,True,True,True,True
+TrainTicket,ts-order-service,mem,1,nsigma,tai nguyen,latency-50,duong,,,0.04297900199890137,0.0038280487060546875,68,24,True,True,False,True,True,True
+TrainTicket,ts-order-service,mem,1,baro,tai nguyen,latency-50,duong,,,0.05397987365722656,0.004731178283691406,68,24,False,False,False,True,True,True
+TrainTicket,ts-order-service,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.04235434532165527,0.0038950443267822266,68,25,True,True,True,True,True,True
+TrainTicket,ts-order-service,mem,2,baro,tai nguyen,latency-50,duong,,,0.054325103759765625,0.0049648284912109375,68,25,True,True,True,True,True,True
+TrainTicket,ts-order-service,mem,3,nsigma,tai nguyen,cpu,node,,,0.04188704490661621,0.009073019027709961,68,62,True,True,False,False,True,True
+TrainTicket,ts-order-service,mem,3,baro,tai nguyen,cpu,node,,,0.05303597450256348,0.027087926864624023,68,62,False,False,False,False,True,False
+TrainTicket,ts-order-service,socket,1,nsigma,tai nguyen,latency-50,duong,,,0.04178786277770996,0.003385782241821289,68,21,False,False,True,True,True,True
+TrainTicket,ts-order-service,socket,1,baro,tai nguyen,latency-50,duong,,,0.0526578426361084,0.0042111873626708984,68,21,False,False,True,True,True,True
+TrainTicket,ts-order-service,socket,2,nsigma,tai nguyen,cpu,node,,,0.04003310203552246,0.009167194366455078,68,64,False,False,True,True,True,True
+TrainTicket,ts-order-service,socket,2,baro,tai nguyen,cpu,node,,,0.051152944564819336,0.01169896125793457,68,64,True,True,True,True,True,True
+TrainTicket,ts-order-service,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.0411529541015625,0.003120899200439453,68,19,True,True,True,True,True,True
+TrainTicket,ts-order-service,socket,3,baro,tai nguyen,latency-50,duong,,,0.05214405059814453,0.0038678646087646484,68,19,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,1,nsigma,tai nguyen,latency-50,duong,,,0.04042530059814453,0.0020117759704589844,68,11,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,1,baro,tai nguyen,latency-50,duong,,,0.06683802604675293,0.0025179386138916016,68,11,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,2,nsigma,tai nguyen,cpu,node,,,0.041107892990112305,0.009038209915161133,67,63,True,True,False,False,True,True
+TrainTicket,ts-route-service,cpu,2,baro,tai nguyen,cpu,node,,,0.05147600173950195,0.011497020721435547,67,63,False,False,False,False,True,False
+TrainTicket,ts-route-service,cpu,3,nsigma,tai nguyen,cpu,node,,,0.040296316146850586,0.008702993392944336,68,61,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,3,baro,tai nguyen,cpu,node,,,0.05123400688171387,0.011156082153320312,68,61,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,1,nsigma,mang,latency-50,duong,,,0.04317784309387207,0.003928184509277344,68,26,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,1,baro,mang,latency-50,duong,,,0.05452322959899902,0.0050089359283447266,68,26,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,2,nsigma,mang,latency-50,duong,,,0.041346073150634766,0.0034580230712890625,67,22,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,2,baro,mang,latency-50,duong,,,0.05217695236206055,0.0042572021484375,67,22,False,True,True,True,True,True
+TrainTicket,ts-route-service,delay,3,nsigma,mang,latency-50,duong,,,0.05812978744506836,0.0037789344787597656,68,24,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,3,baro,mang,latency-50,duong,,,0.05248308181762695,0.004887104034423828,68,24,True,True,True,True,True,True
+TrainTicket,ts-route-service,disk,1,nsigma,tai nguyen,cpu,node,,,0.040862083435058594,0.009016036987304688,68,62,True,True,False,False,True,False
+TrainTicket,ts-route-service,disk,1,baro,tai nguyen,cpu,node,,,0.05204916000366211,0.011289834976196289,68,62,True,True,False,False,True,False
+TrainTicket,ts-route-service,disk,2,nsigma,tai nguyen,latency-50,duong,,,0.04131507873535156,0.003949165344238281,68,24,True,True,False,False,True,True
+TrainTicket,ts-route-service,disk,2,baro,tai nguyen,latency-50,duong,,,0.053887128829956055,0.004857778549194336,68,24,True,True,False,False,True,True
+TrainTicket,ts-route-service,disk,3,nsigma,tai nguyen,cpu,node,,,0.04242706298828125,0.009150028228759766,68,62,True,True,False,False,True,True
+TrainTicket,ts-route-service,disk,3,baro,tai nguyen,cpu,node,,,0.052551984786987305,0.011322975158691406,68,62,True,True,False,False,True,False
+TrainTicket,ts-route-service,loss,1,nsigma,mang,latency-50,duong,,,0.058571815490722656,0.0039539337158203125,68,25,False,True,False,False,True,True
+TrainTicket,ts-route-service,loss,1,baro,mang,latency-50,duong,,,0.053819894790649414,0.004944801330566406,68,25,False,True,False,False,False,True
+TrainTicket,ts-route-service,loss,2,nsigma,mang,latency-50,duong,,,0.04341006278991699,0.0038208961486816406,68,24,False,True,False,False,True,True
+TrainTicket,ts-route-service,loss,2,baro,mang,latency-50,duong,,,0.05238795280456543,0.00479888916015625,68,24,False,False,False,False,False,True
+TrainTicket,ts-route-service,loss,3,nsigma,mang,workload,node,,,0.05579400062561035,0.003932952880859375,67,25,False,True,False,False,False,False
+TrainTicket,ts-route-service,loss,3,baro,mang,workload,node,,,0.0513920783996582,0.004882097244262695,67,25,True,True,False,False,True,False
+TrainTicket,ts-route-service,mem,1,nsigma,tai nguyen,cpu,node,,,0.041480302810668945,0.008671998977661133,68,59,False,False,True,True,True,True
+TrainTicket,ts-route-service,mem,1,baro,tai nguyen,cpu,node,,,0.05227303504943848,0.02800583839416504,68,59,False,False,True,True,True,True
+TrainTicket,ts-route-service,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.04217100143432617,0.003713846206665039,68,24,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,2,baro,tai nguyen,latency-50,duong,,,0.05408525466918945,0.004772186279296875,68,24,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,3,nsigma,tai nguyen,cpu,node,,,0.0418550968170166,0.008507251739501953,68,59,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,3,baro,tai nguyen,cpu,node,,,0.05259394645690918,0.010776042938232422,68,59,True,True,False,False,True,True
+TrainTicket,ts-route-service,socket,1,nsigma,tai nguyen,cpu,node,,,0.04291582107543945,0.009051084518432617,67,62,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,1,baro,tai nguyen,cpu,node,,,0.053601980209350586,0.011381864547729492,67,62,False,False,True,True,False,True
+TrainTicket,ts-route-service,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.04208207130432129,0.0038852691650390625,67,25,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,2,baro,tai nguyen,latency-50,duong,,,0.07070016860961914,0.004954099655151367,67,25,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.04138994216918945,0.004103183746337891,68,25,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,3,baro,tai nguyen,latency-50,duong,,,0.05275106430053711,0.004858732223510742,68,25,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,1,nsigma,tai nguyen,latency-50,duong,,,0.04123187065124512,0.003129720687866211,67,19,True,True,False,True,True,True
+TrainTicket,ts-train-service,cpu,1,baro,tai nguyen,latency-50,duong,,,0.0519411563873291,0.003820180892944336,67,19,False,True,True,True,False,True
+TrainTicket,ts-train-service,cpu,2,nsigma,tai nguyen,latency-50,duong,,,0.0433957576751709,0.0037963390350341797,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,2,baro,tai nguyen,latency-50,duong,,,0.05458188056945801,0.00472712516784668,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,3,nsigma,tai nguyen,latency-50,duong,,,0.04261898994445801,0.004012107849121094,68,26,True,True,False,False,True,True
+TrainTicket,ts-train-service,cpu,3,baro,tai nguyen,latency-50,duong,,,0.0542750358581543,0.00503993034362793,68,26,True,True,False,False,True,True
+TrainTicket,ts-train-service,delay,1,nsigma,mang,latency-50,duong,,,0.04168224334716797,0.0037648677825927734,68,24,True,True,False,True,True,True
+TrainTicket,ts-train-service,delay,1,baro,mang,latency-50,duong,,,0.06995415687561035,0.004682064056396484,68,24,False,True,False,True,False,True
+TrainTicket,ts-train-service,delay,2,nsigma,mang,latency-50,duong,,,0.041210174560546875,0.0033538341522216797,67,21,True,True,False,True,True,True
+TrainTicket,ts-train-service,delay,2,baro,mang,latency-50,duong,,,0.0511629581451416,0.004230976104736328,67,21,True,True,True,True,True,True
+TrainTicket,ts-train-service,delay,3,nsigma,mang,latency-50,duong,,,0.04196810722351074,0.0038199424743652344,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,delay,3,baro,mang,latency-50,duong,,,0.05271792411804199,0.004928112030029297,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,1,nsigma,tai nguyen,cpu,node,,,0.040595054626464844,0.008324146270751953,67,58,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,1,baro,tai nguyen,cpu,node,,,0.05175971984863281,0.010623931884765625,67,58,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,2,nsigma,tai nguyen,latency-50,duong,,,0.061036109924316406,0.0038909912109375,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,2,baro,tai nguyen,latency-50,duong,,,0.05598115921020508,0.004687786102294922,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,3,nsigma,tai nguyen,latency-50,duong,,,0.04183316230773926,0.003232717514038086,68,20,True,True,False,False,True,True
+TrainTicket,ts-train-service,disk,3,baro,tai nguyen,latency-50,duong,,,0.052639007568359375,0.003982067108154297,68,20,True,True,False,False,True,True
+TrainTicket,ts-train-service,loss,1,nsigma,mang,latency-50,duong,,,0.04298090934753418,0.0036499500274658203,68,23,True,True,False,True,True,True
+TrainTicket,ts-train-service,loss,1,baro,mang,latency-50,duong,,,0.05383181571960449,0.004537105560302734,68,23,True,True,False,True,True,True
+TrainTicket,ts-train-service,loss,2,nsigma,mang,latency-50,duong,,,0.04014086723327637,0.0032799243927001953,67,20,True,True,False,True,True,True
+TrainTicket,ts-train-service,loss,2,baro,mang,latency-50,duong,,,0.05110979080200195,0.0040912628173828125,67,20,True,True,False,False,True,False
+TrainTicket,ts-train-service,loss,3,nsigma,mang,latency-50,duong,,,0.04186582565307617,0.0039751529693603516,68,25,True,True,False,True,True,True
+TrainTicket,ts-train-service,loss,3,baro,mang,latency-50,duong,,,0.05413103103637695,0.0049822330474853516,68,25,False,True,False,False,False,True
+TrainTicket,ts-train-service,mem,1,nsigma,tai nguyen,latency-50,duong,,,0.058564186096191406,0.0033659934997558594,68,21,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,1,baro,tai nguyen,latency-50,duong,,,0.05324292182922363,0.004237174987792969,68,21,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,2,nsigma,tai nguyen,workload,node,,,0.040678977966308594,0.0036361217498779297,68,23,True,True,False,False,True,False
+TrainTicket,ts-train-service,mem,2,baro,tai nguyen,workload,node,,,0.051071882247924805,0.004636049270629883,68,23,False,True,False,False,True,False
+TrainTicket,ts-train-service,mem,3,nsigma,tai nguyen,cpu,node,,,0.041795969009399414,0.008894920349121094,68,61,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,3,baro,tai nguyen,cpu,node,,,0.05304908752441406,0.011262893676757812,68,61,True,True,False,False,True,True
+TrainTicket,ts-train-service,socket,1,nsigma,tai nguyen,cpu,node,,,0.04100680351257324,0.008528709411621094,67,59,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,1,baro,tai nguyen,cpu,node,,,0.052423954010009766,0.010902643203735352,67,59,False,False,True,True,False,True
+TrainTicket,ts-train-service,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.05911993980407715,0.003834962844848633,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,2,baro,tai nguyen,latency-50,duong,,,0.05277514457702637,0.0046520233154296875,68,24,False,True,True,True,True,True
+TrainTicket,ts-train-service,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.043209075927734375,0.0037698745727539062,68,24,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,3,baro,tai nguyen,latency-50,duong,,,0.05491781234741211,0.0047910213470458984,68,24,False,False,True,True,True,True
+TrainTicket,ts-travel-service,cpu,1,nsigma,tai nguyen,cpu,node,,,0.04309368133544922,0.009443044662475586,68,64,False,False,False,False,False,False
+TrainTicket,ts-travel-service,cpu,1,baro,tai nguyen,cpu,node,,,0.05529379844665527,0.011746883392333984,68,64,True,True,False,False,True,True
+TrainTicket,ts-travel-service,cpu,2,nsigma,tai nguyen,latency-50,duong,,,0.0435941219329834,0.003774881362915039,67,24,True,True,True,True,True,True
+TrainTicket,ts-travel-service,cpu,2,baro,tai nguyen,latency-50,duong,,,0.05491924285888672,0.0047266483306884766,67,24,False,False,True,True,True,True
+TrainTicket,ts-travel-service,cpu,3,nsigma,tai nguyen,latency-50,duong,,,0.05875086784362793,0.0037839412689208984,68,24,True,True,False,False,True,True
+TrainTicket,ts-travel-service,cpu,3,baro,tai nguyen,latency-50,duong,,,0.05439567565917969,0.0047109127044677734,68,24,False,False,False,False,True,True
+TrainTicket,ts-travel-service,delay,1,nsigma,mang,latency-50,duong,,,0.04222607612609863,0.003383159637451172,68,21,False,False,False,False,False,True
+TrainTicket,ts-travel-service,delay,1,baro,mang,latency-50,duong,,,0.053359031677246094,0.004153728485107422,68,21,False,False,False,False,False,True
+TrainTicket,ts-travel-service,delay,2,nsigma,mang,latency-50,duong,,,0.04206585884094238,0.0032258033752441406,68,20,True,True,True,True,True,True
+TrainTicket,ts-travel-service,delay,2,baro,mang,latency-50,duong,,,0.05343890190124512,0.004014730453491211,68,20,True,True,True,True,True,True
+TrainTicket,ts-travel-service,delay,3,nsigma,mang,latency-50,duong,,,0.042884111404418945,0.00394892692565918,68,25,True,True,True,True,True,True
+TrainTicket,ts-travel-service,delay,3,baro,mang,latency-50,duong,,,0.05405426025390625,0.004950046539306641,68,25,True,True,True,True,True,True
+TrainTicket,ts-travel-service,disk,1,nsigma,tai nguyen,workload,node,,,0.060057878494262695,0.004373073577880859,68,28,True,True,False,False,True,False
+TrainTicket,ts-travel-service,disk,1,baro,tai nguyen,workload,node,,,0.056181907653808594,0.005782127380371094,68,28,True,True,False,False,True,False
+TrainTicket,ts-travel-service,disk,2,nsigma,tai nguyen,cpu,node,,,0.04162311553955078,0.009161233901977539,68,62,True,True,False,False,True,False
+TrainTicket,ts-travel-service,disk,2,baro,tai nguyen,cpu,node,,,0.05360293388366699,0.011332035064697266,68,62,True,True,False,False,True,False
+TrainTicket,ts-travel-service,disk,3,nsigma,tai nguyen,latency-50,duong,,,0.04151415824890137,0.003161907196044922,68,19,True,True,False,False,True,True
+TrainTicket,ts-travel-service,disk,3,baro,tai nguyen,latency-50,duong,,,0.05245709419250488,0.003821849822998047,68,19,True,True,False,False,True,True
+TrainTicket,ts-travel-service,loss,1,nsigma,mang,latency-50,duong,,,0.042613983154296875,0.0038826465606689453,68,24,False,False,True,True,True,True
+TrainTicket,ts-travel-service,loss,1,baro,mang,latency-50,duong,,,0.07269096374511719,0.004781961441040039,68,24,False,False,True,True,False,True
+TrainTicket,ts-travel-service,loss,2,nsigma,mang,latency-50,duong,,,0.04329490661621094,0.0040090084075927734,68,26,False,False,False,True,False,True
+TrainTicket,ts-travel-service,loss,2,baro,mang,latency-50,duong,,,0.055239200592041016,0.0051152706146240234,68,26,False,False,False,False,False,True
+TrainTicket,ts-travel-service,loss,3,nsigma,mang,latency-50,duong,,,0.04418015480041504,0.0038738250732421875,67,25,False,False,False,True,True,True
+TrainTicket,ts-travel-service,loss,3,baro,mang,latency-50,duong,,,0.05659604072570801,0.004931211471557617,67,25,True,True,True,True,True,True
+TrainTicket,ts-travel-service,mem,1,nsigma,tai nguyen,cpu,node,,,0.04348301887512207,0.009028196334838867,68,61,True,True,True,True,True,True
+TrainTicket,ts-travel-service,mem,1,baro,tai nguyen,cpu,node,,,0.054852962493896484,0.011265039443969727,68,61,True,True,True,True,True,True
+TrainTicket,ts-travel-service,mem,2,nsigma,tai nguyen,latency-50,duong,,,0.057897090911865234,0.003256082534790039,68,20,False,False,False,False,True,True
+TrainTicket,ts-travel-service,mem,2,baro,tai nguyen,latency-50,duong,,,0.052925825119018555,0.0040318965911865234,68,20,True,True,False,False,True,True
+TrainTicket,ts-travel-service,mem,3,nsigma,tai nguyen,cpu,node,,,0.04298996925354004,0.00987696647644043,68,65,True,True,False,False,True,False
+TrainTicket,ts-travel-service,mem,3,baro,tai nguyen,cpu,node,,,0.05489706993103027,0.011900901794433594,68,65,True,True,False,False,True,False
+TrainTicket,ts-travel-service,socket,1,nsigma,tai nguyen,latency-50,duong,,,0.04162096977233887,0.003170013427734375,68,19,True,True,False,True,True,True
+TrainTicket,ts-travel-service,socket,1,baro,tai nguyen,latency-50,duong,,,0.051850080490112305,0.0038421154022216797,68,19,False,True,False,True,False,True
+TrainTicket,ts-travel-service,socket,2,nsigma,tai nguyen,latency-50,duong,,,0.04118180274963379,0.0038530826568603516,67,24,False,False,True,True,False,True
+TrainTicket,ts-travel-service,socket,2,baro,tai nguyen,latency-50,duong,,,0.05144524574279785,0.00465703010559082,67,24,False,False,True,True,True,True
+TrainTicket,ts-travel-service,socket,3,nsigma,tai nguyen,latency-50,duong,,,0.05884504318237305,0.0037941932678222656,68,24,True,True,True,True,True,True
+TrainTicket,ts-travel-service,socket,3,baro,tai nguyen,latency-50,duong,,,0.05405902862548828,0.0046939849853515625,68,24,True,True,True,True,True,True
