@@ -1,0 +1,271 @@
+he,injected,fault,run,nhom,tang_chon,n_cand,A_cpu,A_latency,A_moi_cot,B_chon_tang,don_vi,C_hai_truc,C_hai_truc_t3,C_tau_0.20,C_tau_0.25,C_tau_0.30,C_tau_0.35,C_tau_0.40,C_tau_0.45,C_tau_0.50,C_tau_0.55,C_tau_0.60,C_tau_0.65,C_tau_0.70,C_tau_0.75,C_tau_0.80,C_tau_0.85,C_tau_0.90,C_tau_0.95,C_tau_1.00,oracle_tang,oracle_ca_hai
+SockShop,carts,cpu,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,cpu,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,cpu,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,delay,1,mang,latency-50,15,False,True,False,True,duong,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,delay,2,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,delay,3,mang,latency-50,15,False,False,False,False,duong,True,True,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,False,True
+SockShop,carts,disk,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,disk,2,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,disk,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,loss,1,mang,latency-50,15,False,True,False,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,loss,2,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,loss,3,mang,latency-50,15,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,mem,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,mem,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,mem,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,socket,1,tai nguyen,cpu,15,True,False,False,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,socket,2,tai nguyen,cpu,15,True,True,False,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,carts,socket,3,tai nguyen,cpu,15,True,False,False,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,cpu,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,cpu,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,cpu,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,delay,1,mang,latency-50,15,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,delay,2,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,delay,3,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,disk,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,disk,2,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,disk,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,loss,1,mang,latency-50,15,False,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,loss,2,mang,latency-50,15,True,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,loss,3,mang,latency-50,15,False,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,mem,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,mem,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,mem,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,socket,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True
+SockShop,catalogue,socket,2,tai nguyen,latency-50,15,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,catalogue,socket,3,tai nguyen,latency-50,15,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,cpu,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,cpu,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,cpu,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,delay,1,mang,latency-50,15,False,False,False,False,duong,False,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True
+SockShop,orders,delay,2,mang,latency-50,15,False,True,False,True,duong,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,delay,3,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,disk,1,tai nguyen,latency-50,15,False,False,False,False,duong,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,False,False,True,True
+SockShop,orders,disk,2,tai nguyen,workload,15,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,disk,3,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,loss,1,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,loss,2,mang,latency-50,15,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,loss,3,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,mem,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True
+SockShop,orders,mem,2,tai nguyen,latency-50,15,True,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,mem,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,socket,1,tai nguyen,cpu,15,True,False,False,True,node,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,socket,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,orders,socket,3,tai nguyen,latency-50,15,True,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,cpu,1,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,cpu,2,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,cpu,3,tai nguyen,cpu,15,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,delay,1,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,delay,2,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True
+SockShop,payment,delay,3,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,disk,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,disk,2,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,disk,3,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,loss,1,mang,latency-50,15,True,True,True,True,duong,True,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True
+SockShop,payment,loss,2,mang,latency-50,15,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,loss,3,mang,latency-50,15,True,False,True,False,duong,True,True,False,False,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True
+SockShop,payment,mem,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,mem,2,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,mem,3,tai nguyen,cpu,15,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,socket,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,socket,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,payment,socket,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,cpu,1,tai nguyen,cpu,15,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,cpu,2,tai nguyen,cpu,15,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,cpu,3,tai nguyen,cpu,15,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,delay,1,mang,latency-50,15,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,delay,2,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,delay,3,mang,latency-50,15,False,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,disk,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,disk,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,disk,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,loss,1,mang,latency-50,15,True,True,True,True,duong,True,True,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,loss,2,mang,latency-50,15,False,True,False,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,loss,3,mang,latency-50,15,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,mem,1,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,mem,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,mem,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,socket,1,tai nguyen,latency-50,15,True,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,socket,2,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SockShop,user,socket,3,tai nguyen,cpu,15,True,True,True,True,node,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,1,tai nguyen,cpu,11,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,3,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,delay,1,mang,latency-50,11,True,False,False,False,duong,False,True,True,True,True,True,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,delay,2,mang,latency-50,11,False,False,False,False,duong,False,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,delay,3,mang,latency-50,11,True,False,False,False,duong,False,True,True,True,True,True,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,disk,1,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,3,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,1,mang,latency-50,11,False,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,2,mang,latency-50,11,False,True,False,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,3,mang,latency-50,11,False,True,True,True,duong,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,1,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,3,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,1,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,3,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,1,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,1,mang,latency-50,11,False,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,2,mang,latency-50,11,False,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,3,mang,latency-50,11,False,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,1,tai nguyen,latency-50,11,False,True,True,True,duong,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,loss,1,mang,latency-50,11,False,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,loss,2,mang,latency-50,11,True,True,False,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,loss,3,mang,latency-50,11,False,True,False,True,duong,True,True,True,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,1,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,1,tai nguyen,workload,11,False,False,True,False,node,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False
+OnlineBoutique,currencyservice,socket,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,1,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,3,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,1,mang,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,2,mang,latency-50,11,True,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,3,mang,latency-50,11,False,True,True,True,duong,True,True,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,1,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,3,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,1,mang,latency-50,11,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,2,mang,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,3,mang,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,1,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,3,tai nguyen,cpu,11,True,True,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,1,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,1,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,2,tai nguyen,cpu,11,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,3,tai nguyen,cpu,11,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,delay,1,mang,latency-50,11,False,False,True,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+OnlineBoutique,productcatalogservice,delay,2,mang,latency-50,11,False,False,True,False,duong,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+OnlineBoutique,productcatalogservice,delay,3,mang,latency-50,11,False,False,True,False,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+OnlineBoutique,productcatalogservice,disk,1,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,2,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,3,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,loss,1,mang,latency-50,11,False,False,True,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+OnlineBoutique,productcatalogservice,loss,2,mang,latency-50,11,False,False,True,False,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+OnlineBoutique,productcatalogservice,loss,3,mang,latency-50,11,False,False,True,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,1,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,2,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,3,tai nguyen,cpu,11,True,False,False,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,1,tai nguyen,cpu,11,True,False,True,True,node,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,2,tai nguyen,latency-50,11,True,False,True,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,3,tai nguyen,latency-50,11,True,False,True,False,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,1,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,1,mang,latency-50,11,False,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,2,mang,latency-50,11,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,3,mang,latency-50,11,True,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,1,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,2,tai nguyen,cpu,11,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,1,mang,latency-50,11,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,2,mang,latency-50,11,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,3,mang,latency-50,11,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,1,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,1,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,2,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,3,tai nguyen,latency-50,11,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,cpu,1,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,cpu,2,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,cpu,3,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,delay,1,mang,latency-50,68,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,delay,2,mang,latency-50,68,False,False,False,False,duong,False,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False
+TrainTicket,ts-auth-service,delay,3,mang,latency-50,68,False,True,False,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,1,tai nguyen,latency-50,68,True,False,True,False,duong,False,False,False,False,False,False,False,False,True,False,False,False,False,False,False,False,False,False,False,True,True
+TrainTicket,ts-auth-service,disk,2,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,3,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,loss,1,mang,latency-50,68,False,False,False,False,duong,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,2,mang,latency-50,68,False,False,False,False,duong,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,3,mang,latency-50,68,False,False,False,False,duong,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False
+TrainTicket,ts-auth-service,mem,1,tai nguyen,latency-50,68,True,False,False,False,duong,False,True,True,True,True,True,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True
+TrainTicket,ts-auth-service,mem,2,tai nguyen,latency-50,68,True,False,False,False,duong,False,True,True,True,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True
+TrainTicket,ts-auth-service,mem,3,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,1,tai nguyen,latency-50,68,True,True,False,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,2,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,3,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,1,tai nguyen,latency-50,68,True,True,False,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,2,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,3,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,1,mang,latency-50,68,False,True,False,True,duong,True,True,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,2,mang,latency-50,68,False,True,True,True,duong,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,3,mang,latency-50,68,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,disk,1,tai nguyen,latency-50,68,False,False,True,False,duong,False,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True
+TrainTicket,ts-order-service,disk,2,tai nguyen,latency-50,68,True,False,True,False,duong,False,False,False,False,False,True,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True
+TrainTicket,ts-order-service,disk,3,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,loss,1,mang,latency-50,68,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-order-service,loss,2,mang,latency-50,68,False,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,loss,3,mang,latency-50,68,False,False,False,False,duong,False,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True
+TrainTicket,ts-order-service,mem,1,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,mem,2,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,mem,3,tai nguyen,latency-50,68,True,False,False,False,duong,False,True,True,True,True,True,True,True,True,False,False,False,False,False,False,False,False,False,False,True,True
+TrainTicket,ts-order-service,socket,1,tai nguyen,latency-50,68,True,True,False,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,socket,2,tai nguyen,cpu,68,True,False,False,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-order-service,socket,3,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,1,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,2,tai nguyen,cpu,68,True,False,True,True,node,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,3,tai nguyen,cpu,68,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,1,mang,latency-50,68,False,True,False,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,2,mang,latency-50,68,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-route-service,delay,3,mang,latency-50,68,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,disk,1,tai nguyen,latency-50,68,True,False,True,False,duong,False,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True
+TrainTicket,ts-route-service,disk,2,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,disk,3,tai nguyen,cpu,68,True,False,True,True,node,True,True,False,False,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,loss,1,mang,latency-50,68,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-route-service,loss,2,mang,latency-50,68,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-route-service,loss,3,mang,workload,68,False,False,False,False,node,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False
+TrainTicket,ts-route-service,mem,1,tai nguyen,cpu,68,True,False,False,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,2,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,3,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,1,tai nguyen,cpu,68,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,2,tai nguyen,latency-50,68,True,True,False,True,duong,True,True,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,3,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,1,tai nguyen,cpu,68,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,2,tai nguyen,latency-50,68,True,False,False,False,duong,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,False,False,False,True,True
+TrainTicket,ts-train-service,cpu,3,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,delay,1,mang,latency-50,68,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-train-service,delay,2,mang,latency-50,68,False,False,True,False,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-train-service,delay,3,mang,latency-50,68,False,True,True,True,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,1,tai nguyen,cpu,68,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,2,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,3,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,loss,1,mang,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,loss,2,mang,latency-50,68,False,False,True,False,duong,True,True,False,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-train-service,loss,3,mang,latency-50,68,False,False,True,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-train-service,mem,1,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,2,tai nguyen,cpu,68,True,True,True,True,node,True,True,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True,True,True
+TrainTicket,ts-train-service,mem,3,tai nguyen,cpu,68,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,1,tai nguyen,cpu,68,True,True,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,2,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,3,tai nguyen,latency-50,68,True,True,False,True,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,cpu,1,tai nguyen,cpu,68,True,True,False,True,node,True,True,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,cpu,2,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,cpu,3,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,delay,1,mang,latency-50,68,False,False,False,False,duong,True,True,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-travel-service,delay,2,mang,latency-50,68,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-travel-service,delay,3,mang,latency-50,68,False,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,disk,1,tai nguyen,latency-50,68,False,False,True,False,duong,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,False,True
+TrainTicket,ts-travel-service,disk,2,tai nguyen,cpu,68,True,False,True,True,node,True,True,False,False,False,False,False,False,False,False,False,False,False,False,False,True,True,True,True,True,True
+TrainTicket,ts-travel-service,disk,3,tai nguyen,latency-50,68,True,False,False,False,duong,False,True,True,True,True,True,True,True,True,True,True,True,False,False,False,False,False,False,False,True,True
+TrainTicket,ts-travel-service,loss,1,mang,latency-50,68,False,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-travel-service,loss,2,mang,latency-50,68,False,False,False,False,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-travel-service,loss,3,mang,latency-50,68,False,False,False,False,duong,True,True,False,False,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,False,True
+TrainTicket,ts-travel-service,mem,1,tai nguyen,cpu,68,True,False,True,True,node,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,mem,2,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,mem,3,tai nguyen,cpu,68,True,False,True,True,node,True,True,False,False,False,False,False,False,False,False,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,socket,1,tai nguyen,latency-50,68,True,False,False,False,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+TrainTicket,ts-travel-service,socket,2,tai nguyen,latency-50,68,True,False,False,False,duong,False,True,False,False,False,False,False,False,False,True,True,True,True,False,False,False,False,False,False,True,True
+TrainTicket,ts-travel-service,socket,3,tai nguyen,latency-50,68,True,True,True,True,duong,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
