@@ -1,0 +1,541 @@
+he,injected,fault,run,thong_ke,nhom,tang_chon,don_vi,n_cand_0,n_cand_0b,n_cand_1,M0_nhu_xuat_ban,M0b_khop_ung_vien,M1_them_truc_tang,M2_ca_hai_truc,M0_t3,M2_t3
+SockShop,carts,cpu,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,cpu,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,cpu,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,cpu,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,cpu,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,cpu,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,delay,1,MEANSHIFT,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,carts,delay,1,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,carts,delay,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,carts,delay,2,BARO,mang,latency-50,duong,15,7,7,False,False,False,True,True,True
+SockShop,carts,delay,3,MEANSHIFT,mang,latency-50,duong,15,7,7,False,False,False,True,True,True
+SockShop,carts,delay,3,BARO,mang,cpu,node,15,15,15,False,False,False,False,False,False
+SockShop,carts,disk,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,disk,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,disk,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,disk,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,disk,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,disk,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,loss,1,MEANSHIFT,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,carts,loss,1,BARO,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,carts,loss,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,carts,loss,2,BARO,mang,latency-50,duong,15,7,7,False,True,False,True,True,True
+SockShop,carts,loss,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,carts,loss,3,BARO,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,carts,mem,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,mem,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,carts,mem,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,mem,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,mem,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,carts,mem,3,BARO,tai nguyen,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,carts,socket,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,socket,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,False,False,False,False,True
+SockShop,carts,socket,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,socket,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,socket,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,carts,socket,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,False,True
+SockShop,catalogue,cpu,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,cpu,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,False,True
+SockShop,catalogue,cpu,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,cpu,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,cpu,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,cpu,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,delay,1,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,delay,1,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,catalogue,delay,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,delay,2,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,catalogue,delay,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,delay,3,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,catalogue,disk,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,disk,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,disk,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,disk,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,disk,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,disk,3,BARO,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,loss,1,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,loss,1,BARO,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,catalogue,loss,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,loss,2,BARO,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,loss,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,loss,3,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,catalogue,mem,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,mem,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,mem,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,mem,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,mem,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,mem,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,socket,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,catalogue,socket,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,catalogue,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,socket,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,catalogue,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,catalogue,socket,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,orders,cpu,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,orders,cpu,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,False,True
+SockShop,orders,cpu,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,orders,cpu,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,orders,cpu,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,orders,cpu,3,BARO,tai nguyen,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,delay,1,MEANSHIFT,mang,latency-50,duong,15,7,7,False,False,False,False,False,True
+SockShop,orders,delay,1,BARO,mang,latency-50,duong,15,7,7,False,False,False,False,False,False
+SockShop,orders,delay,2,MEANSHIFT,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,orders,delay,2,BARO,mang,latency-50,duong,15,7,7,False,False,True,True,False,True
+SockShop,orders,delay,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,orders,delay,3,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,disk,1,MEANSHIFT,tai nguyen,latency-50,duong,15,7,7,False,False,False,False,False,False
+SockShop,orders,disk,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,False,False,False,False,True
+SockShop,orders,disk,2,MEANSHIFT,tai nguyen,workload,node,15,7,7,True,True,True,True,True,True
+SockShop,orders,disk,2,BARO,tai nguyen,workload,node,15,7,7,False,True,True,True,True,True
+SockShop,orders,disk,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,orders,disk,3,BARO,tai nguyen,latency-50,duong,15,7,7,True,True,False,False,True,True
+SockShop,orders,loss,1,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,orders,loss,1,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,loss,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,orders,loss,2,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,loss,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,orders,loss,3,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,mem,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,orders,mem,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,orders,mem,2,MEANSHIFT,tai nguyen,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,orders,mem,2,BARO,tai nguyen,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,mem,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,orders,mem,3,BARO,tai nguyen,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,socket,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,False,False,True,True,False,True
+SockShop,orders,socket,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,False,True,True,False,True
+SockShop,orders,socket,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,orders,socket,2,BARO,tai nguyen,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,orders,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,orders,socket,3,BARO,tai nguyen,latency-50,duong,15,7,7,False,False,False,False,True,False
+SockShop,payment,cpu,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,cpu,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,payment,cpu,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,cpu,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,payment,cpu,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,cpu,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,payment,delay,1,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,payment,delay,1,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,payment,delay,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,payment,delay,2,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,payment,delay,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,payment,delay,3,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,payment,disk,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,disk,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,False,True
+SockShop,payment,disk,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,disk,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,payment,disk,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,disk,3,BARO,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,loss,1,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,payment,loss,1,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,payment,loss,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,payment,loss,2,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,payment,loss,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,False,True,True,True
+SockShop,payment,loss,3,BARO,mang,latency-50,duong,15,7,7,False,True,False,True,True,True
+SockShop,payment,mem,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,mem,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,payment,mem,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,mem,2,BARO,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,mem,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,mem,3,BARO,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,socket,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,socket,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,False,True
+SockShop,payment,socket,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,socket,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,payment,socket,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,payment,socket,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,user,cpu,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,cpu,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,user,cpu,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,cpu,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,user,cpu,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,cpu,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,user,delay,1,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,user,delay,1,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,user,delay,2,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,user,delay,2,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,user,delay,3,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,user,delay,3,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,user,disk,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,disk,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,False,True,True,False,True
+SockShop,user,disk,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,disk,2,BARO,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,disk,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,disk,3,BARO,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,loss,1,MEANSHIFT,mang,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,user,loss,1,BARO,mang,latency-50,duong,15,7,7,False,True,True,True,True,True
+SockShop,user,loss,2,MEANSHIFT,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,user,loss,2,BARO,mang,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,user,loss,3,MEANSHIFT,mang,latency-50,duong,15,7,7,False,False,False,True,True,True
+SockShop,user,loss,3,BARO,mang,latency-50,duong,15,7,7,False,False,False,True,True,True
+SockShop,user,mem,1,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,mem,1,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,user,mem,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,mem,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,user,mem,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,mem,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,user,socket,1,MEANSHIFT,tai nguyen,latency-50,duong,15,7,7,True,True,True,True,True,True
+SockShop,user,socket,1,BARO,tai nguyen,latency-50,duong,15,7,7,False,False,True,True,True,True
+SockShop,user,socket,2,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,socket,2,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+SockShop,user,socket,3,MEANSHIFT,tai nguyen,cpu,node,15,15,15,True,True,True,True,True,True
+SockShop,user,socket,3,BARO,tai nguyen,cpu,node,15,15,15,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,2,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,3,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,delay,1,MEANSHIFT,mang,latency-50,duong,12,10,10,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,delay,1,BARO,mang,latency-50,duong,12,10,10,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,delay,2,MEANSHIFT,mang,latency-50,duong,12,10,10,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,delay,2,BARO,mang,latency-50,duong,12,10,10,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,delay,3,MEANSHIFT,mang,latency-50,duong,12,10,10,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,delay,3,BARO,mang,latency-50,duong,12,9,9,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,disk,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,disk,2,MEANSHIFT,tai nguyen,cpu,node,11,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,2,BARO,tai nguyen,cpu,node,11,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,disk,3,MEANSHIFT,tai nguyen,cpu,node,11,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,3,BARO,tai nguyen,cpu,node,11,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,loss,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,1,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,2,MEANSHIFT,mang,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,loss,2,BARO,mang,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,loss,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,loss,3,BARO,mang,latency-50,duong,12,10,10,False,True,False,False,True,True
+OnlineBoutique,checkoutservice,mem,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,mem,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,2,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,mem,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,3,BARO,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,socket,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,2,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,socket,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,socket,3,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,currencyservice,cpu,1,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,cpu,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,cpu,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,1,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,2,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,2,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,3,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,1,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,disk,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,disk,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,loss,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,loss,1,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,loss,2,MEANSHIFT,mang,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,loss,2,BARO,mang,latency-50,duong,12,10,10,False,False,True,True,False,True
+OnlineBoutique,currencyservice,loss,3,MEANSHIFT,mang,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,loss,3,BARO,mang,latency-50,duong,12,10,10,False,False,True,True,False,True
+OnlineBoutique,currencyservice,mem,1,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,1,MEANSHIFT,tai nguyen,workload,node,12,11,11,True,True,False,False,True,False
+OnlineBoutique,currencyservice,socket,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,False,False,False,True
+OnlineBoutique,currencyservice,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,socket,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,emailservice,cpu,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,emailservice,cpu,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,delay,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,1,BARO,mang,latency-50,duong,12,10,10,False,False,False,True,True,True
+OnlineBoutique,emailservice,delay,2,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,2,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,delay,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,3,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,disk,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,emailservice,disk,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,2,BARO,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,loss,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,1,BARO,mang,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,emailservice,loss,2,MEANSHIFT,mang,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,2,BARO,mang,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,emailservice,loss,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,3,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,mem,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,1,BARO,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,2,BARO,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,3,BARO,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,emailservice,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,3,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,cpu,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,cpu,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,1,BARO,mang,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,2,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,2,BARO,mang,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,3,BARO,mang,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,disk,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,1,BARO,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,False,True,True,True
+OnlineBoutique,productcatalogservice,disk,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,1,BARO,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,2,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,2,BARO,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,3,BARO,mang,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,mem,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,1,BARO,tai nguyen,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,mem,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,2,BARO,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,3,MEANSHIFT,tai nguyen,cpu,node,12,11,11,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,1,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,socket,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,False,True,True,True
+OnlineBoutique,recommendationservice,cpu,1,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,1,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,2,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,2,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,3,BARO,mang,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,1,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,2,MEANSHIFT,tai nguyen,cpu,node,12,11,11,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,recommendationservice,disk,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,1,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,1,BARO,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,2,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,2,BARO,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,3,MEANSHIFT,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,loss,3,BARO,mang,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,1,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,mem,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+OnlineBoutique,recommendationservice,socket,1,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,1,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,2,BARO,tai nguyen,latency-50,duong,12,10,10,False,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,12,10,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,socket,3,BARO,tai nguyen,latency-50,duong,12,10,10,False,False,True,True,True,True
+TrainTicket,ts-auth-service,cpu,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-auth-service,cpu,1,BARO,tai nguyen,latency-50,duong,68,25,25,False,False,True,True,True,True
+TrainTicket,ts-auth-service,cpu,2,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-auth-service,cpu,2,BARO,tai nguyen,latency-50,duong,68,27,27,False,False,False,False,False,True
+TrainTicket,ts-auth-service,cpu,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-auth-service,cpu,3,BARO,tai nguyen,latency-50,duong,68,27,27,False,False,True,True,False,True
+TrainTicket,ts-auth-service,delay,1,MEANSHIFT,mang,latency-50,duong,68,26,26,True,True,True,True,True,True
+TrainTicket,ts-auth-service,delay,1,BARO,mang,latency-50,duong,68,25,25,False,False,True,True,False,True
+TrainTicket,ts-auth-service,delay,2,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,False,False,True
+TrainTicket,ts-auth-service,delay,2,BARO,mang,latency-50,duong,68,28,28,False,False,True,True,False,True
+TrainTicket,ts-auth-service,delay,3,MEANSHIFT,mang,latency-50,duong,68,28,28,False,True,True,True,False,True
+TrainTicket,ts-auth-service,delay,3,BARO,mang,latency-50,duong,68,28,28,False,False,False,False,False,True
+TrainTicket,ts-auth-service,disk,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,False
+TrainTicket,ts-auth-service,disk,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,False
+TrainTicket,ts-auth-service,disk,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,2,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-auth-service,disk,3,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-auth-service,loss,1,MEANSHIFT,mang,latency-50,duong,68,27,27,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,1,BARO,mang,latency-50,duong,68,27,27,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,2,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,2,BARO,mang,latency-50,duong,68,28,28,False,False,False,False,False,True
+TrainTicket,ts-auth-service,loss,3,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,False,False,False
+TrainTicket,ts-auth-service,loss,3,BARO,mang,latency-50,duong,68,27,27,False,False,False,False,False,False
+TrainTicket,ts-auth-service,mem,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,False,True,True
+TrainTicket,ts-auth-service,mem,1,BARO,tai nguyen,latency-50,duong,68,27,27,False,True,False,False,True,True
+TrainTicket,ts-auth-service,mem,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,False,True,True
+TrainTicket,ts-auth-service,mem,2,BARO,tai nguyen,latency-50,duong,68,27,27,True,True,True,True,True,True
+TrainTicket,ts-auth-service,mem,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-auth-service,mem,3,BARO,tai nguyen,latency-50,duong,68,28,28,False,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,1,MEANSHIFT,tai nguyen,latency-50,duong,68,27,27,False,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,1,BARO,tai nguyen,latency-50,duong,68,26,26,False,False,True,True,True,True
+TrainTicket,ts-auth-service,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,68,27,27,True,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,2,BARO,tai nguyen,latency-50,duong,68,27,27,False,False,True,True,False,True
+TrainTicket,ts-auth-service,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-auth-service,socket,3,BARO,tai nguyen,latency-50,duong,68,28,28,False,False,True,True,True,True
+TrainTicket,ts-order-service,cpu,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,2,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-order-service,cpu,3,BARO,tai nguyen,latency-50,duong,68,28,28,False,True,False,True,True,True
+TrainTicket,ts-order-service,delay,1,MEANSHIFT,mang,latency-50,duong,68,27,27,False,False,True,True,True,True
+TrainTicket,ts-order-service,delay,1,BARO,mang,latency-50,duong,68,26,26,False,True,True,True,True,True
+TrainTicket,ts-order-service,delay,2,MEANSHIFT,mang,latency-50,duong,68,21,21,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,2,BARO,mang,latency-50,duong,68,21,21,False,False,False,True,True,True
+TrainTicket,ts-order-service,delay,3,MEANSHIFT,mang,latency-50,duong,68,21,21,True,True,True,True,True,True
+TrainTicket,ts-order-service,delay,3,BARO,mang,latency-50,duong,68,21,21,True,True,False,True,True,True
+TrainTicket,ts-order-service,disk,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,True
+TrainTicket,ts-order-service,disk,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,False,True,True,True
+TrainTicket,ts-order-service,disk,2,MEANSHIFT,tai nguyen,latency-50,duong,68,21,21,True,True,False,False,True,False
+TrainTicket,ts-order-service,disk,2,BARO,tai nguyen,latency-50,duong,68,21,21,True,True,False,False,True,True
+TrainTicket,ts-order-service,disk,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-order-service,disk,3,BARO,tai nguyen,latency-50,duong,68,21,21,True,True,True,True,True,True
+TrainTicket,ts-order-service,loss,1,MEANSHIFT,mang,latency-50,duong,68,27,27,False,False,False,True,False,True
+TrainTicket,ts-order-service,loss,1,BARO,mang,latency-50,duong,68,27,27,False,False,False,True,False,True
+TrainTicket,ts-order-service,loss,2,MEANSHIFT,mang,latency-50,duong,68,21,21,True,True,True,True,True,True
+TrainTicket,ts-order-service,loss,2,BARO,mang,latency-50,duong,68,21,21,False,True,True,True,True,True
+TrainTicket,ts-order-service,loss,3,MEANSHIFT,mang,latency-50,duong,68,21,21,False,False,False,False,True,True
+TrainTicket,ts-order-service,loss,3,BARO,mang,latency-50,duong,68,20,20,False,True,True,True,True,True
+TrainTicket,ts-order-service,mem,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-order-service,mem,1,BARO,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-order-service,mem,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-order-service,mem,2,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-order-service,mem,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,False,True,True
+TrainTicket,ts-order-service,mem,3,BARO,tai nguyen,latency-50,duong,68,27,27,False,False,True,True,True,True
+TrainTicket,ts-order-service,socket,1,MEANSHIFT,tai nguyen,latency-50,duong,68,27,27,False,False,True,True,True,True
+TrainTicket,ts-order-service,socket,1,BARO,tai nguyen,latency-50,duong,68,27,27,False,False,True,True,True,True
+TrainTicket,ts-order-service,socket,2,MEANSHIFT,tai nguyen,cpu,node,68,68,68,False,False,True,True,True,True
+TrainTicket,ts-order-service,socket,2,BARO,tai nguyen,latency-50,duong,68,21,21,True,True,True,True,True,True
+TrainTicket,ts-order-service,socket,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-order-service,socket,3,BARO,tai nguyen,latency-50,duong,68,27,27,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,1,BARO,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-route-service,cpu,2,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,2,BARO,tai nguyen,latency-50,duong,68,21,21,False,False,False,False,True,True
+TrainTicket,ts-route-service,cpu,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-route-service,cpu,3,BARO,tai nguyen,latency-50,duong,68,21,21,True,True,False,False,True,True
+TrainTicket,ts-route-service,delay,1,MEANSHIFT,mang,latency-50,duong,68,27,27,False,True,True,True,True,True
+TrainTicket,ts-route-service,delay,1,BARO,mang,latency-50,duong,68,27,27,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,2,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-route-service,delay,2,BARO,mang,latency-50,duong,68,27,27,False,True,True,True,True,True
+TrainTicket,ts-route-service,delay,3,MEANSHIFT,mang,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-route-service,delay,3,BARO,mang,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-route-service,disk,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,True
+TrainTicket,ts-route-service,disk,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,True
+TrainTicket,ts-route-service,disk,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-route-service,disk,2,BARO,tai nguyen,latency-50,duong,68,27,27,True,True,False,False,True,True
+TrainTicket,ts-route-service,disk,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-route-service,disk,3,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,True
+TrainTicket,ts-route-service,loss,1,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-route-service,loss,1,BARO,mang,latency-50,duong,68,27,27,False,True,False,False,False,True
+TrainTicket,ts-route-service,loss,2,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-route-service,loss,2,BARO,mang,latency-50,duong,68,27,27,False,False,False,False,False,False
+TrainTicket,ts-route-service,loss,3,MEANSHIFT,mang,workload,node,68,28,28,False,True,False,False,False,False
+TrainTicket,ts-route-service,loss,3,BARO,mang,latency-50,duong,68,28,28,True,True,False,False,True,True
+TrainTicket,ts-route-service,mem,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,False,False,True,True,True,True
+TrainTicket,ts-route-service,mem,1,BARO,tai nguyen,latency-50,duong,68,28,28,False,True,True,True,True,True
+TrainTicket,ts-route-service,mem,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,2,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-route-service,mem,3,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,1,BARO,tai nguyen,latency-50,duong,68,27,27,False,True,True,True,False,True
+TrainTicket,ts-route-service,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,True,True,True,False,True
+TrainTicket,ts-route-service,socket,2,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-route-service,socket,3,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,1,BARO,tai nguyen,latency-50,duong,68,26,26,False,True,True,True,False,True
+TrainTicket,ts-train-service,cpu,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,False,True,True
+TrainTicket,ts-train-service,cpu,2,BARO,tai nguyen,latency-50,duong,68,27,27,True,True,True,True,True,True
+TrainTicket,ts-train-service,cpu,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-train-service,cpu,3,BARO,tai nguyen,latency-50,duong,68,27,27,True,True,False,False,True,True
+TrainTicket,ts-train-service,delay,1,MEANSHIFT,mang,latency-50,duong,68,26,26,False,True,False,True,True,True
+TrainTicket,ts-train-service,delay,1,BARO,mang,latency-50,duong,68,26,26,False,True,False,True,False,True
+TrainTicket,ts-train-service,delay,2,MEANSHIFT,mang,latency-50,duong,68,28,28,True,True,False,True,True,True
+TrainTicket,ts-train-service,delay,2,BARO,mang,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-train-service,delay,3,MEANSHIFT,mang,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-train-service,delay,3,BARO,mang,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,1,BARO,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-train-service,disk,2,BARO,tai nguyen,latency-50,duong,68,27,27,True,True,True,True,True,True
+TrainTicket,ts-train-service,disk,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-train-service,disk,3,BARO,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-train-service,loss,1,MEANSHIFT,mang,latency-50,duong,68,27,27,False,False,False,True,True,True
+TrainTicket,ts-train-service,loss,1,BARO,mang,latency-50,duong,68,26,26,True,True,False,True,True,True
+TrainTicket,ts-train-service,loss,2,MEANSHIFT,mang,latency-50,duong,68,28,28,True,True,False,True,True,True
+TrainTicket,ts-train-service,loss,2,BARO,mang,latency-50,duong,68,28,28,True,True,False,False,True,True
+TrainTicket,ts-train-service,loss,3,MEANSHIFT,mang,latency-50,duong,68,28,28,True,True,False,True,True,True
+TrainTicket,ts-train-service,loss,3,BARO,mang,latency-50,duong,68,28,28,False,True,False,False,False,True
+TrainTicket,ts-train-service,mem,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,2,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,2,BARO,tai nguyen,latency-50,duong,68,28,28,False,True,False,False,True,True
+TrainTicket,ts-train-service,mem,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-train-service,mem,3,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-train-service,socket,1,BARO,tai nguyen,latency-50,duong,68,28,28,False,True,True,True,False,True
+TrainTicket,ts-train-service,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-train-service,socket,2,BARO,tai nguyen,latency-50,duong,68,27,27,False,True,True,True,True,True
+TrainTicket,ts-train-service,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,True,True,True,True,True
+TrainTicket,ts-train-service,socket,3,BARO,tai nguyen,latency-50,duong,68,28,28,False,False,False,False,False,True
+TrainTicket,ts-travel-service,cpu,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,False,False,True,True,False,True
+TrainTicket,ts-travel-service,cpu,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-travel-service,cpu,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-travel-service,cpu,2,BARO,tai nguyen,latency-50,duong,68,27,27,False,False,True,True,True,True
+TrainTicket,ts-travel-service,cpu,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-travel-service,cpu,3,BARO,tai nguyen,latency-50,duong,68,27,27,False,False,False,False,True,True
+TrainTicket,ts-travel-service,delay,1,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,True,False,True
+TrainTicket,ts-travel-service,delay,1,BARO,mang,latency-50,duong,68,28,28,False,False,False,False,False,True
+TrainTicket,ts-travel-service,delay,2,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-travel-service,delay,2,BARO,mang,latency-50,duong,68,27,27,True,True,True,True,True,True
+TrainTicket,ts-travel-service,delay,3,MEANSHIFT,mang,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-travel-service,delay,3,BARO,mang,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-travel-service,disk,1,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,False
+TrainTicket,ts-travel-service,disk,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-travel-service,disk,2,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-travel-service,disk,2,BARO,tai nguyen,latency-50,duong,68,21,21,True,True,False,True,True,True
+TrainTicket,ts-travel-service,disk,3,MEANSHIFT,tai nguyen,latency-50,duong,68,21,21,False,False,False,False,True,True
+TrainTicket,ts-travel-service,disk,3,BARO,tai nguyen,latency-50,duong,68,20,20,True,True,False,False,True,True
+TrainTicket,ts-travel-service,loss,1,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,True,False,True
+TrainTicket,ts-travel-service,loss,1,BARO,mang,latency-50,duong,68,26,26,False,False,True,True,False,True
+TrainTicket,ts-travel-service,loss,2,MEANSHIFT,mang,latency-50,duong,68,27,27,False,False,False,True,False,True
+TrainTicket,ts-travel-service,loss,2,BARO,mang,latency-50,duong,68,27,27,False,False,False,False,False,True
+TrainTicket,ts-travel-service,loss,3,MEANSHIFT,mang,latency-50,duong,68,28,28,False,False,False,True,False,True
+TrainTicket,ts-travel-service,loss,3,BARO,mang,latency-50,duong,68,28,28,False,False,True,True,True,True
+TrainTicket,ts-travel-service,mem,1,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-travel-service,mem,1,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,False,False,True,True
+TrainTicket,ts-travel-service,mem,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,False,False,True,True,True
+TrainTicket,ts-travel-service,mem,2,BARO,tai nguyen,latency-50,duong,68,27,27,True,True,False,False,True,True
+TrainTicket,ts-travel-service,mem,3,MEANSHIFT,tai nguyen,cpu,node,68,68,68,True,True,True,True,True,True
+TrainTicket,ts-travel-service,mem,3,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,False,True,True,True
+TrainTicket,ts-travel-service,socket,1,MEANSHIFT,tai nguyen,latency-50,duong,68,21,21,False,False,False,True,True,True
+TrainTicket,ts-travel-service,socket,1,BARO,tai nguyen,latency-50,duong,68,19,19,False,True,False,True,False,True
+TrainTicket,ts-travel-service,socket,2,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,False,True,False,False,False,True
+TrainTicket,ts-travel-service,socket,2,BARO,tai nguyen,latency-50,duong,68,28,28,False,False,True,True,True,True
+TrainTicket,ts-travel-service,socket,3,MEANSHIFT,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
+TrainTicket,ts-travel-service,socket,3,BARO,tai nguyen,latency-50,duong,68,28,28,True,True,True,True,True,True
