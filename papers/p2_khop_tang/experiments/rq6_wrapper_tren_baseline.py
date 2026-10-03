@@ -145,13 +145,11 @@ def main():
                     s = c.rsplit('_', 1)[0]
                     g0[s] = max(g0.get(s, -np.inf), v)
                 xh0 = sorted(g0, key=g0.get, reverse=True)
-                if inj not in xh0:
-                    continue
                 # diem theo TUNG TANG
                 per = {}
                 for la in LAYERS:
                     v = {c[:-(len(la) + 1)]: dc[c] for c in dc if c.endswith('_' + la)}
-                    if len(v) >= 3 and inj in v:
+                    if len(v) >= 3:
                         per[la] = v
                 if not per:
                     continue

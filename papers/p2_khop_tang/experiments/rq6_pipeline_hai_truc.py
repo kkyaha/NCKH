@@ -166,9 +166,9 @@ def main():
         desc = {s: nx.descendants(g, s) for s in g.nodes}
         for inj, ft, run, d, t in runs_of(sysname):
             V = {la: shifts(d, t, la) for la in LAYERS}
-            if not V.get('cpu') or inj not in V['cpu']:
+            if not V.get('cpu'):
                 continue
-            P = {la: (tu_tap(v) if (v and inj in v) else None) for la, v in V.items()}
+            P = {la: (tu_tap(v) if v else None) for la, v in V.items()}
             la_chon = chon_tang(P, a.tau)
             if la_chon is None:
                 continue
@@ -294,9 +294,9 @@ def kiem_do_chat_cua_duong(tau=1.0):
         desc = {s: nx.descendants(g, s) for s in g.nodes}
         for inj, ft, run, d, t in runs_of(sysname):
             V = {la: shifts(d, t, la) for la in LAYERS}
-            if not V.get('cpu') or inj not in V['cpu']:
+            if not V.get('cpu'):
                 continue
-            P = {la: (tu_tap(v) if (v and inj in v) else None) for la, v in V.items()}
+            P = {la: (tu_tap(v) if v else None) for la, v in V.items()}
             lc = chon_tang(P, tau)
             if lc is None or not V.get(lc):
                 continue

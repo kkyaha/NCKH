@@ -1,0 +1,341 @@
+he,injected,fault,run,phuong_phap,nhom,tang_chon,don_vi,fallback_0,fallback_1,giay_0,giay_1,n_cand_0,n_cand_1,M0_nhu_xuat_ban,M0b_khop_ung_vien,M1_truc_tang,M2_ca_hai_truc,M0_t3,M2_t3
+SockShop,carts,cpu,1,circa,tai nguyen,cpu,node,,,3.41001296043396,0.09856891632080078,15,13,True,True,True,True,True,True
+SockShop,carts,cpu,1,pc_randomwalk,tai nguyen,cpu,node,,,3.5527381896972656,0.07068800926208496,15,13,False,False,False,False,True,False
+SockShop,carts,cpu,2,circa,tai nguyen,cpu,node,FALLBACK,,0.10040998458862305,0.09604215621948242,15,13,True,True,True,True,True,True
+SockShop,carts,cpu,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.10368514060974121,0.0609278678894043,15,13,True,True,False,False,True,False
+SockShop,carts,cpu,3,circa,tai nguyen,latency-50,duong,FALLBACK,,0.09496116638183594,0.016935110092163086,15,7,False,False,False,False,False,True
+SockShop,carts,cpu,3,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.09879517555236816,0.012052297592163086,15,7,False,False,False,False,False,True
+SockShop,carts,delay,1,circa,mang,latency-50,duong,,,4.446822166442871,0.0173642635345459,15,7,False,False,True,True,True,True
+SockShop,carts,delay,1,pc_randomwalk,mang,latency-50,duong,,,4.652951002120972,0.01522207260131836,15,7,False,False,False,False,True,True
+SockShop,carts,delay,2,circa,mang,latency-50,duong,,,3.3286890983581543,0.015813112258911133,14,7,False,False,False,True,True,True
+SockShop,carts,delay,2,pc_randomwalk,mang,latency-50,duong,,,3.549434185028076,0.015538930892944336,14,7,True,True,False,False,True,True
+SockShop,carts,delay,3,circa,mang,latency-50,duong,,,4.3395891189575195,0.016759872436523438,14,7,False,False,True,True,True,True
+SockShop,carts,delay,3,pc_randomwalk,mang,latency-50,duong,,,4.341747045516968,0.011955022811889648,14,7,False,False,False,False,False,True
+SockShop,carts,disk,1,circa,tai nguyen,cpu,node,,,5.623051166534424,0.11022114753723145,15,15,False,False,True,True,True,True
+SockShop,carts,disk,1,pc_randomwalk,tai nguyen,cpu,node,,,5.926119804382324,0.08794903755187988,15,15,False,False,False,False,True,False
+SockShop,carts,disk,2,circa,tai nguyen,cpu,node,,,4.805998086929321,0.15579509735107422,14,14,False,False,True,True,False,True
+SockShop,carts,disk,2,pc_randomwalk,tai nguyen,cpu,node,,,4.858055830001831,0.09976506233215332,14,14,False,False,False,False,True,False
+SockShop,carts,disk,3,circa,tai nguyen,cpu,node,,,4.980746030807495,0.10239887237548828,14,14,False,False,True,True,False,True
+SockShop,carts,disk,3,pc_randomwalk,tai nguyen,cpu,node,,,5.162177085876465,0.10502099990844727,14,14,False,False,False,False,False,False
+SockShop,carts,loss,1,circa,mang,latency-50,duong,,,4.647956848144531,0.016335010528564453,15,7,False,False,True,True,True,True
+SockShop,carts,loss,1,pc_randomwalk,mang,latency-50,duong,,,4.842550992965698,0.014025211334228516,15,7,False,True,False,False,True,True
+SockShop,carts,loss,2,circa,mang,latency-50,duong,,,4.5248472690582275,0.016777992248535156,14,7,False,False,False,True,True,True
+SockShop,carts,loss,2,pc_randomwalk,mang,latency-50,duong,,,4.8161461353302,0.010493040084838867,14,7,True,True,False,False,True,True
+SockShop,carts,loss,3,circa,mang,latency-50,duong,FALLBACK,,0.08442401885986328,0.015229940414428711,15,7,True,True,True,True,True,True
+SockShop,carts,loss,3,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.08681297302246094,0.015864849090576172,15,7,True,True,False,False,True,True
+SockShop,carts,mem,1,circa,tai nguyen,cpu,node,,,3.0829079151153564,0.05181312561035156,15,12,False,False,True,True,True,True
+SockShop,carts,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,3.2084670066833496,0.04041600227355957,15,12,False,False,False,False,True,False
+SockShop,carts,mem,2,circa,tai nguyen,cpu,node,FALLBACK,,0.08446693420410156,0.05217099189758301,15,12,True,True,True,True,True,True
+SockShop,carts,mem,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.08786725997924805,0.03942394256591797,15,12,True,True,False,False,True,False
+SockShop,carts,mem,3,circa,tai nguyen,cpu,node,,,4.991787910461426,0.10530877113342285,15,14,False,False,True,True,True,True
+SockShop,carts,mem,3,pc_randomwalk,tai nguyen,cpu,node,,,5.164625883102417,0.08432507514953613,15,14,True,True,False,False,True,False
+SockShop,carts,socket,1,circa,tai nguyen,cpu,node,,,4.474776029586792,0.07902812957763672,15,13,False,False,True,True,True,True
+SockShop,carts,socket,1,pc_randomwalk,tai nguyen,cpu,node,,,4.4202611446380615,0.08521795272827148,15,13,False,False,False,False,True,False
+SockShop,carts,socket,2,circa,tai nguyen,cpu,node,FALLBACK,,0.10482621192932129,0.10274577140808105,14,14,True,True,True,True,True,True
+SockShop,carts,socket,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.10833382606506348,0.1137840747833252,14,14,True,True,False,False,True,False
+SockShop,carts,socket,3,circa,tai nguyen,cpu,node,FALLBACK,,0.13184881210327148,0.1382007598876953,15,15,True,True,True,True,True,True
+SockShop,carts,socket,3,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.11757588386535645,0.16004204750061035,15,15,True,True,False,False,True,False
+SockShop,catalogue,cpu,1,circa,tai nguyen,cpu,node,,,3.620382070541382,0.11301493644714355,14,12,True,True,True,True,True,True
+SockShop,catalogue,cpu,1,pc_randomwalk,tai nguyen,cpu,node,,,3.808130979537964,0.11729598045349121,14,12,False,False,False,False,False,False
+SockShop,catalogue,cpu,2,circa,tai nguyen,cpu,node,,,3.939744710922241,0.12145209312438965,15,14,True,True,True,True,True,True
+SockShop,catalogue,cpu,2,pc_randomwalk,tai nguyen,cpu,node,,,4.041560173034668,0.131364107131958,15,14,False,False,False,False,False,False
+SockShop,catalogue,cpu,3,circa,tai nguyen,cpu,node,,,4.359400033950806,0.040544986724853516,15,11,True,True,True,True,True,True
+SockShop,catalogue,cpu,3,pc_randomwalk,tai nguyen,cpu,node,,,4.4787561893463135,0.033709049224853516,15,11,False,False,False,False,True,False
+SockShop,catalogue,delay,1,circa,mang,latency-50,duong,FALLBACK,,0.12192201614379883,0.01794886589050293,14,7,False,False,False,False,False,True
+SockShop,catalogue,delay,1,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.12747693061828613,0.012339353561401367,14,7,False,False,False,False,False,True
+SockShop,catalogue,delay,2,circa,mang,latency-50,duong,,,4.375147819519043,0.0164947509765625,15,7,True,True,True,True,True,True
+SockShop,catalogue,delay,2,pc_randomwalk,mang,latency-50,duong,,,4.507813215255737,0.01600503921508789,15,7,False,False,False,False,True,True
+SockShop,catalogue,delay,3,circa,mang,workload,node,,,4.005805969238281,0.020244121551513672,14,7,False,False,False,False,False,False
+SockShop,catalogue,delay,3,pc_randomwalk,mang,workload,node,,,4.249837160110474,0.020434856414794922,15,7,False,False,False,False,False,True
+SockShop,catalogue,disk,1,circa,tai nguyen,workload,node,,,4.012216091156006,0.017590999603271484,14,7,True,True,False,False,True,False
+SockShop,catalogue,disk,1,pc_randomwalk,tai nguyen,workload,node,,,4.15109920501709,0.017369747161865234,14,7,False,False,False,False,True,True
+SockShop,catalogue,disk,2,circa,tai nguyen,cpu,node,FALLBACK,,0.04928898811340332,0.056520938873291016,15,12,False,False,True,True,True,True
+SockShop,catalogue,disk,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.05172872543334961,0.04607796669006348,15,12,False,False,False,False,True,False
+SockShop,catalogue,disk,3,circa,tai nguyen,latency-50,duong,,,6.3258349895477295,0.016524791717529297,14,7,True,True,False,True,True,True
+SockShop,catalogue,disk,3,pc_randomwalk,tai nguyen,latency-50,duong,,,6.465061187744141,0.013414859771728516,14,7,False,False,False,False,False,True
+SockShop,catalogue,loss,1,circa,mang,workload,node,,,4.608885049819946,0.01990199089050293,14,7,False,True,True,True,True,True
+SockShop,catalogue,loss,1,pc_randomwalk,mang,workload,node,,,4.770077228546143,0.017405986785888672,14,7,False,False,False,False,True,True
+SockShop,catalogue,loss,2,circa,mang,workload,node,,,3.518771171569824,0.016299962997436523,14,7,True,True,False,False,True,False
+SockShop,catalogue,loss,2,pc_randomwalk,mang,workload,node,,,3.6270711421966553,0.012033700942993164,15,7,False,False,False,False,False,True
+SockShop,catalogue,loss,3,circa,mang,cpu,node,,,4.190572023391724,0.10444498062133789,15,12,False,False,True,True,True,True
+SockShop,catalogue,loss,3,pc_randomwalk,mang,cpu,node,,,4.4464638233184814,0.13795828819274902,15,12,False,False,False,False,False,False
+SockShop,catalogue,mem,1,circa,tai nguyen,cpu,node,,,5.031259298324585,0.07268404960632324,15,14,True,True,True,True,True,True
+SockShop,catalogue,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,4.895668983459473,0.07480883598327637,15,14,False,False,False,False,False,False
+SockShop,catalogue,mem,2,circa,tai nguyen,latency-50,duong,FALLBACK,,0.10584211349487305,0.018568038940429688,15,7,False,False,True,True,False,True
+SockShop,catalogue,mem,2,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.1097259521484375,0.018146038055419922,15,7,False,False,False,False,False,True
+SockShop,catalogue,mem,3,circa,tai nguyen,cpu,node,,,3.5846848487854004,0.04349398612976074,14,11,True,True,False,False,True,True
+SockShop,catalogue,mem,3,pc_randomwalk,tai nguyen,cpu,node,,,3.6467111110687256,0.03402280807495117,15,11,False,False,False,False,False,False
+SockShop,catalogue,socket,1,circa,tai nguyen,cpu,node,,,4.486180067062378,0.15011191368103027,15,14,True,True,True,True,True,True
+SockShop,catalogue,socket,1,pc_randomwalk,tai nguyen,cpu,node,,,4.626606702804565,0.09564614295959473,15,14,False,False,False,False,False,False
+SockShop,catalogue,socket,2,circa,tai nguyen,latency-50,duong,,,3.7397561073303223,0.017940282821655273,14,7,False,False,True,True,True,True
+SockShop,catalogue,socket,2,pc_randomwalk,tai nguyen,latency-50,duong,,,3.868520975112915,0.014229059219360352,14,7,False,False,False,False,False,True
+SockShop,catalogue,socket,3,circa,tai nguyen,latency-50,duong,,,4.404839992523193,0.016032934188842773,14,7,False,False,True,True,True,True
+SockShop,catalogue,socket,3,pc_randomwalk,tai nguyen,latency-50,duong,,,4.597060918807983,0.013885021209716797,14,7,False,False,False,False,False,True
+SockShop,orders,cpu,1,circa,tai nguyen,cpu,node,FALLBACK,,0.10967874526977539,0.07459521293640137,15,15,False,False,True,True,False,True
+SockShop,orders,cpu,1,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.11295509338378906,0.05572199821472168,15,15,False,False,False,False,False,False
+SockShop,orders,cpu,2,circa,tai nguyen,cpu,node,FALLBACK,,0.08955907821655273,0.13149499893188477,15,14,False,False,True,True,False,True
+SockShop,orders,cpu,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.09321403503417969,0.1098780632019043,15,14,False,False,False,False,False,False
+SockShop,orders,cpu,3,circa,tai nguyen,cpu,node,,,3.9348809719085693,0.06823396682739258,14,12,True,True,False,False,True,True
+SockShop,orders,cpu,3,pc_randomwalk,tai nguyen,cpu,node,,,4.067394018173218,0.05214691162109375,14,12,False,False,False,False,False,False
+SockShop,orders,delay,1,circa,mang,latency-50,duong,FALLBACK,,0.07742691040039062,0.015062093734741211,15,7,False,False,False,False,False,True
+SockShop,orders,delay,1,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.08134198188781738,0.01372218132019043,15,7,False,False,False,False,False,True
+SockShop,orders,delay,2,circa,mang,latency-50,duong,,,4.866645097732544,0.015527009963989258,15,7,False,False,True,True,False,True
+SockShop,orders,delay,2,pc_randomwalk,mang,latency-50,duong,,,5.152806758880615,0.014053106307983398,15,7,False,False,False,False,False,True
+SockShop,orders,delay,3,circa,mang,latency-50,duong,,,5.218957901000977,0.017049789428710938,15,7,False,False,False,False,True,False
+SockShop,orders,delay,3,pc_randomwalk,mang,latency-50,duong,,,5.396758079528809,0.014455795288085938,15,7,True,True,False,False,True,True
+SockShop,orders,disk,2,circa,tai nguyen,workload,node,,,3.660924196243286,0.016824007034301758,15,7,False,False,False,False,True,False
+SockShop,orders,disk,2,pc_randomwalk,tai nguyen,workload,node,,,3.7319979667663574,0.010770082473754883,15,7,False,False,False,False,False,True
+SockShop,orders,disk,3,circa,tai nguyen,cpu,node,,,3.6871531009674072,0.033347129821777344,14,11,False,False,True,True,True,True
+SockShop,orders,disk,3,pc_randomwalk,tai nguyen,cpu,node,,,3.76552414894104,0.030553102493286133,14,11,False,False,False,False,False,False
+SockShop,orders,loss,1,circa,mang,latency-50,duong,,,5.366131067276001,0.01778888702392578,14,7,False,False,True,True,True,True
+SockShop,orders,loss,1,pc_randomwalk,mang,latency-50,duong,,,5.428063154220581,0.0158078670501709,14,7,False,False,False,False,False,True
+SockShop,orders,loss,2,circa,mang,latency-50,duong,,,4.179342746734619,0.016891956329345703,14,7,True,True,False,False,True,True
+SockShop,orders,loss,2,pc_randomwalk,mang,latency-50,duong,,,4.2536561489105225,0.014542102813720703,14,7,False,False,False,False,False,True
+SockShop,orders,loss,3,circa,mang,latency-50,duong,FALLBACK,,0.0968482494354248,0.019116878509521484,15,7,False,False,True,True,False,True
+SockShop,orders,loss,3,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.10135293006896973,0.01416325569152832,15,7,False,False,False,False,False,True
+SockShop,orders,mem,1,circa,tai nguyen,cpu,node,,,5.2497780323028564,0.061386823654174805,14,13,True,True,True,True,True,True
+SockShop,orders,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,5.390268802642822,0.05626702308654785,14,13,False,False,False,False,False,False
+SockShop,orders,mem,2,circa,tai nguyen,latency-50,duong,,,5.357713937759399,0.01851677894592285,14,7,True,True,False,False,True,False
+SockShop,orders,mem,2,pc_randomwalk,tai nguyen,latency-50,duong,,,5.451311111450195,0.01658797264099121,14,7,False,False,False,False,False,True
+SockShop,orders,mem,3,circa,tai nguyen,cpu,node,FALLBACK,,0.0997011661529541,0.08178567886352539,14,14,False,False,True,True,False,True
+SockShop,orders,mem,3,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.10335826873779297,0.08272314071655273,14,14,False,False,False,False,False,False
+SockShop,orders,socket,1,circa,tai nguyen,cpu,node,,,5.298264741897583,0.19265985488891602,14,13,False,False,True,True,True,True
+SockShop,orders,socket,1,pc_randomwalk,tai nguyen,cpu,node,,,5.437515020370483,0.2374401092529297,14,13,False,False,False,False,False,False
+SockShop,orders,socket,2,circa,tai nguyen,cpu,node,,,4.022027015686035,0.08379101753234863,15,15,True,True,True,True,True,True
+SockShop,orders,socket,2,pc_randomwalk,tai nguyen,cpu,node,,,4.053757905960083,0.09624600410461426,15,15,False,False,False,False,False,False
+SockShop,orders,socket,3,circa,tai nguyen,latency-50,duong,,,4.039907693862915,0.016295194625854492,14,7,False,False,True,True,True,True
+SockShop,orders,socket,3,pc_randomwalk,tai nguyen,latency-50,duong,,,4.162929058074951,0.013629913330078125,14,7,False,False,False,False,True,True
+SockShop,payment,cpu,1,circa,tai nguyen,cpu,node,,,6.728506803512573,0.09024906158447266,14,13,True,True,True,True,True,True
+SockShop,payment,cpu,1,pc_randomwalk,tai nguyen,cpu,node,,,6.833164691925049,0.0594019889831543,14,13,False,False,True,True,False,True
+SockShop,payment,cpu,2,circa,tai nguyen,cpu,node,,,4.774169921875,0.09328889846801758,15,14,True,True,True,True,True,True
+SockShop,payment,cpu,2,pc_randomwalk,tai nguyen,cpu,node,,,4.886985778808594,0.09516596794128418,15,14,False,False,False,False,False,False
+SockShop,payment,cpu,3,circa,tai nguyen,cpu,node,FALLBACK,,0.0822908878326416,0.060148000717163086,14,12,False,False,True,True,False,True
+SockShop,payment,cpu,3,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.0853118896484375,0.03171586990356445,14,12,False,False,True,True,False,True
+SockShop,payment,delay,1,circa,mang,latency-50,duong,,,5.1331610679626465,0.014720916748046875,14,7,True,True,True,True,True,True
+SockShop,payment,delay,1,pc_randomwalk,mang,latency-50,duong,,,5.0622780323028564,0.010027885437011719,14,7,False,True,True,True,True,True
+SockShop,payment,delay,2,circa,mang,latency-50,duong,FALLBACK,,0.0974130630493164,0.0172421932220459,14,7,False,False,False,True,False,True
+SockShop,payment,delay,2,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.10167980194091797,0.014007806777954102,14,7,False,False,True,True,False,True
+SockShop,payment,delay,3,circa,mang,latency-50,duong,,,4.422458171844482,0.016520261764526367,15,7,False,False,False,False,True,True
+SockShop,payment,delay,3,pc_randomwalk,mang,latency-50,duong,,,4.593154191970825,0.015716075897216797,15,7,False,False,True,True,False,True
+SockShop,payment,disk,1,circa,tai nguyen,cpu,node,,,4.389224052429199,0.1662740707397461,15,15,True,True,True,True,True,True
+SockShop,payment,disk,1,pc_randomwalk,tai nguyen,cpu,node,,,4.484251022338867,0.1274261474609375,15,15,False,False,False,False,False,False
+SockShop,payment,disk,2,circa,tai nguyen,cpu,node,,,3.7607171535491943,0.04506278038024902,14,12,True,True,True,True,True,True
+SockShop,payment,disk,2,pc_randomwalk,tai nguyen,cpu,node,,,3.768280029296875,0.040821075439453125,14,12,False,False,False,False,True,False
+SockShop,payment,disk,3,circa,tai nguyen,cpu,node,,,3.674466848373413,0.03565692901611328,14,11,False,False,True,True,True,True
+SockShop,payment,disk,3,pc_randomwalk,tai nguyen,cpu,node,,,3.7800283432006836,0.03128814697265625,14,11,False,False,False,False,False,False
+SockShop,payment,loss,1,circa,mang,workload,node,,,5.14000678062439,0.014324188232421875,15,7,False,False,False,False,True,False
+SockShop,payment,loss,1,pc_randomwalk,mang,workload,node,,,5.195528984069824,0.00864100456237793,15,7,False,False,True,True,False,True
+SockShop,payment,loss,2,circa,mang,workload,node,,,2.6514999866485596,0.01595306396484375,15,7,True,True,False,False,True,False
+SockShop,payment,loss,2,pc_randomwalk,mang,workload,node,,,2.8372669219970703,0.010677099227905273,15,7,False,False,True,True,False,True
+SockShop,payment,loss,3,circa,mang,workload,node,,,4.179988145828247,0.014354944229125977,15,7,True,True,False,False,True,True
+SockShop,payment,loss,3,pc_randomwalk,mang,workload,node,,,4.290917873382568,0.008041858673095703,15,7,False,False,True,True,False,True
+SockShop,payment,mem,1,circa,tai nguyen,cpu,node,,,3.8511600494384766,0.06485486030578613,15,13,True,True,True,True,True,True
+SockShop,payment,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,3.959467887878418,0.08129215240478516,15,13,False,False,True,True,False,True
+SockShop,payment,mem,2,circa,tai nguyen,cpu,node,FALLBACK,,0.09030413627624512,0.0477747917175293,15,13,False,False,True,True,False,True
+SockShop,payment,mem,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.0932931900024414,0.047265052795410156,15,13,False,False,True,True,False,True
+SockShop,payment,mem,3,circa,tai nguyen,cpu,node,,,4.8717041015625,0.06908488273620605,14,13,False,False,True,True,True,True
+SockShop,payment,mem,3,pc_randomwalk,tai nguyen,cpu,node,,,5.0115978717803955,0.04647707939147949,14,13,False,False,False,False,False,False
+SockShop,payment,socket,1,circa,tai nguyen,cpu,node,FALLBACK,,0.07925200462341309,0.04120898246765137,15,10,False,False,True,True,False,True
+SockShop,payment,socket,1,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.0825660228729248,0.030169963836669922,15,10,False,False,False,False,False,False
+SockShop,payment,socket,2,circa,tai nguyen,latency-50,duong,,,3.1079070568084717,0.013477802276611328,14,6,False,False,True,True,True,True
+SockShop,payment,socket,2,pc_randomwalk,tai nguyen,latency-50,duong,,,3.2949650287628174,0.011538982391357422,14,7,True,True,True,True,True,True
+SockShop,payment,socket,3,circa,tai nguyen,cpu,node,,,4.078680753707886,0.09787106513977051,15,15,False,False,True,True,True,True
+SockShop,payment,socket,3,pc_randomwalk,tai nguyen,cpu,node,,,4.278326988220215,0.08663678169250488,15,15,False,False,False,False,False,False
+SockShop,user,cpu,1,circa,tai nguyen,cpu,node,,,4.1788330078125,0.3920149803161621,15,14,True,True,True,True,True,True
+SockShop,user,cpu,1,pc_randomwalk,tai nguyen,cpu,node,,,4.286914110183716,0.47310686111450195,15,14,False,False,False,False,False,False
+SockShop,user,cpu,2,circa,tai nguyen,cpu,node,,,3.8842458724975586,0.1641690731048584,14,12,False,False,True,True,True,True
+SockShop,user,cpu,2,pc_randomwalk,tai nguyen,cpu,node,,,4.035476922988892,0.19848108291625977,14,12,False,False,False,False,False,True
+SockShop,user,cpu,3,circa,tai nguyen,cpu,node,,,3.3893139362335205,0.030472278594970703,15,12,False,True,True,True,True,True
+SockShop,user,cpu,3,pc_randomwalk,tai nguyen,cpu,node,,,3.478044033050537,0.02385997772216797,15,12,False,False,False,False,False,True
+SockShop,user,delay,1,circa,mang,latency-50,duong,FALLBACK,,0.10002684593200684,0.018752098083496094,15,7,False,False,True,True,False,True
+SockShop,user,delay,1,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.10431528091430664,0.015338897705078125,15,7,False,False,False,False,False,True
+SockShop,user,delay,2,circa,mang,latency-50,duong,,,4.333804130554199,0.015336036682128906,15,7,False,True,True,True,True,True
+SockShop,user,delay,2,pc_randomwalk,mang,latency-50,duong,,,4.528828859329224,0.012202024459838867,15,7,False,False,False,False,False,True
+SockShop,user,delay,3,circa,mang,latency-50,duong,FALLBACK,,0.0972740650177002,0.017368078231811523,15,7,False,False,True,True,False,True
+SockShop,user,delay,3,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.0989692211151123,0.014905929565429688,15,7,False,False,False,False,False,True
+SockShop,user,disk,1,circa,tai nguyen,cpu,node,,,6.0277018547058105,0.35363101959228516,15,14,True,True,True,True,True,True
+SockShop,user,disk,1,pc_randomwalk,tai nguyen,cpu,node,,,6.177390813827515,0.3838179111480713,15,14,False,False,False,False,False,False
+SockShop,user,disk,2,circa,tai nguyen,cpu,node,,,4.374132871627808,0.07622385025024414,14,13,False,False,True,True,True,True
+SockShop,user,disk,2,pc_randomwalk,tai nguyen,cpu,node,,,4.51617693901062,0.08327817916870117,14,13,False,False,False,False,False,True
+SockShop,user,disk,3,circa,tai nguyen,cpu,node,,,3.1595139503479004,0.03396892547607422,14,10,True,True,True,True,True,True
+SockShop,user,disk,3,pc_randomwalk,tai nguyen,cpu,node,,,3.2725439071655273,0.03172016143798828,14,10,False,False,False,False,False,False
+SockShop,user,loss,1,circa,mang,workload,node,,,4.16499400138855,0.018768787384033203,15,7,False,True,False,False,True,False
+SockShop,user,loss,1,pc_randomwalk,mang,workload,node,,,4.288701057434082,0.016949892044067383,15,7,False,False,False,False,False,False
+SockShop,user,loss,2,circa,mang,workload,node,,,2.9637200832366943,0.02006387710571289,15,7,True,True,True,True,True,True
+SockShop,user,loss,2,pc_randomwalk,mang,workload,node,,,3.13791823387146,0.018993854522705078,15,7,False,False,False,False,False,False
+SockShop,user,loss,3,circa,mang,workload,node,,,4.126913070678711,0.018463850021362305,14,7,False,False,False,False,True,True
+SockShop,user,loss,3,pc_randomwalk,mang,workload,node,,,4.164571762084961,0.016628026962280273,14,7,False,False,False,False,False,False
+SockShop,user,mem,1,circa,tai nguyen,cpu,node,,,3.843116044998169,0.06461787223815918,15,13,True,True,True,True,True,True
+SockShop,user,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,3.9377410411834717,0.05698204040527344,15,13,False,False,False,False,False,True
+SockShop,user,mem,2,circa,tai nguyen,cpu,node,,,4.322301864624023,0.08248496055603027,14,13,False,False,True,True,True,True
+SockShop,user,mem,2,pc_randomwalk,tai nguyen,cpu,node,,,4.46012806892395,0.07420873641967773,14,13,False,False,False,False,True,True
+SockShop,user,mem,3,circa,tai nguyen,latency-50,duong,,,4.6079020500183105,0.018917083740234375,15,7,False,False,True,True,True,True
+SockShop,user,mem,3,pc_randomwalk,tai nguyen,latency-50,duong,,,4.720530986785889,0.017865896224975586,15,7,False,False,False,False,False,True
+SockShop,user,socket,1,circa,tai nguyen,latency-50,duong,,,6.504701852798462,0.014611959457397461,15,7,True,True,True,True,True,True
+SockShop,user,socket,1,pc_randomwalk,tai nguyen,latency-50,duong,,,6.763767719268799,0.010771036148071289,15,7,False,True,False,False,True,True
+SockShop,user,socket,2,circa,tai nguyen,cpu,node,,,131.04856491088867,0.05989885330200195,14,12,False,False,True,True,True,True
+SockShop,user,socket,2,pc_randomwalk,tai nguyen,cpu,node,,,4.521278142929077,0.05124402046203613,14,12,False,False,False,False,False,True
+SockShop,user,socket,3,circa,tai nguyen,cpu,node,,,4.594135046005249,0.08197689056396484,15,14,False,False,True,True,False,True
+SockShop,user,socket,3,pc_randomwalk,tai nguyen,cpu,node,,,4.767667055130005,0.07036495208740234,15,14,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,cpu,1,circa,tai nguyen,cpu,node,,,4.056605815887451,0.02315998077392578,12,9,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,1,pc_randomwalk,tai nguyen,cpu,node,,,4.101500749588013,0.01753091812133789,12,9,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,cpu,2,circa,tai nguyen,latency-50,duong,FALLBACK,,0.019449710845947266,0.019372224807739258,12,8,False,False,False,True,False,True
+OnlineBoutique,checkoutservice,cpu,2,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.023473262786865234,0.02138209342956543,12,8,False,False,False,True,False,True
+OnlineBoutique,checkoutservice,cpu,3,circa,tai nguyen,cpu,node,FALLBACK,,0.07473611831665039,0.07673001289367676,12,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,cpu,3,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.07736778259277344,0.06812191009521484,12,11,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,delay,1,circa,mang,latency-50,duong,,,4.925511837005615,0.03485679626464844,12,9,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,delay,1,pc_randomwalk,mang,latency-50,duong,,,4.891211986541748,0.03613400459289551,12,10,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,delay,2,circa,mang,latency-50,duong,,,4.225471019744873,0.033956050872802734,12,10,False,False,True,True,False,True
+OnlineBoutique,checkoutservice,delay,2,pc_randomwalk,mang,latency-50,duong,,,4.3431007862091064,0.02830672264099121,12,10,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,delay,3,circa,mang,latency-50,duong,,,3.239781141281128,0.03186321258544922,12,10,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,delay,3,pc_randomwalk,mang,latency-50,duong,,,3.2927181720733643,0.029081106185913086,12,10,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,disk,1,circa,tai nguyen,cpu,node,,,4.927279949188232,0.044689178466796875,12,11,True,True,False,False,True,True
+OnlineBoutique,checkoutservice,disk,1,pc_randomwalk,tai nguyen,cpu,node,,,4.909357070922852,0.03561091423034668,12,11,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,disk,2,circa,tai nguyen,cpu,node,,,3.6748359203338623,0.0371091365814209,11,9,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,2,pc_randomwalk,tai nguyen,cpu,node,,,3.763124942779541,0.030629873275756836,11,9,False,False,False,False,True,False
+OnlineBoutique,checkoutservice,disk,3,circa,tai nguyen,cpu,node,,,3.159832715988159,0.044280052185058594,11,10,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,disk,3,pc_randomwalk,tai nguyen,cpu,node,,,3.230037212371826,0.04029393196105957,11,10,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,loss,1,circa,mang,latency-50,duong,,,6.601799964904785,0.03860187530517578,12,10,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,loss,1,pc_randomwalk,mang,latency-50,duong,,,5.990872859954834,0.04524683952331543,12,10,False,False,False,False,True,False
+OnlineBoutique,checkoutservice,loss,2,circa,mang,latency-50,duong,,,4.1450769901275635,0.03551816940307617,12,10,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,loss,2,pc_randomwalk,mang,latency-50,duong,,,4.085614919662476,0.04111504554748535,12,10,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,loss,3,circa,mang,cpu,node,,,1.9362549781799316,0.06332778930664062,12,11,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,loss,3,pc_randomwalk,mang,cpu,node,,,2.050809144973755,0.06532716751098633,12,11,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,mem,1,circa,tai nguyen,cpu,node,,,3.603933095932007,0.030303001403808594,12,10,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,3.609429121017456,0.02126002311706543,12,10,False,False,False,False,True,False
+OnlineBoutique,checkoutservice,mem,2,circa,tai nguyen,latency-50,duong,,,1.956207036972046,0.03236818313598633,12,10,False,False,False,False,True,False
+OnlineBoutique,checkoutservice,mem,2,pc_randomwalk,tai nguyen,latency-50,duong,,,2.0212831497192383,0.034546852111816406,12,10,False,False,False,False,False,False
+OnlineBoutique,checkoutservice,mem,3,circa,tai nguyen,cpu,node,,,5.340887069702148,0.09784388542175293,12,11,True,True,True,True,True,True
+OnlineBoutique,checkoutservice,mem,3,pc_randomwalk,tai nguyen,cpu,node,,,5.158041954040527,0.06193375587463379,12,11,False,False,False,False,False,True
+OnlineBoutique,checkoutservice,socket,1,circa,tai nguyen,cpu,node,FALLBACK,,0.15985608100891113,0.05347084999084473,12,9,False,False,False,False,True,False
+OnlineBoutique,checkoutservice,socket,1,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.21234893798828125,0.05738019943237305,12,9,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,socket,2,circa,tai nguyen,cpu,node,FALLBACK,,0.825103759765625,0.075653076171875,12,11,False,False,True,True,True,True
+OnlineBoutique,checkoutservice,socket,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.8970921039581299,0.07697200775146484,12,11,False,False,False,False,True,True
+OnlineBoutique,checkoutservice,socket,3,circa,tai nguyen,latency-50,duong,,,3.4516940116882324,0.03355526924133301,12,10,True,True,False,False,True,True
+OnlineBoutique,checkoutservice,socket,3,pc_randomwalk,tai nguyen,latency-50,duong,,,3.4835336208343506,0.03361630439758301,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,cpu,1,circa,tai nguyen,latency-50,duong,,,5.330793857574463,0.044338226318359375,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,cpu,1,pc_randomwalk,tai nguyen,latency-50,duong,,,5.495015859603882,0.040316104888916016,12,10,False,False,False,False,True,False
+OnlineBoutique,currencyservice,cpu,2,circa,tai nguyen,latency-50,duong,FALLBACK,,0.06096220016479492,0.034630775451660156,12,10,False,False,True,True,False,True
+OnlineBoutique,currencyservice,cpu,2,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.06322264671325684,0.03609013557434082,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,cpu,3,circa,tai nguyen,latency-50,duong,,,4.287821054458618,0.041311025619506836,12,10,False,False,False,True,True,True
+OnlineBoutique,currencyservice,cpu,3,pc_randomwalk,tai nguyen,latency-50,duong,,,4.399757146835327,0.04395699501037598,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,delay,1,circa,mang,latency-50,duong,FALLBACK,,0.06817293167114258,0.032972097396850586,12,10,False,False,False,True,False,True
+OnlineBoutique,currencyservice,delay,1,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.07116103172302246,0.03088688850402832,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,delay,2,circa,mang,latency-50,duong,,,3.382844924926758,0.029362201690673828,12,9,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,2,pc_randomwalk,mang,latency-50,duong,,,3.5930230617523193,0.0317990779876709,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,delay,3,circa,mang,latency-50,duong,,,3.6662111282348633,0.026882648468017578,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,delay,3,pc_randomwalk,mang,latency-50,duong,,,3.695678949356079,0.024124860763549805,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,disk,1,circa,tai nguyen,latency-50,duong,FALLBACK,,0.0694272518157959,0.04230499267578125,12,10,False,False,False,False,False,True
+OnlineBoutique,currencyservice,disk,1,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.07204508781433105,0.04341387748718262,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,disk,2,circa,tai nguyen,latency-50,duong,FALLBACK,,0.06631922721862793,0.042948007583618164,12,10,False,False,True,True,False,True
+OnlineBoutique,currencyservice,disk,2,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.06936907768249512,0.04076385498046875,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,disk,3,circa,tai nguyen,latency-50,duong,FALLBACK,,0.07296204566955566,0.03725481033325195,12,10,False,False,True,True,False,True
+OnlineBoutique,currencyservice,disk,3,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.07599496841430664,0.04102468490600586,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,loss,1,circa,mang,workload,node,,,3.181187868118286,0.06290507316589355,12,11,True,True,True,True,True,True
+OnlineBoutique,currencyservice,loss,1,pc_randomwalk,mang,workload,node,,,3.6031460762023926,0.06241106986999512,12,11,False,False,False,False,True,False
+OnlineBoutique,currencyservice,loss,2,circa,mang,latency-50,duong,,,6.7786290645599365,0.044731855392456055,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,loss,2,pc_randomwalk,mang,latency-50,duong,,,7.634156942367554,0.052922964096069336,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,loss,3,circa,mang,latency-50,duong,,,3.70304012298584,0.01829695701599121,12,7,False,False,True,True,True,True
+OnlineBoutique,currencyservice,loss,3,pc_randomwalk,mang,latency-50,duong,,,4.040441989898682,0.01965498924255371,12,7,False,False,False,False,False,True
+OnlineBoutique,currencyservice,mem,1,circa,tai nguyen,latency-50,duong,,,4.8658459186553955,0.04023623466491699,12,10,True,True,True,True,True,True
+OnlineBoutique,currencyservice,mem,1,pc_randomwalk,tai nguyen,latency-50,duong,,,5.0077807903289795,0.03915691375732422,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,mem,2,circa,tai nguyen,latency-50,duong,,,4.172591924667358,0.04138302803039551,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,mem,2,pc_randomwalk,tai nguyen,latency-50,duong,,,4.497116804122925,0.04370999336242676,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,mem,3,circa,tai nguyen,latency-50,duong,,,4.184128046035767,0.03650784492492676,12,10,False,False,False,True,True,True
+OnlineBoutique,currencyservice,mem,3,pc_randomwalk,tai nguyen,latency-50,duong,,,4.389939069747925,0.03815126419067383,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,socket,1,circa,tai nguyen,workload,node,,,5.080198049545288,0.04487299919128418,12,11,False,False,False,False,False,False
+OnlineBoutique,currencyservice,socket,1,pc_randomwalk,tai nguyen,workload,node,,,5.107594966888428,0.036271095275878906,12,11,False,False,False,False,False,False
+OnlineBoutique,currencyservice,socket,2,circa,tai nguyen,latency-50,duong,,,3.899519920349121,0.04090285301208496,12,10,False,False,True,True,True,True
+OnlineBoutique,currencyservice,socket,2,pc_randomwalk,tai nguyen,latency-50,duong,,,4.239715099334717,0.04327678680419922,12,10,False,False,False,False,False,False
+OnlineBoutique,currencyservice,socket,3,circa,tai nguyen,latency-50,duong,FALLBACK,,0.07121896743774414,0.03362607955932617,12,10,False,False,True,True,False,True
+OnlineBoutique,currencyservice,socket,3,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.07238197326660156,0.032475948333740234,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,cpu,1,circa,tai nguyen,cpu,node,,,4.577455282211304,0.05328512191772461,12,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,1,pc_randomwalk,tai nguyen,cpu,node,,,4.4518163204193115,0.041777849197387695,12,11,True,True,False,False,True,False
+OnlineBoutique,emailservice,cpu,2,circa,tai nguyen,cpu,node,,,31.71868896484375,0.03086686134338379,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,2,pc_randomwalk,tai nguyen,cpu,node,,,3.9691100120544434,0.025117158889770508,12,10,False,False,False,False,True,False
+OnlineBoutique,emailservice,cpu,3,circa,tai nguyen,cpu,node,,,3.3245620727539062,0.05532383918762207,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,cpu,3,pc_randomwalk,tai nguyen,cpu,node,,,3.3351857662200928,0.05392003059387207,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,delay,1,circa,mang,latency-50,duong,,,4.637871980667114,0.04210400581359863,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,1,pc_randomwalk,mang,latency-50,duong,,,4.55616569519043,0.036108970642089844,12,10,True,True,False,False,True,False
+OnlineBoutique,emailservice,delay,2,circa,mang,latency-50,duong,,,3.7971019744873047,0.037310123443603516,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,delay,2,pc_randomwalk,mang,latency-50,duong,,,3.7053120136260986,0.03698110580444336,12,10,False,False,False,False,True,False
+OnlineBoutique,emailservice,delay,3,circa,mang,latency-50,duong,,,4.808518171310425,0.036000967025756836,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,delay,3,pc_randomwalk,mang,latency-50,duong,,,4.962590932846069,0.03449583053588867,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,disk,1,circa,tai nguyen,latency-50,duong,,,3.814039945602417,0.03955507278442383,12,10,True,True,False,False,True,False
+OnlineBoutique,emailservice,disk,1,pc_randomwalk,tai nguyen,latency-50,duong,,,3.9392528533935547,0.034272193908691406,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,disk,2,circa,tai nguyen,cpu,node,,,4.53190803527832,0.07102727890014648,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,disk,2,pc_randomwalk,tai nguyen,cpu,node,,,4.606565952301025,0.058061838150024414,12,10,False,False,False,False,True,False
+OnlineBoutique,emailservice,disk,3,circa,tai nguyen,cpu,node,,,4.699781179428101,0.06847310066223145,12,10,False,False,True,True,True,True
+OnlineBoutique,emailservice,disk,3,pc_randomwalk,tai nguyen,cpu,node,,,4.561686992645264,0.07662224769592285,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,loss,1,circa,mang,latency-50,duong,,,5.167058944702148,0.04635906219482422,12,10,True,True,False,True,True,True
+OnlineBoutique,emailservice,loss,1,pc_randomwalk,mang,latency-50,duong,,,5.074955224990845,0.047598838806152344,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,loss,2,circa,mang,latency-50,duong,,,4.704729795455933,0.04072403907775879,12,10,True,True,False,False,True,True
+OnlineBoutique,emailservice,loss,2,pc_randomwalk,mang,latency-50,duong,,,4.804760694503784,0.03624606132507324,12,10,False,False,False,False,True,False
+OnlineBoutique,emailservice,loss,3,circa,mang,latency-50,duong,,,5.692237138748169,0.03549528121948242,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,loss,3,pc_randomwalk,mang,latency-50,duong,,,5.734710216522217,0.02836894989013672,12,10,False,False,False,False,False,False
+OnlineBoutique,emailservice,mem,1,circa,tai nguyen,cpu,node,,,3.9577128887176514,0.024717092514038086,12,9,False,False,True,True,True,True
+OnlineBoutique,emailservice,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,4.15674901008606,0.023288249969482422,12,9,False,False,False,False,True,False
+OnlineBoutique,emailservice,mem,2,circa,tai nguyen,cpu,node,,,3.062530755996704,0.01522684097290039,12,8,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,2,pc_randomwalk,tai nguyen,cpu,node,,,3.156829833984375,0.010114669799804688,12,8,False,False,False,False,False,False
+OnlineBoutique,emailservice,mem,3,circa,tai nguyen,cpu,node,,,4.1190571784973145,0.04987788200378418,12,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,mem,3,pc_randomwalk,tai nguyen,cpu,node,,,4.387339115142822,0.04964780807495117,12,11,False,False,False,False,False,False
+OnlineBoutique,emailservice,socket,1,circa,tai nguyen,cpu,node,,,4.517885208129883,0.06410694122314453,12,11,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,1,pc_randomwalk,tai nguyen,cpu,node,,,4.536654710769653,0.07514166831970215,12,11,False,False,False,False,False,False
+OnlineBoutique,emailservice,socket,2,circa,tai nguyen,latency-50,duong,,,3.7923080921173096,0.04395103454589844,12,10,True,True,True,True,True,True
+OnlineBoutique,emailservice,socket,2,pc_randomwalk,tai nguyen,latency-50,duong,,,3.78010892868042,0.04421496391296387,12,10,False,False,False,False,True,False
+OnlineBoutique,emailservice,socket,3,circa,tai nguyen,latency-50,duong,,,3.9603142738342285,0.03866696357727051,12,10,True,True,False,False,True,False
+OnlineBoutique,emailservice,socket,3,pc_randomwalk,tai nguyen,latency-50,duong,,,4.042736291885376,0.04359769821166992,12,10,False,False,False,False,False,False
+OnlineBoutique,productcatalogservice,cpu,1,circa,tai nguyen,latency-50,duong,,,5.070955991744995,0.04604387283325195,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,cpu,1,pc_randomwalk,tai nguyen,latency-50,duong,,,5.184213161468506,0.04771304130554199,12,10,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,cpu,2,circa,tai nguyen,cpu,node,FALLBACK,,0.06532001495361328,0.04077911376953125,12,11,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,cpu,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.06785106658935547,0.03418684005737305,12,11,False,False,False,False,False,False
+OnlineBoutique,productcatalogservice,cpu,3,circa,tai nguyen,cpu,node,,,2.597871780395508,0.0365450382232666,12,10,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,cpu,3,pc_randomwalk,tai nguyen,cpu,node,,,2.7448229789733887,0.03126072883605957,12,10,True,True,False,False,True,False
+OnlineBoutique,productcatalogservice,delay,1,circa,mang,latency-50,duong,FALLBACK,,0.039875030517578125,0.028118133544921875,12,10,False,False,False,True,False,True
+OnlineBoutique,productcatalogservice,delay,1,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.04205012321472168,0.026976823806762695,12,10,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,delay,2,circa,mang,latency-50,duong,,,3.862328052520752,0.029573678970336914,12,10,False,False,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,2,pc_randomwalk,mang,latency-50,duong,,,4.033810138702393,0.02565479278564453,12,10,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,delay,3,circa,mang,latency-50,duong,,,3.2042229175567627,0.031935930252075195,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,delay,3,pc_randomwalk,mang,latency-50,duong,,,3.332395076751709,0.028319835662841797,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,1,circa,tai nguyen,cpu,node,,,3.5321881771087646,0.041433095932006836,12,11,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,disk,1,pc_randomwalk,tai nguyen,cpu,node,,,3.5775606632232666,0.04682803153991699,12,11,False,False,False,False,False,False
+OnlineBoutique,productcatalogservice,disk,2,circa,tai nguyen,cpu,node,FALLBACK,,0.40619897842407227,0.027997970581054688,12,9,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,disk,2,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.46509695053100586,0.02596306800842285,12,9,False,False,False,False,False,False
+OnlineBoutique,productcatalogservice,disk,3,circa,tai nguyen,cpu,node,FALLBACK,,0.04691791534423828,0.04928421974182129,12,10,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,disk,3,pc_randomwalk,tai nguyen,cpu,node,FALLBACK,,0.049405813217163086,0.04662489891052246,12,10,False,False,False,False,False,False
+OnlineBoutique,productcatalogservice,loss,1,circa,mang,latency-50,duong,,,7.630173921585083,0.02646803855895996,12,8,False,False,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,1,pc_randomwalk,mang,latency-50,duong,,,8.14422607421875,0.03041815757751465,12,8,False,False,False,False,False,True
+OnlineBoutique,productcatalogservice,loss,2,circa,mang,cpu,node,,,2.246037006378174,0.10229301452636719,12,10,False,False,False,False,False,True
+OnlineBoutique,productcatalogservice,loss,2,pc_randomwalk,mang,cpu,node,,,2.5216760635375977,0.15241384506225586,12,10,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,loss,3,circa,mang,latency-50,duong,,,5.882786750793457,0.04160618782043457,12,10,False,False,False,True,True,True
+OnlineBoutique,productcatalogservice,loss,3,pc_randomwalk,mang,latency-50,duong,,,6.176676988601685,0.04910087585449219,12,10,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,mem,1,circa,tai nguyen,cpu,node,,,5.693934202194214,0.0637521743774414,12,11,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,mem,1,pc_randomwalk,tai nguyen,cpu,node,,,5.872795104980469,0.08352017402648926,12,11,False,False,False,False,False,False
+OnlineBoutique,productcatalogservice,mem,2,circa,tai nguyen,latency-50,duong,,,4.831245183944702,0.04675579071044922,12,10,True,True,False,True,True,True
+OnlineBoutique,productcatalogservice,mem,2,pc_randomwalk,tai nguyen,latency-50,duong,,,5.009904146194458,0.05397391319274902,12,10,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,mem,3,circa,tai nguyen,cpu,node,,,5.334739923477173,0.03246498107910156,12,9,False,False,True,True,False,True
+OnlineBoutique,productcatalogservice,mem,3,pc_randomwalk,tai nguyen,cpu,node,,,5.505150079727173,0.0396878719329834,12,9,False,False,False,False,True,False
+OnlineBoutique,productcatalogservice,socket,1,circa,tai nguyen,cpu,node,,,3.231435775756836,0.04238486289978027,12,10,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,1,pc_randomwalk,tai nguyen,cpu,node,,,3.323641061782837,0.04415106773376465,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,2,circa,tai nguyen,latency-50,duong,,,3.188983678817749,0.03580498695373535,12,10,False,False,False,False,True,True
+OnlineBoutique,productcatalogservice,socket,2,pc_randomwalk,tai nguyen,latency-50,duong,,,3.273359775543213,0.033293962478637695,12,10,True,True,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,3,circa,tai nguyen,latency-50,duong,,,2.9867730140686035,0.039830923080444336,12,10,False,False,True,True,True,True
+OnlineBoutique,productcatalogservice,socket,3,pc_randomwalk,tai nguyen,latency-50,duong,,,3.113967180252075,0.031039953231811523,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,1,circa,tai nguyen,latency-50,duong,,,4.561990976333618,0.04647493362426758,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,1,pc_randomwalk,tai nguyen,latency-50,duong,,,4.611546039581299,0.04133415222167969,12,10,False,False,False,False,False,False
+OnlineBoutique,recommendationservice,cpu,2,circa,tai nguyen,latency-50,duong,,,4.370823860168457,0.036767005920410156,12,10,False,False,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,2,pc_randomwalk,tai nguyen,latency-50,duong,,,4.674515962600708,0.03546285629272461,12,10,False,False,False,False,False,False
+OnlineBoutique,recommendationservice,cpu,3,circa,tai nguyen,latency-50,duong,,,3.743166923522949,0.038877248764038086,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,cpu,3,pc_randomwalk,tai nguyen,latency-50,duong,,,3.802255868911743,0.03262901306152344,12,10,False,False,False,False,False,False
+OnlineBoutique,recommendationservice,delay,1,circa,mang,latency-50,duong,FALLBACK,,0.06775283813476562,0.03986096382141113,12,10,False,False,True,True,False,True
+OnlineBoutique,recommendationservice,delay,1,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.0703117847442627,0.03965497016906738,12,10,False,False,False,False,False,False
+OnlineBoutique,recommendationservice,delay,2,circa,mang,latency-50,duong,,,4.332386016845703,0.04720592498779297,12,10,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,delay,2,pc_randomwalk,mang,latency-50,duong,,,4.483662843704224,0.05454397201538086,12,10,False,False,False,False,False,False
+OnlineBoutique,recommendationservice,delay,3,circa,mang,latency-50,duong,FALLBACK,,0.06545686721801758,0.04131364822387695,12,10,False,False,False,False,False,True
+OnlineBoutique,recommendationservice,delay,3,pc_randomwalk,mang,latency-50,duong,FALLBACK,,0.06819677352905273,0.03560805320739746,12,10,False,False,False,False,False,False
+OnlineBoutique,recommendationservice,disk,1,circa,tai nguyen,latency-50,duong,FALLBACK,,0.06961297988891602,0.04429316520690918,12,9,False,False,False,False,False,True
+OnlineBoutique,recommendationservice,disk,1,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.07183408737182617,0.0441899299621582,12,10,False,False,False,False,False,False
+OnlineBoutique,recommendationservice,disk,2,circa,tai nguyen,cpu,node,,,3.168850898742676,0.019470691680908203,12,7,True,True,True,True,True,True
+OnlineBoutique,recommendationservice,disk,2,pc_randomwalk,tai nguyen,cpu,node,,,3.339162826538086,0.014880895614624023,12,7,False,False,True,True,True,True
+OnlineBoutique,recommendationservice,disk,3,circa,tai nguyen,latency-50,duong,FALLBACK,,0.6699008941650391,0.04016375541687012,12,10,False,False,True,True,False,True
+OnlineBoutique,recommendationservice,disk,3,pc_randomwalk,tai nguyen,latency-50,duong,FALLBACK,,0.739569902420044,0.038866281509399414,12,10,False,False,False,False,False,False

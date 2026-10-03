@@ -31,6 +31,25 @@ Tang duoc chon tu DU LIEU THO bang do tap trung P = r_top1 / sum(r) cua dich
 chuyen trung binh -- KHONG dung nhan, va KHONG dung noi that cua phuong phap.
 Nen lop boc la mot BO TIEN XU LY, cam vao truoc bat ky phuong phap nao.
 
+Loi `inj in v` trong dieu kien chon tang DA BI XOA (2026-10-03). Truoc do tang chi
+duoc coi la hop le neu service bi tiem co mat trong do, va ca nao khong tang nao
+chua ground truth thi bi loai han -- tuc cau "KHONG dung nhan" o tren la SAI.
+Do lai: 0/178 ca bi loai boi dieu kien ay, 7/178 (3,9%) doi tang khi bo nhan, nen
+anh huong nho; nhung day la ro ri nhan that va reviewer doc code se thay.
+
+CHUNG KIEM SOAT con thieu -- vi sao CSV phai luu thu hang:
+  (a) truc DON VI doi LUAT TINH DIEM (tinh dung ca khi inj la hau due cua top-1),
+      nen san ngau nhien cua no cao hon 1/n. Do duoc: lam phat co hoc, pha loang
+      tren toan bo ca, la +7,38 d (SS) / +11,14 d (OB) / +14,50 d (TT) -- NGANG
+      hoac HON muc quan sat (+7,84 baro / +8,21 nsigma / +9,09 circa / +0,00 pc).
+      Phep so sanh tho ay nghieng bat loi qua muc (bo xep hang ngau nhien con
+      ~90% du dia de luat long cuu, phuong phap tot thi khong), nen chung DUNG
+      phai co dieu kien: CHI tren cac ca phuong phap sai o muc node, ti le inj la
+      hau due cua top-1 co cao hon ngau nhien khong?
+  (b) phan ung vien cua BARO (+25,00 d) vuot san 1/n tan +22,31 d, nhung 1/n la
+      proxy yeu; chung dung la tap ung vien NGAU NHIEN cung co.
+Ca hai chung chi can thu hang + do thi goi, nen luu `xh0`/`xh1`/`ung` la du.
+
 BAT FALLBACK AM THAM. Decorator `rca` cua RCAEval bat moi ngoai le va tra ve THU
 TU COT thay vi bao loi. Mot ket qua nhu vay KHONG phai ket qua cua phuong phap.
 Script bat stderr va danh dau `fallback_*`; moi bang deu loai cac luot do. Day
@@ -212,7 +231,7 @@ def main():
         for inj, ft, run, draw, t in runs_of(sysname):
             d = lam_sach(draw)
             per = {la: v for la, v in ((la, dich_chuyen(d, t, la)) for la in LAYERS)
-                   if len(v) >= 3 and inj in v}
+                   if len(v) >= 3}
             if not per:
                 continue
             P = {la: max(v.values()) / sum(v.values()) for la, v in per.items() if sum(v.values()) > 0}
@@ -241,6 +260,11 @@ def main():
                     he=sysname, injected=inj, fault=ft, run=run, phuong_phap=ten,
                     nhom='tai nguyen' if ft in RESOURCE else 'mang',
                     tang_chon=la_chon, don_vi=dv,
+                    # THU HANG THAT, de moi chung kiem soat ve sau tinh duoc ma
+                    # KHONG phai goi lai phuong phap (xem docstring, phan CHUNG).
+                    xh0='|'.join(xh0) if xh0 else '',
+                    xh1='|'.join(xh1) if xh1 else '',
+                    ung='|'.join(sorted(ung)),
                     fallback_0=fb0, fallback_1=fb1, giay_0=s0, giay_1=s1,
                     n_cand_0=len(xh0) if xh0 else np.nan,
                     n_cand_1=len(xh1) if xh1 else np.nan,
