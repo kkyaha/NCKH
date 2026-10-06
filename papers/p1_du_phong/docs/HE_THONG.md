@@ -75,9 +75,24 @@ Hiện hai tầng đang bị **nhân bản trong hai ngăn xếp riêng**, vì l
 `CapacityAgent` học từ RCAEval fault-injection và đã sinh ra các số liệu **đã công bố**, nên
 đường khả thi được viết tách ra để không chạm vào nó.
 
-**Đó không phải khác biệt về mô hình.** Đã đo: `ρ_s` của bộ dự đoán khả thi **tái tạo đúng**
-lan truyền Tier-1 của `CapacityAgent`, lệch **≤ 0,5%** trên mọi service — chúng là *một* mô
-hình viết ở hai dạng. Hợp nhất thành hai tầng là **thiết kế mục tiêu**; chưa áp vì sẽ đổi bộ
+**Đó không phải khác biệt về mô hình — nhưng phải nói rõ đo ở *mức nào*.** Đã đo
+(`papers/p1_du_phong/experiments/feasibility/doi_chieu_hai_he.py`, 456 hàng `SS-TRAIN`):
+
+| đo ở mức | lệch lớn nhất | mệnh đề "≤ 0,5%" |
+|---|---|---|
+| workload `W_s`, cả 7 service | 18,89% (`payment`, `shipping`) | **sai** |
+| workload `W_s`, 5 node `SCORED` | 13,25% (`user`) | **sai** |
+| **mức sử dụng `u_s`, 5 node `SCORED`** | **0,30%** (`user`) | **đúng** |
+| tại nút nghẽn (`front-end`) | **0,00%** | **đúng** |
+
+`user` lệch workload 13,25% nhưng `β_user = 0,0674` nhỏ và `u_user ≈ 0,078`, nên sai số tương
+đối lớn ở `W` gần như không dịch `u`. Nút nghẽn luôn là `front-end` — gốc của *cả hai* cách
+tính — nên lệch đúng 0,00% và **phán quyết không đổi**. Vậy chúng là *một* mô hình viết ở hai
+dạng **ở mức `u`**, là mức đi vào phán quyết.
+
+> ⚠ Bản trước của đoạn này ghi "lệch **≤ 0,5%** trên mọi service" — một phát biểu **kiểm được
+> và sai**, và không script nào trong repo tính ra nó (cùng mẫu lỗi với `R² = 0,0034` ở §9).
+> Đã sửa và đã có script tái lập. Hợp nhất thành hai tầng là **thiết kế mục tiêu**; chưa áp vì sẽ đổi bộ
 dự đoán **sau khi đã xem đáp án**, làm mọi con số mới thành hồi cứu.
 
 ---
@@ -91,11 +106,25 @@ Dùng cho RQ1–RQ4 (dữ liệu RCAEval / Alibaba, fault‑injection).
 - **Node:** 7 service × 4 metric (`workload`, `cpu`, `mem`, `latency-50`) = 28
 - **Cạnh cấu trúc (29):** Tier‑1 `workload→workload` theo 8 cạnh gọi thật; Tier‑2
   `workload→{cpu, mem, latency}` trong cùng service
-- **Cạnh phải học (3/8 ứng viên sống sót)** qua held‑out 67/33 → knee‑point → OOD‑safety:
-  `orders_cpu→shipping_cpu`, `orders_cpu→carts_cpu`, `front-end_cpu→user_cpu`.
-  **0 cạnh** latency‑backprop qua được cổng.
+- **Cạnh phải học (5/16 ứng viên sống sót)** qua held‑out 67/33 → knee‑point → OOD‑safety:
+  - `cpu_backpressure` **3/8**: `orders_cpu→shipping_cpu`, `orders_cpu→carts_cpu`, `front-end_cpu→user_cpu`
+  - `latency_backprop_causil` **2/8**: `carts_latency-50→orders_latency-50`, `carts_latency-50→front-end_latency-50`
+- **Tổng cạnh: 29 cấu trúc + 5 học được = 34.**
+
+> ⚠ Bản trước của hai dòng trên ghi *"**0 cạnh** latency‑backprop qua được cổng"* và tổng 32
+> cạnh — **sai**. Nguồn của sai sót: `src/graph/sockshop_scm_edges.json` chỉ có 3 cạnh, nhưng
+> tệp đó là sản phẩm của một lần chạy **chỉ với `metric: cpu`** (xem trường `"metric"` trong
+> chính tệp), nên nó **chưa bao giờ xét** ứng viên latency. Artifact mà hệ thống **thật sự nạp
+> lúc chạy** là cache `data/processed/scm_cache/scm_edges_55011c51*.json`, và báo cáo trong đó
+> ghi rõ `latency_backprop_causil: 8 candidate → 2 selected → 2 final`. Khởi tạo
+> `CapacityAgent` xác nhận: `DAG 28 nodes (34 edges)`.
+
 - **Cơ chế:** `*_cpu`/`*_mem`/`*_workload` dùng `LinearRegression(positive=True)`;
-  `*_latency-50` dùng `QueueingLatencyRegressor` (hồi quy trên `[X, X/(C−X)]`, `C = P99(X)×1.5`)
+  `*_latency-50` dùng `QueueingLatencyRegressor` (hồi quy trên `[X, X/(C−X)]`, `C = P99(X)×1.5`).
+  **Node tài nguyên có CẢ cha workload LẪN cha tài nguyên** (tức node nhận cạnh Tier‑2.5) dùng
+  `CoCheCongDai` (`src/scm/co_che_cong_dai.py`) — cổng theo dải: giữ cha tài nguyên khi nó còn
+  trong dải đã thấy lúc fit, ra ngoài dải thì lùi về phương trình cấu trúc Tier‑2. Lý do và số
+  liệu ở §8.
 
 ### Hệ B — `FeasibilityPredictor`: hai tầng phẳng
 
@@ -333,7 +362,8 @@ Mỗi dòng **tự kiểm được bằng tay**: `W nền + W tính năng = W t�
    predictor. Luôn dùng **skill score + negative control**.
 
 5. **Đừng sửa** `evaluation_suite.py`, `select_scm_edges.py`,
-   `backpressure_edge_ood_safety_test.py` — bản sao đông cứng có chủ đích, sinh số liệu đã công bố.
+   `archive/backpressure_edge_ood_safety_test.py` — bản sao đông cứng có chủ đích, sinh số liệu đã công bố;
+   bản tham số hoá đang dùng là `edges/canh_an_toan_ngoai_suy.py`.
 
 6. **Đối chứng ngẫu nhiên một‑lần‑bốc là bẫy.** `FP.wrong_chain()` mặc định `seed=0`; p của
    Wilcoxon trải **0,008 → 1,000** tuỳ hạt giống, và `seed=0` rơi vào **phân vị 8**. Một kết

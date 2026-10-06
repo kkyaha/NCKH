@@ -53,7 +53,7 @@ from scm_edge_selector import select_scm_edges  # noqa: E402
 class QueueingLatencyRegressor:
     """Placeholder toi thieu -- chi de fit duoc do thi day du giong
     CapacityAgent; ket qua latency khong duoc dung trong lua chon canh nay
-    (chi CPU duoc dung, giong backpressure_edge_ood_safety_test.py goc)."""
+    (chi CPU duoc dung, giong canh_an_toan_ngoai_suy.py; ban goc o archive/backpressure_edge_ood_safety_test.py)."""
     from sklearn.base import BaseEstimator, RegressorMixin
 
 

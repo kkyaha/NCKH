@@ -2,7 +2,7 @@
 """
 THU NGHIEM 2: Doi mechanism co thuc su cai thien CHAT LUONG QUYET DINH khong?
 ==============================================================================
-Boi canh: thu nghiem truoc (nonlinear_mechanism_trial.py) do tren BUCKET-AVERAGE
+Boi canh: thu nghiem truoc (nay la dang_co_che_doi_chung.py; ban goc o archive/nonlinear_mechanism_trial.py) do tren BUCKET-AVERAGE
 (8 diem/cap, khop voi cach CapacityAgent.get_metrics_for_service mo phong that)
 va cho thay linear_pos > auto_gcm ro ret. Nhung RQ1 cua paper do tren
 FULL-RESOLUTION (moi diem test tho, ~20k diem/cap) va cho ket qua NGUOC LAI:

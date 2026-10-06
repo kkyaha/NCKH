@@ -132,6 +132,36 @@ def _fit_predict(df_pre, df_post, xcol, ycol):
     }
 
 
+def _fit_predict_cong_dai(df_pre, df_post, x_assoc, x_causal, ycol):
+    """Bien the CO CONG: dung cha la TAI NGUYEN khi no con trong dai da thay o PRE,
+    ra ngoai dai thi lui ve phuong trinh cau truc (cha la workload).
+
+    Vi sao dat cong o day: co che that bai cua canh R->R da duoc dinh vi -- trong
+    dai hai dang KHONG phan biet duoc, chi NGOAI dai moi tach. Nguong lay truc tiep
+    tu min/max cua PRE, khong phai tham so moi phai fit.
+    """
+    Xa, Xc, y = df_pre[[x_assoc]].values, df_pre[[x_causal]].values, df_pre[ycol].values
+    if len(y) < MIN_PRE or np.allclose(Xa.std(), 0) or np.allclose(Xc.std(), 0):
+        return None
+    m_a = LinearRegression(positive=True).fit(Xa, y)
+    lo, hi = float(df_pre[x_assoc].min()), float(df_pre[x_assoc].max())
+
+    def du_bao(d):
+        # KEP cha tai nguyen ve bien dai (khong chuyen nhanh -- chuyen nhanh PHA
+        # tinh don dieu, do duoc: tut 7,09 tai bien; xem src/scm/co_che_cong_dai.py)
+        v = d[x_assoc].to_numpy(dtype=float)
+        trong = (v >= lo) & (v <= hi)
+        return m_a.predict(np.clip(v, lo, hi).reshape(-1, 1)), trong
+
+    p_pre, _ = du_bao(df_pre)
+    p_post, trong_post = du_bao(df_post)
+    return {
+        'mape_pre': mape(y, p_pre),
+        'mape_post': mape(df_post[ycol].values, p_post),
+        'ty_le_trong_dai_post': float(trong_post.mean()),
+    }
+
+
 def run():
     rows = []
     n_runs = 0
@@ -170,6 +200,10 @@ def run():
                     res[name] = out
                 if not res:
                     continue
+                # bien the CO CONG -- them vao, khong doi 3 bien the goc
+                g = _fit_predict_cong_dai(sub_pre, sub_post, r_A, wl_B, r_B)
+                if g is not None:
+                    res['cong_dai_RB~RA'] = g
 
                 row = {
                     'scenario': scenario, 'target_service': target, 'fault_type': fault,
@@ -179,12 +213,16 @@ def run():
                 for name, out in res.items():
                     row[f'{name}_pre'] = round(out['mape_pre'], 3)
                     row[f'{name}_post'] = round(out['mape_post'], 3)
+                    if 'ty_le_trong_dai_post' in out:
+                        row['ty_le_trong_dai_post'] = round(out['ty_le_trong_dai_post'], 4)
                     # degradation = phan sai so tang len khi he thong bi can thiep
                     row[f'{name}_degrade'] = round(out['mape_post'] - out['mape_pre'], 3)
                 rows.append(row)
 
     out = pd.DataFrame(rows)
-    dest = os.path.join(OUT_DIR, 'rq7_interventional_validity.csv')
+    # Tep RIENG: artifact goc `rq7_interventional_validity.csv` la so DA CONG BO,
+    # khong de len no. Bien the co cong ghi ra ten khac.
+    dest = os.path.join(OUT_DIR, 'rq7_interventional_validity_cong_dai.csv')
     out.to_csv(dest, index=False)
     print(f"runs used: {n_runs} | rows: {len(out)} -> {dest}\n")
     return out
@@ -194,7 +232,7 @@ def report(df):
     if df.empty:
         print("khong co du lieu")
         return
-    V = ['causal_RB~WB', 'assoc_RB~RA', 'assoc_RB~WA']
+    V = ['causal_RB~WB', 'assoc_RB~RA', 'assoc_RB~WA', 'cong_dai_RB~RA']
     print("=" * 78)
     print("  MAPE trung vi: TRUOC can thiep (quan sat) vs SAU can thiep")
     print("=" * 78)

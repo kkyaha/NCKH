@@ -27,7 +27,8 @@ dung de du bao, bang 3 pha:
       dinh khac nhau moi he thong (Sock Shop: top-3 tay; Train Ticket:
       gain>0.03 tay) -- MOT quy tac duy nhat cho moi he thong.
 
-Pha 4 (validate_ood_safety) tai lap experiments/backpressure_edge_ood_safety_test.py
+Pha 4 (validate_ood_safety) tai lap papers/p1_du_phong/experiments/archive/backpressure_edge_ood_safety_test.py
+(nay: edges/canh_an_toan_ngoai_suy.py --he sockshop)
 o dang ham dung lai duoc: quet do() qua nhieu delta workload, dem so ca
 sign-inversion VOI vs KHONG co tung canh ung vien -- day la phan "toi uu
 phep do" thuc su: khong con canh nao duoc dua vao do() model chi vi MAPE
@@ -346,7 +347,8 @@ def validate_ood_safety(build_model_fn, df_data: pd.DataFrame, candidate_edges: 
     """Quet do(<injection>_workload = base*(1+delta%)) VOI vs KHONG co
     candidate_edges trong DAG, dem sign-inversion (delta % am trong khi
     workload TANG) cho tung service/delta -- tai lap
-    experiments/backpressure_edge_ood_safety_test.py o dang tham so hoa.
+    papers/p1_du_phong/experiments/archive/backpressure_edge_ood_safety_test.py o dang tham so hoa
+    (ban tham so hoa chinh thuc: edges/canh_an_toan_ngoai_suy.py).
 
     build_model_fn(df_data, extra_edges: list[(str,str)]) -> dowhy.gcm model
     da fit -- nguoi goi tu quyet dinh cach dung Tier1/Tier2 cua chinh he

@@ -5,17 +5,36 @@ Day la ban thay cho `rq6_wrapper_tren_baseline.py`: thay vi CAI LAI luat cua BAR
 script nay goi THUC SU cac ham trong repo `phamquiluan/RCAEval`. Do la phan bien
 manh nhat con lai -- "co the day chi la tao tac cua cach cac tac gia cai lai BARO".
 
-BON PHUONG PHAP chay duoc tren may nay (python 3.9):
-  baro          BARO, FSE'24            -- code cua tac gia
-  nsigma        N-sigma baseline        -- code cua tac gia
-  circa         CIRCA, KDD'22           -- code cua tac gia
-  pc_randomwalk PC + Random Walk        -- code cua tac gia
+NAM PHUONG PHAP chay duoc tren may nay (python 3.9), tat ca la code cua tac gia.
+Cot HO phan loai theo CO CHE, vi co che moi la cai du doan duoc ai vo tren khung
+day du (xem phan CO CHE o duoi):
 
-Cac ham khac trong repo khong chay duoc o day, da ghi ro ly do:
-  e_diagnosis, ht      thieu goi `pyrca`
-  microcause, easyrca, cloudranger  thieu `pingouin`
-  *_pagerank, causalrca             thieu `sknetwork`
-  rcd                  causallearn khong tuong thich phien ban
+  phuong phap     ho                                 bai
+  baro            thong ke don bien (RobustScaler)   BARO
+  nsigma          thong ke don bien (StandardScaler) -- baseline, khong phai bai
+  circa           nhan qua DUA TREN RANG BUOC (PC + Fisher-z, roi RHT)   CIRCA
+  pc_randomwalk   nhan qua DUA TREN RANG BUOC (PC + Fisher-z)  -- khong phai bai
+  causalrca       nhan qua DUA TREN GRADIENT (Adam, 500 epoch, khong kiem dinh)  CausalRCA
+
+Cac ham khac KHONG dua vao, ly do da do lai ngay 2026-10-03 (ban ghi cu sai o 3 cho):
+
+  microcause, easyrca, cloudranger
+      KHONG phai thieu goi (`tigramite` da cai xong, khong phai `pingouin` nhu
+      ban ghi cu). Loai VI PHUONG PHAP LUAN: ca ba doi tham so `sli`, va trong
+      `main.py` cua RCAEval thi sli = f'{service}_latency' voi `service` lay tu
+      TEN THU MUC -- dung bien ma dong 577 dung lam `answer=Node(service, fault)`,
+      tuc DAP AN. Sau buoc rename `_latency-90`->`_latency` (dong 328) thi cot ay
+      luon ton tai nen nhanh ghi de luon chay. Ba phuong phap do dung sli lam diem
+      khoi dau random walk (`node_names.index(sli)`), tuc di tu dap an. Ngoai ra
+      sli la cot LATENCY nen khi lop boc chon tang cpu thi no khong ton tai -> che
+      do (1) khong the chay. Hai ly do doc lap, moi ly do du de loai.
+  rcd        causal-learn 0.1.4.8 da bo `SkeletonDiscovery.local_skeleton_discovery`;
+             RCD can env Python 3.8 rieng (repo co `requirements_rcd.lock`), ha
+             causal-learn se pha circa va pc_randomwalk.
+  e_diagnosis, ht      thieu `pyrca`. Luu y: hai ham NAP duoc nhung NEM khi goi --
+                       nap duoc khong bang chay duoc.
+  causalrca tren TT    chi phi: 342s/ca o che do (0) tren 61 cot (SockShop); TT co
+                       295 cot nen 90 ca la bat kha thi.
   run                  can CUDA
   mscred               NaN trong luc train
   tracerca, microrank  can du lieu trace dang khac ('methodName')
@@ -100,7 +119,8 @@ def nap_phuong_phap():
     for ten in ('nsigma',):
         if hasattr(e2e, ten):
             pp[ten] = getattr(e2e, ten)
-    for mod, ten in (('baro', 'baro'), ('circa', 'circa'), ('pc_randomwalk', 'pc_randomwalk')):
+    for mod, ten in (('baro', 'baro'), ('circa', 'circa'), ('pc_randomwalk', 'pc_randomwalk'),
+                     ('causalrca', 'causalrca')):
         try:
             m = importlib.import_module(f'RCAEval.e2e.{mod}')
             if hasattr(m, ten):
@@ -214,7 +234,35 @@ def main():
     ap.add_argument('--he', default=None, help='chi chay mot he (SockShop/OnlineBoutique/TrainTicket)')
     ap.add_argument('--pp', default=None, help='danh sach phuong phap, cach nhau bang dau phay')
     ap.add_argument('--ra', default='rq6_wrapper_rcaeval.csv')
+    ap.add_argument('--gioi-han', type=int, default=None, dest='gioi_han',
+                    help='toi da N ca MOI moi he -- de chay do ngan sach truoc khi chay that')
+    ap.add_argument('--chon', default=None,
+                    help='file liet ke "injected,fault,run" -- CHI lam cac ca do. Dung cho '
+                         'mau con phan tang khi chay du bo qua dat (xem rq6_mau_trainticket.txt).')
+    ap.add_argument('--chia', default=None,
+                    help='chia manh "i/n": chi lam ca co chi so %% n == i. MOI MANH PHAI CO '
+                         '--ra RIENG (nhieu tien trinh noi vao cung file se tranh nhau). '
+                         'Cac script phan tich deu nhan nhieu file nen gop lai o buoc doc.')
     a = ap.parse_args()
+
+    chon = None
+    if a.chon:
+        chon = set()
+        for ln in open(a.chon, encoding='utf-8'):
+            ln = ln.strip()
+            if not ln or ln.startswith('#'):
+                continue
+            p = [x.strip() for x in ln.split(',')]
+            assert len(p) == 3, f'dong sai dinh dang: {ln}'
+            chon.add(tuple(p))
+        print(f'[chon] {len(chon)} ca tu {os.path.basename(a.chon)}', flush=True)
+
+    manh = None
+    if a.chia:
+        i, _, nn = a.chia.partition('/')
+        manh = (int(i), int(nn))
+        assert 0 <= manh[0] < manh[1], '--chia phai la "i/n" voi 0 <= i < n'
+        print(f'[chia] manh {manh[0]}/{manh[1]}', flush=True)
 
     PP = nap_phuong_phap()
     if a.pp:
@@ -223,12 +271,53 @@ def main():
     assert PP, 'khong nap duoc phuong phap nao -- dat PYTHONPATH tro vao repo RCAEval'
 
     out_path = os.path.join(RES, a.ra)
-    rows, n_ca = [], 0
+
+    # RESUME. Ghi theo TUNG CA (noi tiep file) thay vi gom trong RAM roi ghi lai
+    # ca file moi 10 ca. Lan truoc mot tien trinh bi may ngu giua duong da lam mat
+    # tron mot ngay chay: 170 ca da tinh nhung chua kip ghi thi khong lay lai duoc,
+    # va chay lai thi bat dau tu 0 vi `rows` nam trong bo nho.
+    da_lam = set()
+    if os.path.exists(out_path):
+        try:
+            _cu = pd.read_csv(out_path)
+            da_lam = {(r.he, str(r.injected), str(r.fault), str(r.run), r.phuong_phap)
+                      for r in _cu.itertuples()}
+            print(f'[resume] {a.ra}: da co {len(_cu)} dong / {len(da_lam)} (ca,pp) -- bo qua',
+                  flush=True)
+        except Exception as e:
+            print(f'[resume] khong doc duoc file cu: {type(e).__name__} -- DUNG lai de khong ghi de',
+                  file=sys.stderr)
+            raise
+
+    def ghi(rs):
+        """Ghi ngay cac dong cua MOT ca, noi tiep file."""
+        if not rs:
+            return
+        moi_file = not os.path.exists(out_path)
+        pd.DataFrame(rs).to_csv(out_path, mode='w' if moi_file else 'a',
+                                header=moi_file, index=False)
+
+    n_ca = 0
     hes = [a.he] if a.he else list(SYS)
     for sysname in hes:
         g = call_graph(SYS[sysname]['graph'])
         desc = {s: nx.descendants(g, s) for s in g.nodes}
+        n_he, idx = 0, -1
         for inj, ft, run, draw, t in runs_of(sysname):
+            if chon is not None and (str(inj), str(ft), str(run)) not in chon:
+                continue
+            idx += 1
+            if manh is not None and idx % manh[1] != manh[0]:
+                continue
+            if a.gioi_han is not None and n_he >= a.gioi_han:
+                break
+            # bo qua (ca, phuong phap) da co. Doc du lieu van xay ra truoc buoc nay,
+            # nhung doc mot khung ton phan giay, con mot loi goi CIRCA tren TT ton
+            # tren 30 phut -- nen cho bo qua o day la du.
+            con_lai = {k: v for k, v in PP.items()
+                       if (sysname, str(inj), str(ft), str(run), k) not in da_lam}
+            if not con_lai:
+                continue
             d = lam_sach(draw)
             per = {la: v for la, v in ((la, dich_chuyen(d, t, la)) for la in LAYERS)
                    if len(v) >= 3}
@@ -242,8 +331,10 @@ def main():
             cot_tang = ['time'] + [c for c in d.columns if c.endswith('_' + la_chon)]
             dv = 'duong' if la_chon == 'latency-50' else 'node'
             n_ca += 1
+            n_he += 1
+            rows = []
 
-            for ten, fn in PP.items():
+            for ten, fn in con_lai.items():
                 xh0, fb0, s0 = goi(fn, d.copy(), t)
                 xh1, fb1, s1 = goi(fn, d[cot_tang].copy(), t)
 
@@ -273,12 +364,11 @@ def main():
                     M1_truc_tang=trung(xh1, 'node'),
                     M2_ca_hai_truc=trung(xh1, dv),
                     M0_t3=trung(xh0, 'node', 3), M2_t3=trung(xh1, dv, 3)))
-            if n_ca % 10 == 0:
-                pd.DataFrame(rows).to_csv(out_path, index=False)
-                print(f'  [{sysname}] {n_ca} ca xong, da ghi {len(rows)} dong', flush=True)
-    D = pd.DataFrame(rows)
-    D.to_csv(out_path, index=False)
-    print(f'\n{n_ca} ca | {len(D)} dong -> {out_path}', flush=True)
+            ghi(rows)
+            print(f'  [{sysname}] ca {n_ca} ({inj}/{ft}/{run}) tang={la_chon} '
+                  f'-> +{len(rows)} dong, {max(r["giay_0"] for r in rows):.1f}s cham nhat',
+                  flush=True)
+    print(f'\n{n_ca} ca MOI -> {out_path}', flush=True)
 
 
 if __name__ == '__main__':

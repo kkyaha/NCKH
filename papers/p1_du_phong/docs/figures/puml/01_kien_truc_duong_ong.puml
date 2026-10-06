@@ -1,0 +1,71 @@
+@startuml
+' MOTA: Đường ống 4 bước: yêu cầu ngôn ngữ tự nhiên -> 6 guard -> hai tầng -> phán quyết
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam rectangle {
+  BorderColor #888888
+  BackgroundColor #FBFBFB
+}
+title Đường ống dự phóng khả thi — từ yêu cầu đến phán quyết
+
+actor "Người dùng" as U
+rectangle "**BƯỚC 1 — ParserAgent**\n(src/agents/parser_agent.py)" as P #EAF3FB {
+  rectangle "LLM\n(hoặc luật, khi offline)" as LLM
+  rectangle "G1 cổng vào phải là gateway\nG2 Δ ∈ [5%, 50%]\nG3 |điều chỉnh| ≤ 10% so với anchor\nG4 dịch vụ phải tồn tại trong đồ thị\nG5 độ tương đồng < 0,6 → siết về 0\nG6 điểm scope-gate → ngoài phạm vi" as G #FFF4E5
+  LLM -down-> G
+}
+rectangle "**BƯỚC 2 — ArchitectureAgent**\nvùng ảnh hưởng từ đồ thị gọi" as A #EAF3FB
+rectangle "**BƯỚC 3 — TẦNG 1**\nGlobal Causal DAG 28 node (CapacityAgent)\ndự báo tài nguyên, biên dự phòng\n<i>→ sơ đồ 03a</i>" as T1 #E8F6EE
+rectangle "**BƯỚC 4 — TẦNG 2**\nFeasibilityPredictor — nan hoa 3 bước\nđiểm gãy R* và phán quyết SLO\n<i>→ sơ đồ 03b</i>" as T2 #E8F6EE
+rectangle "KHẢ THI / KHÔNG KHẢ THI\n+ node nghẽn + R*" as V #EFEAF7
+
+U --> P : "Khách muốn đăng nhập\nnhanh bằng một nút"
+G --> A : Δ đã qua guard,\ncore_services
+A --> T1 : vùng ảnh hưởng
+T1 --> T2 : mức sử dụng mỗi node
+T2 --> V
+
+note right of G
+  **Guard là phần đóng góp, không phải LLM** (nb02 §6c)
+  cùng LLM, cùng backend:
+  • có guard  → MAE **1,57** điểm %, 0% ảo tên dịch vụ
+  • không guard → MAE **844,61**, 91% ảo, Δ tới 49 980%
+  Truyền sai số thật vào phán quyết: mất **0,63 điểm**
+  độ đúng, chỉ **0,16%** ca nguy hiểm.
+end note
+
+note bottom of T2
+  SLO đóng băng tại Pha 0: p99 ≤ 0,25 s, lỗi ≤ 1%
+  u* = 0,8783 (hiệu chuẩn trên ramp cơ sở), biên 0,10
+  **``L_peak`` = tải NỀN đỉnh tại gateway, người dùng ghi tường minh.**
+  Bỏ trống → chỉ chạy TẦNG 1, hệ **từ chối phán quyết**.
+end note
+
+note as PHAN_BIET #FFF0F0
+  **⚠ Phân biệt HỆ THỐNG CHẠY với PIPELINE SINH SỐ CỦA BÀI**
+  ====
+  **Chạy thật** (``assess(text, L_peak)``): đi qua **CẢ HAI** —
+  BƯỚC 3 luôn chạy (cả fast bivariate *và* accurate DAG),
+  rồi BƯỚC 4 chạy nếu có ``L_peak``; verdict của TẦNG 2 thắng.
+  Ở đây ``scale = Δ_parser / anchor`` → phán quyết **phụ thuộc Δ
+  do Parser ước lượng** (hạn chế M5, đo ở nb02 §6c).
+
+  **Số P0–P3 trong bài** (``freeze_predictions.py``): gọi **trực tiếp**
+  ``FeasibilityPredictor``, **0 tham chiếu** tới orchestrator/CapacityAgent,
+  và dùng ``scale = 1.0`` (đúng anchor, Δ hoàn hảo).
+  → **BƯỚC 1–3 KHÔNG tham gia sinh ra con số nào của bài.**
+end note
+T1 .. PHAN_BIET
+T2 .. PHAN_BIET
+
+note as G0
+  **GIỚI HẠN G0 — một gateway, theo công thức.**
+  `GATEWAY = 'front-end'`, `rho_gateway = 1.0` cứng
+  (feasibility_predictor.py:44,111). Chưa chạy hệ khác.
+  ParserAgent/CapacityAgent phía TRƯỚC đã tổng quát hoá
+  (đa gateway, có lỗi đã bắt+sửa) — giới hạn chỉ ở TẦNG 2.
+end note
+T2 .. G0
+
+@enduml

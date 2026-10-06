@@ -65,25 +65,22 @@ Gom theo **vai trò**. Mỗi script có docstring đầy đủ ở đầu file �
 
 ## `edges/` — Chọn cạnh SCM & cơ chế (RQ4 Attribution)
 *Chọn cạnh phải học (backpressure, latency backprop) và so sánh lớp cơ chế.*
-- **`backpressure_edge_accuracy_test.py`** — KIEM DINH: Them canh backpressure (caller_cpu lam parent thu 2) co thuc su
-- **`backpressure_edge_ood_safety_test.py`** — AN TOAN NGOAI SUY: canh backpressure moi them vao capacity_agent.py::train_accurate_path
+> 9 script đã gộp vào 3 script dưới đây; bản gốc nguyên văn ở
+> [`papers/p1_du_phong/experiments/archive/`](../papers/p1_du_phong/experiments/archive/README.md)
+> cùng bảng đối chiếu chứng minh bản gộp tái lập đúng số.
+- **`canh_do_chinh_xac.py`** — Thêm parent có tăng độ chính xác trên dữ liệu GIỮ LẠI không? (`--che-do canh|da-cha|mem-socket`, `--he sockshop|trainticket`) — gộp 4 script
+- **`canh_an_toan_ngoai_suy.py`** — Cạnh backpressure có làm tăng số ca ĐỔI DẤU ở extreme delta không? (`--he`) — gộp 2 script
+- **`dang_co_che_doi_chung.py`** — Dạng hồi quy nào chính xác hơn trong DẢI TẢI THỰC TẾ? (`--co-che`, `--chia quantile|random`) — gộp 3 script
 - **`call_chain_neighbor_diagnostic.py`** — CHAN DOAN: Yeu to ngoai Workload nao giup giai thich phan du CPU (R2 am)?
 - **`callchain_from_logs_validation.py`** — KIEM CHUNG: callchain_from_logs.py mine dung services toi muc nao?
 - **`causil_latency_edge_ood_safety_trial.py`** — CAUSIL LATENCY EDGE -- PHA 4: OOD-SAFETY VALIDATION
 - **`causil_latency_edge_trial.py`** — CAUSIL LATENCY-BACKPROPAGATION EDGE -- FEASIBILITY TRIAL
 - **`generalized_covariate_selection.py`** — TONG QUAT HOA: tu dong chon covariate bo sung (khong con chan doan tay tung node)
-- **`log_transform_trial.py`** — THU NGHIEM CHAN DOAN: log-transform co sua duoc 4 node lech nang khong?
 - **`mechanism_decision_quality_trial.py`** — THU NGHIEM 2: Doi mechanism co thuc su cai thien CHAT LUONG QUYET DINH khong?
-- **`memsocket_edge_accuracy_test.py`** — KIEM DINH held-out (OOD Gold Standard, giong RQ1/backpressure_edge_accuracy_test.py)
-- **`nonlinear_mechanism_trial.py`** — THU NGHIEM: Co che hoi quy (mechanism) nao chinh xac hon trong DAI TAI THUC TE?
 - **`replace_vs_add_edge_test.py`** — KIEM DINH: "Thay canh" (shipping_workload -> orders_cpu) hay "Them canh" (giu ca 2)?
-- **`saturating_mechanism_trial.py`** — THU NGHIEM TIEP THEO (sau nonlinear_mechanism_trial.py): mo hinh BAO HOA CO THAM SO
 - **`scm_builder_final_measurement.py`** — DO LUONG CHOT: engine xay SCM tong quat (template + held-out + cache)
 - **`scm_mechanism_bakeoff.py`** — BAKE-OFF CHON CO CHE DU PHONG CHO SCM (Alibaba v2021)
 - **`select_scm_edges.py`** — TIEN TINH TOAN canh SCM (Tier 2.5 "backpressure") TU DONG, TU LOGS
-- **`tt_backpressure_edge_accuracy_test.py`** — TRAIN TICKET: kiem dinh canh backpressure (caller_cpu lam parent thu 2) tren
-- **`tt_backpressure_edge_ood_safety_test.py`** — TRAIN TICKET: an toan ngoai suy khi them 50 canh backpressure (gain>0.03) vao
-- **`tt_backpressure_multiparent_accuracy_test.py`** — SUA MOT KHOANG TRONG KIEM DINH: tt_backpressure_edge_accuracy_test.py danh gia
 
 ## `datasets/` — Bộ dữ liệu khác — Alibaba, Train Ticket, Online Boutique
 *Dùng để đối chứng ngoài Sock Shop.*
@@ -110,7 +107,7 @@ Gom theo **vai trò**. Mỗi script có docstring đầy đủ ở đầu file �
 - **`rq6_hop1_node_diagnostic.py`** — RQ6 diagnostic follow-up #2 — Why do ts-order-service_cpu and
 - **`rq6_hop_distance_diagnostic.py`** — RQ6 diagnostic follow-up — Does tier1_driven attribution accuracy degrade
 - **`rq6_propagation_path_diagnostic.py`** — RQ6 diagnostic follow-up #3 — Does the TRUE PROPAGATED signal (how much a
-- **`rq6_tier_decomposition.py`** — RQ6 (Part B) — Does Shapley Attribution Correctly Split Tier 1 vs Tier 2?
+- *(v1 đã vào [`p2_khop_tang/experiments/archive/`](../papers/p2_khop_tang/experiments/archive/README.md) — bị v2/v3 thay thế)*
 - **`rq6_tier_decomposition_v2.py`** — RQ6 (Part B, v2) — Corrected Tier-1 vs Tier-2 Shapley Decomposition
 - **`rq6_topology_check.py`** — RQ6 (Part A.3) — Does Shapley Attribution Respect Graph Topology?
 - **`rq7_interventional_validity.py`** — RQ7: Fault injection lam GROUND TRUTH cho mot CAN THIEP thuc su

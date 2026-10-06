@@ -9,7 +9,9 @@ tao vong lap import. capacity_agent.py import lai class nay tu day (giu
 nguyen ten, hanh vi khong doi).
 
 LUU Y: cac ban sao rieng trong experiments/evaluation_suite.py,
-experiments/select_scm_edges.py, experiments/backpressure_edge_ood_safety_test.py
+papers/p1_du_phong/experiments/edges/select_scm_edges.py,
+papers/p1_du_phong/experiments/archive/backpressure_edge_ood_safety_test.py
+(nay tham so hoa trong edges/canh_an_toan_ngoai_suy.py --he sockshop)
 la co y -- do la ha tang thuc nghiem sinh so lieu cho paper (RQ1/RQ4, cac
 guard test), KHONG duoc doi de tranh lam lech so lieu da cong bo (xem README
 "Vi sao tach vay"). Module nay CHI la nguon that cho code san pham

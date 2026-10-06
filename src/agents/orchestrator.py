@@ -25,10 +25,16 @@ VI SAO BEN TRONG VAN LA HAI NGAN XEP
   CapacityAgent hoc tu RCAEval fault-injection va da sinh ra cac so lieu DA CONG BO,
   nen duong kha thi duoc viet tach ra de khong cham vao no.
 
-  Do KHONG phai mot khac biet ve mo hinh. Da do: `rho_s` cua bo du doan kha thi tai tao
-  DUNG lan truyen Tier-1 cua CapacityAgent, lech <= 0.5% tren moi service -- chung la
-  mot mo hinh viet o hai dang. Hop nhat thanh hai tang la THIET KE MUC TIEU
-  (papers/p1_du_phong/docs/HE_THONG.md muc 2); chua ap vi se doi bo du doan sau khi da xem dap an.
+  Do KHONG phai mot khac biet ve mo hinh -- nhung phai phat bieu dung MUC NAO. Da do
+  (papers/p1_du_phong/experiments/feasibility/doi_chieu_hai_he.py, 456 hang SS-TRAIN):
+  `rho_s` cua bo du doan kha thi tai tao lan truyen Tier-1 cua CapacityAgent voi
+      lech <= 0,30% tren MUC SU DUNG u_s cua 5 node cham diem  <- dai luong vao PHAN QUYET
+      lech 0,00% tai nut nghen (front-end, goc cua ca hai cach tinh) -> phan quyet KHONG doi
+  O muc WORKLOAD thi lech lon hon nhieu (user 13,25%, payment/shipping 18,89%) vi chung co
+  cha Tier-1 khac gateway; nhung beta nho va u thap nen khong dich u. BAN TRUOC cua chu thich
+  nay ghi "lech <= 0,5% tren moi service" -- kiem duoc va SAI; da sua.
+  Hop nhat thanh hai tang la THIET KE MUC TIEU (papers/p1_du_phong/docs/HE_THONG.md muc 2);
+  chua ap vi se doi bo du doan sau khi da xem dap an.
 
 TU VUNG PHAN QUYET
   Ben trong, hai agent dung hai bo nhan khac nhau (`SAFE/WARNING/CRITICAL` va

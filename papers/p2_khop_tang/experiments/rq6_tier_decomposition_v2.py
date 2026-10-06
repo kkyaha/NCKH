@@ -2,7 +2,7 @@
 """
 RQ6 (Part B, v2) — Corrected Tier-1 vs Tier-2 Shapley Decomposition
 ========================================================================
-Follow-up to rq6_tier_decomposition.py (v1). v1's classify_contribs() only
+Follow-up to archive/rq6_tier_decomposition.py (v1; da chuyen vao archive/ vi bi v2/v3 thay the). v1's classify_contribs() only
 recognized two contributor kinds: any `*_workload` node (Tier 1) and the
 target's own key (Tier 2). It silently dropped a THIRD kind that now exists
 in the trained DAG: backpressure R->R edges (another service's own CPU as

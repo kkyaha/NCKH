@@ -1,0 +1,8 @@
+service,cham_diem,cha_tier1,rho_heB,beta,cores,lech_W_pct,u_heB,u_heA,lech_u_pct
+front-end,True,front-end,1.0,0.20712,0.5,0.0,0.3058,0.3058,0.0
+catalogue,True,front-end,0.57015,0.05477,0.5,0.0,0.0439,0.0439,0.0
+user,True,front-end;orders,0.32572,0.06735,0.2,13.25,0.0777,0.0774,0.301
+carts,True,front-end;orders,0.39481,0.17518,0.5,3.4,0.0966,0.0965,0.078
+orders,True,front-end,0.035,0.58041,0.5,0.0,0.0318,0.0318,0.0
+payment,False,orders,0.035,0.03065,0.1,18.89,0.0109,0.0109,0.062
+shipping,False,orders,0.035,0.09235,0.5,18.89,0.008,0.008,0.045

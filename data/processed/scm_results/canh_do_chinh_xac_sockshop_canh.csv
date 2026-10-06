@@ -1,0 +1,4 @@
+caller,callee,n_train,n_test,ty_le_duong,n_parent_them,ty_le_trong_dai,goc_mape,goc_rmse,goc_r2,goc_precision,goc_recall,goc_f1,them_mape,them_rmse,them_r2,them_precision,them_recall,them_f1,cong_dai_mape,cong_dai_rmse,cong_dai_r2,cong_dai_precision,cong_dai_recall,cong_dai_f1
+orders,shipping,2680,1320,0.173,1,1.0,68.54,0.7758,-0.0068,0.0,0.0,0.0,55.93,0.6545,0.2834,0.756,0.259,0.386,55.93,0.6545,0.2834,0.756,0.259,0.386
+orders,carts,2680,1320,0.152,1,0.999,60.2,1.58,-0.0283,0.0,0.0,0.0,48.57,1.5607,-0.0032,0.562,0.34,0.424,47.77,1.4049,0.187,0.562,0.34,0.424
+front-end,user,2680,1320,0.414,1,0.999,16.59,0.1666,-0.0537,0.47,0.229,0.308,16.32,0.1645,-0.0275,0.477,0.335,0.393,16.31,0.1645,-0.0275,0.477,0.335,0.393

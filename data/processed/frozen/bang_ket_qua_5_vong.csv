@@ -1,0 +1,9 @@
+nhom,tap,trang_thai,n_o,P1 (k=1) |sai so|%,P1 (k=1) nguy hiem,"P2 (c,x; k=1) |sai so|%","P2 (c,x; k=1) nguy hiem",P3 (k do duoc) |sai so|%,P3 (k do duoc) nguy hiem,P3+chain |sai so|%,P3+chain nguy hiem
+vong 1,dev,phat trien,4,37.62,3,14.38,1,15.33,1,15.33,1
+vong 2,khoa,held-out KHOA,4,9.6,1,2.75,0,2.75,0,2.75,0
+vong 3,doc lap,DOC LAP (agent viet),5,119.7,5,87.54,5,72.6,4,70.6,2
+vong 4,browse,TIEN CUU,2,10.0,0,14.0,0,14.0,0,14.0,0
+vong 5,tien cuu 2,TIEN CUU,12,23.88,5,13.09,2,12.89,2,10.98,0
+GOP 27 o,-,-,27,40.51,14,25.6,8,22.89,7,21.67,3
+GOP TIEN CUU (4+5),-,-,14,21.89,5,13.22,2,13.05,2,11.41,0
+GOP ngoai phat trien (2-5),-,-,23,41.02,11,27.56,7,24.2,6,22.77,2

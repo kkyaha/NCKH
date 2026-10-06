@@ -1,0 +1,49 @@
+@startuml
+' MOTA: Bậc thang bốn mô hình — và bằng chứng cho thấy nó sập xuống HAI nhóm
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Bốn biến thể dự đoán — dữ liệu chỉ phân biệt được **hai** nhóm
+
+skinparam rectangle {
+  BorderColor #888888
+}
+package "NHÓM 1 — không phân biệt được nhau" #F2F2F2 {
+  rectangle "**P0**\nchỉ cơ chế nền\nkhông mô hình chi phí tính năng\n91,32% / 288 quyết định" as P0 #FFFFFF
+  rectangle "**P1**\n+ cấu trúc chuỗi gọi\n91,67%" as P1 #FFFFFF
+  rectangle "**P1_ctrl**\nĐỐI CHỨNG: chuỗi gọi **hoán vị**\n91,32%" as PC #FFE8E8
+}
+package "NHÓM 2 — hơn nhóm 1 có ý nghĩa" #EFF7EF {
+  rectangle "**P2**\n+ chi phí tính năng\nc_s, x = 0,3685 (fit trên promo/recs)\n**94,79%**" as P2 #FFFFFF
+  rectangle "**P3**\n+ k **đo** bằng probing\nthay vì giả định k = 1\n97,24% (chỉ 145 quyết định)" as P3 #FFFFFF
+}
+
+P0 -right-> P1 : "287/288 giống hệt\n**p = 1,0**"
+P1 -right-> PC : "287/288 giống hệt\n**p = 1,0**"
+P1 -down-> P2 : "**9–0 trên cặp bất đồng**\n**p = 0,004**"
+P2 -right-> P3 : "141/145 giống hệt\nP2 +1 / P3 0\n**p = 1,0**"
+
+note bottom of PC
+  **Đối chứng làm đúng việc của nó.**
+  `P1_ctrl` cho phán quyết giống P0 trên
+  **288/288** quyết định → phần cấu trúc
+  thêm vào ở P1 KHÔNG tạo khác biệt.
+  Đây là phép kiểm có khả năng phủ định
+  đóng góp của chính mình, và nó đã phủ định.
+end note
+
+note bottom of P3
+  **Chi phí probing không được đền lại.**
+  Ở mức sai số req/s, P3 trông tốt hơn.
+  Ở mức quyết định mà hệ thống thực sự
+  đưa ra thì không (p = 1,0).
+  Lý do ở sơ đồ 06: probe tách được hai
+  tính năng, nhưng tách **ngược chiều**.
+end note
+
+note right of P2
+  **Đây là bậc duy nhất có bằng chứng.**
+  Khi trình bày, đừng vẽ P0→P1→P2→P3
+  như bốn mức cải thiện dần:
+  **3 trong 5** phép so sánh có p = 1,0.
+end note
+@enduml

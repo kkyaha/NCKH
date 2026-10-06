@@ -58,6 +58,7 @@ from data_processor import (
     METRICS
 )
 from queueing_regressor import QueueingLatencyRegressor
+from co_che_cong_dai import CoCheCongDai, chi_so_cha_workload
 from deterministic_forward import deterministic_forward
 from taxonomy_builder import load_graph, derive_primary_gateway
 from scm_graph_builder import build_scm_edges, DEFAULT_EDGE_TEMPLATES
@@ -311,7 +312,8 @@ class CapacityAgent:
 
                 # Ép dùng LinearRegression(positive=True) thay vì gcm.auto
                 # tự chọn — đồng bộ với Global DAG (train_accurate_path).
-                # Bằng chứng: experiments/nonlinear_mechanism_trial.py cho
+                # Bằng chứng: papers/p1_du_phong/experiments/archive/nonlinear_mechanism_trial.py
+                # (nay: edges/dang_co_che_doi_chung.py --co-che auto_gcm,linear_pos,hgbr_mono) cho
                 # thấy linear_pos thắng auto_gcm rõ rệt ở protocol quantile
                 # (MAPE 12.9% vs 20.8%, win 10/21 vs 4/21 cặp), đúng chế
                 # độ agent thực sự gọi model (new_wl = base*(1+delta%) —
@@ -507,11 +509,25 @@ class CapacityAgent:
         Sock Shop và Train Ticket (vd RQ6 Part A.3) không còn lệch nhau vì
         một confound về quy trình fit, chỉ còn lệch vì bản chất dữ liệu.
         """
+        n_cong = 0
         for node in g_sub.nodes():
             if node.endswith('_cpu') or node.endswith('_mem'):
+                # CONG THEO DAI khi node co CA cha workload LAN cha tai nguyen
+                # (canh Tier-2.5 `R->R`). Canh do duoc chung nhan boi giao thuc
+                # held-out (23/23 node) nhung BI BAC BO duoi can thiep: suy giam
+                # trung binh 1658,3 so voi 12,6 cua co che hai tang (n=1080,
+                # rq7_interventional_validity_cong_dai.csv), vi cha tai nguyen ra
+                # ngoai dai huan luyen o 74,7% hang duoi can thiep so voi 0,1% o
+                # held-out. Cong dua suy giam ve 12,58 ma KHONG mat cai thien
+                # held-out -- xem src/scm/co_che_cong_dai.py.
+                idx, n_cha = chi_so_cha_workload(g_sub, node)
+                if idx and len(idx) < n_cha:
+                    uoc = CoCheCongDai(idx_an_toan=idx)
+                    n_cong += 1
+                else:
+                    uoc = LinearRegression(positive=True)
                 model.set_causal_mechanism(
-                    node,
-                    AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True)))
+                    node, AdditiveNoiseModel(SklearnRegressionModel(uoc))
                 )
             elif node.endswith('_latency-50'):
                 model.set_causal_mechanism(
@@ -523,6 +539,9 @@ class CapacityAgent:
                     node,
                     AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True)))
                 )
+        if n_cong:
+            print(f"  [Co che] {n_cong} node tai nguyen dat CONG THEO DAI "
+                  f"(cha tai nguyen ra ngoai dai -> lui ve phuong trinh Tier-2)")
 
     def _build_extended_dag_fn(self, base_graph: nx.DiGraph, df_data: pd.DataFrame):
         """Trả về build_model_fn(df, extra_edges) -> (model, df_sub) dùng
@@ -935,6 +954,59 @@ class CapacityAgent:
                 violations.append(node)
         return violations
 
+    def _check_monotone_numeric(self, n_diem: int = 60, le: float = 1.5,
+                                dung_sai: float = 1e-9) -> List[Dict[str, Any]]:
+        """Kiem tien dieu kien (a) cua Menh de 2 BANG SO, khong qua he so.
+
+        Vi sao can them, khi da co `_check_monotone_precondition`: ham do chi doc
+        `coef_ >= 0`. Mot co che co the co MOI he so khong am ma VAN khong don dieu
+        -- vi du mot co che chuyen nhanh theo dieu kien. Da gap that: ban dau
+        `CoCheCongDai` duoc cai kieu "ngoai dai thi bo cha tai nguyen", co
+        `coef_ >= 0` nen qua duoc phep kiem he so, nhung du bao TUT 7,09 ngay tai
+        bien dai -- tuc pha dung tien dieu kien ma phep kiem do ton tai de bao ve.
+        (Da sua thanh KEP; xem src/scm/co_che_cong_dai.py.)
+
+        Phep kiem: voi moi node co cha, quet TUNG cha tu min den `le` x max tren du
+        lieu da fit, giu cac cha khac o trung vi, roi doi chieu du bao co don dieu
+        khong giam. Quet VUOT qua max vi Menh de 2 duoc danh gia tren
+        delta in [5%, 50%] -- vung ma cha ra ngoai dai hieu chuan la chuyen thuong.
+
+        Node `_latency-50` duoc bao cao RIENG: `QueueingLatencyRegressor` la
+        W/(C-W), don dieu CHI khi W < C -- dung tien dieu kien (b) cua Menh de 2,
+        khong phai (a). Vuot C thi no phan ky theo thiet ke, khong phai loi.
+
+        Tra ve danh sach vi pham, moi muc gom node, cha, cu tut lon nhat.
+        """
+        if getattr(self, 'global_df_baseline', None) is None:
+            return []
+        df = self.global_df_baseline
+        vi_pham = []
+        for node in self.dag_graph.nodes():
+            if self.dag_graph.in_degree(node) == 0 or node not in df.columns:
+                continue
+            cha = sorted(self.dag_graph.predecessors(node))
+            if not all(c in df.columns for c in cha):
+                continue
+            sk = self.global_dag_model.causal_mechanism(node).prediction_model.sklearn_model
+            goc = np.array([[float(df[c].median()) for c in cha]])
+            for i, c in enumerate(cha):
+                lo, hi = float(df[c].min()), float(df[c].max())
+                if not np.isfinite([lo, hi]).all() or hi <= lo:
+                    continue
+                X = np.repeat(goc, n_diem, axis=0)
+                X[:, i] = np.linspace(lo, hi * le if hi > 0 else hi, n_diem)
+                try:
+                    y = np.asarray(sk.predict(X), dtype=float).ravel()
+                except Exception:
+                    continue                      # co che khong nhan duoc khung nay
+                d = np.diff(y)
+                if (d < -dung_sai).any():
+                    vi_pham.append({
+                        'node': node, 'cha': c, 'cu_tut_lon_nhat': float(d.min()),
+                        'la_latency': node.endswith('_latency-50'),
+                    })
+        return vi_pham
+
     def certified_envelope(
         self,
         injection_service: str = None,
@@ -965,6 +1037,16 @@ class CapacityAgent:
                 f"Proposition 2 precondition violated (beta<0) at: {violations}. "
                 "Certificate withheld -- fix the mechanism before certifying."
             )
+        # Phep kiem BANG SO: bat duoc co che co he so khong am ma van khong don
+        # dieu (vd chuyen nhanh theo dieu kien) -- loai vi pham ma phep kiem he so
+        # tren KHONG thay. Node latency bo qua o day: chung chiu tien dieu kien (b).
+        so = [v for v in self._check_monotone_numeric() if not v['la_latency']]
+        if so:
+            raise RuntimeError(
+                f"Proposition 2 precondition violated NUMERICALLY (khong don dieu du "
+                f"he so khong am) at: {[(v['node'], v['cha'], round(v['cu_tut_lon_nhat'], 4)) for v in so]}. "
+                "Certificate withheld."
+            )
 
         if injection_service is None:
             injection_service = self.default_injection
@@ -976,6 +1058,23 @@ class CapacityAgent:
         w_lo = base_wl * (1.0 + delta_min_pct / 100.0)
         w_hi = base_wl * (1.0 + delta_max_pct / 100.0)
 
+        # TIEN DIEU KIEN (b) cua Menh de 2: Y_PA_j(delta) < c_j tren TOAN khoang.
+        #
+        # Kiem o DUNG HAI DAU mut la DU -- nhung chi vi (a) da duoc kiem o tren.
+        # (a) cho don dieu, nen max cua Y_PA_j tren [delta_min, delta_max] dat tai
+        # delta_max; hai lan quet tat dinh do dat hai bien la bao duoc ca khoang.
+        # PHU THUOC NAY LA THAT: neu (a) khong duoc kiem (hoac bi kiem bang mot
+        # dieu kien DU nhu `coef_ >= 0`, vi pham van lot -- xem
+        # _check_monotone_numeric), thi phep kiem hai dau mut KHONG con bao duoc
+        # khoang giua, va chung nhan co the duoc cap tren mot tien dieu kien da vo
+        # o giua khoang. Vi vay thu tu goi o ham nay la BAT BUOC: (a) truoc, (b) sau.
+        #
+        # Node vi pham nhan 'CEILING_BREACHED' thay vi mot khoang -- tu choi chung
+        # nhan RIENG node do. Can thiet vi QueueingLatencyRegressor TU KEP
+        # (`X_capped = min(X, capacity_*0.99)`), nen vuot tran no khong bao loi ma
+        # BAO HOA IM LANG -- du bao do tre phang ra, tuc danh gia THAP nguy co dung
+        # vung tai cao. Da kiem: tai delta_max = 50% khong node nao vi pham; tu 150%
+        # co 5 node latency bi tu choi, tu 600% ca 7/7.
         Y_lo, breached_lo = self._deterministic_forward(inj_col, w_lo)
         Y_hi, breached_hi = self._deterministic_forward(inj_col, w_hi)
         breached = set(breached_lo) | set(breached_hi)

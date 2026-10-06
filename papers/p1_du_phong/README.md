@@ -10,8 +10,52 @@ hậu nghiệm.
 
 | notebook | nội dung |
 |---|---|
-| **[`notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb`](notebooks/)** | làm sạch dữ liệu tự đo → dựng đồ thị nhân quả → bốn mô hình dự phóng → kết quả tiến cứu (91 ô) |
-| **[`notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb`](notebooks/)** | quy trình hệ thống chạy từng bước, chỉnh được, E0–E5 (39 ô) |
+| **[`notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb`](notebooks/)** | làm sạch dữ liệu tự đo → dựng đồ thị nhân quả → bốn mô hình dự phóng → kết quả tiến cứu → **B8: đánh giá mức phán quyết**, **B1.5: các tính năng thêm vào + sàn phân giải** (98 ô, chạy sạch 0 lỗi, có output) |
+| **[`notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb`](notebooks/)** | quy trình hệ thống chạy từng bước, chỉnh được, E0–E5, **6b: sàn nhiễu thật**, **6c: Δ do Parser dự đoán → phán quyết** (46 ô, chạy sạch 0 lỗi, có output) |
+
+> **Đọc hai mục này trước khi viện dẫn bất kỳ con số nào:**
+> [nb02 §6b](notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb) — năng lực *cơ sở* của cùng một
+> hệ thống trải **120–240 req/s** qua 16 phiên đo, và sàn nhiễu là 45,2% (qua phiên) chứ không phải
+> 21,4% (trong một phiên). [nb01 §B8](notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb) — ở mức
+> phán quyết, bậc thang bốn mức sập xuống **hai** nhóm: chỉ P1 → P2 có bằng chứng (9–0, p = 0,004);
+> `P1_ctrl` trùng P0 trên **288/288** quyết định và P3 không thắng P2 (p = 1,0).
+> [nb01 §B1.5](notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb) — **14/18 tính năng** nằm trong
+> nhóm có khai báo giống hệt nhau, nên mô hình dựa trên khai báo *buộc* phải dự đoán giống nhau cho
+> chúng; năng lực thật lệch tới **1,79 lần** bên trong một nhóm (`quickadd` 70 vs `wishlist` 125 req/s).
+> Probe cũng không cứu: `k` đo được khác **ngược chiều** (nhiều lời gọi hơn lại đi với năng lực cao hơn),
+> nên mọi mô hình đơn điệu theo số lời gọi — P2 hay P3 — xếp sai thứ tự hai cặp chặt nhất.
+> [nb02 §6c](notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb) — truyền **phân bố sai số thật**
+> của Parser (600 lượt) vào phán quyết: bản có guard mất **0,63 điểm** độ đúng so với Δ hoàn hảo và
+> chỉ 0,16% ca nguy hiểm, trong khi cùng LLM **không guard** cho MAE **844 điểm %**, 91% ảo tên dịch
+> vụ. Guard là phần đóng góp, không phải LLM; LLM hơn luật thuần 0,52 điểm độ đúng nhưng giảm ca
+> nguy hiểm **4 lần**. Δ vẫn chưa được thẩm định so với thực tế (hạn chế M5).
+>
+> Cả ba notebook chạy được bằng `nbclient` không cần Jupyter:
+> `python3 -c "import nbformat;from nbclient import NotebookClient;nb=nbformat.read(F,as_version=4);NotebookClient(nb,kernel_name='python3',resources={'metadata':{'path':D}}).execute()"`
+> Ô gọi LLM thật trong nb02 tự bỏ qua nếu thiếu `python-dotenv` / `GOOGLE_API_KEY`; phần còn lại không cần LLM.
+
+## Phạm vi — giả định một gateway (G0)
+
+Toàn bộ P0–P3 được xây **theo công thức** cho hệ có đúng một điểm vào (`GATEWAY = 'front-end'`,
+`src/scm/feasibility_predictor.py:44,111`) — chưa từng chạy trên hệ nào khác. ParserAgent và
+CapacityAgent (các lớp phía trên) đã tổng quát hoá sang đa gateway, kể cả một lỗi thật đã bắt
+và sửa; giới hạn chỉ nằm ở tầng dự đoán khả thi. Chi tiết: nb01 mục C1 (bảng G0–G4), sơ đồ
+[`01_kien_truc_duong_ong.puml`](docs/figures/puml/README.md).
+
+## Hai ngăn xếp — đọc trước khi trích số
+
+Bài 1 có **hai** mô hình, đừng lẫn:
+
+| | **hệ A** `CapacityAgent` | **hệ B** `FeasibilityPredictor` (P0–P3) |
+|---|---|---|
+| cấu trúc | DAG 28 node, 32 cạnh (sơ đồ `03a`) | nan hoa 3 bước, **0 cạnh service→service** (sơ đồ `03b`) |
+| dùng cho | RQ1–RQ4 | RQ5 — **mọi con số công bố** |
+| chạy thật `assess()` | **luôn** đi qua | chỉ khi có `L_peak` |
+| `freeze_predictions.py` | **0 tham chiếu** | chỉ dùng cái này |
+
+Hai hệ tương đương **ở mức `u`** (lệch ≤ 0,30%, **0,00%** tại nút nghẽn) nhưng **không** ở mức
+workload (`user` 13,25%) — đo bằng
+[`feasibility/doi_chieu_hai_he.py`](experiments/feasibility/doi_chieu_hai_he.py).
 
 ## Dữ liệu
 

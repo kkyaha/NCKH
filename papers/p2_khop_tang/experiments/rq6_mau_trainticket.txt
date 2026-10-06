@@ -1,0 +1,33 @@
+# Mau ngau nhien PHAN TANG theo loai loi cua TrainTicket, seed=20261004.
+# Dung cho circa/pc_randomwalk vi chay du 90 ca ton ~78 gio CPU.
+# Dinh dang: injected,fault,run
+ts-auth-service,cpu,1
+ts-auth-service,cpu,3
+ts-auth-service,disk,3
+ts-auth-service,loss,2
+ts-auth-service,mem,3
+ts-auth-service,socket,2
+ts-auth-service,socket,3
+ts-order-service,cpu,2
+ts-order-service,delay,1
+ts-order-service,delay,2
+ts-order-service,loss,1
+ts-order-service,loss,3
+ts-order-service,mem,1
+ts-order-service,mem,2
+ts-order-service,socket,1
+ts-route-service,cpu,1
+ts-route-service,delay,3
+ts-route-service,disk,1
+ts-route-service,disk,2
+ts-route-service,mem,1
+ts-train-service,delay,2
+ts-train-service,delay,3
+ts-train-service,disk,1
+ts-train-service,socket,2
+ts-travel-service,cpu,1
+ts-travel-service,disk,3
+ts-travel-service,loss,1
+ts-travel-service,loss,2
+ts-travel-service,mem,2
+ts-travel-service,socket,3

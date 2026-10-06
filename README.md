@@ -146,7 +146,7 @@ Dùng bảng này để đi từ 1 câu trong `paper_draft.tex` thẳng tới đ
 | Fix cuối (self-declare + HITL + bỏ fast-path), **số liệu chính thức trong paper** | `g6_scope_gate_hitl_test.py` | `g6_scope_gate_hitl_validation.csv` |
 | §"Post-Simulation Uncertainty" (G7) — sweep + đánh giá quy mô RQ3 | `g7_ood_guard_test.py` | `g7_ood_feasibility*.csv`, `g7_rq3_scale_evaluation.csv` |
 | §"General Specification" — path enumeration khớp `services` | (kiểm chứng thủ công bằng `networkx.all_simple_paths`, không có script riêng — xem lịch sử hội thoại) | — |
-| Nhánh XAI/attribution (RQ6 cũ, tạm gác) | `future_rca.py`, `rq6_attribution_validity.py`, `rq6_topology_check.py`, `rq6_tier_decomposition.py` | `rq6_*.csv`, `papers/p1_du_phong/docs/HE_THONG.md (muc 6)`, `papers/p2_khop_tang/docs/xai_attribution_paper_draft.tex` |
+| Nhánh XAI/attribution (RQ6 cũ, tạm gác) | `future_rca.py`, `rq6_attribution_validity.py`, `rq6_topology_check.py`, `rq6_tier_decomposition_v3.py` | `rq6_*.csv`, `papers/p1_du_phong/docs/HE_THONG.md (muc 6)`, `papers/p2_khop_tang/docs/xai_attribution_paper_draft.tex` |
 
 **Lưu ý về `g6_scope_gate_layerA_test.py` vs `g6_scope_gate_hitl_test.py`**: cả hai cùng kiểm chứng
 Scope Gate nhưng ở 2 thời điểm khác nhau. `layerA_test.py` gọi thẳng `_llm_full_parse()` (bỏ qua

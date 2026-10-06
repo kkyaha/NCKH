@@ -1,0 +1,88 @@
+@startuml
+' MOTA: HỆ B — FeasibilityPredictor (P0–P3): nan hoa 3 bước. ĐÂY là nơi sinh mọi số của bài.
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam rectangle {
+  BorderColor #888888
+}
+title HỆ B — ``FeasibilityPredictor`` (P0–P3): **nan hoa 3 bước**\n<size:11><i>mọi con số công bố của bài sinh từ đây. Đọc trực tiếp từ workloads()/cpu()/utilization()/verdict().</i></size>
+
+rectangle "**L** = ``L_peak``\ntải NỀN đỉnh tại gateway (req/s)\n**người dùng ghi tường minh** —\nkhông suy từ trung bình dữ liệu train" as L #FDE8E8
+
+package "7 service × W_s" #F0F6FB {
+  rectangle "W_front-end\nρ=1,000" as Wfe
+  rectangle "W_catalogue\nρ=0,570" as Wca
+  rectangle "W_carts\nρ=0,395" as Wcr
+  rectangle "W_user\nρ=0,326" as Wus
+  rectangle "W_orders\nρ=0,035" as Wor
+  rectangle "W_payment\nρ=0,035" as Wpa
+  rectangle "W_shipping\nρ=0,035" as Wsh
+}
+package "7 × cpu_s  →  u_s" #F0FBF4 {
+  rectangle "cpu_s = α_s + β_s·W_s\n**Linear ANM, NNLS, β ≥ 0**\n(R² ≥ 0,964 ở 5 node chấm điểm)" as CPU
+  rectangle "u_s = cpu_s / (100·cores_s)" as U
+}
+rectangle "**max** u_s trên **5** node chấm điểm\n(front-end, catalogue, user, carts, orders)\nso với **u\* = 0,8783**, biên 0,10" as V #EFEAF7
+rectangle "FEASIBLE / MARGINAL / INFEASIBLE\n+ nút nghẽn + **R\***" as OUT #EFEAF7
+
+L --> Wfe : ρ_s
+L --> Wca
+L --> Wcr
+L --> Wus
+L --> Wor
+L --> Wpa
+L --> Wsh
+Wfe --> CPU
+Wca --> CPU
+Wcr --> CPU
+Wus --> CPU
+Wor --> CPU
+Wpa --> CPU
+Wsh --> CPU
+CPU --> U
+U --> V
+V --> OUT
+
+note right of L
+  **KHÔNG có một cạnh service → service nào.**
+  Đây là hình **nan hoa** toả ra từ L, không phải
+  chuỗi lan truyền. Chuỗi gọi chỉ vào công thức
+  dưới dạng **hàm chỉ thị** ``1[s ∈ chain]``.
+  Độ sâu nhân quả = **3 bước**: L → W → cpu → u.
+
+  **Không** node latency, **không** node mem,
+  **không** node database. Chỉ CPU.
+  Đã đo: thêm ``carts-db`` → **0/27** dự đoán đổi.
+end note
+
+note bottom of OUT
+  **P0→P3 khác nhau DUY NHẤT ở cách tính W_s từ L:**
+  P0: ``ρ_s·L·(1+δ)``            — δ nhân đều mọi service
+  P1: ``L·(ρ_s + δ·k_s·1[s∈ch])``— δ chỉ vào service trong chuỗi
+  P2: như P1 nhưng ``× c_s``; gateway: ``L·(ρ + δ·(1 + x·Σk))``
+  P3: = P2, ``k`` **đo bằng probe** thay vì giả định k = 1
+
+  Bằng chứng (nb01 §B8, 288 cặp (ô, mức tải), McNemar ghép cặp):
+  **chỉ P1→P2 có ý nghĩa** (9–0, p = 0,004).
+  P1_ctrl ≡ P0 trên **288/288**. P2 vs P3: p = 1,0.
+end note
+
+note left of CPU
+  **Vì sao giữ Linear ANM, không dùng học máy:**
+  mô hình dựa trên cây KHÔNG ngoại suy được qua
+  phạm vi W đã thấy trong train → đánh giá **thấp**
+  nguy cơ ở vùng tải cao. Xem
+  ``edges/dang_co_che_doi_chung.py``.
+  β ≥ 0 là **tiền điều kiện đơn điệu** của Mệnh đề 2.
+end note
+
+note as SO_SANH
+  **So với HỆ A (sơ đồ 03a):** đã đo mượn Tier-1 của hệ A
+  sang đây làm **tệ đi 30,9% → 36,7%** (chuỗi taxonomy là
+  một *tập*, nên hệ số cạnh bắn nhầm).
+  Nhưng hai hệ tương đương **ở mức u**: lệch ≤ **0,30%**
+  trên 5 node chấm điểm, **0,00%** tại nút nghẽn
+  (``feasibility/doi_chieu_hai_he.py``).
+end note
+V .. SO_SANH
+@enduml

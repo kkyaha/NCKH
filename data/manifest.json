@@ -1,0 +1,716 @@
+{
+  "bo_du_lieu": {
+    "RE2-OB": {
+      "duong_dan": "data/raw/RE2-OB",
+      "vai_tro": [
+        "ngoài (benchmark / trace, không phải phép đo của bài 1)"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": false,
+      "tinh_nang": [],
+      "so_run": 0,
+      "ngay_do": "",
+      "dung_luong": "881M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {
+        "rq6_2x2_baro.csv": 90,
+        "rq6_cham_hang.csv": 90,
+        "rq6_dac_trung_cong.csv": 89,
+        "rq6_dich_chuyen_tang.csv": 89,
+        "rq6_dieu_kien_hang.csv": 89,
+        "rq6_do_nhay_khong_gian_con.csv": 90,
+        "rq6_doi_thang_trong_baro.csv": 90,
+        "rq6_gia_thiet_thua.csv": 90,
+        "rq6_layer_selection.csv": 270,
+        "rq6_layer_selection_per_run.csv": 90,
+        "rq6_matched_grid.csv": 3240,
+        "rq6_matched_grid_summary.csv": 72,
+        "rq6_mechanism_three_systems.csv": 13,
+        "rq6_mechanism_three_systems_nodes.csv": 10,
+        "rq6_pipeline_do_chat_duong.csv": 90,
+        "rq6_pipeline_hai_truc.csv": 90,
+        "rq6_rcaeval_metrics_layers.csv": 12,
+        "rq6_sua_thang_do.csv": 90,
+        "rq6_thang_du_lan_truyen.csv": 90,
+        "rq6_thang_suy_bien.csv": 180,
+        "rq6_tier_decomposition_v3.csv": 100,
+        "rq6_tier_decomposition_v3_nodes.csv": 10,
+        "rq6_uoc_luong_thang.csv": 90,
+        "rq6_vathang_baro.csv": 90,
+        "rq6_wrapper_rcaeval_cham.csv": 162,
+        "rq6_wrapper_rcaeval_nhanh.csv": 178,
+        "rq6_wrapper_rcaeval_v2_OnlineBoutique.csv": 356,
+        "rq6_wrapper_tren_baseline.csv": 180
+      }
+    },
+    "RE2-SS": {
+      "duong_dan": "data/raw/RE2-SS",
+      "vai_tro": [
+        "ngoài (benchmark / trace, không phải phép đo của bài 1)"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": false,
+      "tinh_nang": [],
+      "so_run": 0,
+      "ngay_do": "",
+      "dung_luong": "2.2G",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {
+        "_crca_done.csv": 9,
+        "rq6_2x2_baro.csv": 90,
+        "rq6_cham_hang.csv": 90,
+        "rq6_dac_trung_cong.csv": 89,
+        "rq6_dich_chuyen_tang.csv": 89,
+        "rq6_dieu_kien_hang.csv": 89,
+        "rq6_do_nhay_khong_gian_con.csv": 90,
+        "rq6_doi_thang_trong_baro.csv": 90,
+        "rq6_gia_thiet_thua.csv": 90,
+        "rq6_layer_selection.csv": 270,
+        "rq6_layer_selection_per_run.csv": 90,
+        "rq6_matched_grid.csv": 3240,
+        "rq6_matched_grid_summary.csv": 72,
+        "rq6_mechanism_three_systems.csv": 10,
+        "rq6_mechanism_three_systems_nodes.csv": 7,
+        "rq6_pipeline_do_chat_duong.csv": 90,
+        "rq6_pipeline_hai_truc.csv": 90,
+        "rq6_rcaeval_metrics_layers.csv": 12,
+        "rq6_sua_thang_do.csv": 90,
+        "rq6_thang_du_lan_truyen.csv": 90,
+        "rq6_thang_suy_bien.csv": 180,
+        "rq6_tier_decomposition_v3.csv": 70,
+        "rq6_tier_decomposition_v3_nodes.csv": 7,
+        "rq6_uoc_luong_thang.csv": 90,
+        "rq6_v3_causalrca_SS_m0.csv": 9,
+        "rq6_v3_causalrca_SS_m1.csv": 3,
+        "rq6_v3_causalrca_SS_m2.csv": 3,
+        "rq6_v4_causalrca_SS_m0.csv": 9,
+        "rq6_v4_causalrca_SS_m1.csv": 9,
+        "rq6_v4_causalrca_SS_m2.csv": 9,
+        "rq6_vathang_baro.csv": 90,
+        "rq6_wrapper_rcaeval_cham.csv": 178,
+        "rq6_wrapper_rcaeval_nhanh.csv": 178,
+        "rq6_wrapper_rcaeval_v2_SockShop.csv": 356,
+        "rq6_wrapper_tren_baseline.csv": 180
+      }
+    },
+    "SS-CALIBRATION": {
+      "duong_dan": "data/raw/SS-CALIBRATION",
+      "vai_tro": [
+        "hiệu chuẩn u*"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": false,
+      "tinh_nang": [],
+      "so_run": 0,
+      "ngay_do": "",
+      "dung_luong": "228K",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-LIMITS": {
+      "duong_dan": "data/raw/SS-LIMITS",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "dev (kiem tra khong hoi quy)",
+        "khoa (k~1 do duoc, ky vong khong doi)"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "promox1",
+        "promox2",
+        "recsx1",
+        "recsx2",
+        "reviewx1",
+        "reviewx2",
+        "trackx1",
+        "trackx2"
+      ],
+      "so_run": 21,
+      "ngay_do": "20260921",
+      "dung_luong": "1.2G",
+      "frozen_phu_thuoc": [
+        "predictions_frozen_RE2_P2.json",
+        "predictions_frozen_RE2_P2_indep.json",
+        "predictions_frozen_RE2_P2_prosp.json",
+        "predictions_frozen_RE2_P3_prosp_browse.json"
+      ],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2.json"
+      ],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-LIMITS-C1": {
+      "duong_dan": "data/raw/SS-LIMITS-C1",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": true,
+      "tinh_nang": [],
+      "so_run": 3,
+      "ngay_do": "20260921",
+      "dung_luong": "23M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-LIMITS-C2": {
+      "duong_dan": "data/raw/SS-LIMITS-C2",
+      "vai_tro": [
+        "đã đo, chưa vào kết quả nào"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": true,
+      "tinh_nang": [],
+      "so_run": 1,
+      "ngay_do": "20260921",
+      "dung_luong": "46M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-LIMITS-CLEAN": {
+      "duong_dan": "data/raw/SS-LIMITS-CLEAN",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "DOC LAP (chinh, du lieu SACH)",
+        "TIEN CUU (browse, du lieu SACH)"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "browsex1",
+        "browsex2",
+        "cartsumx1",
+        "cartsumx2",
+        "expressx1",
+        "expressx2",
+        "quickaddx1",
+        "quickaddx2"
+      ],
+      "so_run": 13,
+      "ngay_do": "20260922",
+      "dung_luong": "735M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_indep.json",
+        "predictions_frozen_RE2_P2_prosp.json",
+        "predictions_frozen_RE2_P3_prosp_browse.json"
+      ],
+      "o_nhap_nhang": [
+        "cartsumx1",
+        "cartsumx2",
+        "expressx1",
+        "expressx2",
+        "quickaddx1",
+        "quickaddx2"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-LIMITS-INDEP": {
+      "duong_dan": "data/raw/SS-LIMITS-INDEP",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "DOC LAP (chinh, du lieu SACH)"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "cartsumx1",
+        "cartsumx2",
+        "expressx1",
+        "expressx2",
+        "quickaddx1",
+        "quickaddx2"
+      ],
+      "so_run": 16,
+      "ngay_do": "20260922",
+      "dung_luong": "683M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_indep.json"
+      ],
+      "o_nhap_nhang": [
+        "cartsumx1",
+        "cartsumx2",
+        "expressx1",
+        "expressx2",
+        "quickaddx1",
+        "quickaddx2"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-LIMITS-PROSP": {
+      "duong_dan": "data/raw/SS-LIMITS-PROSP",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": true,
+      "tinh_nang": [],
+      "so_run": 1,
+      "ngay_do": "20260922",
+      "dung_luong": "58M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-LOADSWEEP": {
+      "duong_dan": "data/raw/SS-LOADSWEEP",
+      "vai_tro": [
+        "đã đo, chưa vào kết quả nào"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": false,
+      "tinh_nang": [],
+      "so_run": 0,
+      "ngay_do": "20260921",
+      "dung_luong": "272K",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-PROSP2": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-PROSP2",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "TIEN CUU 2"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "accountx1",
+        "catsearchx1",
+        "loginx1",
+        "loginx2",
+        "orderfullx1",
+        "orderhistx1",
+        "previewx1",
+        "registerx1",
+        "registerx2",
+        "relatedx1",
+        "reorderx1",
+        "wishlistx1"
+      ],
+      "so_run": 51,
+      "ngay_do": "20260925..20260926",
+      "dung_luong": "1.9G",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_prosp2.json",
+        "predictions_frozen_RE2_P2_prosp3.json",
+        "predictions_frozen_RE2_P2_prosp4.json",
+        "predictions_frozen_RE2_P3_prosp_account.json",
+        "predictions_frozen_RE2_P3_prosp_catsearch.json",
+        "predictions_frozen_RE2_P3_prosp_login.json",
+        "predictions_frozen_RE2_P3_prosp_orderfull.json",
+        "predictions_frozen_RE2_P3_prosp_orderhist.json",
+        "predictions_frozen_RE2_P3_prosp_preview.json",
+        "predictions_frozen_RE2_P3_prosp_register.json",
+        "predictions_frozen_RE2_P3_prosp_related.json",
+        "predictions_frozen_RE2_P3_prosp_reorder.json",
+        "predictions_frozen_RE2_P3_prosp_wishlist.json"
+      ],
+      "o_nhap_nhang": [
+        "accountx1",
+        "catsearchx1",
+        "loginx1",
+        "orderfullx1",
+        "orderhistx1",
+        "previewx1",
+        "registerx1",
+        "relatedx1",
+        "reorderx1",
+        "wishlistx1"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-PROSP2-R2": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-PROSP2-R2",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "TIEN CUU 2"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "accountx1",
+        "catsearchx1",
+        "loginx1",
+        "orderhistx1",
+        "previewx1",
+        "registerx1",
+        "relatedx1",
+        "wishlistx1"
+      ],
+      "so_run": 18,
+      "ngay_do": "20260926",
+      "dung_luong": "773M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_prosp2.json",
+        "predictions_frozen_RE2_P2_prosp3.json",
+        "predictions_frozen_RE2_P3_prosp_account.json",
+        "predictions_frozen_RE2_P3_prosp_catsearch.json",
+        "predictions_frozen_RE2_P3_prosp_login.json",
+        "predictions_frozen_RE2_P3_prosp_orderhist.json",
+        "predictions_frozen_RE2_P3_prosp_preview.json",
+        "predictions_frozen_RE2_P3_prosp_register.json",
+        "predictions_frozen_RE2_P3_prosp_related.json",
+        "predictions_frozen_RE2_P3_prosp_wishlist.json"
+      ],
+      "o_nhap_nhang": [
+        "accountx1",
+        "catsearchx1",
+        "loginx1",
+        "orderhistx1",
+        "previewx1",
+        "registerx1",
+        "relatedx1",
+        "wishlistx1"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-PROSP2-R3": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-PROSP2-R3",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "TIEN CUU 2"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "accountx1",
+        "catsearchx1",
+        "loginx1",
+        "orderhistx1",
+        "previewx1",
+        "registerx1",
+        "relatedx1",
+        "wishlistx1"
+      ],
+      "so_run": 18,
+      "ngay_do": "20260926",
+      "dung_luong": "381M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_prosp2.json",
+        "predictions_frozen_RE2_P2_prosp3.json",
+        "predictions_frozen_RE2_P3_prosp_account.json",
+        "predictions_frozen_RE2_P3_prosp_catsearch.json",
+        "predictions_frozen_RE2_P3_prosp_login.json",
+        "predictions_frozen_RE2_P3_prosp_orderhist.json",
+        "predictions_frozen_RE2_P3_prosp_preview.json",
+        "predictions_frozen_RE2_P3_prosp_register.json",
+        "predictions_frozen_RE2_P3_prosp_related.json",
+        "predictions_frozen_RE2_P3_prosp_wishlist.json"
+      ],
+      "o_nhap_nhang": [
+        "accountx1",
+        "catsearchx1",
+        "loginx1",
+        "orderhistx1",
+        "previewx1",
+        "registerx1",
+        "relatedx1",
+        "wishlistx1"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-PROSP4": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-PROSP4",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "TIEN CUU 2"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "orderfullx1",
+        "reorderx1"
+      ],
+      "so_run": 9,
+      "ngay_do": "20260925",
+      "dung_luong": "404M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_prosp4.json",
+        "predictions_frozen_RE2_P3_prosp_orderfull.json",
+        "predictions_frozen_RE2_P3_prosp_reorder.json"
+      ],
+      "o_nhap_nhang": [
+        "orderfullx1",
+        "reorderx1"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-PROSP4-CLEAN": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-PROSP4-CLEAN",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "TIEN CUU 2"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "orderfullx1",
+        "reorderx1"
+      ],
+      "so_run": 13,
+      "ngay_do": "20260925..20260926",
+      "dung_luong": "776M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_prosp4.json",
+        "predictions_frozen_RE2_P3_prosp_orderfull.json",
+        "predictions_frozen_RE2_P3_prosp_reorder.json"
+      ],
+      "o_nhap_nhang": [
+        "orderfullx1",
+        "reorderx1"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-PROSP4-OF": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-PROSP4-OF",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "TIEN CUU 2"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "orderfullx1"
+      ],
+      "so_run": 8,
+      "ngay_do": "20260926",
+      "dung_luong": "450M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_prosp4.json",
+        "predictions_frozen_RE2_P3_prosp_orderfull.json"
+      ],
+      "o_nhap_nhang": [
+        "orderfullx1"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-PROSP4-RE": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-PROSP4-RE",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [
+        "TIEN CUU 2"
+      ],
+      "co_ramp_base": true,
+      "tinh_nang": [
+        "reorderx1"
+      ],
+      "so_run": 2,
+      "ngay_do": "20260926",
+      "dung_luong": "81M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [
+        "predictions_frozen_RE2_P2_prosp4.json",
+        "predictions_frozen_RE2_P3_prosp_reorder.json"
+      ],
+      "o_nhap_nhang": [
+        "reorderx1"
+      ],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-VERIFY2": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-VERIFY2",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": true,
+      "tinh_nang": [],
+      "so_run": 2,
+      "ngay_do": "20260926",
+      "dung_luong": "91M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-VERIFY3": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-VERIFY3",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": true,
+      "tinh_nang": [],
+      "so_run": 2,
+      "ngay_do": "20260926",
+      "dung_luong": "92M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-PROSP2/SS-VERIFY4": {
+      "duong_dan": "data/raw/SS-PROSP2/SS-VERIFY4",
+      "vai_tro": [
+        "test"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": true,
+      "tinh_nang": [],
+      "so_run": 2,
+      "ngay_do": "20260926",
+      "dung_luong": "104M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-TRAIN": {
+      "duong_dan": "data/raw/SS-TRAIN",
+      "vai_tro": [
+        "train (xác minh bằng cơ chế)"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": false,
+      "tinh_nang": [],
+      "so_run": 0,
+      "ngay_do": "20260921",
+      "dung_luong": "431M",
+      "frozen_phu_thuoc": [
+        "predictions_frozen_RE2.json",
+        "predictions_frozen_RE2_P2.json",
+        "predictions_frozen_RE2_P2_indep.json",
+        "predictions_frozen_RE2_P2_prosp.json",
+        "predictions_frozen_RE2_P2_prosp2.json",
+        "predictions_frozen_RE2_P2_prosp3.json",
+        "predictions_frozen_RE2_P2_prosp4.json",
+        "predictions_frozen_RE2_P3_prosp_account.json",
+        "predictions_frozen_RE2_P3_prosp_browse.json",
+        "predictions_frozen_RE2_P3_prosp_catsearch.json",
+        "predictions_frozen_RE2_P3_prosp_login.json",
+        "predictions_frozen_RE2_P3_prosp_orderfull.json",
+        "predictions_frozen_RE2_P3_prosp_orderhist.json",
+        "predictions_frozen_RE2_P3_prosp_preview.json",
+        "predictions_frozen_RE2_P3_prosp_register.json",
+        "predictions_frozen_RE2_P3_prosp_related.json",
+        "predictions_frozen_RE2_P3_prosp_reorder.json",
+        "predictions_frozen_RE2_P3_prosp_wishlist.json"
+      ],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "SS-VERIFY": {
+      "duong_dan": "data/raw/SS-VERIFY",
+      "vai_tro": [
+        "đã đo, chưa vào kết quả nào"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": true,
+      "tinh_nang": [],
+      "so_run": 1,
+      "ngay_do": "20260922",
+      "dung_luong": "99M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {}
+    },
+    "alibaba": {
+      "duong_dan": "data/raw/alibaba",
+      "vai_tro": [
+        "ngoài (benchmark / trace, không phải phép đo của bài 1)"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": false,
+      "tinh_nang": [],
+      "so_run": 0,
+      "ngay_do": "",
+      "dung_luong": "18M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {
+        "alibaba_confounder_test.csv": 8000,
+        "alibaba_forecast_eval.csv": 51720,
+        "alibaba_latency_queueing_test.csv": 14400,
+        "alibaba_node_load_tier.csv": 35896,
+        "alibaba_per_instance_model_eval.csv": 17502,
+        "alibaba_signal_check.csv": 2586,
+        "alibaba_tier1_propagation.csv": 432,
+        "alibaba_workload_per_instance_test.csv": 1179
+      }
+    },
+    "trainticket": {
+      "duong_dan": "data/raw/trainticket",
+      "vai_tro": [
+        "ngoài (benchmark / trace, không phải phép đo của bài 1)"
+      ],
+      "tap_danh_gia": [],
+      "co_ramp_base": false,
+      "tinh_nang": [],
+      "so_run": 0,
+      "ngay_do": "",
+      "dung_luong": "81M",
+      "frozen_phu_thuoc": [],
+      "frozen_qua_o": [],
+      "o_nhap_nhang": [],
+      "ket_qua_bai_2": {
+        "rq6_2x2_baro.csv": 90,
+        "rq6_cham_hang.csv": 90,
+        "rq6_dac_trung_cong.csv": 90,
+        "rq6_dich_chuyen_tang.csv": 90,
+        "rq6_dieu_kien_hang.csv": 90,
+        "rq6_do_nhay_khong_gian_con.csv": 90,
+        "rq6_doi_thang_trong_baro.csv": 90,
+        "rq6_gia_thiet_thua.csv": 90,
+        "rq6_layer_selection.csv": 270,
+        "rq6_layer_selection_per_run.csv": 90,
+        "rq6_matched_grid.csv": 3240,
+        "rq6_matched_grid_summary.csv": 72,
+        "rq6_mechanism_three_systems.csv": 44,
+        "rq6_mechanism_three_systems_nodes.csv": 28,
+        "rq6_pipeline_do_chat_duong.csv": 90,
+        "rq6_pipeline_hai_truc.csv": 90,
+        "rq6_rcaeval_metrics_layers.csv": 12,
+        "rq6_sua_thang_do.csv": 90,
+        "rq6_thang_du_lan_truyen.csv": 90,
+        "rq6_thang_suy_bien.csv": 180,
+        "rq6_tier_decomposition_v3.csv": 280,
+        "rq6_tier_decomposition_v3_nodes.csv": 28,
+        "rq6_uoc_luong_thang.csv": 90,
+        "rq6_v3_TT_cham_m0.csv": 2,
+        "rq6_v4_TT_m0.csv": 2,
+        "rq6_vathang_baro.csv": 90,
+        "rq6_wrapper_rcaeval_nhanh.csv": 180,
+        "rq6_wrapper_rcaeval_v2_TrainTicket.csv": 182,
+        "rq6_wrapper_tren_baseline.csv": 180
+      }
+    }
+  },
+  "frozen_khong_khop_bo_nao": []
+}

@@ -98,7 +98,7 @@ def run_f1_rmse_benchmark():
             model = gcm.InvertibleStructuralCausalModel(g)
             # Dong bo voi capacity_agent.py::train_fast_path (production) va
             # build_and_train_global_dag (Global DAG): ep LinearRegression(positive=True)
-            # thay vi gcm.auto tu chon — thuc nghiem nonlinear_mechanism_trial.py cho
+            # thay vi gcm.auto tu chon — thuc nghiem edges/dang_co_che_doi_chung.py (truoc day nonlinear_mechanism_trial.py) cho
             # thay o dung protocol (train LOW -> test HIGH) linear_pos thang auto_gcm ro
             # ret (MAPE 12.9% vs 20.8%, win 10/21 vs 4/21 cap), va Section "Extrapolation-
             # Sign Failure Mode" cua paper claim rang buoc nay ap dung "uniformly" — truoc

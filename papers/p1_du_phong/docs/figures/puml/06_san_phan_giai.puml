@@ -1,0 +1,61 @@
+@startuml
+' MOTA: Sàn phân giải — chứng minh bất khả, không phải thiếu sót của mô hình
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+title Sàn phân giải — vì sao **không** mô hình nào dựa trên khai báo xếp đúng cặp này
+
+skinparam rectangle {
+  BorderColor #888888
+}
+package "MÔ HÌNH THẤY (miền xác định)" #F0F6FB {
+  rectangle "**quickadd**\narchetype: ADD_TO_CART\nchuỗi: front-end→catalogue→carts\nanchor Δ: 15%" as A #FFFFFF
+  rectangle "**wishlist**\narchetype: ADD_TO_CART\nchuỗi: front-end→catalogue→carts\nanchor Δ: 15%" as B #FFFFFF
+  rectangle "**MỘT** giá trị dự đoán" as PRED #E8E8E8
+  A -down-> PRED
+  B -down-> PRED
+}
+package "THỰC TẾ ĐO ĐƯỢC (đã chuẩn hoá theo phiên)" #FBF0F0 {
+  rectangle "quickadd\n**0,340** × năng lực cơ sở\ndải 0,32–0,36\nphiên: SS-LIMITS-CLEAN / -INDEP" as RA #FFFFFF
+  rectangle "wishlist\n**0,641** × năng lực cơ sở\ndải 0,57–0,79\nphiên: SS-PROSP2 / -R2 / -R3" as RB #FFFFFF
+}
+PRED -down-> RA
+PRED -down-> RB
+
+note right of PRED
+  **Cùng đầu vào thì BUỘC cùng đầu ra.**
+  Đây là tính chất của miền xác định,
+  không phải của chất lượng khớp tham số.
+
+  Nếu phải trả một giá trị cho cả cặp,
+  giá trị tối ưu là trung bình hình học
+  √(70·125) = 93,5 → **sai ≥ 33,6%**
+  ở **cả hai** phía. Đó là **sàn**:
+  không tham số nào hạ nó xuống.
+end note
+
+note bottom of RB
+  **Khoảng cách 1,89× , p = 0,0073, hai dải TÁCH RỜI.**
+  Chuẩn hoá theo năng lực cơ sở cùng phiên là bắt buộc
+  vì hai tính năng đo ở hai phiên khác nhau — và phép
+  chuẩn hoá làm khoảng cách **rộng ra** (1,79 → 1,89),
+  vì phiên đo quickadd có nền CAO hơn (190–220 so với 140–195).
+end note
+
+note bottom of RA
+  **Probe (P3) cũng không thoát ra được:**
+  lời gọi `carts`: quickadd **2,00** · wishlist **2,05**
+  → nhiều lời gọi hơn lại đi với năng lực CAO hơn.
+  Mọi mô hình đơn điệu theo số lời gọi xếp **sai thứ tự**.
+
+  **Cơ chế thật — số GHI, không phải số lời gọi:**
+  quickadd 1,00 POST (ghi vô điều kiện, từ `index.js`)
+  wishlist 0,05 POST (kiểm-rồi-thêm, từ probe)
+  → lệch **20 lần** về ghi, 2,5% về tổng lời gọi.
+
+  Nhưng tách đọc/ghi cũng **không đủ**: `promo` và
+  `quickadd` có ĐÚNG cùng (đọc 2, ghi 1) mà lệch **2,01×**
+  — khác nhau ở **dịch vụ đích** của lần ghi
+  (payment so với carts). Cấu trúc đó hiện **chưa định
+  danh được**: 8 quan sát ghi cho 5 dịch vụ.
+end note
+@enduml

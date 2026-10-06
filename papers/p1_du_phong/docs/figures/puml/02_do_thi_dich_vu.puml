@@ -1,0 +1,60 @@
+@startuml
+' MOTA: Đồ thị gọi thật của Sock Shop — 14 node, 15 cạnh, 5 node được tính điểm
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam componentStyle rectangle
+title Sock Shop — đồ thị gọi thật (src/graph/sockshop_agent_graph.json)
+
+skinparam rectangle {
+  BackgroundColor<<gateway>> #FDE8E8
+  BackgroundColor<<backend>> #E8F0FD
+  BackgroundColor<<db>> #F0F0F0
+  BackgroundColor<<mq>> #FFF9E0
+  BorderColor #888888
+}
+
+rectangle "front-end\n**0,5 core**\n<<gateway>>" <<gateway>> as fe
+rectangle "catalogue\n0,5 core" <<backend>> as cat
+rectangle "carts\n0,5 core" <<backend>> as carts
+rectangle "user\n**0,2 core**" <<backend>> as user
+rectangle "orders\n0,5 core" <<backend>> as ord
+rectangle "payment\n**0,1 core**" <<backend>> as pay
+rectangle "shipping\n0,5 core" <<backend>> as ship
+database "catalogue-db\nMySQL" <<db>> as cdb
+database "carts-db\nMongoDB" <<db>> as kdb
+database "orders-db\nMongoDB" <<db>> as odb
+database "user-db\nMongoDB" <<db>> as udb
+database "session-db" <<db>> as sdb
+queue "rabbitmq" <<mq>> as mq
+rectangle "queue-master" <<backend>> as qm
+
+fe --> sdb
+fe --> cat
+fe --> carts
+fe --> user
+fe --> ord
+cat --> cdb
+carts --> kdb
+user --> udb
+ord --> odb
+ord --> carts
+ord --> user
+ord --> pay
+ord --> ship
+ship --> mq
+qm --> mq
+
+note right of fe
+  **Node được tính điểm (5/7)**
+  front-end, catalogue, user, carts, orders
+  payment và shipping bị loại: mức sử dụng
+  đo được ~1%, R² cơ chế 0,81 / 0,47
+end note
+
+note bottom of kdb
+  **Các node database KHÔNG vào mô hình.**
+  Đã đo: thêm carts-db vào cơ chế làm **0/27**
+  dự đoán thay đổi — front-end chặn trước
+  1,8–5,7 lần ở mọi ô.
+end note
+@enduml

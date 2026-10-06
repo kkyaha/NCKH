@@ -56,7 +56,8 @@ but our evaluation of it. Call an evaluation \emph{admissible} for a claim when
 some outcome would refute it, \emph{vacuous} otherwise --- a property of the
 metric--claim pair, not of data volume. Five claims here are each certified by a
 vacuous evaluation --- ours and the literature's. Substituting admissible
-evaluations, two survived and three were refuted, three refutations landing on
+evaluations, two survived and three were refuted --- and a fourth refutation
+landed inside one of the survivors, so four of the five corrections fall on
 results we had reported ourselves. First survivor: task and prompts fixed,
 an open-weight $117$B generator cuts magnitude error $25{\times}$ yet leaves
 gateway misdirection at $92\%$, so a verifier sound for \emph{every} output is no
@@ -66,9 +67,18 @@ a defect violating the soundness proposition itself. And the standard RCA
 benchmark cannot support capacity evaluation at all: on it a gradient-boosted
 baseline outranks the deployed causal mechanism, an ordering reversing on a
 testbed where workload explains $99\%$ of CPU variance against $0.3\%$. It
-carries the second survivor: a graph-aware correction predicts an unbuilt
-feature's breaking load to $2.8\%$ on held-out requirements, yet requirements
-built by agents blind to our taxonomy break it by $+297\%$.
+carries the second survivor --- and that fourth refutation. Over eighteen
+requirements in five rounds --- fourteen written by agents blind to our taxonomy
+--- a graph-aware cost correction predicts an unbuilt feature's breaking load to
+$11.4\%$ mean error with \emph{zero} false-feasible verdicts across fourteen
+prospectively frozen cells, replicating on a fresh round
+($23.9\%{\to}13.1\%$) the gain first seen held-out ($9.6\%{\to}2.8\%$);
+independently built requirements still break the simpler models by $+297\%$. But
+scoring the decision the system issues rather than the breaking load it does not
+--- $288$ paired verdicts in place of $27$ error figures --- collapses a
+four-rung ladder to two: a control with the call chain permuted returns the
+identical verdict on all $288$ decisions as a predictor with no chain at all,
+refuting a structural step we had reported as contributing.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -160,7 +170,7 @@ propagation coefficient --- is read from telemetry that a component which does
 not yet exist cannot have produced. Answering that question would require
 discovering causal structure rather than estimating effects over structure
 assumed known, which is the assumption this work adopts from the outset
-(Section~\ref{sec:background}). All eight requirements evaluated in
+(Section~\ref{sec:background}). All eighteen requirements evaluated in
 Section~\ref{sec:rq6} respect this bound; none adds a service or an edge.
 
 Our main contributions are:
@@ -170,7 +180,7 @@ Our main contributions are:
     \item \textbf{Two refutations of guarantees that appear to hold.} The abstention layer's certifiable miss rate is set by the calibration size, not by the nominal level: at our sample two different $\alpha$ return the identical threshold, so the attainable bound is $4.5\%$ and the $\alpha=0.01$ we had used certifies nothing (Section~\ref{sec:rq2}). And a design proved sound can be implemented unsoundly in a way its own topology conceals: porting to a system with $14$ gateways rather than one exposed a hard-coded fallback that violates Proposition~\ref{prop:soundness}(iii), the invariant it exists to enforce (Section~\ref{sec:rq3}).
     \item \textbf{A benchmark-admissibility diagnosis, and a forecasting result gated by it.} A signal gate, a predictor-free baseline, and a permuted-workload negative control establish that RCA benchmarks cannot support capacity-forecasting evaluation at all ($R^2 = 0.003$ against $0.30$ on a production trace), which withdraws our earlier $2$--$4\%$ memory result --- a MAPE a constant predictor also attains. On data that does support the question, the deployed mechanism forecasts with positive skill in and out of distribution across $1{,}293$ services (Section~\ref{sec:rq4}).
     \item \textbf{A separation of the two causal commitments usually defended together.} Held-out accuracy is vacuous for interventional transfer --- an extension we validated on $23$ of $23$ eligible nodes degrades by $365$ MAPE points under real intervention. Under an interventional test the dependency graph earns its place ($85\%$ of edges) and the $do$-operator does not, for a structural reason we characterise and confirm in four independent tests: a requirement enters at the system boundary, so its intervention sits at a root node where truncated factorisation removes nothing (Section~\ref{sec:rq5}).
-    \item \textbf{The first ground truth for the feasibility of an unbuilt requirement over existing services, and what it exposes.} We redeploy the target system, implement eight requirements against six calibration archetypes --- four by us, four by agents blind to the taxonomy and to each other's results, all eight adding traffic over the deployed architecture without introducing a service or a call edge --- and step load until each measured deployment's SLO breaks. The graph-aware cost correction generalises to held-out requirements to $2.8\%$ mean breakpoint error, down from $9.6\%$ for the uniform-delta baseline it replaces. Against independently implemented requirements both degrade sharply (up to $+297\%$, a false-feasible verdict), which exposes an assumption --- one backend call per requirement per hop --- silently true in every requirement we had written ourselves; measuring the true call count with a load-free functional probe and feeding it back recovers most of the gap ($+136\%\to+21\%$ on the cell with the largest multiplicity correction) but not all of it, isolating a second, unmodelled queueing failure mode that breaks the SLO at under $65\%$ of the calibrated CPU ceiling. A fourth, genuinely prospective test --- predictions frozen before an agent blind to this entire result saw the requirement, load data collected only afterward --- lands within $14\%$ mean error and zero dangerous-direction misses (Section~\ref{sec:rq6}).
+    \item \textbf{The first ground truth for the feasibility of an unbuilt requirement over existing services, and what it exposes.} We redeploy the target system, implement \textbf{eighteen} requirements across \textbf{five rounds} against six calibration archetypes --- four by us, fourteen by agents blind to the taxonomy and to each other's results, all eighteen adding traffic over the deployed architecture without introducing a service or a call edge --- and step load until each measured deployment's SLO breaks, giving $27$ evaluated cells. The graph-aware cost correction generalises to held-out requirements to $2.8\%$ mean breakpoint error, down from $9.6\%$ for the uniform-delta baseline it replaces, and the gain replicates on a later prospective round of ten agent-written requirements ($23.9\%\to13.1\%$, twelve cells). Against independently implemented requirements both degrade sharply (up to $+297\%$, a false-feasible verdict), which exposes an assumption --- one backend call per requirement per hop --- silently true in every requirement we had written ourselves; measuring the true call count with a load-free functional probe and feeding it back recovers most of the gap ($+136\%\to+21\%$ on the cell with the largest multiplicity correction) but not all of it, isolating a second, unmodelled queueing failure mode that breaks the SLO at under $65\%$ of the calibrated CPU ceiling. Pooling the two genuinely prospective rounds --- predictions frozen before any agent blind to this result saw the requirement, load data collected only afterward, freeze order auditable from file timestamps --- the full model lands at $11.4\%$ mean error over fourteen cells with \emph{zero} dangerous-direction misses, against five such misses for the baseline it replaces (Section~\ref{sec:rq6}).
 \end{enumerate}
 
 % =========================================================
@@ -807,8 +817,9 @@ non-negative least squares and the ratio $\rho_s$ of each service's workload to 
 the unmodified request mix. \textsc{SS-Limits} applies the deployment's own published CPU quota
 (Sock Shop's \texttt{container-spec-cpu-quota}, not a value we chose) and steps load in $20\,$req/s
 increments until the SLO breaks ($\mathrm{p99}\le250\,$ms, error rate $\le1\%$, sustained over
-consecutive steps) to locate the breakpoint $R^{*}$ under a feature's added load. We implement eight
-features spanning six of the ten calibration archetypes, four written by us and four by agents given
+consecutive steps) to locate the breakpoint $R^{*}$ under a feature's added load. We implement eighteen
+features in five rounds, spanning six of the ten calibration archetypes, four written by us and
+fourteen by agents given
 only the natural-language requirement and the backend API surface --- never the taxonomy, the
 calibration table, or any prior result --- so that the call chain and its multiplicities are measured
 from code we did not write, the same logic that motivates RQ2's system transfer. RQ5 reports what this
@@ -902,8 +913,8 @@ infrastructure (Section~\ref{sec:setup}) rather than a different statistic.
 \textbf{RQ5}\newline Prospective\newline (\S\ref{sec:rq6})
 & The feasibility verdict for a requirement that does not yet exist is accurate once it is built.
 & Agreement with a simulated reference: no ground truth exists for an unbuilt requirement, so nothing the comparison returns can contradict the verdict.
-& Redeploy the system, implement eight requirements (four by agents blind to the taxonomy), freeze and hash each prediction before its load sweep, and step load to the measured SLO break.
-& Error not shrinking from the uniform-delta baseline; error shrinking only on data the model was fit on; or a verdict wrong in the dangerous direction. \\
+& Redeploy the system, implement eighteen requirements across five rounds (fourteen by agents blind to the taxonomy and to each other), freeze and hash each prediction before its load sweep, step load to the measured SLO break; score the \emph{verdict} at every grid load outside the measured ambiguity bracket, and include a chain-permuted control.
+& Error not shrinking from the uniform-delta baseline; error shrinking only on data the model was fit on; a verdict wrong in the dangerous direction; or the permuted-chain control matching the chain-aware model. \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1575,28 +1586,38 @@ any number:
     which it has already violated its SLO) is a false-feasible verdict and
     is reported as such, distinct from a conservative early prediction,
     because the two carry opposite engineering risk.
+    \item \textbf{A self-refutation obtained by scoring the decision rather than the quantity.} The breakpoint error above is inadmissible for the claim the system makes: the system issues a verdict at a stated load, and the breaking load it is scored against moves over $140$--$260\,$req/s on host state alone (Section~\ref{sec:drift-threat}), so no outcome separates model error from drift. Scoring instead every grid load outside the measured ambiguity bracket turns $27$ error figures into $288$ paired verdicts and admits matched tests. Under it the four-rung ladder collapses to two: a control with the call chain permuted to a same-size random chain issues \emph{the identical verdict on all $288$ decisions} as a predictor carrying no chain at all, and the chain-aware model differs from both on one decision ($p=1.0$) --- refuting a structural step we had ourselves reported as contributing. Only the per-service cost correction survives ($9$--$0$ on discordant pairs, $p=0.004$), halving the false-feasible rate from $8.0\%$ to $4.9\%$ (Section~\ref{sec:rq6-verdict}).
 \end{enumerate}
 
 \begin{table}[!t]
 \centering
 \caption{RQ5 breakpoint error $|R^{*}_{\text{pred}}-R^{*}_{\text{meas}}|/R^{*}_{\text{meas}}$,
-mean over cells. B4/P1 propagate the delta uniformly by workload share; P2 adds
-a per-service cost correction fit on development data only; P3 adds the
-measured call multiplicity $k_s$ (Section~\ref{sec:rq6-independent}). Held-out,
-independent and prospective features were never used to fit P2 or P3. Independent
-and prospective rows are from \textsc{SS-LIMITS-CLEAN}, a re-run of the load
-sweep on a machine state verified free of the long-session performance drift
-described in Section~\ref{sec:drift-threat} (development and held-out rows are
-unaffected by that drift and unchanged from the original sweep).}
+mean over cells; bracketed counts are cells predicted on the \emph{dangerous}
+(late) side, i.e.\ a false-feasible verdict. B4/P1 propagate the delta uniformly
+by workload share; P2 adds a per-service cost correction fit on development data
+only; P3 adds the measured call multiplicity $k_s$
+(Section~\ref{sec:rq6-independent}); P3+chain additionally replaces the taxonomy
+call chain with the probed one. Held-out, independent and prospective features
+were never used to fit P2 or P3. Independent and prospective rows are from
+\textsc{SS-LIMITS-CLEAN} and \textsc{SS-PROSP2}, load sweeps on a machine state
+verified free of the long-session performance drift described in
+Section~\ref{sec:drift-threat} (development and held-out rows are unaffected by
+that drift and unchanged from the original sweep). Pooled rows are means over
+cells, not means of the per-split means.}
 \label{tab:rq6-error}
-\begin{tabular}{lrrr}
+\begin{tabular}{lrrrr}
 \toprule
-Split ($n$ cells) & B4/P1 & P2 & P3 \\
+Split ($n$ cells) & B4/P1 & P2 & P3 & P3+chain \\
 \midrule
-Development (4, in-sample)   & $37.6\%$  & $14.4\%$  & $15.3\%$ \\
-Held-out (4)                 & $9.6\%$   & $\mathbf{2.8\%}$  & $2.8\%$ \\
-Independent implementation (5) & $119.7\%$ & $87.5\%$ & $\mathbf{72.6\%}$ \\
-Prospective (2, held to freeze order in Section~\ref{sec:rq6-prospective}) & $10.0\%$ & $14.0\%$ & $14.0\%$ \\
+Development (4, in-sample)     & $37.6\%$ [3] & $14.4\%$ [1] & $15.3\%$ [1] & $15.3\%$ [1] \\
+Held-out (4)                   & $9.6\%$ [1]  & $\mathbf{2.8\%}$ [0] & $2.8\%$ [0] & $2.8\%$ [0] \\
+Independent implementation (5) & $119.7\%$ [5] & $87.5\%$ [5] & $72.6\%$ [4] & $\mathbf{70.6\%}$ [2] \\
+Prospective~I (2)              & $10.0\%$ [0] & $14.0\%$ [0] & $14.0\%$ [0] & $14.0\%$ [0] \\
+Prospective~II (12)            & $23.9\%$ [5] & $13.1\%$ [2] & $12.9\%$ [2] & $\mathbf{11.0\%}$ [0] \\
+\midrule
+\emph{Pooled, prospective only} (14) & $21.9\%$ [5] & $13.2\%$ [2] & $13.1\%$ [2] & $\mathbf{11.4\%}$ [0] \\
+\emph{Pooled, all non-development} (23) & $41.0\%$ [11] & $27.6\%$ [7] & $24.2\%$ [6] & $\mathbf{22.8\%}$ [2] \\
+\emph{Pooled, all cells} (27)  & $40.5\%$ [14] & $25.6\%$ [8] & $22.9\%$ [7] & $\mathbf{21.7\%}$ [3] \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1669,7 +1690,7 @@ than a number downstream of it. We report it rather than absorb it into a
 further-tuned cost parameter: no cost correction fixes a mechanism the model
 does not have.
 
-\subsubsection{A fourth, genuinely prospective test}
+\subsubsection{A First Genuinely Prospective Round}
 \label{sec:rq6-prospective}
 Every result above is confirmatory in one sense: the independent-implementation
 finding was known before we built P3, so P3's own accuracy is not yet tested
@@ -1679,7 +1700,7 @@ before; have a fourth agent, blind to every prior result including this
 section, implement the requirement (\textsc{get\_catalogue}, a filtered
 product-browsing endpoint); \emph{then} probe the deployed code for $k_s$ and
 freeze the P3 prediction --- before running the load sweep that would reveal
-whether it is right. This agent's implementation is the one case across all
+whether it is right. This agent's implementation is the one case across the first
 four independently-written features whose measured call chain and
 multiplicity match the taxonomy exactly ($k_s=1$ on both services it touches),
 so P1, P2 and P3 coincide on this feature by construction; the test this cell
@@ -1694,17 +1715,139 @@ $14.0\%$ (Table~\ref{tab:rq6-error}), the smallest of any non-trivial split in
 this section, consistent with a feature whose implementation happens to match
 every assumption the mechanism makes.
 
+\subsubsection{A Second Prospective Round, at $n=12$}
+\label{sec:rq6-prospective2}
+The round above establishes the protocol but not statistical weight: two cells
+of one feature cannot separate a working pipeline from a lucky one. We therefore
+repeated it at scale. Ten further requirements were implemented by agents blind
+to this entire section and to each other
+(\textsc{login}, \textsc{register}, \textsc{wishlist}, \textsc{catsearch},
+\textsc{account}, \textsc{preview}, \textsc{orderhist}, \textsc{related},
+\textsc{orderfull}, \textsc{reorder}), giving twelve cells across two load
+multipliers. The freeze order of Section~\ref{sec:rq6-protocol} was enforced per
+cell and is independently auditable from file timestamps rather than from our
+own record: each prediction file precedes the first load sweep of its own
+dataset, by $11$--$12$ minutes in the two tightest cases and by four to
+twenty-one hours in the remaining five.
+
+Three results carry over from the smaller rounds and one does not. The
+per-service cost correction replicates: $23.9\%\to13.1\%$ from B4/P1 to P2
+(Table~\ref{tab:rq6-error}), an improvement of the same sign and comparable
+magnitude to the $9.6\%\to2.8\%$ of the held-out round, now on ten features
+written by four agents rather than two features written by us. The multiplicity
+correction again pays on exactly the cells where the taxonomy is wrong: on
+\textsc{reorder}, whose implementation issues two order-service calls per
+request against the taxonomy's one, error falls $65.3\%\to14.6\%\to-18.6\%$
+across B4/P1, P2 and P3, crossing from the dangerous side to the safe one.
+Replacing the taxonomy chain with the probed chain removes the last two
+dangerous cells: \textsc{login} and \textsc{register} at $2\times$ scale predict
+$162.2\,$req/s against a measured bracket of $125$--$155\,$req/s under P3, and
+$153.4\,$req/s --- inside the bracket --- under P3+chain. Across both
+prospective rounds the full model therefore predicts fourteen cells to
+$11.4\%$ mean error with \emph{zero} cells on the dangerous side
+(Table~\ref{tab:rq6-error}), against five such cells for the uniform-delta
+baseline it replaces.
+
+What does not carry over is the accuracy level. Prospective~II error
+($13.1\%$ under P2) is five times the held-out round's $2.8\%$, on a set four
+times larger. The held-out figure is the better-behaved number but the weaker
+claim: it is a mean over four cells of two features we wrote ourselves, and
+Section~\ref{sec:drift-threat} shows the no-feature breakpoint of the
+\emph{unmodified} system moving from $220$--$240$ to $140$--$160\,$req/s inside a
+single measurement session, and recovering to $240$--$260\,$req/s after a runtime
+restart --- a span wider than this error itself. We therefore report
+$11.4\%$ with zero dangerous misses over fourteen prospectively frozen cells as
+the result this section supports, and treat $2.8\%$ as what the correction
+achieves when the implementation happens to match the taxonomy exactly --- a
+condition we can now measure rather than assume, and which holds for one of
+the fourteen prospective cells.
+
+\begin{table}[!t]
+\centering
+\caption{RQ5 at the level of the decision the system actually issues. Each
+(cell, load) pair in the prediction grid is one verdict; pairs inside the
+measured ambiguity bracket $[lo,hi)$ are excluded, where ground truth is
+undefined. $P1_{\text{ctrl}}$ is $P1$ with the call chain permuted to a
+same-size random chain containing the gateway: a control that could have shown
+$P1$'s chain structure to matter. Comparisons are McNemar exact tests on
+discordant pairs; P3 is frozen for the prospective features only, so every
+comparison involving it runs on the smaller matched set.}
+\label{tab:rq6-verdict}
+\begin{tabular}{lrrr}
+\toprule
+Predictor & $n$ decisions & Correct & False-feasible \\
+\midrule
+B4/P0                   & $288$ & $91.3\%$ & $24$ ($8.3\%$) \\
+B4/P1                   & $288$ & $91.7\%$ & $23$ ($8.0\%$) \\
+$P1_{\text{ctrl}}$      & $288$ & $91.3\%$ & $24$ ($8.3\%$) \\
+P2                      & $288$ & $\mathbf{94.8\%}$ & $14$ ($4.9\%$) \\
+P3                      & $145$ & $\mathbf{97.2\%}$ & $\mathbf{2}$ ($1.4\%$) \\
+\midrule
+\multicolumn{4}{l}{\emph{Matched comparisons (McNemar exact)}} \\
+P0 vs $P1_{\text{ctrl}}$ & $288$ & identical on $288/288$ & --- \\
+P1 vs $P1_{\text{ctrl}}$ & $288$ & $1$ discordant & $p=1.0$ \\
+P1 vs P2                 & $288$ & $9$--$0$ for P2 & $\mathbf{p=0.004}$ \\
+P2 vs P3                 & $145$ & $1$--$0$ for P2 & $p=1.0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{The Same Models Under an Admissible Decision Metric}
+\label{sec:rq6-verdict}
+Breakpoint error is an inadmissible evaluation for the claim the system makes.
+The system does not output $R^{*}$; it outputs a verdict at a stated load, and
+Section~\ref{sec:drift-threat} measures $R^{*}$ for the \emph{unmodified} system
+spanning $140$--$260\,$req/s depending only on host state --- so an error of
+$11.4\%$ in $R^{*}$ cannot be separated from drift in the quantity being
+predicted, and a metric that cannot separate them admits no refuting outcome for
+a claim about the model. Substituting the decision the system issues gives an evaluation that
+can be refuted: for each cell, each load in the prediction grid outside the
+measured ambiguity bracket is one verdict, scored against the measured outcome.
+This raises $n$ from $27$ cells to $288$ paired decisions and permits matched
+tests (Table~\ref{tab:rq6-verdict}).
+
+Under it, the ladder collapses from four rungs to two. $P1_{\text{ctrl}}$ ---
+$P1$ with its call chain replaced by a same-size random chain --- issues
+\emph{the identical verdict on all $288$ decisions} as the chain-free $P0$,
+and $P1$ itself differs from both on one decision out of $288$ ($p=1.0$). The
+chain structure that distinguishes $P1$ from $P0$ is therefore inert at the
+level of the decision, which is a refutation of our own earlier presentation of
+$P1$ as a step in a monotone sequence. Only the per-service cost correction
+survives: P2 beats $P1$ on nine discordant pairs to zero ($p=0.004$) and halves
+the false-feasible rate from $8.0\%$ to $4.9\%$. The multiplicity correction is
+not distinguishable from P2 at this level ($1$--$0$, $p=1.0$) despite a lower
+false-feasible count ($1.4\%$ against $4.9\%$), because only one of $145$
+matched decisions is discordant --- the discordant-pair count, not the sample
+size, sets the power ceiling here, and we report the comparison as
+underpowered rather than as a null result.
+
 \subsubsection{Answer}
-The graph-aware correction earns its place twice: P2 generalises to held-out
-features to single-digit error (Section~\ref{sec:rq6-heldout}), and P3's
-multiplicity correction, fit on nothing more than a lightweight functional
-probe, recovers most of what an independent implementation costs the simpler
-models (Section~\ref{sec:rq6-independent}). Neither reaches a queueing effect
-that breaks the SLO at well under half the calibrated CPU ceiling
-(Section~\ref{sec:rq6-latency}): the feasibility verdict this paper's
-mechanism produces is accurate conditional on the bottleneck being CPU, and we
-now have the first measurement, rather than an assumption, of how often an
-independently implemented feature violates that condition.
+Across $27$ cells from eighteen requirements in five rounds, one commitment
+survives an evaluation able to reject it and one does not. The per-service cost
+correction survives on both axes: it cuts breakpoint error on every split that
+was not used to fit it ($9.6\%\to2.8\%$ held-out; $23.9\%\to13.1\%$ on twelve
+prospectively frozen cells), and at the level of the verdict the system actually
+issues it beats its predecessor nine discordant pairs to zero ($p=0.004$) while
+halving the false-feasible rate (Section~\ref{sec:rq6-verdict}). The call-chain
+structure does not survive: a control with the chain permuted issues the
+identical verdict on all $288$ decisions as a predictor with no chain at all,
+refuting our own earlier presentation of that structure as a contributing step.
+The multiplicity correction pays where the taxonomy is measurably wrong ---
+$65.3\%\to-18.6\%$ on \textsc{reorder}, and the elimination of the last two
+false-feasible cells once the probed chain replaces the taxonomy one --- but is
+not separable from P2 at the decision level on the $145$ matched decisions
+available, and we report that comparison as underpowered rather than null.
+
+Two limits bound all of it. Neither correction reaches a queueing effect that
+breaks the SLO at well under half the calibrated CPU ceiling
+(Section~\ref{sec:rq6-latency}): the verdict is accurate \emph{conditional} on
+the bottleneck being CPU, and we now have the first measurement, rather than an
+assumption, of how often an independently implemented feature violates that
+condition. And the headline figure to carry forward is the prospective one ---
+$11.4\%$ mean error with zero false-feasible cells over fourteen frozen cells
+--- not the $2.8\%$ of the held-out round, because
+Section~\ref{sec:drift-threat} measures the predicted quantity itself moving
+over a wider range than $2.8\%$ on host state alone.
 
 
 \section{Discussion and Threats to Validity}
@@ -2061,9 +2204,9 @@ instability is in that estimate, not in the proposition.
 The second survivor cost more to obtain, because the evaluation admitting it did
 not exist and had to be built. No public benchmark contains a requirement that
 was unbuilt when a prediction was made and measured after it was built, so we
-redeployed the target system and produced that data: eight requirements, four
-written by agents blind to our taxonomy and to each other, each carried to the
-load at which the running system's SLO actually broke. On requirements held out
+redeployed the target system and produced that data: eighteen requirements in
+five rounds, fourteen written by agents blind to our taxonomy and to each other,
+each carried to the load at which the running system's SLO actually broke. On requirements held out
 from every fitting decision, a cost correction that consults the call chain
 predicts the breaking load to $2.8\%$ mean error against $9.6\%$ for the
 uniform-delta baseline it replaces. The claim survives, but only inside a
