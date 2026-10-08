@@ -1,0 +1,54 @@
+@startuml
+' MOTA: Toàn hệ trên một trang — nửa DỰ ĐOÁN, nửa ĐO, và cái khoá nằm giữa
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam rectangle {
+  BorderColor #888888
+}
+skinparam package {
+  BorderColor #AAAAAA
+  FontStyle bold
+}
+title Toàn hệ trên một trang --- và **thứ tự** là điều quan trọng nhất
+
+rectangle "**Câu yêu cầu**\n\n\"khách muốn đăng nhập\nnhanh bằng một nút\"" as REQ #EAF3FB
+rectangle "**Hệ thật đang chạy**\n\nSock Shop\n--- chưa có tính năng đó" as SYS #F0F0F0
+
+package "NỬA DỰ ĐOÁN --- chạy trước, chưa được thấy đáp án" #F7FBFF {
+  rectangle "**1. Đường ống agent**\nđọc yêu cầu → vùng ảnh hưởng\n→ dự báo tài nguyên → phán quyết\n\n*chi tiết: hình 10, 11, 12*" as PIPE #EAF3FB
+  rectangle "**2. Mô hình tải → tài nguyên**\nhai ngăn xếp cho\nhai câu hỏi khác nhau\n\n*chi tiết: hình 20, 21, 22*" as MODEL #E8F6EE
+}
+
+rectangle "**NIÊM PHONG**\n\ndự đoán ghi ra file + hash\ncổng **không thể quay lui**\n\n*chi tiết: hình 32*" as SEAL #FFE8C8
+
+package "NỬA ĐO --- chạy sau, cho ra ĐÁP ÁN" #FFFBF5 {
+  rectangle "**3. Tính năng được viết thật**\nngười khác viết,\n**không biết gì** về mô hình" as FEAT #FBF0F6
+  rectangle "**4. Tăng tải tới khi vỡ SLO**\nloadgen + collector\n→ **điểm gãy thật**\n\n*chi tiết: hình 30, 31, 33*" as RAMP #FFF4E5
+}
+
+rectangle "**5. Đối chiếu**\n\ndự đoán **đã niêm phong**\nvs đáp án đo được" as CMP #EFEAF7
+rectangle "Sai số điểm gãy\n+ hướng nguy hiểm\n+ giới hạn không vượt được\n\n*chi tiết: hình 40*" as OUT #EFEAF7
+
+REQ --> PIPE
+SYS --> MODEL
+PIPE --> MODEL
+MODEL --> SEAL
+SEAL --> FEAT : **chỉ sau khi có hash**
+FEAT --> RAMP
+SEAL --> CMP
+RAMP --> CMP
+CMP --> OUT
+
+note right of SEAL
+  **Đây là trục của cả hệ, không phải một bước phụ.**
+  Đảo thứ tự hai nửa thì mọi con số vẫn tính ra được
+  --- nhưng chỉ còn là **hồi cứu**, thứ đã có thừa.
+end note
+
+note bottom of SYS
+  Hệ thật vừa là **nơi học** cơ chế tải → tài nguyên,
+  vừa là **nơi đo** đáp án. Hai việc đó dùng hai bộ
+  dữ liệu khác nhau và không được trộn.
+end note
+@enduml

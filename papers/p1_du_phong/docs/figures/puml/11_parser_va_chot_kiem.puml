@@ -1,0 +1,57 @@
+@startuml
+' MOTA: Khối 1.1 — ba lớp chốt kiểm quanh LLM, và cổng phạm vi ba kết cục
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam rectangle {
+  BorderColor #888888
+}
+skinparam package {
+  BorderColor #AAAAAA
+  FontStyle bold
+}
+title Khối 1.1 --- LLM đọc, nhưng **chốt kiểm** mới là thứ bảo đảm
+
+rectangle "Câu yêu cầu\nngôn ngữ tự nhiên" as IN #F0F0F0
+rectangle "**LLM**\nrút ra: dịch vụ nào,\ntăng bao nhiêu phần trăm" as LLM #FFF4E5
+
+package "Phép chiếu --- ba lớp, tất định" #F7FBFF {
+  rectangle "**Lớp 1 --- tên dịch vụ**\nchỉ giữ tên **có thật**\ntrong đồ thị" as L1 #EAF3FB
+  rectangle "**Lớp 2 --- cổng vào**\nđiểm tiêm phải là cổng vào;\nnếu không thì kéo về cổng vào" as L2 #EAF3FB
+  rectangle "**Lớp 3 --- chặn biên**\nmức tăng bị **kẹp**\nvào dải cho phép" as L3 #EAF3FB
+}
+
+rectangle "Can thiệp hợp lệ" as OK #E8F6EE
+rectangle "**Cổng phạm vi**\nyêu cầu này có\nthuộc hệ không?" as GATE #FFE8C8
+rectangle "ĐẠT" as G1 #E8F6EE
+rectangle "CẦN NGƯỜI\nXEM LẠI" as G2 #FFF4E5
+rectangle "TỪ CHỐI" as G3 #FDE8E8
+
+IN --> LLM
+LLM --> L1
+L1 --> L2
+L2 --> L3
+L3 --> OK
+IN --> GATE
+GATE --> G1
+GATE --> G2
+GATE --> G3
+
+note right of L3
+  **Ba lớp này là đóng góp, không phải LLM.**
+  Cùng một LLM, bỏ chốt kiểm thì sai số tăng
+  **hơn 500 lần** và 9/10 lần nó bịa ra tên
+  dịch vụ không tồn tại.
+  ====
+  Chốt kiểm là **hàm toàn phần**: nó đúng với
+  *mọi* đầu ra của LLM, không chỉ với những
+  đầu ra tình cờ thấy lúc kiểm thử.
+end note
+
+note bottom of G2
+  **Ô giữa là phần quan trọng.**
+  Chỉ có đạt/từ chối thì hệ buộc phải đoán ở
+  vùng ranh giới. Thêm ô "cần người xem lại"
+  để nó **nói không biết** thay vì đoán.
+end note
+@enduml

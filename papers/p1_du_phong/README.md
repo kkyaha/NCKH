@@ -40,7 +40,8 @@ Toàn bộ P0–P3 được xây **theo công thức** cho hệ có đúng một
 `src/scm/feasibility_predictor.py:44,111`) — chưa từng chạy trên hệ nào khác. ParserAgent và
 CapacityAgent (các lớp phía trên) đã tổng quát hoá sang đa gateway, kể cả một lỗi thật đã bắt
 và sửa; giới hạn chỉ nằm ở tầng dự đoán khả thi. Chi tiết: nb01 mục C1 (bảng G0–G4), sơ đồ
-[`01_kien_truc_duong_ong.puml`](docs/figures/puml/README.md).
+[`00_tong_quan.puml`](docs/figures/puml/README.md) (hình tổng quan toàn hệ; từ đó
+đi sâu vào từng khối).
 
 ## Hai ngăn xếp — đọc trước khi trích số
 

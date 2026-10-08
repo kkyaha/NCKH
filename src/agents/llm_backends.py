@@ -149,15 +149,15 @@ def get_llm(backend: str, temperature: float = 0.2, max_retries: int = 0):
     if provider == 'google':
         from langchain_google_genai import ChatGoogleGenerativeAI
         return ChatGoogleGenerativeAI(model=model, temperature=temperature,
-                                      max_retries=max_retries)
+                                      max_retries=max_retries, timeout=30.0)
     if provider == 'openai':
         from langchain_openai import ChatOpenAI
         return ChatOpenAI(model=model, temperature=temperature,
-                          max_retries=max_retries)
+                          max_retries=max_retries, request_timeout=30.0)
     if provider == 'groq':
         from langchain_groq import ChatGroq
         return ChatGroq(model=model, temperature=temperature,
-                        max_retries=max_retries)
+                        max_retries=max_retries, request_timeout=30.0)
     raise ValueError(f"Provider khong ho tro: {provider}")
 
 

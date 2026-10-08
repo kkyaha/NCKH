@@ -1,60 +1,50 @@
 @startuml
-' MOTA: Đồ thị gọi thật của Sock Shop — 14 node, 15 cạnh, 5 node được tính điểm
+' MOTA: Khối 4 — hệ thống được đo, và vì sao chỉ 5 trong 14 thành phần vào mô hình
 skinparam defaultFontName Helvetica
 skinparam shadowing false
 skinparam componentStyle rectangle
-title Sock Shop — đồ thị gọi thật (src/graph/sockshop_agent_graph.json)
+title Hệ được đo --- và **cái gì vào mô hình**
 
 skinparam rectangle {
-  BackgroundColor<<gateway>> #FDE8E8
-  BackgroundColor<<backend>> #E8F0FD
-  BackgroundColor<<db>> #F0F0F0
-  BackgroundColor<<mq>> #FFF9E0
+  BackgroundColor<<vao>> #E8F0FD
+  BackgroundColor<<ra>> #F0F0F0
   BorderColor #888888
 }
 
-rectangle "front-end\n**0,5 core**\n<<gateway>>" <<gateway>> as fe
-rectangle "catalogue\n0,5 core" <<backend>> as cat
-rectangle "carts\n0,5 core" <<backend>> as carts
-rectangle "user\n**0,2 core**" <<backend>> as user
-rectangle "orders\n0,5 core" <<backend>> as ord
-rectangle "payment\n**0,1 core**" <<backend>> as pay
-rectangle "shipping\n0,5 core" <<backend>> as ship
-database "catalogue-db\nMySQL" <<db>> as cdb
-database "carts-db\nMongoDB" <<db>> as kdb
-database "orders-db\nMongoDB" <<db>> as odb
-database "user-db\nMongoDB" <<db>> as udb
-database "session-db" <<db>> as sdb
-queue "rabbitmq" <<mq>> as mq
-rectangle "queue-master" <<backend>> as qm
+rectangle "**front-end**\ncổng vào duy nhất\nnhận **100%** request" <<vao>> as fe
+rectangle "catalogue" <<vao>> as cat
+rectangle "carts" <<vao>> as carts
+rectangle "user" <<vao>> as user
+rectangle "orders" <<vao>> as ord
+rectangle "payment\n*không vào mô hình*" <<ra>> as pay
+rectangle "shipping\n*không vào mô hình*" <<ra>> as ship
+database "5 database\n*không vào mô hình*" <<ra>> as db
+queue "hàng đợi + worker\n*không vào mô hình*" <<ra>> as mq
 
-fe --> sdb
 fe --> cat
 fe --> carts
 fe --> user
 fe --> ord
-cat --> cdb
-carts --> kdb
-user --> udb
-ord --> odb
 ord --> carts
 ord --> user
 ord --> pay
 ord --> ship
+cat --> db
+carts --> db
 ship --> mq
-qm --> mq
 
 note right of fe
-  **Node được tính điểm (5/7)**
-  front-end, catalogue, user, carts, orders
-  payment và shipping bị loại: mức sử dụng
-  đo được ~1%, R² cơ chế 0,81 / 0,47
+  **front-end luôn là chỗ nghẽn.**
+  Nó nhận toàn bộ request mà hạn mức CPU
+  bằng các dịch vụ khác, nên nó căng
+  **gấp 3 lần** dịch vụ căng thứ hai.
+  Đúng với **mọi** phép đo đã làm.
 end note
 
-note bottom of kdb
-  **Các node database KHÔNG vào mô hình.**
-  Đã đo: thêm carts-db vào cơ chế làm **0/27**
-  dự đoán thay đổi — front-end chặn trước
-  1,8–5,7 lần ở mọi ô.
+note bottom of db
+  **Vì sao loại 9 thành phần:**
+  • database và hàng đợi: không đo được riêng, và nằm ngoài đường request
+  • payment, shipping: chỉ **3,5%** request chạm tới, mức dùng CPU ~**1-2%**
+  → chúng không bao giờ là chỗ nghẽn, dù mô hình có đúng hay không
 end note
 @enduml

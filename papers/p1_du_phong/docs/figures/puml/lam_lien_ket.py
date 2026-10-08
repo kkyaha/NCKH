@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 """Sinh lien ket render cho moi tep .puml trong thu muc nay.
 
-Vi sao can: may nay khong co plantuml.jar. PlantUML cho phep nhung ca so do vao
-URL -- deflate raw roi ma hoa base64 voi bang chu rieng. Ma hoa duoc lam HOAN
-TOAN cuc bo, khong goi mang; chi khi mo lien ket moi can mang.
+Vi sao can: may nay khong co JRE (`/usr/bin/java` chi la stub cua macOS), nen
+khong render offline duoc. PlantUML cho phep nhung ca so do vao URL -- deflate raw
+roi ma hoa base64 voi bang chu rieng. Ma hoa lam HOAN TOAN cuc bo, khong goi mang;
+chi khi mo lien ket (hoac khi dung co --kiem) moi can mang.
 
-Chay:  python papers/p1_du_phong/docs/figures/puml/lam_lien_ket.py
-Ra:    README.md trong cung thu muc, moi so do mot dong kem lien ket png + svg.
+NGUYEN TAC CHO MOI SO DO: mot y chinh, doc duoc tu cuoi phong. Khong p-value,
+khong ten co che, khong so node tren hinh -- nhung thu do de tra loi khi BI HOI,
+cho vao HE_THONG.md. Tren hinh chi giu con so nao TU NO la lap luan.
+Da do: ban dau 5/7 so do "qua nang" (03a: 45 con so, 595 tu) -- khong dung duoc.
 
-Muon render offline: tai plantuml.jar roi
-    java -jar plantuml.jar -tsvg papers/p1_du_phong/docs/figures/puml/*.puml
+Chay:  python papers/p1_du_phong/docs/figures/puml/lam_lien_ket.py [--kiem]
+Ra:    README.md trong cung thu muc.
+
+Render offline (can JRE): java -jar plantuml.jar -tsvg <thu muc nay>/*.puml
 """
 import glob
 import os
@@ -21,14 +26,14 @@ BANG = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'
 
 
 def _ba(b1, b2, b3):
-    """3 byte -> 4 ky tu, dung bang chu rieng cua PlantUML (khong phai base64 chuan)."""
+    """3 byte -> 4 ky tu, bang chu RIENG cua PlantUML (khong phai base64 chuan)."""
     c1, c2 = b1 >> 2, ((b1 & 0x3) << 4) | (b2 >> 4)
     c3, c4 = ((b2 & 0xF) << 2) | (b3 >> 6), b3 & 0x3F
     return ''.join(BANG[c & 0x3F] for c in (c1, c2, c3, c4))
 
 
 def ma_hoa(van_ban):
-    """deflate raw (wbits am = khong co header zlib) roi ma hoa theo khoi 3 byte."""
+    """deflate raw (wbits am = khong header zlib) roi ma hoa theo khoi 3 byte."""
     n = zlib.compressobj(9, zlib.DEFLATED, -15)
     d = n.compress(van_ban.encode('utf-8')) + n.flush()
     return ''.join(_ba(d[i], d[i + 1] if i + 1 < len(d) else 0,
@@ -38,11 +43,10 @@ def ma_hoa(van_ban):
 def kiem_cu_phap(url):
     """Hoi server PlantUML xem cu phap co loi khong -- CAN MANG.
 
-    Vi sao can: may nay khong co JRE (`/usr/bin/java` chi la stub cua macOS), nen
-    khong render offline duoc. Server tra ve HTTP 200 kem mot ANH LOI khi cu phap
-    sai, nhung dat header `X-PlantUML-Diagram-Error` -- doc header la biet.
-    Phep kiem nay da bat duoc loi that: `skinparam rectangle {A B}` viet mot dong
-    khong hop le, 4/6 so do ban dau bi loi ma lien ket van sinh ra binh thuong.
+    Server tra HTTP 200 kem mot ANH LOI khi cu phap sai, nhung dat header
+    `X-PlantUML-Diagram-Error`. Phep kiem nay da bat duoc loi that:
+    `skinparam rectangle {A B}` viet mot dong khong hop le, 4/6 so do ban dau bi
+    loi ma lien ket van sinh ra binh thuong.
     """
     try:
         r = subprocess.run(['curl', '-sS', '-m', '30', '-D', '-', '-o', os.devnull, url],
@@ -55,29 +59,44 @@ def kiem_cu_phap(url):
     return None if not loi else f"dong {h.get('x-plantuml-diagram-error-line', '?')}: {loi}"
 
 
-def main():
-    kiem = '--kiem' in sys.argv
-    thu_muc = os.path.dirname(os.path.abspath(__file__))
-    dong = ['# Sơ đồ PlantUML — hệ thống dự phóng khả thi', '',
-            'Sinh liên kết: `python papers/p1_du_phong/docs/figures/puml/lam_lien_ket.py`.',
-            'Mã hoá cục bộ (deflate + bảng base64 riêng của PlantUML), **không** gọi mạng khi sinh.',
-            'Render offline: `java -jar plantuml.jar -tsvg <thư mục này>/*.puml` (máy này **chưa có JRE**).',
-            'Kiểm cú pháp: thêm cờ `--kiem` (cần mạng; đọc header `X-PlantUML-Diagram-Error`).', '',
-            '| sơ đồ | nội dung | xem |', '|---|---|---|']
-    for p in sorted(glob.glob(os.path.join(thu_muc, '*.puml'))):
+def mo_ta_cua(t):
+    """Dong `' MOTA: ...` o dau tep."""
+    for l in t.split('\n'):
+        if l.startswith("' MOTA:"):
+            return l.split('MOTA:', 1)[1].strip()
+    return ''
+
+
+def hang_bang(tep, kiem):
+    out = []
+    for p in tep:
         t = open(p, encoding='utf-8').read()
-        mo_ta = next((l.split('@', 1)[0].lstrip("' ").strip()
-                      for l in t.split('\n') if l.startswith("' MOTA:")), '')
-        mo_ta = mo_ta.replace('MOTA:', '').strip()
         m = ma_hoa(t)
         if kiem:
             loi = kiem_cu_phap(f'https://www.plantuml.com/plantuml/png/{m}')
-            print(f'  {os.path.basename(p):34s} ' + (f'LOI {loi}' if loi else 'cu phap OK'))
-        dong.append(f'| `{os.path.basename(p)}` | {mo_ta} | '
-                    f'[png](https://www.plantuml.com/plantuml/png/{m}) · '
-                    f'[svg](https://www.plantuml.com/plantuml/svg/{m}) |')
+            print(f'  {os.path.basename(p):36s} ' + (f'LOI {loi}' if loi else 'cu phap OK'))
+        out.append(f'| `{os.path.basename(p)}` | {mo_ta_cua(t)} | '
+                   f'[png](https://www.plantuml.com/plantuml/png/{m}) · '
+                   f'[svg](https://www.plantuml.com/plantuml/svg/{m}) |')
+    return out
+
+
+def main():
+    kiem = '--kiem' in sys.argv
+    thu_muc = os.path.dirname(os.path.abspath(__file__))
+    tep = sorted(glob.glob(os.path.join(thu_muc, '*.puml')))
+    dong = ['# Sơ đồ PlantUML — hệ thống dự phóng khả thi', '',
+            '> Sinh liên kết: `python papers/p1_du_phong/docs/figures/puml/lam_lien_ket.py`.',
+            '> Mã hoá cục bộ (deflate + bảng base64 riêng của PlantUML), **không** gọi mạng khi sinh.',
+            '> Kiểm cú pháp: thêm cờ `--kiem` (cần mạng; đọc header `X-PlantUML-Diagram-Error`).',
+            '> Render offline cần JRE — máy này **chưa có**:',
+            '> `java -jar plantuml.jar -tsvg <thư mục này>/*.puml`.', '',
+            'Mỗi hình mang **một** ý và đọc được từ cuối phòng. Số liệu đầy đủ, p-value và tên',
+            'cơ chế nằm ở `docs/HE_THONG.md` và các notebook — để trả lời khi bị hỏi, không lên hình.',
+            '', '| sơ đồ | nội dung | xem |', '|---|---|---|']
+    dong += hang_bang(tep, kiem)
     open(os.path.join(thu_muc, 'README.md'), 'w', encoding='utf-8').write('\n'.join(dong) + '\n')
-    print(f'{len(dong) - 8} so do -> {os.path.join(thu_muc, "README.md")}')
+    print(f'{len(tep)} so do -> README.md')
 
 
 if __name__ == '__main__':

@@ -1,0 +1,35 @@
+@startuml
+' MOTA: Khối 1.2 — vùng ảnh hưởng là phép duyệt đồ thị, và cái bẫy im lặng của nó
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam rectangle {
+  BorderColor #888888
+}
+title Khối 1.2 --- vùng ảnh hưởng: **duyệt đồ thị**, không phải suy luận
+
+rectangle "**Điểm tiêm**\n= cổng vào" as G #FFE8C8
+rectangle "dịch vụ cách **1 bước** gọi" as H1 #EAF3FB
+rectangle "dịch vụ cách **2 bước** gọi" as H2 #EAF3FB
+rectangle "ngoài vùng\n--- **không** cộng tải" as OUT #F0F0F0
+
+G --> H1
+H1 --> H2
+H2 ..> OUT : dừng ở biên đồ thị
+
+note right of H2
+  Tất định, không tham số, **không đánh giá bằng số**.
+  Nó chỉ trả lời *dịch vụ nào* bị chạm tới;
+  còn *bao nhiêu* là việc của khối 2.
+end note
+
+note bottom of OUT
+  **Cái bẫy im lặng --- đã gặp thật.**
+  Bảng số liệu gọi cổng vào là một tên, đồ thị gọi
+  nó một tên khác → cổng vào bị **loại khỏi đồ thị**
+  mà hệ vẫn chạy trọn và vẫn in "đã khớp xong".
+  ====
+  Đã thêm chốt cảnh báo. **Kiểm tên dịch vụ giữa
+  đồ thị và bảng số liệu mỗi khi thêm một hệ mới.**
+end note
+@enduml

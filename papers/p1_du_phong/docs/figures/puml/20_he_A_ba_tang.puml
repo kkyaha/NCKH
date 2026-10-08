@@ -1,81 +1,36 @@
 @startuml
-' MOTA: HỆ A — DAG 28 node của CapacityAgent (RQ1–RQ4). KHÔNG phải nơi sinh số P0–P3.
+' MOTA: Khối 2 — ba tầng đồ thị nhân quả, và cạnh duy nhất phải học từ dữ liệu
 skinparam defaultFontName Helvetica
 skinparam shadowing false
-title HỆ A — ``CapacityAgent``: DAG nhân quả 28 node, **34 cạnh**\n<size:11><i>dùng cho RQ1–RQ4. Số P0–P3 của bài KHÔNG đi qua đây — xem sơ đồ 03b.</i></size>
-
 skinparam rectangle {
   BorderColor #888888
 }
-rectangle "**TẦNG 1** — lan truyền tải\nworkload → workload (inter-service)\n`tier1_workload_propagation`, learned=False" as T1 #E8F6EE
-rectangle "**TẦNG 2** — tải → tài nguyên\nworkload → cpu | mem | latency-50 (intra)\n`tier2_cpu`, `tier2_mem`, `tier2_latency`, learned=False" as T2 #E8F6EE
-rectangle "**TẦNG 2.5** — cạnh HỌC được\ncpu → cpu (xuôi)  ·  latency-50 → latency-50 (ngược)\n`cpu_backpressure`, `latency_backprop_causil`, learned=True" as T25 #FFF4E5
+title Đồ thị nhân quả: cạnh **biết trước** và cạnh **phải học**
+
+rectangle "**Tầng 1** — tải lan truyền\ndịch vụ gọi dịch vụ\n\n*biết trước từ sơ đồ gọi*" as T1 #E8F6EE
+rectangle "**Tầng 2** — tải sinh tài nguyên\ntải của một dịch vụ → CPU của chính nó\n\n*biết trước*" as T2 #E8F6EE
+rectangle "**Tầng 2.5** — dịch vụ này nghẽn\nlàm dịch vụ kia nghẽn theo\n\n*phải HỌC từ dữ liệu*" as T25 #FFF4E5
 
 T1 -down-> T2
 T2 -down-> T25
 
-rectangle "Cơ chế mỗi node tài nguyên" as M #EAF3FB {
-  rectangle "**Linear ANM, β ≥ 0** (NNLS)\ncpu_s = α_s + β_s · W_s\nW_s = ρ_s · L  (định luật dòng cưỡng bức)\nu_s = cpu_s / (100 · cores_s)" as ANM
-  rectangle "**QueueingLatencyRegressor**\nW / (C − W)  — xấp xỉ M/M/1\n(chỉ cho node độ trễ)" as Q
-}
-T2 -right-> M
-
-note bottom of T25
-  **Bốn pha chọn cạnh học (scm_edge_selector.py)**
-  1 sinh ứng viên từ đồ thị gọi
-  2 chấm điểm R² trên dữ liệu **GIỮ LẠI**
-  3 knee-point trên gain, ngưỡng tối thiểu 0,01
-  4 kiểm an toàn OOD (phải fit lại DAG hai lần mỗi ứng viên)
-
-  **3/8 ứng viên sống sót** (n = 63 486 hàng):
-  orders_cpu → shipping_cpu   R² 0,0008 → 0,1511  (**gain 0,1502**)
-  orders_cpu → carts_cpu      R² 0,0020 → 0,0802  (**gain 0,0783**)
-  front-end_cpu → user_cpu    R² 0,0215 → 0,0616  (**gain 0,0401**)
-
-  **5 cạnh bị loại**: orders→user 0,0188 · front-end→orders 0,0116
-  front-end→carts 0,0101 · front-end→catalogue 0,0000 · orders→payment 0,0000
-
-  **latency_backprop_causil: 8 ứng viên → 2 qua cổng**
-  ``carts_latency-50 → orders_latency-50``
-  ``carts_latency-50 → front-end_latency-50``
-
-  ⚠ ``sockshop_scm_edges.json`` chỉ có **3** cạnh vì nó là sản phẩm của
-  một lần chạy **chỉ với** ``metric: cpu`` — nó chưa bao giờ xét ứng viên
-  latency. Lúc chạy thật, cạnh được **tính lại** qua ``build_scm_edges()``
-  và nạp từ cache ``scm_cache/scm_edges_55011c51*.json``, báo cáo ghi
-  3 cpu + 2 latency = **5 cạnh học được**. Khởi tạo CapacityAgent xác nhận:
-  ``DAG 28 nodes (34 edges)``.
+note right of T25
+  **Cách chọn cạnh phải học:** sinh mọi cạnh ứng viên
+  từ sơ đồ gọi, chấm điểm trên **dữ liệu giữ lại**,
+  rồi thử xem nó có hỏng khi tải vượt dải đã thấy không.
+  Trong 16 ứng viên, **5 cạnh** sống sót.
 end note
 
 note bottom of T25 #FFF0F0
-  **CỔNG THEO DẢI — bắt buộc cho cạnh ``R → R``**
+  **Nhưng cạnh học được này từng là một cái bẫy.**
+  Trên dữ liệu giữ lại, nó cải thiện **23/23** node — nên đã được dùng.
+  Khi hệ bị **can thiệp thật**, nó sai **gấp hơn 100 lần**.
   ====
-  Cạnh backpressure được giao thức held-out **chứng nhận**
-  (cải thiện 23/23 node) nhưng bị phép kiểm **can thiệp bác bỏ**:
-
-  | | suy giảm MAPE TB | xấu nhất |
-  |---|---|---|
-  | hai tầng ``R_B ~ W_B`` | 12,6 | 3 239 |
-  | ``R_B ~ R_A`` không cổng | **1 658,3** | **438 101** |
-  | ``R_B ~ R_A`` **có cổng** | **12,58** | 3 237 |
-
-  (n = 1 080 quan sát fault-injection)
-
-  Nguyên nhân đã định vị: cha **tài nguyên** ra ngoài dải huấn luyện ở
-  **74,7%** hàng dưới can thiệp, nhưng chỉ **0,1%** ở held-out — nên
-  giao thức held-out gần như **không bao giờ** tạo ra điều kiện làm
-  tuyên bố sai. Phép vá: ngoài dải thì lùi về phương trình Tier-2.
-  Ngưỡng = min/max của tập fit, **không phải tham số mới**.
-
-  Đã cài: ``src/scm/co_che_cong_dai.py``,
-  dùng ở ``capacity_agent.py`` (báo ``3 node đặt CỔNG THEO DẢI``).
-end note
-
-note right of ANM
-  **Vì sao β ≥ 0 không thương lượng được:**
-  nó là tiền điều kiện đơn điệu của Mệnh đề 2
-  (Bao an toàn chứng nhận). Mọi ứng viên cơ chế
-  đều phải thoả trước khi được đem ra đo —
-  xem `edges/dang_co_che_doi_chung.py`.
+  Lý do: nó dựa vào CPU của dịch vụ khác, mà dưới can thiệp
+  giá trị đó **ra ngoài dải từng thấy** ở 3/4 số trường hợp —
+  còn trên dữ liệu giữ lại thì gần như không bao giờ.
+  ====
+  **Cách sửa:** ra ngoài dải thì **kẹp** lại ở biên.
+  Không thêm tham số nào. Sai số về ngang mức không dùng cạnh này.
 end note
 @enduml

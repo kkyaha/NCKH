@@ -1,0 +1,53 @@
+@startuml
+' MOTA: Khối 4.2 — điểm gãy định nghĩa thế nào, và vì sao một bậc vỡ lẻ không tính
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam rectangle {
+  BorderColor #888888
+}
+title Khối 4.2 --- điểm gãy là **chuỗi vỡ cuối**, không phải bậc vỡ đầu
+
+rectangle "40" as L1 #E8F6EE
+rectangle "50" as L2 #E8F6EE
+rectangle "65" as L3 #E8F6EE
+rectangle "80\n**vỡ**" as L4 #FDE8E8
+rectangle "100" as L5 #E8F6EE
+rectangle "125" as L6 #E8F6EE
+rectangle "155\n**vỡ**" as L7 #FDE8E8
+rectangle "195\n**vỡ**" as L8 #FDE8E8
+rectangle "240\n**vỡ**" as L9 #FDE8E8
+
+L1 -right-> L2
+L2 -right-> L3
+L3 -right-> L4
+L4 -right-> L5
+L5 -right-> L6
+L6 -right-> L7
+L7 -right-> L8
+L8 -right-> L9
+
+note bottom of L4
+  Vỡ rồi **hồi lại** --- dọn rác, nhiễu.
+  Ghi riêng, **không** phải điểm gãy.
+end note
+
+note bottom of L7
+  **ĐIỂM GÃY = [125, 155] req/s**
+  bậc đầu của chuỗi vỡ **kéo tới hết dải**.
+  Kết quả là một **khoảng**, không phải một số.
+end note
+
+note top of L5
+  Mỗi bậc giữ tải một lúc, **bỏ 40% đầu**
+  (hệ còn đang nóng máy), chỉ chấm trên
+  phần ổn định. Ngưỡng SLO **khoá từ trước**.
+end note
+
+note top of L9
+  **Bậc nhân 1,25 chứ không cộng 20.**
+  Lưới cộng cho độ phân giải 10% ở điểm gãy 200
+  nhưng **50%** ở điểm gãy 40 --- khi đó sai số
+  tương đối **không so được giữa các tính năng**.
+end note
+@enduml

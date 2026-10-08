@@ -1,0 +1,47 @@
+@startuml
+' MOTA: Khối 4.1 — đo bằng gì, và vì sao chỗ đứng của phép đo quyết định kết quả
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam rectangle {
+  BorderColor #888888
+}
+skinparam package {
+  BorderColor #AAAAAA
+  FontStyle bold
+}
+title Khối 4.1 --- **chỗ đứng** của phép đo quyết định kết quả
+
+rectangle "**Sinh tải**\nmở, ngẫu nhiên Poisson\nchạy **NGOÀI** Docker" as LG #FDE8E8
+
+package "trong mạng Docker" #F7FBFF {
+  rectangle "**cổng vào**\nnhận toàn bộ request" as FE #EAF3FB
+  rectangle "6 dịch vụ còn lại\n+ database + hàng đợi" as REST #F0F0F0
+  rectangle "**Bộ thu**\nđọc bộ đếm của container\n+ số liệu **thật** do\nchính dịch vụ công bố" as COL #E8F6EE
+}
+
+rectangle "4 dòng ra, **đúng khuôn\nbộ dữ liệu chuẩn**" as OUT #F0FBF4
+
+LG --> FE : số request/giây mục tiêu
+FE --> REST
+COL ..> FE
+COL ..> REST
+COL --> OUT
+
+note right of LG
+  **Vì sao sinh tải phải ở ngoài:**
+  nếu nó chạy trong Docker thì CPU của chính nó
+  lẫn vào CPU đang được đo --- phép đo tự nhiễm.
+  ====
+  Đã thử đưa vào trong: cùng mức tải, bản ngoài
+  đạt SLO còn bản trong **vỡ nặng**. Lỗi khi đó
+  là của harness, không phải của hệ.
+end note
+
+note bottom of COL
+  **Vì sao không đếm dòng log làm mức tải:**
+  dịch vụ Java/Go **không** ghi log từng request,
+  nên cách đó đếm thiếu. Phải lấy từ số liệu mà
+  chính dịch vụ công bố.
+end note
+@enduml

@@ -1,42 +1,34 @@
 @startuml
-' MOTA: Quy trình đo dữ liệu và cổng đóng băng — vì sao kết quả là tiến cứu, không phải hậu nghiệm
+' MOTA: Khối 3 — giao thức niêm phong: vì sao kết quả là tiến cứu chứ không phải hồi cứu
 skinparam defaultFontName Helvetica
 skinparam shadowing false
-title Quy trình đo và **cổng đóng băng** — điều làm kết quả thành tiến cứu
+title Quy trình đo --- vì sao kết quả **đáng tin**
 
-|#F0F6FB|Pha 0 — khoá trước|
+|#F0F6FB|Khoá trước|
 start
-:Khoá SLO: p99 ≤ 0,25 s, lỗi ≤ 1%\n`deploy/sockshop/slo.json` — KHÔNG đổi sau khi thấy đáp án;
-:Khoá trần CPU `limits.json` (cấu hình RE2);
-|#F0FBF4|Pha 1 — học cơ chế|
-:Đo hệ **chưa có tính năng** theo bậc tải\n`SS-TRAIN`: 8 mức × 2 run = 16 tệp;
-:Fit cơ chế trên tải ≤ 150 req/s (456 hàng)\nρ_s, α_s, β_s — NNLS, β ≥ 0;
-:Hiệu chuẩn u* trên ramp cơ sở → **0,8783**;
-|#FFFBF0|Pha 2 — ĐÓNG BĂNG|
-:`freeze_predictions.py`\nsinh dự đoán cho MỌI ô, ghi hash nội dung\n+ git commit → `predictions_frozen_*.json`;
+:Khoá ngưỡng SLO và hạn mức CPU.\nKhông được sửa sau khi thấy đáp án;
+|#F0FBF4|Học|
+:Đo hệ **chưa có tính năng nào**, theo từng bậc tải;
+:Học quan hệ: tải bao nhiêu thì tốn bao nhiêu CPU;
+|#FFFBF0|Niêm phong|
+:**Ghi dự đoán ra file và niêm phong**\n--- trước khi tính năng được viết;
 note right
-  **Cổng này là lý do kết quả có sức nặng.**
-  Dự đoán được ghi ra **TRƯỚC** khi
-  tính năng được cài và đo.
-  Xác minh: khớp lại `fit_mechanism`
-  cho **đúng từng chữ số** α, β của
-  **7/7** dịch vụ trên 456 hàng.
-  (Đừng viện `train_sha256` — không tái lập được.)
+  **Đây là bước làm kết quả có sức nặng.**
+  Dự đoán được ghi ra **trước khi**
+  biết đáp án, nên không thể chỉnh lại
+  cho khớp.
 end note
-|#FBF0F6|Pha 3 — cài và đo|
-:Viết tính năng thật vào front-end\n`deploy/sockshop/front-end/features*/index.js`;
-:Probe đo chuỗi gọi `k` trên hệ thật\n→ `k_measured*.json`;
-:Chạy ramp tăng tải đến khi vỡ SLO\n→ `steps.json` (lo, hi) + `simple_metrics.csv`;
-|#F6F0FB|Pha 4 — đánh giá|
-:So dự đoán ĐÃ ĐÓNG BĂNG với đáp án đo được;
-:Đánh giá ở **mức phán quyết**\n27 ô → **288 cặp (ô, mức tải)**, McNemar ghép cặp;
+|#FBF0F6|Làm và đo|
+:Người khác viết tính năng\n(không biết gì về mô hình);
+:Tăng tải dần đến khi hệ vỡ SLO\n--- đây là **đáp án thật**;
+|#F6F0FB|Đối chiếu|
+:So dự đoán **đã niêm phong** với đáp án;
 stop
 
 note left
-  **Lặp lại là bắt buộc, không phải tuỳ chọn.**
-  Năng lực cơ sở của **cùng một hệ** trải
-  **120–240 req/s** qua 16 phiên đo (gấp 2,0 lần).
-  Sàn nhiễu: 21,4% trong một phiên,
-  **45,2%** khi tính các phiên đo lại.
+  **Phải đo lại nhiều lần.**
+  Cùng một hệ, không thêm gì, đo lại qua nhiều phiên
+  thì năng lực trải từ **120 đến 240 req/s** --- gấp đôi.
+  Nên một lần đo không đủ kết luận gì.
 end note
 @enduml
