@@ -58,7 +58,6 @@ from data_processor import (
     METRICS
 )
 from queueing_regressor import QueueingLatencyRegressor
-from co_che_cong_dai import CoCheCongDai, chi_so_cha_workload
 from deterministic_forward import deterministic_forward
 from taxonomy_builder import load_graph, derive_primary_gateway
 from scm_graph_builder import build_scm_edges, DEFAULT_EDGE_TEMPLATES
@@ -434,9 +433,23 @@ class CapacityAgent:
         self._last_edge_build = edge_build
 
         g = nx.DiGraph()
-        g.add_edges_from(edge_build['all_edges'])
+        # CHI DUNG structural_edges (Tier-1 + Tier-2), KHONG dung all_edges.
+        # learned_edges (Tier-2.5 `R->R` backpressure) da bi LOAI BO khoi DAG
+        # san pham tu 2026-10-10 -- xem comment dai o train_accurate_path()
+        # (duoi day) va papers/p1_du_phong/docs/HE_THONG.md muc 4 ve ly do:
+        # tren du lieu tai THAT (SS-TRAIN), quy trinh chon canh tu dong chon
+        # 0/8 ung vien (R2 hai tang da 0,74-0,9972, khong con gi de T2.5
+        # "giai thich them"); tren RCAEval (R2 hai tang ~0,015) no tung duoc
+        # chon vi lap day khoang trong bang tuong quan gia, roi bi bac boi
+        # can thiep that (132x te hon). build_scm_edges() VAN tinh
+        # learned_edges (dung cache, khong ton thoi gian) de script khac
+        # (vd cac rq6_*.py cua bai 2, experiments/edges/select_scm_edges.py)
+        # con doc duoc edge_build['learned_edges'] nhu truoc -- chi DAG cua
+        # CHINH CapacityAgent nay khong con cong no vao nua.
+        g.add_edges_from(edge_build['structural_edges'])
         if edge_build.get('from_cache'):
-            print(f"  [Edges] dung cache: {len(edge_build['learned_edges'])} canh da hoc.")
+            print(f"  [Edges] dung cache (chi lay structural, bo "
+                  f"{len(edge_build['learned_edges'])} canh hoc duoc).")
         for label, rep in edge_build['reports'].items():
             print(f"  [{label}] {rep['n_candidates']} candidate -> {rep['n_selected']} qua "
                   f"held-out/knee-point -> {rep['n_final']} qua OOD-safety.")
@@ -509,25 +522,21 @@ class CapacityAgent:
         Sock Shop và Train Ticket (vd RQ6 Part A.3) không còn lệch nhau vì
         một confound về quy trình fit, chỉ còn lệch vì bản chất dữ liệu.
         """
-        n_cong = 0
+        # Tier-2.5 (`CoCheCongDai`, canh R->R backpressure) DA BI LOAI khoi
+        # DAG san pham tu 2026-10-10 (xem comment dai o g.add_edges_from phia
+        # tren) -- nen moi node _cpu/_mem o day CHI con cha workload (Tier-2
+        # thuan), khong con node nao co "ca cha workload LAN cha tai nguyen"
+        # nua. Nhanh CoCheCongDai (tung dung chi_so_cha_workload de tim cot
+        # cha tai nguyen can kep) khong con duong nao toi duoc -- bo han,
+        # khong giu lai duoi dang code chet. Lich su day du + so lieu (132x
+        # te hon duoi can thiep, sau kep van gap 2,4x hai tang o mean) nam o
+        # papers/p1_du_phong/docs/HE_THONG.md muc 4 va src/scm/co_che_cong_dai.py
+        # (file do van con, chi khong con duoc goi tu day).
         for node in g_sub.nodes():
             if node.endswith('_cpu') or node.endswith('_mem'):
-                # CONG THEO DAI khi node co CA cha workload LAN cha tai nguyen
-                # (canh Tier-2.5 `R->R`). Canh do duoc chung nhan boi giao thuc
-                # held-out (23/23 node) nhung BI BAC BO duoi can thiep: suy giam
-                # trung binh 1658,3 so voi 12,6 cua co che hai tang (n=1080,
-                # rq7_interventional_validity_cong_dai.csv), vi cha tai nguyen ra
-                # ngoai dai huan luyen o 74,7% hang duoi can thiep so voi 0,1% o
-                # held-out. Cong dua suy giam ve 12,58 ma KHONG mat cai thien
-                # held-out -- xem src/scm/co_che_cong_dai.py.
-                idx, n_cha = chi_so_cha_workload(g_sub, node)
-                if idx and len(idx) < n_cha:
-                    uoc = CoCheCongDai(idx_an_toan=idx)
-                    n_cong += 1
-                else:
-                    uoc = LinearRegression(positive=True)
                 model.set_causal_mechanism(
-                    node, AdditiveNoiseModel(SklearnRegressionModel(uoc))
+                    node,
+                    AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True)))
                 )
             elif node.endswith('_latency-50'):
                 model.set_causal_mechanism(
@@ -539,9 +548,6 @@ class CapacityAgent:
                     node,
                     AdditiveNoiseModel(SklearnRegressionModel(LinearRegression(positive=True)))
                 )
-        if n_cong:
-            print(f"  [Co che] {n_cong} node tai nguyen dat CONG THEO DAI "
-                  f"(cha tai nguyen ra ngoai dai -> lui ve phuong trinh Tier-2)")
 
     def _build_extended_dag_fn(self, base_graph: nx.DiGraph, df_data: pd.DataFrame):
         """Trả về build_model_fn(df, extra_edges) -> (model, df_sub) dùng
@@ -964,7 +970,10 @@ class CapacityAgent:
         `CoCheCongDai` duoc cai kieu "ngoai dai thi bo cha tai nguyen", co
         `coef_ >= 0` nen qua duoc phep kiem he so, nhung du bao TUT 7,09 ngay tai
         bien dai -- tuc pha dung tien dieu kien ma phep kiem do ton tai de bao ve.
-        (Da sua thanh KEP; xem src/scm/co_che_cong_dai.py.)
+        (Da sua thanh KEP; xem src/scm/co_che_cong_dai.py. Tu 2026-10-10,
+        `CoCheCongDai` khong con duoc goi trong file nay -- xem _assign_dag_mechanisms --
+        nen phep kiem nay hien qua voi moi node vi tat ca deu LinearRegression
+        don dieu theo thiet ke; van giu lam luoi an toan so.)
 
         Phep kiem: voi moi node co cha, quet TUNG cha tu min den `le` x max tren du
         lieu da fit, giu cac cha khac o trung vi, roi doi chieu du bao co don dieu

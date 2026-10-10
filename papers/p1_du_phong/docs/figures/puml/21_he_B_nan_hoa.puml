@@ -37,8 +37,8 @@ note right of L
 end note
 
 note bottom of E
-  Chỉ **CPU**. Không độ trễ, không bộ nhớ, không database.
-  Đã thử thêm database vào: **0 trên 27** dự đoán thay đổi —
-  vì front-end luôn nghẽn trước, nên node khác không kịp có ảnh hưởng.
+  Chỉ **CPU**. Không độ trễ, không bộ nhớ, không database
+  — phạm vi cấu trúc của mô hình, không phải một phát hiện
+  cần đo; số liệu kiểm chứng: **HE\_THONG.md**.
 end note
 @enduml

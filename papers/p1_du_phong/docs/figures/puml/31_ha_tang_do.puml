@@ -32,10 +32,8 @@ note right of LG
   **Vì sao sinh tải phải ở ngoài:**
   nếu nó chạy trong Docker thì CPU của chính nó
   lẫn vào CPU đang được đo --- phép đo tự nhiễm.
-  ====
-  Đã thử đưa vào trong: cùng mức tải, bản ngoài
-  đạt SLO còn bản trong **vỡ nặng**. Lỗi khi đó
-  là của harness, không phải của hệ.
+  Phương án đã thử và bỏ: **bao_cao_giao_vien.tex**
+  mục "Hạ tầng đo".
 end note
 
 note bottom of COL

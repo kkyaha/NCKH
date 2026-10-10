@@ -24,12 +24,8 @@ note right of H2
 end note
 
 note bottom of OUT
-  **Cái bẫy im lặng --- đã gặp thật.**
-  Bảng số liệu gọi cổng vào là một tên, đồ thị gọi
-  nó một tên khác → cổng vào bị **loại khỏi đồ thị**
-  mà hệ vẫn chạy trọn và vẫn in "đã khớp xong".
-  ====
-  Đã thêm chốt cảnh báo. **Kiểm tên dịch vụ giữa
-  đồ thị và bảng số liệu mỗi khi thêm một hệ mới.**
+  Tên service phải khớp giữa đồ thị phụ thuộc và bảng
+  số liệu — có chốt cảnh báo riêng cho việc này.
+  Câu chuyện lệch tên đã gặp thật: **HE_THONG.md**.
 end note
 @enduml

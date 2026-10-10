@@ -1,0 +1,74 @@
+{
+  "system": "sockshop",
+  "source_data": "data/raw/SS-TRAIN (KHONG phai RCAEval)",
+  "metric": "cpu",
+  "min_gain": 0.01,
+  "ood_safety_checked": true,
+  "final_edges": [],
+  "scores": [
+    {
+      "caller": "orders",
+      "callee": "shipping",
+      "r2_baseline": 0.7366,
+      "r2_extended": 0.7425,
+      "r2_gain": 0.0058,
+      "n_rows": 594
+    },
+    {
+      "caller": "orders",
+      "callee": "payment",
+      "r2_baseline": 0.918,
+      "r2_extended": 0.9192,
+      "r2_gain": 0.0012,
+      "n_rows": 594
+    },
+    {
+      "caller": "front-end",
+      "callee": "user",
+      "r2_baseline": 0.9961,
+      "r2_extended": 0.9968,
+      "r2_gain": 0.0007,
+      "n_rows": 594
+    },
+    {
+      "caller": "front-end",
+      "callee": "catalogue",
+      "r2_baseline": 0.9972,
+      "r2_extended": 0.9978,
+      "r2_gain": 0.0006,
+      "n_rows": 594
+    },
+    {
+      "caller": "front-end",
+      "callee": "carts",
+      "r2_baseline": 0.9866,
+      "r2_extended": 0.987,
+      "r2_gain": 0.0003,
+      "n_rows": 594
+    },
+    {
+      "caller": "front-end",
+      "callee": "orders",
+      "r2_baseline": 0.9806,
+      "r2_extended": 0.9808,
+      "r2_gain": 0.0002,
+      "n_rows": 594
+    },
+    {
+      "caller": "orders",
+      "callee": "carts",
+      "r2_baseline": 0.9866,
+      "r2_extended": 0.9868,
+      "r2_gain": 0.0002,
+      "n_rows": 594
+    },
+    {
+      "caller": "orders",
+      "callee": "user",
+      "r2_baseline": 0.9961,
+      "r2_extended": 0.9962,
+      "r2_gain": 0.0001,
+      "n_rows": 594
+    }
+  ]
+}

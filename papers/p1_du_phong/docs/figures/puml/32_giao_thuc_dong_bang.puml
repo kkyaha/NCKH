@@ -26,9 +26,9 @@ end note
 stop
 
 note left
-  **Phải đo lại nhiều lần.**
-  Cùng một hệ, không thêm gì, đo lại qua nhiều phiên
-  thì năng lực trải từ **120 đến 240 req/s** --- gấp đôi.
-  Nên một lần đo không đủ kết luận gì.
+  **Phải đo lại nhiều lần** --- một lần đo không đủ
+  kết luận gì, vì năng lực nền trôi theo trạng thái máy.
+  Biên độ trôi đo được: **bao_cao_giao_vien.tex**
+  mục "Giới hạn".
 end note
 @enduml

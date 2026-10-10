@@ -34,17 +34,15 @@ carts --> db
 ship --> mq
 
 note right of fe
-  **front-end luôn là chỗ nghẽn.**
-  Nó nhận toàn bộ request mà hạn mức CPU
-  bằng các dịch vụ khác, nên nó căng
-  **gấp 3 lần** dịch vụ căng thứ hai.
-  Đúng với **mọi** phép đo đã làm.
+  **front-end luôn là chỗ nghẽn** — cổng vào duy nhất,
+  nhận toàn bộ request. Số liệu kiểm chứng qua mọi lần
+  đo: **HE_THONG.md**.
 end note
 
 note bottom of db
-  **Vì sao loại 9 thành phần:**
-  • database và hàng đợi: không đo được riêng, và nằm ngoài đường request
-  • payment, shipping: chỉ **3,5%** request chạm tới, mức dùng CPU ~**1-2%**
-  → chúng không bao giờ là chỗ nghẽn, dù mô hình có đúng hay không
+  **Vì sao loại 9 thành phần khỏi mô hình:**
+  • database và hàng đợi: không đo được riêng, nằm ngoài đường request
+  • payment, shipping: tỉ trọng request và CPU đều nhỏ — chi tiết và
+    số liệu: **DATA_FRAMEWORK.md** mục 3
 end note
 @enduml

@@ -37,8 +37,17 @@ KEP thi khong co van de do:
 va no van chan dung thu can chan: mo hinh NGOAI SUY TUYEN TINH tren gia tri cha
 tai nguyen chua tung thay -- dung co che that bai da do.
 
-KET QUA: xem bang trong phan "do lai sau khi doi sang KEP" -- cac so cua ban
-CHUYEN NHANH khong con ap dung.
+KET QUA (tinh lai truc tiep tu CSV o tren, 1080 dong, 2026-10-10 -- khong con
+tro toi "bang" nao khac, vi bang do khong ton tai trong repo):
+    trung vi suy giam    :  0,36   (ti le 1,00x so voi hai tang -- ngang nhau)
+    trung binh suy giam  : 30,6    (~2,4x hai tang 12,6; van tot hon ban KHONG
+                                     kep toi 54x)
+Phan du o TRUNG BINH (khong o trung vi) tap trung o vai cap (service, loai loi)
+CHUA dinh vi duoc nguyen nhan, nang nhat `user_loss -> front-end cpu` (4579,9
+diem MAPE, ty_le_trong_dai chi 20,85% -- gan nhu luon bi kep ma van con suy giam
+lon). Day la mot cai thien do ben, KHONG phai mot chung nhan da dong: dung noi
+"da sua xong" khi trich dan ket qua nay. Cac so cua ban CHUYEN NHANH (tut 7,09
+ngay tai bien) khong con ap dung.
 
 THU TU COT: `dowhy.graph.get_ordered_predecessors` tra ve `sorted(predecessors)`,
 nen chi so cot phu thuoc TEN node va phai tinh theo TUNG node -- xem

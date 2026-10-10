@@ -469,11 +469,19 @@ def select_scm_edges(graph_json_path: str, df_data: pd.DataFrame, services: list
     with_inv = safety[
         (safety['variant'] == 'WITH_candidate_edges') & safety['sign_inverted']
     ]
-    new_inversions = with_inv[
-        ~with_inv.apply(
-            lambda r: (r['injection_service'], r['service'], r['delta_pct']) in baseline_inv, axis=1)
-    ]
-    unsafe_services = set(new_inversions['service'])
+    if with_inv.empty:
+        # Khong co ca dao dau nao duoi WITH_candidate_edges -- tin tot (canh
+        # ung vien khong gay dao dau moi). DataFrame.apply(axis=1) tren khung
+        # 0 dong co the tra ve mot Series/khung rong MAT CA COT 'service',
+        # lam new_inversions['service'] o duoi nay bao KeyError. Bo qua buoc
+        # loc (khong co gi de loc) thay vi goi apply() tren khung rong.
+        unsafe_services = set()
+    else:
+        new_inversions = with_inv[
+            ~with_inv.apply(
+                lambda r: (r['injection_service'], r['service'], r['delta_pct']) in baseline_inv, axis=1)
+        ]
+        unsafe_services = set(new_inversions['service'])
     result['final_edges'] = [
         (caller, callee) for caller, callee in selected_edges
         if callee.rsplit('_', 1)[0] not in unsafe_services
@@ -529,11 +537,19 @@ def select_latency_backprop_edges(graph_json_path: str, df_data: pd.DataFrame, s
     with_inv = safety[
         (safety['variant'] == 'WITH_candidate_edges') & safety['sign_inverted']
     ]
-    new_inversions = with_inv[
-        ~with_inv.apply(
-            lambda r: (r['injection_service'], r['service'], r['delta_pct']) in baseline_inv, axis=1)
-    ]
-    unsafe_services = set(new_inversions['service'])
+    if with_inv.empty:
+        # Khong co ca dao dau nao duoi WITH_candidate_edges -- tin tot (canh
+        # ung vien khong gay dao dau moi). DataFrame.apply(axis=1) tren khung
+        # 0 dong co the tra ve mot Series/khung rong MAT CA COT 'service',
+        # lam new_inversions['service'] o duoi nay bao KeyError. Bo qua buoc
+        # loc (khong co gi de loc) thay vi goi apply() tren khung rong.
+        unsafe_services = set()
+    else:
+        new_inversions = with_inv[
+            ~with_inv.apply(
+                lambda r: (r['injection_service'], r['service'], r['delta_pct']) in baseline_inv, axis=1)
+        ]
+        unsafe_services = set(new_inversions['service'])
     result['final_edges'] = [
         (callee_lat, caller_lat) for callee_lat, caller_lat in selected_edges
         if caller_lat.rsplit('_', 1)[0] not in unsafe_services

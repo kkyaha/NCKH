@@ -330,14 +330,27 @@ Return ONLY valid JSON:
   "core_services": ["..."]
 }}"""
         t0 = time.time()
+        from langchain_core.messages import HumanMessage
+        # KHONG bat o day: loi ha tang (timeout/429/mat mang) tu chinh loi goi
+        # LLM phai LAN LEN toi vong lap ngoai trong run_parser_benchmark() de
+        # STOP HARD (xem comment "Mot 429 tran-ngay o day phai LAM DUNG lan
+        # chay"), khong duoc nuot roi tra ve nhu thanh cong. Da gap THAT
+        # (2026-10-08): try/except rong truoc day boc CA loi goi nay, nen khi
+        # Groq het quota giua chung, 48/50 dong cua repeat 3 lang le roi vao
+        # dung bo ba fallback ben duoi -- bo ba do TINH CO an toan tuyet doi
+        # theo ca 3 chi so dang do (front-end = cong vao thuc, 20% trong bien,
+        # service thuc) nen GMR bi doc nham tut tu ~97% xuong 4%, bien "Groq
+        # sap" thanh "LLM an toan hon" trong bang da cong bo.
+        resp = self.llm.invoke([HumanMessage(content=prompt)])
         try:
-            from langchain_core.messages import HumanMessage
-            resp = self.llm.invoke([HumanMessage(content=prompt)])
             data = json.loads(resp.content.strip().replace("```json", "").replace("```", "").strip())
             inj_svc = str(data.get("injection_service", "front-end"))
             delta = float(data.get("injection_delta_pct", 20.0))
             core = list(data.get("core_services", ["front-end"]))
-        except Exception as e:
+        except (json.JSONDecodeError, ValueError, KeyError, AttributeError, TypeError):
+            # Chi bat LOI DINH DANG (LLM tra loi khong phai JSON hop le) -- day
+            # la mot failure mode THAT cua baseline khong guard, dang duoc do,
+            # khac voi loi ha tang o tren.
             inj_svc = "front-end"
             delta = 20.0
             core = ["front-end"]
@@ -368,14 +381,16 @@ Return ONLY JSON:
   "core_services": ["..."]
 }}"""
         t0 = time.time()
+        from langchain_core.messages import HumanMessage
+        # Giong UnguardedZeroShotParser.parse() o tren: KHONG bat loi goi LLM
+        # o day, chi bat loi parse JSON. Xem comment day du o do.
+        resp = self.llm.invoke([HumanMessage(content=prompt)])
         try:
-            from langchain_core.messages import HumanMessage
-            resp = self.llm.invoke([HumanMessage(content=prompt)])
             data = json.loads(resp.content.strip().replace("```json", "").replace("```", "").strip())
             inj_svc = str(data.get("injection_service", "front-end"))
             delta = float(data.get("injection_delta_pct", 20.0))
             core = list(data.get("core_services", ["front-end"]))
-        except Exception:
+        except (json.JSONDecodeError, ValueError, KeyError, AttributeError, TypeError):
             inj_svc = "front-end"
             delta = 20.0
             core = ["front-end"]

@@ -39,13 +39,12 @@ GATE --> G3
 
 note right of L3
   **Ba lớp này là đóng góp, không phải LLM.**
-  Cùng một LLM, bỏ chốt kiểm thì sai số tăng
-  **hơn 500 lần** và 9/10 lần nó bịa ra tên
-  dịch vụ không tồn tại.
-  ====
   Chốt kiểm là **hàm toàn phần**: nó đúng với
   *mọi* đầu ra của LLM, không chỉ với những
   đầu ra tình cờ thấy lúc kiểm thử.
+  ====
+  Số liệu benchmark (có/không chốt kiểm):
+  **bao_cao_giao_vien.tex** mục "Lớp đọc yêu cầu".
 end note
 
 note bottom of G2

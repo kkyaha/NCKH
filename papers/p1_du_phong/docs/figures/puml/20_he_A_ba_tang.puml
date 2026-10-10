@@ -1,36 +1,22 @@
 @startuml
-' MOTA: Khối 2 — ba tầng đồ thị nhân quả, và cạnh duy nhất phải học từ dữ liệu
+' MOTA: Khoi 2 -- kien truc do thi nhan qua cua He A (2 tang trong DAG san pham)
 skinparam defaultFontName Helvetica
 skinparam shadowing false
 skinparam rectangle {
   BorderColor #888888
 }
-title Đồ thị nhân quả: cạnh **biết trước** và cạnh **phải học**
+title Hệ A --- đồ thị nhân quả, hai tầng
 
 rectangle "**Tầng 1** — tải lan truyền\ndịch vụ gọi dịch vụ\n\n*biết trước từ sơ đồ gọi*" as T1 #E8F6EE
 rectangle "**Tầng 2** — tải sinh tài nguyên\ntải của một dịch vụ → CPU của chính nó\n\n*biết trước*" as T2 #E8F6EE
-rectangle "**Tầng 2.5** — dịch vụ này nghẽn\nlàm dịch vụ kia nghẽn theo\n\n*phải HỌC từ dữ liệu*" as T25 #FFF4E5
+rectangle "**Tầng 2.5** (từng thử, đã gỡ)\ndịch vụ này nghẽn\nlàm dịch vụ kia nghẽn theo" as T25 #F0F0F0
 
 T1 -down-> T2
-T2 -down-> T25
+T2 .down.> T25 : đã gỡ khỏi DAG sản phẩm
 
 note right of T25
-  **Cách chọn cạnh phải học:** sinh mọi cạnh ứng viên
-  từ sơ đồ gọi, chấm điểm trên **dữ liệu giữ lại**,
-  rồi thử xem nó có hỏng khi tải vượt dải đã thấy không.
-  Trong 16 ứng viên, **5 cạnh** sống sót.
-end note
-
-note bottom of T25 #FFF0F0
-  **Nhưng cạnh học được này từng là một cái bẫy.**
-  Trên dữ liệu giữ lại, nó cải thiện **23/23** node — nên đã được dùng.
-  Khi hệ bị **can thiệp thật**, nó sai **gấp hơn 100 lần**.
-  ====
-  Lý do: nó dựa vào CPU của dịch vụ khác, mà dưới can thiệp
-  giá trị đó **ra ngoài dải từng thấy** ở 3/4 số trường hợp —
-  còn trên dữ liệu giữ lại thì gần như không bao giờ.
-  ====
-  **Cách sửa:** ra ngoài dải thì **kẹp** lại ở biên.
-  Không thêm tham số nào. Sai số về ngang mức không dùng cạnh này.
+  Lý do đề xuất, kiểm, và quyết định gỡ: xem
+  **bao_cao_giao_vien.tex** mục "Đồ thị nhân quả ba
+  tầng" và **paper_draft.tex** §Backpressure Extension.
 end note
 @enduml

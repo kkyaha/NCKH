@@ -1,0 +1,41 @@
+@startuml
+' MOTA: Khoi 2.3 -- tan dung ca He A va He B trong pipeline dang chay, khong hop nhat mo hinh
+skinparam defaultFontName Helvetica
+skinparam shadowing false
+skinparam ArrowColor #555555
+skinparam rectangle {
+  BorderColor #888888
+}
+skinparam package {
+  BorderColor #AAAAAA
+  FontStyle bold
+}
+title Tận dụng cả hai hệ, **không hợp nhất mô hình**
+
+rectangle "**Yêu cầu**\narchetype + chain" as REQ #F0F0F0
+
+package "đã tính SẴN, một lần, ngoài request" #F7FBFF {
+  rectangle "**Hệ A** — Tier-1\nlan truyền theo đồ thị gọi thật" as A #E8F6EE
+  rectangle "**Hệ B** — ρ_s\ntỉ lệ qua gốc từ gateway" as B #E8F6EE
+  rectangle "**Bảng lệch** giữa hai hệ\n(doi\\_chieu\\_hai\\_he.csv)" as TBL #FFF4E5
+}
+
+rectangle "**Lọc theo chain của request này**\n∩ service Hệ B tính điểm" as FILTER #EAF3FB
+
+rectangle "**verdict**\n(của Hệ B, KHÔNG đổi)" as V #EFEAF7
+rectangle "**cross\\_check**\nnhãn độ tin đúng phạm vi" as CC #EFEAF7
+
+A --> TBL
+B --> TBL
+REQ --> FILTER
+TBL --> FILTER
+FILTER --> CC
+REQ --> V : Hệ B tính riêng
+
+note right of CC
+  Không đổi verdict hay điểm gãy — chỉ nhãn độ tin
+  kèm theo. Số liệu đo và lý do loại payment/shipping:
+  **paper_draft.tex** §Combining the Two Stacks;
+  **bao_cao_giao_vien.tex** mục "Tận dụng cả hai hệ".
+end note
+@enduml

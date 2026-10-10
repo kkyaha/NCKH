@@ -1,37 +1,26 @@
 @startuml
-' MOTA: Khối 2 — bốn biến thể mô hình, nhưng dữ liệu chỉ phân biệt được hai nhóm
+' MOTA: Khoi 2 -- thang boc tach P0-P3 cua He B, moi bac them DUNG MOT gia dinh
 skinparam defaultFontName Helvetica
 skinparam shadowing false
 skinparam rectangle {
   BorderColor #888888
 }
-title Bốn biến thể --- dữ liệu chỉ phân biệt được **hai**
+title Hệ B --- thang bóc tách, mỗi bậc thêm **đúng một** giả định
 
-package "Nhóm 1 --- không phân biệt được nhau" #F2F2F2 {
-  rectangle "**P0**\nchỉ tải nền,\nkhông biết chuỗi gọi" as P0 #FFFFFF
-  rectangle "**P1**\n+ biết chuỗi gọi" as P1 #FFFFFF
-  rectangle "**Đối chứng**\nchuỗi gọi bị **đảo lộn**" as PC #FFE8E8
-}
-package "Nhóm 2 --- hơn nhóm 1 rõ rệt" #EFF7EF {
-  rectangle "**P2**\n+ chi phí riêng\ntừng dịch vụ" as P2 #FFFFFF
-  rectangle "**P3**\n+ đo chuỗi gọi thật\nbằng probe" as P3 #FFFFFF
-}
+rectangle "**P0**\nrải đều theo tỉ lệ nền\n(không dùng chain)" as P0 #FFFFFF
+rectangle "**P1**\n+ chain làm mặt nạ\ncộng tải" as P1 #FFFFFF
+rectangle "**P1_ctrl**\n(đối chứng)\nchain ngẫu nhiên\ncùng kích thước" as PC #F0F0F0
+rectangle "**P2**\n+ chi phí riêng\ntừng service mỗi lượt gọi" as P2 #FFFFFF
+rectangle "**P3**\n+ bội số gọi\nđo bằng probe" as P3 #FFFFFF
 
-P0 -right-> P1 : không khác
-P1 -right-> PC : không khác
-P1 -down-> P2 : **thắng 9 -- 0**
-P2 -right-> P3 : không khác
+P0 -right-> P1
+P1 -right-> P2
+P2 -right-> P3
+P1 .down.> PC : đối chứng của P1
 
 note bottom of PC
-  **Phép đối chứng này tự phủ định đóng góp của chúng tôi.**
-  Chuỗi gọi bị đảo lộn mà vẫn cho **đúng cùng phán quyết**
-  trên **cả 288** quyết định như khi không dùng chuỗi gọi.
-  Nghĩa là phần cấu trúc đó không đóng góp gì.
-end note
-
-note right of P2
-  Chỉ **một** bước có bằng chứng: thêm chi phí
-  riêng từng dịch vụ. Nó giảm **một nửa** số ca
-  báo "an toàn" khi thật ra không an toàn.
+  Thêm đúng một yếu tố mỗi bậc để hiệu số giữa hai bậc
+  quy được sai số về một nguyên nhân. Kết quả thắng/thua
+  từng bậc: **bao_cao_giao_vien.tex** mục "Thang bóc tách".
 end note
 @enduml

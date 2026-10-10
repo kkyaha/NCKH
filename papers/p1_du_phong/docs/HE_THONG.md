@@ -104,27 +104,42 @@ dự đoán **sau khi đã xem đáp án**, làm mọi con số mới thành h�
 Dùng cho RQ1–RQ4 (dữ liệu RCAEval / Alibaba, fault‑injection).
 
 - **Node:** 7 service × 4 metric (`workload`, `cpu`, `mem`, `latency-50`) = 28
-- **Cạnh cấu trúc (29):** Tier‑1 `workload→workload` theo 8 cạnh gọi thật; Tier‑2
-  `workload→{cpu, mem, latency}` trong cùng service
-- **Cạnh phải học (5/16 ứng viên sống sót)** qua held‑out 67/33 → knee‑point → OOD‑safety:
-  - `cpu_backpressure` **3/8**: `orders_cpu→shipping_cpu`, `orders_cpu→carts_cpu`, `front-end_cpu→user_cpu`
-  - `latency_backprop_causil` **2/8**: `carts_latency-50→orders_latency-50`, `carts_latency-50→front-end_latency-50`
-- **Tổng cạnh: 29 cấu trúc + 5 học được = 34.**
+- **Cạnh (29, CHỈ cấu trúc):** Tier‑1 `workload→workload` theo 8 cạnh gọi thật; Tier‑2
+  `workload→{cpu, mem, latency}` trong cùng service. Xác nhận bằng chạy thật
+  (2026‑10‑10): `[OK] Đã khớp Global DAG 28 nodes (29 edges)`.
+- **Không còn cạnh Tier‑2.5 (`R_i→R_j`, backpressure) trong DAG sản phẩm.** Từng có
+  5/16 ứng viên sống sót qua held‑out 67/33 → knee‑point → OOD‑safety (3
+  `cpu_backpressure`, 2 `latency_backprop_causil`), và từng được triển khai dưới dạng
+  kẹp dải (`CoCheCongDai`). **Gỡ hẳn khỏi `capacity_agent.py` ngày 2026‑10‑10** sau hai
+  bằng chứng: (a) phép kiểm can thiệp thật (n=1080) cho suy giảm MAPE trung bình 132×
+  tệ hơn hai tầng; kẹp dải chỉ đưa trung vị về ngang nhau, trung bình vẫn 2,4× tệ hơn
+  và còn rủi ro đuôi dài ở vài cặp cực trị; (b) chạy lại đúng giao thức chọn cạnh bốn
+  pha trên dữ liệu tải **thật của chính nhóm** (`SS-TRAIN`, không phải RCAEval) thì
+  **0/8** ứng viên sống sót, vì hai tầng ở đó đã giải thích 0,74–0,9972 phương sai mỗi
+  node (so với ≈0,015 ở RCAEval) — không còn gì để Tier‑2.5 giải thích thêm. Chi tiết
+  số liệu: `paper_draft.tex` §Backpressure Extension; `bao_cao_giao_vien.tex` mục "Đồ
+  thị nhân quả ba tầng". `src/scm/co_che_cong_dai.py` (cơ chế kẹp) vẫn còn trong repo
+  làm tài liệu lịch sử; `build_scm_edges()` vẫn tính `learned_edges` (cache) cho các
+  script khác (`papers/p2_khop_tang/experiments/rq6_*.py`, `select_scm_edges.py`) đọc
+  độc lập, nhưng `capacity_agent.py` không còn ghép chúng vào DAG sản phẩm.
+- **Không ảnh hưởng các số RQ1–RQ4 đã công bố:** sinh từ `evaluation_suite.py` và các
+  script RQ độc lập, tự xây cạnh backpressure riêng, không đọc lại DAG của
+  `CapacityAgent`.
 
-> ⚠ Bản trước của hai dòng trên ghi *"**0 cạnh** latency‑backprop qua được cổng"* và tổng 32
-> cạnh — **sai**. Nguồn của sai sót: `src/graph/sockshop_scm_edges.json` chỉ có 3 cạnh, nhưng
-> tệp đó là sản phẩm của một lần chạy **chỉ với `metric: cpu`** (xem trường `"metric"` trong
-> chính tệp), nên nó **chưa bao giờ xét** ứng viên latency. Artifact mà hệ thống **thật sự nạp
-> lúc chạy** là cache `data/processed/scm_cache/scm_edges_55011c51*.json`, và báo cáo trong đó
-> ghi rõ `latency_backprop_causil: 8 candidate → 2 selected → 2 final`. Khởi tạo
-> `CapacityAgent` xác nhận: `DAG 28 nodes (34 edges)`.
+> ⚠ Bản trước của đoạn trên (khi Tier‑2.5 còn trong DAG) ghi *"**0 cạnh**
+> latency‑backprop qua được cổng"* và tổng 32 cạnh — **sai**, lỗi lịch sử đã sửa khi đó.
+> Nguồn của sai sót: `src/graph/sockshop_scm_edges.json` chỉ có 3 cạnh, nhưng tệp đó là
+> sản phẩm của một lần chạy **chỉ với `metric: cpu`** (xem trường `"metric"` trong
+> chính tệp), nên nó **chưa bao giờ xét** ứng viên latency. Artifact hệ thống nạp lúc
+> đó là cache `data/processed/scm_cache/scm_edges_55011c51*.json`, báo cáo
+> `latency_backprop_causil: 8 candidate → 2 selected → 2 final`. Giữ đoạn này làm hồ
+> sơ: bài học về nguồn sự thật artifact không đổi theo việc Tier‑2.5 còn hay đã gỡ.
 
-- **Cơ chế:** `*_cpu`/`*_mem`/`*_workload` dùng `LinearRegression(positive=True)`;
-  `*_latency-50` dùng `QueueingLatencyRegressor` (hồi quy trên `[X, X/(C−X)]`, `C = P99(X)×1.5`).
-  **Node tài nguyên có CẢ cha workload LẪN cha tài nguyên** (tức node nhận cạnh Tier‑2.5) dùng
-  `CoCheCongDai` (`src/scm/co_che_cong_dai.py`) — cổng theo dải: giữ cha tài nguyên khi nó còn
-  trong dải đã thấy lúc fit, ra ngoài dải thì lùi về phương trình cấu trúc Tier‑2. Lý do và số
-  liệu ở §8.
+- **Cơ chế hiện tại:** `*_cpu`/`*_mem`/`*_workload` dùng `LinearRegression(positive=True)`
+  không điều kiện cho mọi node; `*_latency-50` dùng `QueueingLatencyRegressor` (hồi quy
+  trên `[X, X/(C−X)]`, `C = P99(X)×1.5`). Không còn node tài nguyên nào có cha tài
+  nguyên (chỉ cha workload), nên không còn nhánh `CoCheCongDai` trong
+  `_assign_dag_mechanisms`.
 
 ### Hệ B — `FeasibilityPredictor`: hai tầng phẳng
 

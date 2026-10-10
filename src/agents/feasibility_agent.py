@@ -41,6 +41,7 @@ _SRC_DIR = os.path.dirname(_AGENT_DIR)
 PROJECT_ROOT = os.path.dirname(_SRC_DIR)
 sys.path.insert(0, os.path.join(_SRC_DIR, 'scm'))
 import feasibility_predictor as FP  # noqa: E402
+from doi_chieu_chain import cross_check_for_chain  # noqa: E402
 
 DEFAULT_FROZEN = os.path.join(PROJECT_ROOT, 'data', 'processed', 'frozen', 'predictions_frozen_RE2.json')
 DEFAULT_P2 = os.path.join(PROJECT_ROOT, 'data', 'processed', 'frozen', 'p2_params_dev.json')
@@ -81,6 +82,7 @@ class FeasibilityVerdict:
     cores_source: str                  # 'docker (song)' hoac 'limits.json (tinh, du phong)'
     n_bootstrap: int
     warnings: List[str] = field(default_factory=list)
+    cross_check: Optional[Dict] = None  # doi chieu voi He A, LOC dung chain -- xem doi_chieu_chain.py
 
 
 def read_live_cores(services, project=DOCKER_PROJECT, fallback_limits=DEFAULT_LIMITS, fallback_config='RE2'):
@@ -183,6 +185,15 @@ class NewFeatureFeasibilityAgent:
         arch = FP.SOCKSHOP_CALL_CHAINS[FP.FEATURE_ARCHETYPE.get(feature, feature)] if feature else None
         n_calls = sum((k or {}).get(m, 1.0) for m in (arch['services'] if arch else []) if m != FP.GATEWAY)
 
+        # Tan dung He A: nhan do tin DOI CHIEU voi co che Tier-1 cua CapacityAgent, LOC dung
+        # chain cua request nay (khong phai mot can tren toan cuc dung chung cho moi request).
+        # Doc tu bang da tinh san (doi_chieu_hai_he.py) -- KHONG fit lai mo hinh o request-time,
+        # va KHONG doi `verdict` phia tren: day chi la nhan do tin kem theo.
+        try:
+            cross_check = cross_check_for_chain(arch['services']) if arch else None
+        except FileNotFoundError as e:
+            cross_check = {'error': str(e)}
+
         return FeasibilityVerdict(
             verdict=verdict, breakpoint_rps=round(r_med, 1), breakpoint_ci=(round(float(lo), 1), round(float(hi), 1)),
             bottleneck=bott, max_utilization=round(mu, 4),
@@ -191,7 +202,7 @@ class NewFeatureFeasibilityAgent:
             latency_risk=bool(n_calls >= LATENCY_RISK_N_CALLS),
             throttling_risk=throttling_risk, bottleneck_cores=round(bott_cores, 4),
             model=('P3' if k else 'P2'), k_source=('do bang probe' if k else 'gia dinh (k=1)'),
-            cores_source=cores_src, n_bootstrap=n_bootstrap, warnings=warn)
+            cores_source=cores_src, n_bootstrap=n_bootstrap, warnings=warn, cross_check=cross_check)
 
     # ---------------------------------------------------------------- bootstrap
     def _bootstrap_breakpoints(self, cores, u_star, mode, feature, scale, k, B, seed):
