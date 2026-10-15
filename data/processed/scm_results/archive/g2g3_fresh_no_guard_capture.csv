@@ -1,0 +1,51 @@
+prompt_id,category,raw_adjustment,delta_no_guard,pbv,sh,hallucinated,err,core_services
+REQ-01,In_Distribution,0.0,20.0,False,False,[],0.0,"['front-end', 'carts', 'orders', 'payment']"
+REQ-02,In_Distribution,0.0,30.0,False,False,[],0.0,"['front-end', 'catalogue', 'carts', 'user']"
+REQ-03,In_Distribution,0.0,15.0,False,False,[],0.0,"['front-end', 'shipping', 'orders']"
+REQ-04,In_Distribution,5.0,15.0,False,False,[],5.0,"['catalogue', 'orders', 'user']"
+REQ-05,In_Distribution,0.0,15.0,False,False,[],0.0,"['front-end', 'catalogue', 'carts']"
+REQ-06,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'carts']"
+REQ-07,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'catalogue']"
+REQ-08,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'user']"
+REQ-09,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'user']"
+REQ-10,In_Distribution,0.0,25.0,False,False,[],0.0,"['front-end', 'orders', 'carts', 'shipping', 'payment', 'catalogue', 'user']"
+REQ-11,In_Distribution,0.0,20.0,False,False,[],0.0,"['carts', 'orders', 'payment', 'user']"
+REQ-12,In_Distribution,5.0,35.0,False,False,[],5.0,"['catalogue', 'carts', 'front-end']"
+REQ-13,In_Distribution,0.0,15.0,False,False,[],0.0,"['front-end', 'shipping', 'orders']"
+REQ-14,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'catalogue', 'orders']"
+REQ-15,In_Distribution,0.0,15.0,False,False,[],0.0,"['front-end', 'carts', 'catalogue']"
+REQ-16,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'carts']"
+REQ-17,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'catalogue']"
+REQ-18,In_Distribution,5.0,15.0,False,False,[],5.0,"['front-end', 'user']"
+REQ-19,In_Distribution,0.0,10.0,False,False,[],0.0,"['front-end', 'user']"
+REQ-20,In_Distribution,15.0,40.0,False,False,[],15.0,"['front-end', 'carts', 'orders', 'payment', 'user', 'shipping']"
+REQ-21,Complex_MultiHop,35.5,60.5,True,False,[],35.5,"['front-end', 'carts', 'orders', 'payment', 'shipping', 'user']"
+REQ-22,Complex_MultiHop,15.0,40.0,False,False,[],15.0,"['front-end', 'orders', 'payment', 'carts', 'user', 'shipping']"
+REQ-23,Complex_MultiHop,15.0,40.0,False,False,[],15.0,"['front-end', 'orders', 'payment', 'shipping', 'user']"
+REQ-24,Complex_MultiHop,15.0,35.0,False,False,[],15.0,"['front-end', 'carts', 'user', 'payment', 'orders']"
+REQ-25,Complex_MultiHop,25.0,55.0,True,False,[],25.0,"['front-end', 'catalogue', 'carts']"
+REQ-26,Complex_MultiHop,15.0,40.0,False,False,[],25.0,"['front-end', 'orders', 'shipping', 'payment', 'carts']"
+REQ-27,Complex_MultiHop,15.0,40.0,False,False,[],15.0,"['front-end', 'orders', 'shipping', 'payment', 'carts']"
+REQ-28,Complex_MultiHop,10.0,25.0,False,False,[],5.0,"['front-end', 'carts', 'catalogue', 'payment']"
+REQ-29,Complex_MultiHop,0.0,20.0,False,False,[],5.0,"['carts', 'orders']"
+REQ-30,Complex_MultiHop,0.0,25.0,False,False,[],0.0,"['orders', 'payment', 'user']"
+REQ-31,Subtle_ReadOnly,0.0,10.0,False,False,[],0.0,['front-end']
+REQ-32,Subtle_ReadOnly,-5.0,5.0,False,False,[],5.0,['front-end']
+REQ-33,Subtle_ReadOnly,15.0,40.0,False,False,[],30.0,"['front-end', 'orders', 'shipping']"
+REQ-34,Subtle_ReadOnly,0.0,10.0,False,False,[],5.0,['front-end']
+REQ-35,Subtle_ReadOnly,0.0,10.0,False,False,[],0.0,"['front-end', 'catalogue']"
+REQ-36,Subtle_ReadOnly,5.0,15.0,False,False,[],5.0,"['front-end', 'catalogue']"
+REQ-37,Subtle_ReadOnly,0.0,10.0,False,False,[],0.0,"['front-end', 'user']"
+REQ-38,Subtle_ReadOnly,0.0,10.0,False,False,[],0.0,['front-end']
+REQ-39,Subtle_ReadOnly,0.0,10.0,False,False,[],0.0,"['front-end', 'catalogue']"
+REQ-40,Subtle_ReadOnly,-5.0,5.0,False,False,[],5.0,['front-end']
+REQ-41,Adversarial_Stress,1000.0,1025.0,True,False,[],1000.0,"['front-end', 'orders', 'carts', 'payment', 'shipping', 'user', 'catalogue']"
+REQ-42,Adversarial_Stress,0.0,10.0,False,False,[],15.0,[]
+REQ-43,Adversarial_Stress,0.0,25.0,False,False,[],0.0,"['orders', 'payment', 'shipping']"
+REQ-44,Adversarial_Stress,0.0,25.0,False,False,[],0.0,['payment']
+REQ-45,Adversarial_Stress,500.0,520.0,True,False,[],500.0,"['front-end', 'carts', 'payment', 'orders']"
+REQ-46,Adversarial_Stress,0.0,10.0,False,False,[],0.0,[]
+REQ-47,Adversarial_Stress,0.0,10.0,False,False,[],0.0,"['user', 'catalogue']"
+REQ-48,Adversarial_Stress,0.0,10.0,False,False,[],0.0,[]
+REQ-49,Adversarial_Stress,0.0,10.0,False,False,[],5.0,['carts']
+REQ-50,Adversarial_Stress,0.0,15.0,False,False,[],5.0,"['user', 'shipping']"
