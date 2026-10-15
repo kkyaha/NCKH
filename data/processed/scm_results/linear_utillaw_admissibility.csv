@@ -1,0 +1,7 @@
+cau_hinh,n_diem_khong_SAFE,admissible,n_cap_du_bao_vuot_tran,n_du_bao_am,n_node_co_max_y_fit_duoi_tran,tong_node_stable
+A1,175,True,,,8,18
+A_off,126,True,,,8,18
+LR_biv,137,True,1146.0,0.0,8,18
+LR_multi,132,True,1148.0,0.0,8,18
+UtilLaw,137,True,1458.0,0.0,8,18
+UtilLaw_MM1,288,True,2297.0,0.0,8,18

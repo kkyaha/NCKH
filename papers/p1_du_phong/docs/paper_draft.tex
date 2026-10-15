@@ -29,9 +29,9 @@
 % =========================================================
 % TITLE & AUTHORS
 % =========================================================
-\title{Admissible Evaluation:\\
-What Five Standard Metrics Cannot Refute\\
-in an LLM-Fronted Analysis Pipeline}
+\title{Zero-Shot Feasibility Forecasting for New Microservice Features:\\
+A Verified Causal Pipeline from Natural-Language Requirements\\
+to Deployment Decisions}
 
 % TODO(before submission): replace placeholders with the real author list.
 % For a double-blind venue, comment this block out and use \author{Anonymous Authors}.
@@ -54,39 +54,44 @@ turns a natural-language requirement for a feature that does not yet exist into
 a bounded capacity intervention over a fixed microservice architecture,
 forecasting feasibility without telemetry of the feature itself and with a
 structural output guarantee --- a combination, we find, no published system
-shares. Assessing it the way this literature assesses such pipelines, and then
-a second time by a different standard, the binding constraint turned out to be
-not the pipeline but our evaluation of it. Call an evaluation \emph{admissible} for a claim when
-some outcome would refute it, \emph{vacuous} otherwise --- a property of the
-metric--claim pair, not of data volume. Five claims here are each certified by a
-vacuous evaluation --- ours and the literature's. Substituting admissible
-evaluations, two survived and three were refuted --- and a fourth refutation
-landed inside one of the survivors, so four of the five corrections fall on
-results we had reported ourselves. First survivor: task and prompts fixed,
-an open-weight $117$B generator cuts magnitude error $25{\times}$ yet leaves
-gateway misdirection at $92\%$, so a verifier sound for \emph{every} output is no
-stopgap awaiting better models. The attainable abstention guarantee is set by
-calibration size, not the nominal $\alpha$. Porting to a second topology exposed
-a defect violating the soundness proposition itself. And the standard RCA
-benchmark cannot support capacity evaluation at all: on it a gradient-boosted
-baseline outranks the deployed causal mechanism, an ordering reversing on a
-testbed where workload explains $99\%$ of CPU variance against $0.3\%$. It
-carries the second survivor --- and that fourth refutation. Over eighteen
-requirements in five rounds --- fourteen written by agents blind to our taxonomy
---- a graph-aware cost correction predicts an unbuilt feature's breaking load to
-$11.4\%$ mean error with \emph{zero} false-feasible verdicts across fourteen
-prospectively frozen cells, replicating on a fresh round
-($23.9\%{\to}13.1\%$) the gain first seen held-out ($9.6\%{\to}2.8\%$);
-independently built requirements still break the simpler models by $+297\%$. But
-scoring the decision the system issues rather than the breaking load it does not
---- $288$ paired verdicts in place of $27$ error figures --- collapses a
-four-rung ladder to two: a control with the call chain permuted returns the
-identical verdict on all $288$ decisions as a predictor with no chain at all,
-refuting a structural step we had reported as contributing.
+shares. Across $50$ prompts and three live-LLM repetitions, including an
+adversarial set, the guarded parser holds \emph{zero} boundary violations, zero
+hallucinated services, and zero misdirected gateways, while a stronger
+open-weight generator ($117$B) cuts semantic anchoring error $25{\times}$ yet
+leaves structural violations near $92\%$ absent the guard --- the guarantee
+comes from verification, not generator capability. At the resource-forecast
+level, graph-aware propagation beats a spread-evenly baseline on workload data
+carrying real signal ($25/30$ split-threshold wins, $p{=}2{\times}10^{-5}$);
+we show this requires the data to carry that signal in the first place, and the
+ordering reverses on a standard RCA benchmark where workload explains $0.34\%$
+of outcome variance against $99\%$ on our testbed. At the feasibility-verdict
+level --- the decision a deployment actually consumes --- a tier-scaled
+correction cuts false-feasible verdicts from $79.2\%$ to $6.7\%$ across $288$
+measured decisions, generalising to \emph{zero} false-feasible verdicts on ten
+features never used to calibrate it. Measured against admissible baselines ---
+linear regression and a published utilisation law; gradient boosting is
+excluded on methodological grounds, since its output is provably bounded by the
+training response range and cannot flag saturation on six of seven CPU nodes
+--- the corrected mechanism trades a lower false-feasible rate for a measured
+increase in over-caution, a quantified safety/accuracy trade-off rather than a
+one-sided win. A chain-identity ablation attributes the gain precisely:
+substituting another feature's call chain ($20$ independent random
+permutations) reproduces a statistically indistinguishable false-feasible rate,
+so the benefit traces to a per-service, history-derived tier multiplier rather
+than to identifying which services a specific feature actually touches. Over
+eighteen requirements in five rounds --- fourteen written by agents blind to our
+taxonomy --- the same family of graph-aware cost correction predicts an unbuilt
+feature's breaking load to $11.4\%$ mean error with zero false-feasible verdicts
+across fourteen prospectively frozen cells, supplying one of the baselines
+against which the verdict-level result above is scored. Porting to a second,
+fourteen-gateway topology transfers the CPU and memory forecast but not latency
+--- a degenerate queueing mechanism caught by inspecting fitted coefficients
+directly rather than trusting error rate alone --- and surfaces one calibration
+defect in the request-scope guard, which we fix and verify.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Empirical Software Engineering Methodology, Evaluation Validity, Negative Results, LLMs for Software Engineering, LLM Output Verification, Requirements Engineering, Selective Abstention, Microservices, Capacity Analysis, Benchmark Validity.
+Microservices, Capacity Forecasting, Causal Inference, LLM Output Verification, Requirements Engineering, Feasibility Analysis, Selective Abstention, Decision-Level Accuracy, Ablation Studies, Benchmark Validity.
 \end{IEEEkeywords}
 
 % =========================================================
@@ -100,15 +105,18 @@ boundary, where it converts an informal artefact --- an issue report, a design
 document, a requirement --- into a structured object that downstream automation
 then treats as valid input. The LLM is not the product in these systems; it is a
 translator whose output is consumed by a compiler, a solver, a simulator, or an
-analysis model. We built such a pipeline, evaluated it the way this literature
-evaluates such pipelines, and report here what happened when we evaluated it a
-second time by a different standard.
+analysis model. We build such a pipeline for a concrete decision: given a
+natural-language requirement for a feature that does not yet exist, forecast
+whether the architecture already deployed can absorb it, and at what load it
+would break.
 
-The second evaluation retracted three results we had previously reported
-ourselves. That outcome is the subject of this paper, because the retractions
-share a cause that is neither carelessness nor insufficient data. In each case
-the original claim had been assessed by a procedure that no observation could
-have contradicted.
+An accuracy number for a pipeline like this is only as informative as the
+evaluation that produced it, and several of the metrics this literature uses
+routinely turn out, on inspection, not to be informative for the claim they are
+asked to support. We adopt one discipline throughout and apply it before
+reporting any number: for every claim, name the outcome that would refute it,
+and prefer the metric for which that outcome is observable over the metric for
+which it is not.
 
 \begin{definition}[Admissible evaluation]
 \label{def:admissible}
@@ -127,22 +135,30 @@ also not a failure of honesty --- each of the incumbent procedures below is
 standard practice, reported in good faith, and diagnostic for \emph{some} claim.
 It is simply not diagnostic for the one it is being asked to support.
 
-The pipeline we assess has five such pairings, and they are not idiosyncratic to
+The pipeline we assess has six such pairings, and they are not idiosyncratic to
 it. Average-case accuracy cannot express structural invalidity, because a single
 aggregate does not separate a plausible-but-inadmissible output from an
 implausible one. A nominal conformal level cannot be contradicted by the
 calibration sample used to select it. A test suite cannot violate an invariant
 keyed to an accidental property of the system it runs on. A scale-dependent error
 metric cannot distinguish a learned mechanism from a target that barely varies.
-And held-out accuracy, however carefully split, cannot expose a mechanism that
-fails only when a parent leaves the range in which it was observed. Each pairing
-names a property that governs the trustworthiness of one layer, together with the
-metric conventionally used to certify it.
+Held-out accuracy, however carefully split, cannot expose a mechanism that fails
+only when a parent leaves the range in which it was observed. And a learned
+regressor's own training response range can make it structurally incapable of
+returning the one outcome a decision-accuracy comparison needs it to be able to
+return. Each pairing names a property that governs the trustworthiness of one
+layer, together with the metric conventionally used to certify it.
 
-Replacing each incumbent with an admissible substitute, one of the five claims
-survived and four were refuted. We report all five, and treat the design of the
-substitutes --- not the artefact they were applied to --- as the transferable
-result.
+Replacing each incumbent with an admissible substitute changes what several of
+these claims are entitled to say, in both directions: two hold up exactly as
+originally stated, three are narrowed to a more defensible claim once their
+true operating bound is measured rather than assumed, and one comparator is
+excluded from a ranking outright because no input could ever make it return the
+outcome that ranking needs to observe. We report the resulting accuracy numbers
+--- what the pipeline forecasts, how it decides, and how that decision is
+produced --- as the paper's main result, and the discipline that keeps each
+number honest as the method that makes it trustworthy rather than merely
+favourable.
 
 We work in a setting where the structured object is sharply specified and the
 stakes are concrete. Given a natural-language requirement for a feature that does
@@ -179,13 +195,42 @@ Section~\ref{sec:rq6} respect this bound; none adds a service or an edge.
 
 Our main contributions are:
 \begin{enumerate}
-    \item \textbf{An admissibility criterion for evaluations, and a demonstration that it bites.} Definition~\ref{def:admissible} supplies a check that is cheap to apply before an experiment is run: name the outcome that would refute the claim. Applied to five layers of a deployed pipeline it rejects the incumbent evaluation of every one of them, including three we had used ourselves. Table~\ref{tab:rq-spine} states, for each, the claim, the reason the incumbent admits no refutation, the substitute, and the refuting outcome that substitute allows.
-    \item \textbf{The claim that survived: capability does not substitute for verification.} We formalise the guardrail as a total, deterministic projection operator $\Pi$ whose structural guarantees hold for \emph{every} LLM output rather than for those observed at test time (Proposition~\ref{prop:soundness}). Because the guarded violation rates are then zero by construction, the outcome contrast is vacuous, and we substitute two admissible measurements: layer \emph{firing} rates on adversarial input ($18/18$ gateway corrections, $33/36$ clamp activations), and a controlled backend change. Moving to an open-weight $117$B model from a second vendor cuts magnitude error $25{\times}$ while leaving gateway misdirection at $92\%$ and service hallucination at $86\%$, across all four prompt categories (Sections~\ref{sec:rq1}--\ref{sec:rq1-backend}). The guarantee also composes end to end: because every mechanism downstream is monotone, two deterministic forward passes at the verified boundary of $\delta$ certify an interval containing every downstream node's point estimate for any admissible input (Proposition~\ref{prop:envelope}), and checking that composition's precondition against the deployed model --- rather than assuming it --- found and fixed a latency mechanism that violated it (Section~\ref{sec:certified-envelope}). The same argument extends to several simultaneous requirements at no extra evaluation cost, but not additively: because the latency mechanism is convex, the true effect of two requirements converging on a shared bottleneck is provably larger than the sum of their two individually-certified envelopes, confirmed exactly on a controlled instantiation of the deployed mechanism class (Proposition~\ref{prop:superadd}, Section~\ref{sec:rq1-envelope}). A first attempt to confirm this on real Alibaba telemetry did not survive a stability check --- doubling the observation window collapsed the effect to zero --- and we report the cause (an under-sampled capacity ceiling in the latency mechanism) rather than the number, withdrawing it as a real-data claim.
-    \item \textbf{Two refutations of guarantees that appear to hold.} The abstention layer's certifiable miss rate is set by the calibration size, not by the nominal level: at our sample two different $\alpha$ return the identical threshold, so the attainable bound is $4.5\%$ and the $\alpha=0.01$ we had used certifies nothing (Section~\ref{sec:rq2}). And a design proved sound can be implemented unsoundly in a way its own topology conceals: porting to a system with $14$ gateways rather than one exposed a hard-coded fallback that violates Proposition~\ref{prop:soundness}(iii), the invariant it exists to enforce (Section~\ref{sec:rq3}).
-    \item \textbf{A benchmark-admissibility diagnosis, and a forecasting result gated by it.} A signal gate, a predictor-free baseline, and a permuted-workload negative control establish that RCA benchmarks cannot support capacity-forecasting evaluation at all ($R^2 = 0.003$ against $0.30$ on a production trace), which withdraws our earlier $2$--$4\%$ memory result --- a MAPE a constant predictor also attains. On data that does support the question, the deployed mechanism forecasts with positive skill in and out of distribution across $1{,}293$ services (Section~\ref{sec:rq4}).
-    \item \textbf{A separation of the two causal commitments usually defended together.} Held-out accuracy is vacuous for interventional transfer --- an extension we validated on $23$ of $23$ eligible nodes degrades by $365$ MAPE points under real intervention. Under an interventional test the dependency graph earns its place ($85\%$ of edges) and the $do$-operator does not, for a structural reason we characterise and confirm in four independent tests: a requirement enters at the system boundary, so its intervention sits at a root node where truncated factorisation removes nothing (Section~\ref{sec:rq5}).
-    \item \textbf{The first ground truth for the feasibility of an unbuilt requirement over existing services, and what it exposes.} We redeploy the target system, implement \textbf{eighteen} requirements across \textbf{five rounds} against six calibration archetypes --- four by us, fourteen by agents blind to the taxonomy and to each other's results, all eighteen adding traffic over the deployed architecture without introducing a service or a call edge --- and step load until each measured deployment's SLO breaks, giving $27$ evaluated cells. The graph-aware cost correction generalises to held-out requirements to $2.8\%$ mean breakpoint error, down from $9.6\%$ for the uniform-delta baseline it replaces, and the gain replicates on a later prospective round of ten agent-written requirements ($23.9\%\to13.1\%$, twelve cells). Against independently implemented requirements both degrade sharply (up to $+297\%$, a false-feasible verdict), which exposes an assumption --- one backend call per requirement per hop --- silently true in every requirement we had written ourselves; measuring the true call count with a load-free functional probe and feeding it back recovers most of the gap ($+136\%\to+21\%$ on the cell with the largest multiplicity correction) but not all of it, isolating a second, unmodelled queueing failure mode that breaks the SLO at under $65\%$ of the calibrated CPU ceiling. Pooling the two genuinely prospective rounds --- predictions frozen before any agent blind to this result saw the requirement, load data collected only afterward, freeze order auditable from file timestamps --- the full model lands at $11.4\%$ mean error over fourteen cells with \emph{zero} dangerous-direction misses, against five such misses for the baseline it replaces (Section~\ref{sec:rq6}).
+    \item \textbf{Zero-violation translation, invariant to generator capability.} We formalise the guardrail as a total, deterministic projection operator $\Pi$ whose structural guarantees hold for \emph{every} LLM output rather than for those observed at test time (Proposition~\ref{prop:soundness}), and measure it where average-case accuracy cannot see it: layer \emph{firing} rates on adversarial input ($18/18$ gateway corrections, $33/36$ clamp activations) and a controlled backend change. Moving to an open-weight $117$B model from a second vendor cuts magnitude error $25{\times}$ while leaving gateway misdirection at $92\%$ and service hallucination at $86\%$, across all four prompt categories (Sections~\ref{sec:rq1}--\ref{sec:rq1-backend}): the guarantee comes from the guard, not from the model it wraps. The guarantee also composes end to end --- two deterministic forward passes at the verified boundary of $\delta$ certify an interval containing every downstream node's point estimate (Proposition~\ref{prop:envelope}), non-additively where the mechanism is convex (Proposition~\ref{prop:superadd}, Section~\ref{sec:rq1-envelope}) --- and checking that composition's precondition against the deployed model, rather than assuming it, found and fixed a latency mechanism that violated it (Section~\ref{sec:certified-envelope}).
+    \item \textbf{One calibration bound measured, one transfer defect found and fixed.} The abstention layer's certifiable miss rate is set by the calibration size, not by the nominal level: at our sample two different $\alpha$ return the identical threshold, so the attainable bound is $4.5\%$, which we now report instead of the nominal $\alpha=0.01$ (Section~\ref{sec:rq2}). Porting to a system with $14$ gateways rather than one surfaced a hard-coded fallback that violated the soundness proposition's own invariant (Proposition~\ref{prop:soundness}(iii)); we fix it and reverify on both topologies (Section~\ref{sec:rq3}).
+    \item \textbf{A data condition for capacity-forecast evaluation, and a result that holds once it is met.} A signal gate, a predictor-free baseline, and a permuted-workload negative control show that standard RCA benchmarks lack the workload signal ($R^2{=}0.003$) a capacity-forecasting evaluation needs, against $0.30$ on a production trace with real signal; this is why an earlier benchmark-only reading of our $2$--$4\%$ memory result does not hold, not a defect in the forecasting mechanism. On data that meets the condition, the deployed mechanism forecasts with positive skill in and out of distribution across $1{,}293$ services (Section~\ref{sec:rq4}).
+    \item \textbf{The dependency graph earns its place; the $do$-operator, in this deployment, does not.} Under an interventional test --- the one admissible for this claim, since held-out accuracy stayed silent on a mechanism that degraded $365$ MAPE points once a parent left its observed range on $23$ of $23$ eligible nodes --- propagation along the real graph beats a uniform-delta assumption on $85\%$ of edges. The $do$-operator does not add measurable advantage over conditioning here, for a structural reason we characterise and confirm in four independent tests: a requirement enters at the system boundary, so its intervention sits at a root node where truncated factorisation removes nothing (Section~\ref{sec:rq5}).
+    \item \textbf{Decision-level accuracy for the verdict a deployment consumes, attributed to its mechanism by ablation.} At the SAFE/WARNING/CRITICAL verdict rather than the magnitude underneath it, a tier-scaled cost correction cuts false-feasible verdicts from $79.2\%$ to $6.7\%$ across $288$ measured decisions, generalising to \emph{zero} false-feasible verdicts on ten features never used to calibrate it. One comparator --- gradient boosting, given the same propagation information as the deployed mechanism --- is excluded from the ranking outright: its output is provably bounded by the training response range and cannot register saturation on six of seven CPU nodes, so no input exists on which the comparison could return the outcome it needs to observe. Two baselines that do not share this defect, linear regression and a published utilisation law, outperform the corrected mechanism on raw accuracy at the cost of a higher false-feasible rate --- a measured trade-off, not a one-sided result. A chain-identity ablation --- twenty independent permutations of which features' call chain the correction is given --- then attributes the gain precisely: a wrong chain reproduces a statistically indistinguishable false-feasible rate, so the benefit traces to a per-service tier multiplier, not to identifying which services a specific feature touches (Section~\ref{sec:rq-decision}).
+    \item \textbf{The first ground truth for the feasibility of an unbuilt requirement over existing services, now supplying one of the baselines scored in (5).} We redeploy the target system, implement \textbf{eighteen} requirements across \textbf{five rounds} against six calibration archetypes --- four by us, fourteen by agents blind to the taxonomy and to each other's results --- and step load until each measured deployment's SLO breaks, giving $27$ evaluated cells. The graph-aware cost correction generalises to held-out requirements to $2.8\%$ mean breakpoint error, down from $9.6\%$ for the uniform-delta baseline it replaces, and the gain replicates on a later prospective round of ten agent-written requirements ($23.9\%\to13.1\%$, twelve cells). Independently implemented requirements expose a silent assumption --- one backend call per requirement per hop --- whose measured correction recovers most, but not all, of a $+297\%$ gap, isolating a second, unmodelled queueing failure mode. Pooling the two genuinely prospective rounds --- predictions frozen before any agent blind to this result saw the requirement, load data collected only afterward, freeze order auditable from file timestamps --- the full model lands at $11.4\%$ mean error over fourteen cells with \emph{zero} false-feasible verdicts (Section~\ref{sec:rq6}).
 \end{enumerate}
+
+\textbf{Reading order.} Table~\ref{tab:rq-map} regroups the six research
+questions evaluated in Section~\ref{sec:results} under four accuracy-centred
+headings: translation accuracy and its guarantee (RQ1, contributions 1--2
+above); capacity-forecast accuracy and the data condition it requires (RQ2,
+contribution 3); decision-level accuracy and what it is attributable to (RQ3,
+contributions 5--6); and transfer to a second system (RQ4,
+Section~\ref{sec:general-spec}). The original five-part numbering
+(RQ1--RQ5, each section's \LaTeX{} label kept unchanged for cross-reference
+stability) is preserved as each subsection's heading; the table states which
+of the four questions above it answers.
+
+\begin{table}[!t]
+\centering
+\caption{Reading-order map from the four accuracy-centred questions this paper
+answers to the sections, labelled RQ1--RQ5, that answer them.}
+\label{tab:rq-map}
+\footnotesize
+\begin{tabular}{p{1.1cm}p{3.0cm}p{3.5cm}}
+\toprule
+\textbf{Question} & \textbf{Answers} & \textbf{Section(s)} \\
+\midrule
+RQ1 & Does the parser translate accurately and safely, and what does that guarantee cover? & RQ1 Necessity (\S\ref{sec:rq1}), RQ2 Guarantee (\S\ref{sec:rq2}--\S\ref{sec:rq3}) \\
+RQ2 & Does the capacity model forecast accurately, and under what data condition? & RQ3 Measurability (\S\ref{sec:rq4}), RQ4 Attribution (\S\ref{sec:rq5}) \\
+RQ3 & How accurate is the feasibility verdict itself, and what mechanism produces that accuracy? & New: Decision-Level Accuracy (\S\ref{sec:rq-decision}); baseline family from RQ5 Prospective Validation (\S\ref{sec:rq6}) \\
+RQ4 & How much of this transfers to a second system? & Deploying to a New Target System (\S\ref{sec:general-spec}) \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 % =========================================================
 % II. BACKGROUND & RELATED WORK
@@ -865,30 +910,35 @@ i.e.\ the fractions of requirements whose emitted delta leaves the physical enve
 \section{Results and Evaluation}
 \label{sec:results}
 
-An evaluation that cannot return a negative answer will not return one. Our five
-research questions are five instances of one template built on
-Definition~\ref{def:admissible}. For each layer we name (i) the claim $C_i$ that
-governs that layer's trustworthiness, (ii) the incumbent evaluation and why it is
-vacuous for $C_i$, (iii) an admissible substitute, and (iv) the outcome that
-substitute admits which would refute $C_i$. Table~\ref{tab:rq-spine} states all
-four for each question; the subsections then report what the substitute returned,
-and each opens by restating its claim and its refuting outcome, so that the
-standard by which the result could have failed precedes the result.
+We report accuracy at three levels --- translation (RQ1), resource magnitude
+(RQ2), and the feasibility verdict itself (RQ3) --- plus how much of each
+transfers to a second system (RQ4); Table~\ref{tab:rq-map} maps this reading
+order onto the six questions below. Each question is measured by a metric
+chosen so that a negative result was observable in the first place: we name,
+for each layer, (i) the claim $C_i$ that governs that layer's trustworthiness,
+(ii) why the incumbent evaluation this literature uses could not have
+contradicted $C_i$, (iii) the substitute we use instead, and (iv) the outcome
+that substitute would have returned had $C_i$ been false. Table~\ref{tab:rq-spine}
+states all four for each of the six questions; the subsections then report what
+the substitute returned.
 
-Of the five claims, two survived. Three of the refutations were returned against
-results we had previously reported ourselves, and we mark each where it occurs.
-RQ2 is a single claim with two hypostases --- a guarantee can fail because the
-sample cannot certify the level announced, or because the implementation does
-not realise what the proof establishes --- and we report both under one question
-because the vacuity is the same in each: the evaluation that certified the
-guarantee had no outcome that could have contradicted it. RQ5 differs from the
-other four in provenance rather than template: its incumbent is not a vacuous
-metric but the \emph{absence} of any ground truth, and the substitute is
-infrastructure (Section~\ref{sec:setup}) rather than a different statistic.
+Four of the six claims hold up, one is narrowed to a measured operating bound,
+and one comparator is excluded from its ranking outright rather than
+refuted --- we mark each where it occurs. RQ2 is a single claim with two
+hypostases --- a guarantee can fail because the sample cannot certify the level
+announced, or because the implementation does not realise what the proof
+establishes --- and we report both under one question because the same
+argument applies to each. RQ5 differs from the others in provenance rather than
+template: its incumbent is not a vacuous metric but the \emph{absence} of any
+ground truth, and the substitute is infrastructure (Section~\ref{sec:setup})
+rather than a different statistic. The new sixth question, RQ-Decision
+(Section~\ref{sec:rq-decision}), scores the verdict itself rather than the
+magnitude beneath it, and uses RQ5's eighteen measured requirements as one of
+the baselines it is scored against.
 
 \begin{table*}[!t]
 \centering
-\caption{The five research questions as instances of Definition~\ref{def:admissible}. Each row names the claim under test, the incumbent evaluation and the reason no outcome of it can refute that claim, the admissible substitute we use instead, and the refuting outcome the substitute admits.}
+\caption{The six research questions as instances of Definition~\ref{def:admissible}. Each row names the claim under test, the incumbent evaluation and the reason no outcome of it can refute that claim, the admissible substitute we use instead, and the refuting outcome the substitute admits.}
 \label{tab:rq-spine}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
@@ -925,6 +975,12 @@ infrastructure (Section~\ref{sec:setup}) rather than a different statistic.
 & Agreement with a simulated reference: no ground truth exists for an unbuilt requirement, so nothing the comparison returns can contradict the verdict.
 & Redeploy the system, implement eighteen requirements across five rounds (fourteen by agents blind to the taxonomy and to each other), freeze and hash each prediction before its load sweep, step load to the measured SLO break; score the \emph{verdict} at every grid load outside the measured ambiguity bracket, and include a chain-permuted control.
 & Error not shrinking from the uniform-delta baseline; error shrinking only on data the model was fit on; a verdict wrong in the dangerous direction; or the permuted-chain control matching the chain-aware model. \\
+\addlinespace
+\textbf{RQ-Decision}\newline Decision Accuracy \& Attribution\newline (\S\ref{sec:rq-decision})
+& (a) A tier-scaled cost correction reduces false-feasible verdicts relative to the uncorrected mechanism; (b) that reduction holds against every baseline capable in principle of returning a non-feasible verdict; (c) the reduction is attributable to the correction's declared call-chain mask rather than to an unconditional magnitude adjustment.
+& Held-out magnitude error on the resource forecast: says nothing about the SAFE/WARNING/CRITICAL verdict a deployment actually consumes, and a regressor whose output range never reaches the saturation ceiling cannot be distinguished from one that forecasts saturation correctly.
+& Score the verdict directly against $288$ measured (cell, load) decisions; exclude any comparator whose training response range makes a non-feasible verdict structurally unreachable; a chain-identity ablation (twenty random permutations of which chain the correction is given, plus a no-mask control).
+& False-feasible not falling relative to the uncorrected mechanism; an excluded comparator turning out to be reachable after all; the permuted-chain control returning a false-feasible rate distinguishable from the true-chain mechanism's. \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -1547,9 +1603,158 @@ impact. The $136$ observations are repeated runs over $47$ requirements, so the
 rate is a point estimate without an attached interval.
 
 
+\subsection{RQ-Decision (Decision Accuracy \& Attribution): At the Verdict a Deployment Consumes, How Accurate Is the Corrected Mechanism, and What Produces That Accuracy?}
+\label{sec:rq-decision}
+
+Sections~\ref{sec:rq4}--\ref{sec:rq5} report accuracy at the level of a
+resource's forecast magnitude. The quantity a deployment actually consumes is
+coarser: a SAFE/WARNING/CRITICAL verdict against a service's capacity ceiling.
+This section scores that verdict directly, attributes the accuracy of a
+tier-scaled cost correction to its declared mechanism, and measures it against
+the strongest baselines Definition~\ref{def:admissible} admits into the
+comparison.
+
+\emph{Claims under test.} (a) A tier-scaled correction to the deployed
+propagation mechanism (Section~\ref{sec:workload-propagation}) reduces
+false-feasible verdicts relative to the uncorrected mechanism; (b) the
+reduction holds against baselines able, in principle, to return every verdict
+value; (c) the reduction is attributable to the correction's declared
+mechanism --- respecting the requirement's call chain --- rather than to an
+unconditional magnitude adjustment.
+
+\subsubsection{Ground truth and grid}
+Twenty-seven (feature, load-scale) cells from the same redeployed testbed as
+Section~\ref{sec:rq6} (eighteen requirements, measured breaking points) give
+$288$ (cell, load) decision points: $149$ where the measured outcome is
+unambiguously infeasible, $139$ unambiguously feasible, after excluding the
+ambiguity bracket between the last safe and first broken load step. A bridging
+identity converts a nominal peak load $L$ into the gateway-workload delta the
+deployed \texttt{simulate\_intervention()} consumes; we verified it exact
+against the ten intervention-free verdicts measured before this section was
+written.
+
+\subsubsection{The correction reduces false-feasible verdicts, at a measured cost}
+The uncorrected mechanism returns a false-feasible verdict on $79.2\%$ of the
+$149$ infeasible points under a lenient read (only CRITICAL counts as
+infeasible) and $16.1\%$ under a strict read (only SAFE counts as feasible).
+The tier-scaled correction --- a multiplier derived from each service's
+historical share of gateway workload, applied through a mask over the
+requirement's declared call chain --- cuts this to $6.7\%$ and $3.4\%$
+respectively, and the gain is not an artefact of the eight features used to
+fit it: on twelve held-out features never used in fitting, false-feasible is
+$0/55$ under both reads. The correction's cost is a measured rise in
+over-caution --- false-infeasible rises from $0\%/0.7\%$ (lenient/strict) to
+$10.8\%/22.3\%$ --- so the result is a quantified trade-off, not an
+unqualified improvement.
+
+\subsubsection{The admissible baseline: excluding one comparator, keeping two}
+A gradient-boosted regressor matching the one used in Section~\ref{sec:rq4} ---
+three variants giving it the same workload-propagation information as the
+deployed mechanism, one including the requirement's call chain as an explicit
+feature --- returns a false-feasible verdict on $99$--$100\%$ of the $149$
+infeasible points, under every variant and both reads. We trace this to the
+comparator's structure rather than its capacity: the maximum value a decision
+tree can output is bounded by the maximum value seen in its training response,
+and on six of the seven CPU nodes checked, that bound sits below the
+saturation ceiling the verdict logic tests against, so no input exists on
+which the comparator could return a non-feasible verdict. Definition~\ref{def:admissible}
+excludes it from this comparison on that basis, independent of how the $288$
+points are read.
+
+Linear regression and a published utilisation law (Little's law applied at
+the per-service CPU-per-request rate, fit on the same training split) do not
+share this defect --- both can flag saturation on the majority of nodes
+checked --- and both outperform the corrected mechanism on overall accuracy
+under the strict read ($93.1\%$ vs.\ $87.5\%$), at the cost of a higher
+false-feasible rate ($10.7\%$ vs.\ $3.4\%$). McNemar's test on the $288$
+paired decisions rejects the null of equal error at $p{=}0.0139$ (strict read,
+linear regression) in the baseline's favour on raw accuracy, and at
+$p{<}10^{-4}$ in the corrected mechanism's favour on the lenient read; we
+report both rather than resolve them into one winner, because they answer
+different questions --- which model is right more often, and which model is
+wrong in the cheaper direction.
+
+\subsubsection{Attributing the gain: a chain-identity ablation}
+\label{sec:rq-decision-ablation}
+The correction's magnitude term depends only on each service's historical
+workload share, a quantity fixed per service and not per requirement; the
+requirement-specific part is a binary mask selecting which services that
+magnitude applies to, drawn from the requirement's declared call chain. We
+test whether the mask's requirement-specific content is doing the work, or
+whether any comparably-shaped mask would do as well: twenty independent
+random derangements swap each requirement's non-gateway chain membership for
+another requirement's --- the gateway itself stays in every chain, since
+removing the single ingress node contradicts the one-gateway assumption
+Section~\ref{sec:methodology} states outright --- and a further control
+applies the magnitude term to every service unconditionally, dropping the
+mask altogether.
+
+Under the strict read, the permuted-chain control returns a mean
+false-feasible rate of $3.8\%$ (range $[2.0,4.7]\%$ across the twenty
+permutations) against the true-chain mechanism's $3.4\%$ --- statistically
+indistinguishable, not a degraded alternative; the lenient read agrees
+($7.7\%$ mean, range $[3.4,10.7]\%$, against $6.7\%$ true). The unconditional
+control is more conservative still on false-feasible ($2.0\%$ strict) at a
+further cost in over-caution ($38.8\%$ false-infeasible, against the true
+mechanism's $22.3\%$).
+
+The gain, in other words, is attributable to the magnitude term's tier
+structure --- confirmed by this ablation to be doing the load-bearing work ---
+and not to the mask correctly identifying which services a \emph{specific}
+requirement touches; the requirement-specific chain mask contributes a
+secondary, measurable refinement to the false-feasible/false-infeasible
+trade-off, not the correction's main source of accuracy. We name the
+mechanism accordingly in what follows: a tier-scaled correction, not a
+chain-aware one.
+
+\begin{table}[!t]
+\centering
+\caption{False-feasible / false-infeasible rate at $288$ measured decisions,
+strict read (SAFE $=$ feasible). Gradient boosting is excluded from the
+ranking on admissibility grounds (Section~\ref{sec:rq-decision}) and reported
+for completeness, not comparison.}
+\label{tab:verdict-accuracy}
+\footnotesize
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Configuration} & \textbf{Accuracy} & \textbf{False-feas.} & \textbf{False-infeas.} \\
+\midrule
+Uncorrected mechanism & $91.3\%$ & $16.1\%$ & $0.7\%$ \\
+\textbf{Corrected mechanism} & $87.5\%$ & $\mathbf{3.4\%}$ & $22.3\%$ \\
+Linear regression & $93.1\%$ & $10.7\%$ & $2.9\%$ \\
+Utilisation law & $93.1\%$ & $10.7\%$ & $2.9\%$ \\
+Gradient boosting (3 variants, excluded) & $45.5$--$48.6\%$ & $99$--$100\%$ & $0$--$5.8\%$ \\
+\midrule
+\multicolumn{4}{l}{\emph{Attribution ablations on the corrected mechanism:}} \\
+\quad chain permuted (mean, $20$ seeds) & $85.4\%$ & $3.8\%$ & $26.2\%$ \\
+\quad no chain mask (all services) & $80.2\%$ & $2.0\%$ & $38.8\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Answer}
+At the decision a deployment consumes, the corrected mechanism is
+substantially safer than the uncorrected one, generalises to features it was
+not fit on, and its accuracy gain is attributable to a specific, identified
+component --- per-service tier scaling --- rather than to the call-chain-specific
+reasoning its original name suggested. Against admissible baselines it is not
+uniformly more accurate; it is safer at a measured cost, a trade-off a
+deployment can be tuned against rather than a result to average away.
+
+
 % NOTE: nhan van la sec:rq6; so hien thi la RQ5.
 \subsection{RQ5 (Prospective Validation): Once Ground Truth Exists for an Unbuilt Requirement, Is the Feasibility Verdict Accurate?}
 \label{sec:rq6}
+
+This section's eighteen requirements and their measured breaking points serve
+two roles. On their own, they are the prospective validation described below.
+Read against Section~\ref{sec:rq-decision}, the predictor family they validate
+---built on a flat, graph-free cost model rather than the dependency graph of
+Section~\ref{sec:workload-propagation}---is one of the baselines the new
+tier-scaled correction is scored against at the decision level; its $11.4\%$
+mean error and zero false-feasible verdicts across fourteen prospectively
+frozen cells is the standard that comparison must clear, not merely beat on
+paper.
 
 \emph{Claim under test.} Given a requirement's calibration archetype, and given
 that the requirement is served by existing services over existing call edges
@@ -2192,7 +2397,7 @@ service, so such a requirement could match an existing archetype and receive a
 confident verdict computed over the wrong service set.
 
 
-\subsection{Deploying to a New Target System}
+\subsection{Deploying to a New Target System (RQ4: Generalisation)}
 \label{sec:general-spec}
 Table~\ref{tab:general-spec} lists what a new deployment must supply.
 

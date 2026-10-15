@@ -1,0 +1,217 @@
+cell,feature,scale,archetype,config,system,correction,doc_verdict,R_star,do_duoc_lo,hi,sai_so_pct,phan_loai,don_dieu_ok,n_vi_pham_don_dieu,n_calls_scm,note
+cartsumx1,cartsum,1,VIEW_CART,heA_off_long,A,off,long,182.55,160.0,180.0,14.1,MUON (kha thi gia),1.0,0.0,45.0,
+cartsumx1,cartsum,1,VIEW_CART,heA_off_chat,A,off,chat,265.18,160.0,180.0,65.7,MUON (kha thi gia),1.0,0.0,45.0,
+cartsumx1,cartsum,1,VIEW_CART,heA_on_long,A,on,long,135.54,160.0,180.0,-15.3,SOM (an toan),1.0,0.0,45.0,
+cartsumx1,cartsum,1,VIEW_CART,heA_on_chat,A,on,chat,171.13,160.0,180.0,7.0,TRONG khoang,1.0,0.0,45.0,
+cartsumx2,cartsum,2,VIEW_CART,heA_off_long,A,off,long,167.34,140.0,160.0,19.5,MUON (kha thi gia),1.0,0.0,45.0,
+cartsumx2,cartsum,2,VIEW_CART,heA_off_chat,A,off,chat,243.08,140.0,160.0,73.6,MUON (kha thi gia),1.0,0.0,45.0,
+cartsumx2,cartsum,2,VIEW_CART,heA_on_long,A,on,long,124.24,140.0,160.0,-11.3,SOM (an toan),1.0,0.0,43.0,
+cartsumx2,cartsum,2,VIEW_CART,heA_on_chat,A,on,chat,156.87,140.0,160.0,12.0,TRONG khoang,1.0,0.0,43.0,
+expressx1,express,1,PLACE_ORDER,heA_off_long,A,off,long,160.64,70.0,90.0,129.5,MUON (kha thi gia),1.0,0.0,45.0,
+expressx1,express,1,PLACE_ORDER,heA_off_chat,A,off,chat,233.36,70.0,90.0,233.4,MUON (kha thi gia),1.0,0.0,45.0,
+expressx1,express,1,PLACE_ORDER,heA_on_long,A,on,long,95.39,70.0,90.0,36.3,MUON (kha thi gia),1.0,0.0,44.0,
+expressx1,express,1,PLACE_ORDER,heA_on_chat,A,on,chat,102.53,70.0,90.0,46.5,MUON (kha thi gia),1.0,0.0,44.0,
+quickaddx1,quickadd,1,ADD_TO_CART,heA_off_long,A,off,long,174.61,80.0,100.0,118.3,MUON (kha thi gia),1.0,0.0,45.0,
+quickaddx1,quickadd,1,ADD_TO_CART,heA_off_chat,A,off,chat,253.65,80.0,100.0,217.1,MUON (kha thi gia),1.0,0.0,45.0,
+quickaddx1,quickadd,1,ADD_TO_CART,heA_on_long,A,on,long,129.65,80.0,100.0,62.1,MUON (kha thi gia),1.0,0.0,45.0,
+quickaddx1,quickadd,1,ADD_TO_CART,heA_on_chat,A,on,chat,163.69,80.0,100.0,104.6,MUON (kha thi gia),1.0,0.0,45.0,
+quickaddx2,quickadd,2,ADD_TO_CART,heA_off_long,A,off,long,154.47,40.0,60.0,286.2,MUON (kha thi gia),1.0,0.0,45.0,
+quickaddx2,quickadd,2,ADD_TO_CART,heA_off_chat,A,off,chat,224.38,40.0,60.0,461.0,MUON (kha thi gia),1.0,0.0,45.0,
+quickaddx2,quickadd,2,ADD_TO_CART,heA_on_long,A,on,long,114.69,40.0,60.0,186.7,MUON (kha thi gia),1.0,0.0,43.0,
+quickaddx2,quickadd,2,ADD_TO_CART,heA_on_chat,A,on,chat,144.8,40.0,60.0,262.0,MUON (kha thi gia),1.0,0.0,43.0,
+browsex1,browse,1,GET_CATALOGUE,heA_off_long,A,off,long,182.55,200.0,220.0,-8.7,SOM (an toan),1.0,0.0,45.0,
+browsex1,browse,1,GET_CATALOGUE,heA_off_chat,A,off,chat,265.18,200.0,220.0,32.6,MUON (kha thi gia),1.0,0.0,45.0,
+browsex1,browse,1,GET_CATALOGUE,heA_on_long,A,on,long,140.31,200.0,220.0,-29.8,SOM (an toan),1.0,0.0,45.0,
+browsex1,browse,1,GET_CATALOGUE,heA_on_chat,A,on,chat,180.95,200.0,220.0,-9.5,SOM (an toan),1.0,0.0,45.0,
+browsex2,browse,2,GET_CATALOGUE,heA_off_long,A,off,long,167.34,200.0,220.0,-16.3,SOM (an toan),1.0,0.0,45.0,
+browsex2,browse,2,GET_CATALOGUE,heA_off_chat,A,off,chat,243.08,200.0,220.0,21.5,MUON (kha thi gia),1.0,0.0,45.0,
+browsex2,browse,2,GET_CATALOGUE,heA_on_long,A,on,long,128.62,200.0,220.0,-35.7,SOM (an toan),1.0,0.0,45.0,
+browsex2,browse,2,GET_CATALOGUE,heA_on_chat,A,on,chat,165.87,200.0,220.0,-17.1,SOM (an toan),1.0,0.0,45.0,
+promox1,promo,1,APPLY_PROMO_CODE,heA_off_long,A,off,long,167.34,150.0,170.0,11.6,TRONG khoang,1.0,0.0,45.0,
+promox1,promo,1,APPLY_PROMO_CODE,heA_off_chat,A,off,chat,243.08,150.0,170.0,62.1,MUON (kha thi gia),1.0,0.0,45.0,
+promox1,promo,1,APPLY_PROMO_CODE,heA_on_long,A,on,long,99.37,150.0,170.0,-33.8,SOM (an toan),0.0,1.0,43.0,
+promox1,promo,1,APPLY_PROMO_CODE,heA_on_chat,A,on,chat,106.8,150.0,170.0,-28.8,SOM (an toan),0.0,1.0,43.0,
+promox2,promo,2,APPLY_PROMO_CODE,heA_off_long,A,off,long,143.43,80.0,100.0,79.3,MUON (kha thi gia),1.0,0.0,45.0,
+promox2,promo,2,APPLY_PROMO_CODE,heA_off_chat,A,off,chat,208.35,80.0,100.0,160.4,MUON (kha thi gia),1.0,0.0,45.0,
+promox2,promo,2,APPLY_PROMO_CODE,heA_on_long,A,on,long,85.17,80.0,100.0,6.5,TRONG khoang,0.0,1.0,44.0,
+promox2,promo,2,APPLY_PROMO_CODE,heA_on_chat,A,on,chat,91.54,80.0,100.0,14.4,TRONG khoang,0.0,1.0,44.0,
+recsx1,recs,1,RECOMMEND_PRODUCTS,heA_off_long,A,off,long,154.47,120.0,140.0,28.7,MUON (kha thi gia),1.0,0.0,45.0,
+recsx1,recs,1,RECOMMEND_PRODUCTS,heA_off_chat,A,off,chat,224.38,120.0,140.0,87.0,MUON (kha thi gia),1.0,0.0,45.0,
+recsx1,recs,1,RECOMMEND_PRODUCTS,heA_on_long,A,on,long,91.72,120.0,140.0,-23.6,SOM (an toan),0.0,1.0,44.0,
+recsx1,recs,1,RECOMMEND_PRODUCTS,heA_on_chat,A,on,chat,98.58,120.0,140.0,-17.8,SOM (an toan),0.0,1.0,44.0,
+recsx2,recs,2,RECOMMEND_PRODUCTS,heA_off_long,A,off,long,125.5,100.0,120.0,25.5,MUON (kha thi gia),1.0,0.0,43.0,
+recsx2,recs,2,RECOMMEND_PRODUCTS,heA_off_chat,A,off,chat,182.31,100.0,120.0,82.3,MUON (kha thi gia),1.0,0.0,43.0,
+recsx2,recs,2,RECOMMEND_PRODUCTS,heA_on_long,A,on,long,80.1,100.0,120.0,-19.9,SOM (an toan),1.0,0.0,27.0,
+recsx2,recs,2,RECOMMEND_PRODUCTS,heA_on_chat,A,on,chat,80.1,100.0,120.0,-19.9,SOM (an toan),1.0,0.0,27.0,
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,heA_off_long,A,off,long,182.55,180.0,200.0,1.4,TRONG khoang,1.0,0.0,45.0,
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,heA_off_chat,A,off,chat,265.18,180.0,200.0,47.3,MUON (kha thi gia),1.0,0.0,45.0,
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,heA_on_long,A,on,long,132.29,180.0,200.0,-26.5,SOM (an toan),1.0,0.0,45.0,
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,heA_on_chat,A,on,chat,164.58,180.0,200.0,-8.6,SOM (an toan),1.0,0.0,45.0,
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,heA_off_long,A,off,long,167.34,150.0,170.0,11.6,TRONG khoang,1.0,0.0,45.0,
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,heA_off_chat,A,off,chat,243.08,150.0,170.0,62.1,MUON (kha thi gia),1.0,0.0,45.0,
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,heA_on_long,A,on,long,121.27,150.0,170.0,-19.2,SOM (an toan),1.0,0.0,43.0,
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,heA_on_chat,A,on,chat,150.86,150.0,170.0,0.6,TRONG khoang,1.0,0.0,43.0,
+trackx1,track,1,TRACK_PACKAGE,heA_off_long,A,off,long,174.61,170.0,190.0,2.7,TRONG khoang,1.0,0.0,45.0,
+trackx1,track,1,TRACK_PACKAGE,heA_off_chat,A,off,chat,253.65,170.0,190.0,49.2,MUON (kha thi gia),1.0,0.0,45.0,
+trackx1,track,1,TRACK_PACKAGE,heA_on_long,A,on,long,103.69,170.0,190.0,-39.0,SOM (an toan),1.0,0.0,43.0,
+trackx1,track,1,TRACK_PACKAGE,heA_on_chat,A,on,chat,111.44,170.0,190.0,-34.4,SOM (an toan),1.0,0.0,43.0,
+trackx2,track,2,TRACK_PACKAGE,heA_off_long,A,off,long,154.47,140.0,160.0,10.3,TRONG khoang,1.0,0.0,45.0,
+trackx2,track,2,TRACK_PACKAGE,heA_off_chat,A,off,chat,224.38,140.0,160.0,60.3,MUON (kha thi gia),1.0,0.0,45.0,
+trackx2,track,2,TRACK_PACKAGE,heA_on_long,A,on,long,91.72,140.0,160.0,-34.5,SOM (an toan),1.0,0.0,44.0,
+trackx2,track,2,TRACK_PACKAGE,heA_on_chat,A,on,chat,98.58,140.0,160.0,-29.6,SOM (an toan),1.0,0.0,44.0,
+accountx1,account,1,RECOMMEND_PRODUCTS,heA_off_long,A,off,long,154.47,125.0,155.0,23.6,TRONG khoang,1.0,0.0,45.0,
+accountx1,account,1,RECOMMEND_PRODUCTS,heA_off_chat,A,off,chat,224.38,125.0,155.0,79.5,MUON (kha thi gia),1.0,0.0,45.0,
+accountx1,account,1,RECOMMEND_PRODUCTS,heA_on_long,A,on,long,91.72,125.0,155.0,-26.6,SOM (an toan),0.0,1.0,44.0,
+accountx1,account,1,RECOMMEND_PRODUCTS,heA_on_chat,A,on,chat,98.58,125.0,155.0,-21.1,SOM (an toan),0.0,1.0,44.0,
+catsearchx1,catsearch,1,GET_CATALOGUE,heA_off_long,A,off,long,182.55,195.0,240.0,-6.4,SOM (an toan),1.0,0.0,45.0,
+catsearchx1,catsearch,1,GET_CATALOGUE,heA_off_chat,A,off,chat,265.18,195.0,240.0,36.0,MUON (kha thi gia),1.0,0.0,45.0,
+catsearchx1,catsearch,1,GET_CATALOGUE,heA_on_long,A,on,long,140.31,195.0,240.0,-28.0,SOM (an toan),1.0,0.0,45.0,
+catsearchx1,catsearch,1,GET_CATALOGUE,heA_on_chat,A,on,chat,180.95,195.0,240.0,-7.2,SOM (an toan),1.0,0.0,45.0,
+loginx1,login,1,LOGIN,heA_off_long,A,off,long,182.55,155.0,195.0,17.8,TRONG khoang,1.0,0.0,45.0,
+loginx1,login,1,LOGIN,heA_off_chat,A,off,chat,265.18,155.0,195.0,71.1,MUON (kha thi gia),1.0,0.0,45.0,
+loginx1,login,1,LOGIN,heA_on_long,A,on,long,132.29,155.0,195.0,-14.7,SOM (an toan),1.0,0.0,45.0,
+loginx1,login,1,LOGIN,heA_on_chat,A,on,chat,164.58,155.0,195.0,6.2,TRONG khoang,1.0,0.0,45.0,
+loginx2,login,2,LOGIN,heA_off_long,A,off,long,167.34,125.0,155.0,33.9,MUON (kha thi gia),1.0,0.0,45.0,
+loginx2,login,2,LOGIN,heA_off_chat,A,off,chat,243.08,125.0,155.0,94.5,MUON (kha thi gia),1.0,0.0,45.0,
+loginx2,login,2,LOGIN,heA_on_long,A,on,long,121.27,125.0,155.0,-3.0,SOM (an toan),1.0,0.0,43.0,
+loginx2,login,2,LOGIN,heA_on_chat,A,on,chat,150.86,125.0,155.0,20.7,TRONG khoang,1.0,0.0,43.0,
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,heA_off_long,A,off,long,154.47,140.0,175.0,10.3,TRONG khoang,1.0,0.0,45.0,
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,heA_off_chat,A,off,chat,224.38,140.0,175.0,60.3,MUON (kha thi gia),1.0,0.0,45.0,
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,heA_on_long,A,on,long,91.72,140.0,175.0,-34.5,SOM (an toan),0.0,1.0,44.0,
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,heA_on_chat,A,on,chat,98.58,140.0,175.0,-29.6,SOM (an toan),0.0,1.0,44.0,
+orderhistx1,orderhist,1,TRACK_PACKAGE,heA_off_long,A,off,long,174.61,155.0,195.0,12.7,TRONG khoang,1.0,0.0,45.0,
+orderhistx1,orderhist,1,TRACK_PACKAGE,heA_off_chat,A,off,chat,253.65,155.0,195.0,63.6,MUON (kha thi gia),1.0,0.0,45.0,
+orderhistx1,orderhist,1,TRACK_PACKAGE,heA_on_long,A,on,long,103.69,155.0,195.0,-33.1,SOM (an toan),1.0,0.0,43.0,
+orderhistx1,orderhist,1,TRACK_PACKAGE,heA_on_chat,A,on,chat,111.44,155.0,195.0,-28.1,SOM (an toan),1.0,0.0,43.0,
+previewx1,preview,1,VIEW_CART,heA_off_long,A,off,long,182.55,175.0,217.5,4.3,TRONG khoang,1.0,0.0,45.0,
+previewx1,preview,1,VIEW_CART,heA_off_chat,A,off,chat,265.18,175.0,217.5,51.5,MUON (kha thi gia),1.0,0.0,45.0,
+previewx1,preview,1,VIEW_CART,heA_on_long,A,on,long,135.54,175.0,217.5,-22.5,SOM (an toan),1.0,0.0,45.0,
+previewx1,preview,1,VIEW_CART,heA_on_chat,A,on,chat,171.13,175.0,217.5,-2.2,SOM (an toan),1.0,0.0,45.0,
+registerx1,register,1,REGISTER,heA_off_long,A,off,long,182.55,155.0,195.0,17.8,TRONG khoang,1.0,0.0,45.0,
+registerx1,register,1,REGISTER,heA_off_chat,A,off,chat,265.18,155.0,195.0,71.1,MUON (kha thi gia),1.0,0.0,45.0,
+registerx1,register,1,REGISTER,heA_on_long,A,on,long,132.29,155.0,195.0,-14.7,SOM (an toan),1.0,0.0,45.0,
+registerx1,register,1,REGISTER,heA_on_chat,A,on,chat,164.58,155.0,195.0,6.2,TRONG khoang,1.0,0.0,45.0,
+registerx2,register,2,REGISTER,heA_off_long,A,off,long,167.34,125.0,155.0,33.9,MUON (kha thi gia),1.0,0.0,45.0,
+registerx2,register,2,REGISTER,heA_off_chat,A,off,chat,243.08,125.0,155.0,94.5,MUON (kha thi gia),1.0,0.0,45.0,
+registerx2,register,2,REGISTER,heA_on_long,A,on,long,121.27,125.0,155.0,-3.0,SOM (an toan),1.0,0.0,43.0,
+registerx2,register,2,REGISTER,heA_on_chat,A,on,chat,150.86,125.0,155.0,20.7,TRONG khoang,1.0,0.0,43.0,
+relatedx1,related,1,GET_CATALOGUE,heA_off_long,A,off,long,182.55,175.0,217.5,4.3,TRONG khoang,1.0,0.0,45.0,
+relatedx1,related,1,GET_CATALOGUE,heA_off_chat,A,off,chat,265.18,175.0,217.5,51.5,MUON (kha thi gia),1.0,0.0,45.0,
+relatedx1,related,1,GET_CATALOGUE,heA_on_long,A,on,long,140.31,175.0,217.5,-19.8,SOM (an toan),1.0,0.0,45.0,
+relatedx1,related,1,GET_CATALOGUE,heA_on_chat,A,on,chat,180.95,175.0,217.5,3.4,TRONG khoang,1.0,0.0,45.0,
+reorderx1,reorder,1,PLACE_ORDER,heA_off_long,A,off,long,160.64,100.0,125.0,60.6,MUON (kha thi gia),1.0,0.0,45.0,
+reorderx1,reorder,1,PLACE_ORDER,heA_off_chat,A,off,chat,233.36,100.0,125.0,133.4,MUON (kha thi gia),1.0,0.0,45.0,
+reorderx1,reorder,1,PLACE_ORDER,heA_on_long,A,on,long,95.39,100.0,125.0,-4.6,SOM (an toan),1.0,0.0,44.0,
+reorderx1,reorder,1,PLACE_ORDER,heA_on_chat,A,on,chat,102.53,100.0,125.0,2.5,TRONG khoang,1.0,0.0,44.0,
+wishlistx1,wishlist,1,ADD_TO_CART,heA_off_long,A,off,long,174.61,140.0,175.0,24.7,TRONG khoang,1.0,0.0,45.0,
+wishlistx1,wishlist,1,ADD_TO_CART,heA_off_chat,A,off,chat,253.65,140.0,175.0,81.2,MUON (kha thi gia),1.0,0.0,45.0,
+wishlistx1,wishlist,1,ADD_TO_CART,heA_on_long,A,on,long,129.65,140.0,175.0,-7.4,SOM (an toan),1.0,0.0,45.0,
+wishlistx1,wishlist,1,ADD_TO_CART,heA_on_chat,A,on,chat,163.69,140.0,175.0,16.9,TRONG khoang,1.0,0.0,45.0,
+cartsumx1,cartsum,1,VIEW_CART,heB_P1 (k=1),B,n/a,n/a,187.8,160.0,180.0,17.4,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+cartsumx1,cartsum,1,VIEW_CART,"heB_P2 (c,x; k=1)",B,n/a,n/a,181.8,160.0,180.0,13.6,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+cartsumx1,cartsum,1,VIEW_CART,heB_P3 (k do duoc),B,n/a,n/a,181.8,160.0,180.0,13.6,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+cartsumx1,cartsum,1,VIEW_CART,heB_P3+chain,B,n/a,n/a,176.0,160.0,180.0,10.0,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+cartsumx2,cartsum,2,VIEW_CART,heB_P1 (k=1),B,n/a,n/a,172.2,140.0,160.0,23.0,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+cartsumx2,cartsum,2,VIEW_CART,"heB_P2 (c,x; k=1)",B,n/a,n/a,162.2,140.0,160.0,15.9,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+cartsumx2,cartsum,2,VIEW_CART,heB_P3 (k do duoc),B,n/a,n/a,162.2,140.0,160.0,15.9,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+cartsumx2,cartsum,2,VIEW_CART,heB_P3+chain,B,n/a,n/a,153.4,140.0,160.0,9.5,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+expressx1,express,1,PLACE_ORDER,heB_P1 (k=1),B,n/a,n/a,165.3,70.0,90.0,136.1,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+expressx1,express,1,PLACE_ORDER,"heB_P2 (c,x; k=1)",B,n/a,n/a,114.6,70.0,90.0,63.7,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+expressx1,express,1,PLACE_ORDER,heB_P3 (k do duoc),B,n/a,n/a,84.4,70.0,90.0,20.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+expressx1,express,1,PLACE_ORDER,heB_P3+chain,B,n/a,n/a,84.4,70.0,90.0,20.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx1,quickadd,1,ADD_TO_CART,heB_P1 (k=1),B,n/a,n/a,179.7,80.0,100.0,124.6,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx1,quickadd,1,ADD_TO_CART,"heB_P2 (c,x; k=1)",B,n/a,n/a,163.9,80.0,100.0,104.9,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx1,quickadd,1,ADD_TO_CART,heB_P3 (k do duoc),B,n/a,n/a,157.0,80.0,100.0,96.3,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx1,quickadd,1,ADD_TO_CART,heB_P3+chain,B,n/a,n/a,157.0,80.0,100.0,96.3,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx2,quickadd,2,ADD_TO_CART,heB_P1 (k=1),B,n/a,n/a,158.9,40.0,60.0,297.4,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx2,quickadd,2,ADD_TO_CART,"heB_P2 (c,x; k=1)",B,n/a,n/a,135.8,40.0,60.0,239.6,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx2,quickadd,2,ADD_TO_CART,heB_P3 (k do duoc),B,n/a,n/a,126.6,40.0,60.0,216.6,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+quickaddx2,quickadd,2,ADD_TO_CART,heB_P3+chain,B,n/a,n/a,126.6,40.0,60.0,216.6,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex1,browse,1,GET_CATALOGUE,heB_P1 (k=1),B,n/a,n/a,187.8,200.0,220.0,-6.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex1,browse,1,GET_CATALOGUE,"heB_P2 (c,x; k=1)",B,n/a,n/a,181.8,200.0,220.0,-9.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex1,browse,1,GET_CATALOGUE,heB_P3 (k do duoc),B,n/a,n/a,181.8,200.0,220.0,-9.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex1,browse,1,GET_CATALOGUE,heB_P3+chain,B,n/a,n/a,181.8,200.0,220.0,-9.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex2,browse,2,GET_CATALOGUE,heB_P1 (k=1),B,n/a,n/a,172.2,200.0,220.0,-13.9,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex2,browse,2,GET_CATALOGUE,"heB_P2 (c,x; k=1)",B,n/a,n/a,162.2,200.0,220.0,-18.9,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex2,browse,2,GET_CATALOGUE,heB_P3 (k do duoc),B,n/a,n/a,162.2,200.0,220.0,-18.9,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+browsex2,browse,2,GET_CATALOGUE,heB_P3+chain,B,n/a,n/a,162.2,200.0,220.0,-18.9,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+promox1,promo,1,APPLY_PROMO_CODE,heB_P1 (k=1),B,n/a,n/a,172.2,150.0,170.0,14.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+promox1,promo,1,APPLY_PROMO_CODE,"heB_P2 (c,x; k=1)",B,n/a,n/a,145.4,150.0,170.0,-3.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+promox1,promo,1,APPLY_PROMO_CODE,heB_P3 (k do duoc),B,n/a,n/a,145.4,150.0,170.0,-3.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+promox1,promo,1,APPLY_PROMO_CODE,heB_P3+chain,B,n/a,n/a,145.4,150.0,170.0,-3.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+promox2,promo,2,APPLY_PROMO_CODE,heB_P1 (k=1),B,n/a,n/a,147.6,80.0,100.0,84.5,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+promox2,promo,2,APPLY_PROMO_CODE,"heB_P2 (c,x; k=1)",B,n/a,n/a,112.2,80.0,100.0,40.2,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+promox2,promo,2,APPLY_PROMO_CODE,heB_P3 (k do duoc),B,n/a,n/a,112.2,80.0,100.0,40.2,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+promox2,promo,2,APPLY_PROMO_CODE,heB_P3+chain,B,n/a,n/a,112.2,80.0,100.0,40.2,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+recsx1,recs,1,RECOMMEND_PRODUCTS,heB_P1 (k=1),B,n/a,n/a,158.9,120.0,140.0,32.5,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+recsx1,recs,1,RECOMMEND_PRODUCTS,"heB_P2 (c,x; k=1)",B,n/a,n/a,126.6,120.0,140.0,5.5,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+recsx1,recs,1,RECOMMEND_PRODUCTS,heB_P3 (k do duoc),B,n/a,n/a,118.6,120.0,140.0,-1.2,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+recsx1,recs,1,RECOMMEND_PRODUCTS,heB_P3+chain,B,n/a,n/a,118.6,120.0,140.0,-1.2,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+recsx2,recs,2,RECOMMEND_PRODUCTS,heB_P1 (k=1),B,n/a,n/a,118.7,100.0,120.0,18.7,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+recsx2,recs,2,RECOMMEND_PRODUCTS,"heB_P2 (c,x; k=1)",B,n/a,n/a,91.3,100.0,120.0,-8.7,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+recsx2,recs,2,RECOMMEND_PRODUCTS,heB_P3 (k do duoc),B,n/a,n/a,83.2,100.0,120.0,-16.8,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+recsx2,recs,2,RECOMMEND_PRODUCTS,heB_P3+chain,B,n/a,n/a,83.2,100.0,120.0,-16.8,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,heB_P1 (k=1),B,n/a,n/a,187.8,180.0,200.0,4.4,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,"heB_P2 (c,x; k=1)",B,n/a,n/a,176.0,180.0,200.0,-2.2,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,heB_P3 (k do duoc),B,n/a,n/a,176.0,180.0,200.0,-2.2,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx1,review,1,WRITE_PRODUCT_REVIEW,heB_P3+chain,B,n/a,n/a,176.0,180.0,200.0,-2.2,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,heB_P1 (k=1),B,n/a,n/a,172.2,150.0,170.0,14.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,"heB_P2 (c,x; k=1)",B,n/a,n/a,153.4,150.0,170.0,2.2,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,heB_P3 (k do duoc),B,n/a,n/a,153.4,150.0,170.0,2.2,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+reviewx2,review,2,WRITE_PRODUCT_REVIEW,heB_P3+chain,B,n/a,n/a,153.4,150.0,170.0,2.2,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+trackx1,track,1,TRACK_PACKAGE,heB_P1 (k=1),B,n/a,n/a,179.7,170.0,190.0,5.7,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+trackx1,track,1,TRACK_PACKAGE,"heB_P2 (c,x; k=1)",B,n/a,n/a,163.9,170.0,190.0,-3.6,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+trackx1,track,1,TRACK_PACKAGE,heB_P3 (k do duoc),B,n/a,n/a,163.9,170.0,190.0,-3.6,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+trackx1,track,1,TRACK_PACKAGE,heB_P3+chain,B,n/a,n/a,163.9,170.0,190.0,-3.6,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+trackx2,track,2,TRACK_PACKAGE,heB_P1 (k=1),B,n/a,n/a,158.9,140.0,160.0,13.5,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+trackx2,track,2,TRACK_PACKAGE,"heB_P2 (c,x; k=1)",B,n/a,n/a,135.8,140.0,160.0,-3.0,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+trackx2,track,2,TRACK_PACKAGE,heB_P3 (k do duoc),B,n/a,n/a,135.8,140.0,160.0,-3.0,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+trackx2,track,2,TRACK_PACKAGE,heB_P3+chain,B,n/a,n/a,135.8,140.0,160.0,-3.0,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+accountx1,account,1,RECOMMEND_PRODUCTS,heB_P1 (k=1),B,n/a,n/a,158.9,125.0,155.0,27.2,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+accountx1,account,1,RECOMMEND_PRODUCTS,"heB_P2 (c,x; k=1)",B,n/a,n/a,126.6,125.0,155.0,1.3,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+accountx1,account,1,RECOMMEND_PRODUCTS,heB_P3 (k do duoc),B,n/a,n/a,118.6,125.0,155.0,-5.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+accountx1,account,1,RECOMMEND_PRODUCTS,heB_P3+chain,B,n/a,n/a,118.6,125.0,155.0,-5.1,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+catsearchx1,catsearch,1,GET_CATALOGUE,heB_P1 (k=1),B,n/a,n/a,187.8,195.0,240.0,-3.7,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+catsearchx1,catsearch,1,GET_CATALOGUE,"heB_P2 (c,x; k=1)",B,n/a,n/a,181.8,195.0,240.0,-6.8,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+catsearchx1,catsearch,1,GET_CATALOGUE,heB_P3 (k do duoc),B,n/a,n/a,181.8,195.0,240.0,-6.8,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+catsearchx1,catsearch,1,GET_CATALOGUE,heB_P3+chain,B,n/a,n/a,181.8,195.0,240.0,-6.8,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+loginx1,login,1,LOGIN,heB_P1 (k=1),B,n/a,n/a,187.8,155.0,195.0,21.2,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+loginx1,login,1,LOGIN,"heB_P2 (c,x; k=1)",B,n/a,n/a,181.8,155.0,195.0,17.3,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+loginx1,login,1,LOGIN,heB_P3 (k do duoc),B,n/a,n/a,181.8,155.0,195.0,17.3,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+loginx1,login,1,LOGIN,heB_P3+chain,B,n/a,n/a,176.0,155.0,195.0,13.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+loginx2,login,2,LOGIN,heB_P1 (k=1),B,n/a,n/a,172.2,125.0,155.0,37.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+loginx2,login,2,LOGIN,"heB_P2 (c,x; k=1)",B,n/a,n/a,162.2,125.0,155.0,29.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+loginx2,login,2,LOGIN,heB_P3 (k do duoc),B,n/a,n/a,162.2,125.0,155.0,29.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+loginx2,login,2,LOGIN,heB_P3+chain,B,n/a,n/a,153.4,125.0,155.0,22.7,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,heB_P1 (k=1),B,n/a,n/a,158.9,140.0,175.0,13.5,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,"heB_P2 (c,x; k=1)",B,n/a,n/a,126.6,140.0,175.0,-9.5,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,heB_P3 (k do duoc),B,n/a,n/a,135.8,140.0,175.0,-3.0,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+orderfullx1,orderfull,1,RECOMMEND_PRODUCTS,heB_P3+chain,B,n/a,n/a,135.8,140.0,175.0,-3.0,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+orderhistx1,orderhist,1,TRACK_PACKAGE,heB_P1 (k=1),B,n/a,n/a,179.7,155.0,195.0,15.9,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+orderhistx1,orderhist,1,TRACK_PACKAGE,"heB_P2 (c,x; k=1)",B,n/a,n/a,163.9,155.0,195.0,5.8,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+orderhistx1,orderhist,1,TRACK_PACKAGE,heB_P3 (k do duoc),B,n/a,n/a,171.4,155.0,195.0,10.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+orderhistx1,orderhist,1,TRACK_PACKAGE,heB_P3+chain,B,n/a,n/a,171.4,155.0,195.0,10.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+previewx1,preview,1,VIEW_CART,heB_P1 (k=1),B,n/a,n/a,187.8,175.0,217.5,7.3,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+previewx1,preview,1,VIEW_CART,"heB_P2 (c,x; k=1)",B,n/a,n/a,181.8,175.0,217.5,3.9,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+previewx1,preview,1,VIEW_CART,heB_P3 (k do duoc),B,n/a,n/a,181.8,175.0,217.5,3.9,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+previewx1,preview,1,VIEW_CART,heB_P3+chain,B,n/a,n/a,170.7,175.0,217.5,-2.5,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+registerx1,register,1,REGISTER,heB_P1 (k=1),B,n/a,n/a,187.8,155.0,195.0,21.2,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+registerx1,register,1,REGISTER,"heB_P2 (c,x; k=1)",B,n/a,n/a,181.8,155.0,195.0,17.3,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+registerx1,register,1,REGISTER,heB_P3 (k do duoc),B,n/a,n/a,181.8,155.0,195.0,17.3,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+registerx1,register,1,REGISTER,heB_P3+chain,B,n/a,n/a,176.0,155.0,195.0,13.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+registerx2,register,2,REGISTER,heB_P1 (k=1),B,n/a,n/a,172.2,125.0,155.0,37.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+registerx2,register,2,REGISTER,"heB_P2 (c,x; k=1)",B,n/a,n/a,162.2,125.0,155.0,29.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+registerx2,register,2,REGISTER,heB_P3 (k do duoc),B,n/a,n/a,162.2,125.0,155.0,29.8,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+registerx2,register,2,REGISTER,heB_P3+chain,B,n/a,n/a,153.4,125.0,155.0,22.7,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+relatedx1,related,1,GET_CATALOGUE,heB_P1 (k=1),B,n/a,n/a,187.8,175.0,217.5,7.3,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+relatedx1,related,1,GET_CATALOGUE,"heB_P2 (c,x; k=1)",B,n/a,n/a,181.8,175.0,217.5,3.9,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+relatedx1,related,1,GET_CATALOGUE,heB_P3 (k do duoc),B,n/a,n/a,176.0,175.0,217.5,0.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+relatedx1,related,1,GET_CATALOGUE,heB_P3+chain,B,n/a,n/a,176.0,175.0,217.5,0.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+reorderx1,reorder,1,PLACE_ORDER,heB_P1 (k=1),B,n/a,n/a,165.3,100.0,125.0,65.3,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+reorderx1,reorder,1,PLACE_ORDER,"heB_P2 (c,x; k=1)",B,n/a,n/a,114.6,100.0,125.0,14.6,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+reorderx1,reorder,1,PLACE_ORDER,heB_P3 (k do duoc),B,n/a,n/a,81.4,100.0,125.0,-18.6,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+reorderx1,reorder,1,PLACE_ORDER,heB_P3+chain,B,n/a,n/a,81.4,100.0,125.0,-18.6,SOM (an toan),,,,tu p3_evaluation.csv (khong tinh lai)
+wishlistx1,wishlist,1,ADD_TO_CART,heB_P1 (k=1),B,n/a,n/a,179.7,140.0,175.0,28.3,MUON (kha thi gia),,,,tu p3_evaluation.csv (khong tinh lai)
+wishlistx1,wishlist,1,ADD_TO_CART,"heB_P2 (c,x; k=1)",B,n/a,n/a,163.9,140.0,175.0,17.1,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+wishlistx1,wishlist,1,ADD_TO_CART,heB_P3 (k do duoc),B,n/a,n/a,156.7,140.0,175.0,11.9,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
+wishlistx1,wishlist,1,ADD_TO_CART,heB_P3+chain,B,n/a,n/a,156.7,140.0,175.0,11.9,TRONG khoang,,,,tu p3_evaluation.csv (khong tinh lai)
