@@ -324,3 +324,47 @@ def test_explain_text_marks_the_bottleneck(pred):
 def test_explain_omits_latency_gate_when_it_is_off(pred, pred_demand):
     assert 'cong_do_tre' not in pred.explain(100, mode='P2', feature='promo')
     assert 'cong_do_tre' in pred_demand.explain(100, mode='P2', feature='promo')
+
+
+# ---------------------------------------------------------------- ket hop He A + He B
+def test_inverse_variance_weight_matches_hand_computed_formula():
+    # w_B = a^2 / (a^2+b^2) -- kiem bang tay voi tam giac Pythagore 3-4-5
+    assert FP.inverse_variance_weight_B(3.0, 4.0) == pytest.approx(9.0 / 25.0)
+
+
+def test_inverse_variance_weight_symmetric_and_bounded():
+    assert FP.inverse_variance_weight_B(10.0, 10.0) == pytest.approx(0.5)  # sai so bang nhau -> chia deu
+    assert FP.inverse_variance_weight_B(0.0, 0.0) == 0.5                   # 0/0 -> chia deu, khong loi
+    w = FP.inverse_variance_weight_B(20.0, 5.0)    # A sai nhieu hon B -> trong B cao hon
+    assert 0.5 < w < 1.0
+    assert FP.inverse_variance_weight_B(1.0, 100.0) < 0.001   # A gan hoan hao -> B gan nhu bi bo qua
+
+
+def test_default_AB_weights_favor_the_more_accurate_system_per_service():
+    w = FP.default_AB_weights()
+    assert set(w) == set(FP.PUBLISHED_OOD_MAPE_PCT)
+    assert all(0.0 <= wb <= 1.0 for wb in w.values())
+    # front-end: He A chinh xac hon han (1.65% vs 5.25%, test_f1_rmse_evaluation.csv vs
+    # cross_validation.py Tier A) -> trong so He A phai thang
+    assert w['front-end'] < 0.5
+    # catalogue: He A sai nang (43.22% vs 2.54%) -> gan nhu bo qua He A
+    assert w['catalogue'] > 0.99
+
+
+def test_combine_AB_cpu_matches_manual_weighted_average():
+    weight_B = {'front-end': 0.2, 'catalogue': 0.8}
+    combined = FP.combine_AB_cpu({'front-end': 10.0, 'catalogue': 20.0},
+                                 {'front-end': 12.0, 'catalogue': 25.0}, weight_B)
+    assert combined['front-end'] == pytest.approx(0.8 * 10.0 + 0.2 * 12.0)
+    assert combined['catalogue'] == pytest.approx(0.2 * 20.0 + 0.8 * 25.0)
+
+
+def test_combine_AB_cpu_keeps_service_present_in_only_one_system():
+    combined = FP.combine_AB_cpu({'front-end': 10.0, 'payment': 3.0}, {'front-end': 12.0}, {'front-end': 0.5})
+    assert combined['payment'] == 3.0   # He B khong co payment -> giu nguyen gia tri He A
+    assert combined['front-end'] == pytest.approx(0.5 * 10.0 + 0.5 * 12.0)
+
+
+def test_combine_AB_cpu_uses_default_weights_when_not_given():
+    combined = FP.combine_AB_cpu({'front-end': 10.0}, {'front-end': 12.0})
+    assert 10.0 < combined['front-end'] < 12.0   # ca hai trong so > 0 -> nam giua hai du doan

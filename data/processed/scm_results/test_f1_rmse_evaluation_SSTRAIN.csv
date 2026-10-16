@@ -1,0 +1,22 @@
+data_source,evaluation_protocol,service,metric,unit,rmse,nrmse,mae,mape_pct,smape_pct,r2,rmse_full_res,mae_full_res,mape_full_res_pct,smape_full_res_pct,r2_full_res,n_train,n_test,n_test_buckets,n_test_full_res,wl_train_range,wl_test_range
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),front-end,CPU,%,1.9047,0.0889,1.6097,3.47,3.39,0.925,2.6146,2.1,4.87,4.74,0.87,407,201,8,201,4.8-145.2,145.2-277.3
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),catalogue,CPU,%,0.0672,0.0175,0.05,0.71,0.71,0.997,0.1907,0.1382,2.11,2.11,0.978,407,201,8,201,2.4-83.0,83.4-160.2
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),user,CPU,%,0.0866,0.028,0.0737,1.42,1.43,0.992,0.1761,0.1295,2.67,2.71,0.97,407,201,8,201,0.2-45.6,45.8-104.0
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),carts,CPU,%,0.3785,0.0416,0.3243,2.1,2.13,0.983,1.0949,0.5193,3.31,3.48,0.876,407,201,8,201,0.8-56.0,56.2-128.6
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),orders,CPU,%,0.2054,0.0633,0.1635,3.16,3.23,0.962,0.3834,0.2843,6.02,6.21,0.882,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),payment,CPU,%,0.013,0.0783,0.011,3.99,4.1,0.937,0.0305,0.0223,8.11,8.41,0.734,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),shipping,CPU,%,0.1241,0.2206,0.1125,11.52,12.33,0.536,0.2085,0.1193,10.45,11.92,0.314,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),front-end,Memory,MB,36.3031,0.7843,33.6487,19.73,22.22,-6.233,45.4158,38.5923,21.92,24.73,-1.075,407,201,8,201,4.8-145.2,145.2-277.3
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),catalogue,Memory,MB,0.0662,0.7282,0.0615,0.73,0.74,-3.806,0.107,0.0608,0.71,0.72,-0.442,407,201,8,201,2.4-83.0,83.4-160.2
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),user,Memory,MB,0.1338,2.026,0.1177,0.97,0.96,-26.321,0.1933,0.1605,1.33,1.32,-0.797,407,201,8,201,0.2-45.6,45.8-104.0
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),carts,Memory,MB,0.1283,0.562,0.1125,0.03,0.03,-3.65,0.2858,0.2296,0.06,0.06,-0.149,407,201,8,201,0.8-56.0,56.2-128.6
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),orders,Memory,MB,0.1544,0.5581,0.1416,0.04,0.04,-1.718,0.2819,0.2259,0.06,0.06,-0.245,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),payment,Memory,MB,0.0361,0.2794,0.0275,0.37,0.37,0.025,0.1164,0.0886,1.18,1.19,-0.002,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),shipping,Memory,MB,0.0268,0.3176,0.0188,0.01,0.01,-0.358,0.1315,0.084,0.03,0.03,-0.0,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),front-end,Socket,cnt,1.0135,0.107,0.9397,4.16,4.05,0.909,2.598,2.0948,9.22,8.8,0.6,407,201,8,201,4.8-145.2,145.2-277.3
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),catalogue,Socket,cnt,0.1467,0.3057,0.1205,1.89,1.89,0.167,0.8115,0.579,8.4,8.65,0.005,407,201,8,201,2.4-83.0,83.4-160.2
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),user,Socket,cnt,0.2278,0.2589,0.1809,0.47,0.46,0.45,0.845,0.6516,1.7,1.69,0.068,407,201,8,201,0.2-45.6,45.8-104.0
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),carts,Socket,cnt,0.2007,0.2788,0.1687,0.29,0.29,0.267,0.9053,0.7266,1.25,1.25,0.025,407,201,8,201,0.8-56.0,56.2-128.6
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),orders,Socket,cnt,0.4819,0.2255,0.3457,1.6,1.58,0.475,1.5578,1.244,5.97,5.85,0.087,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),payment,Socket,cnt,0.0658,0.1122,0.0576,0.97,0.97,0.885,0.4598,0.3445,6.0,5.9,0.143,407,201,8,201,0.0-4.8,4.8-11.8
+SS-TRAIN,OOD_Gold_Standard (Train Low -> Test High),shipping,Socket,cnt,0.1401,0.378,0.0979,1.04,1.04,-0.143,0.5788,0.5318,5.58,5.59,-0.007,407,201,8,201,0.0-4.8,4.8-11.8

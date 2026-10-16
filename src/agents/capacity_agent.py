@@ -248,6 +248,21 @@ class CapacityAgent:
         self._stability_cache: pd.DataFrame = None
         self._manual_unreliable_nodes: Dict[str, str] = {}
 
+        # Correction chain-awareness cho assess_capacity() -- xem
+        # _apply_chain_correction(). Thieu file -> tat correction, HANH VI Y
+        # HET truoc day (khong bao gio raise). CHI dung trong assess_capacity(),
+        # KHONG dung trong simulate_intervention() -- de khong lam lech so
+        # RQ1-RQ4 da cong bo (cac script do goi simulate_intervention() truc
+        # tiep). Xem papers/p1_du_phong/docs/DATA_FRAMEWORK.md muc 2/5m(d).
+        self._chain_correction = None
+        _cc_path = os.path.join(BASE_DIR, 'data', 'processed', 'frozen', 'chain_correction_params.json')
+        if os.path.isfile(_cc_path):
+            try:
+                with open(_cc_path, encoding='utf-8') as f:
+                    self._chain_correction = json.load(f)
+            except (json.JSONDecodeError, OSError):
+                self._chain_correction = None
+
         self._is_trained = False
 
         print(f"[CapacityAgent] Khởi tạo ({self.system_type}). Data dir: {self.data_dir}")
@@ -485,6 +500,22 @@ class CapacityAgent:
         self.df_baseline      = self.global_df_baseline
         self.dag_graph        = g_sub
         self.dag              = self.dag_graph
+
+        # rho_s = ti le workload cua service s so voi gateway (hoi quy qua
+        # goc tren baseline) -- dung lam dau vao cho _apply_chain_correction(),
+        # xem papers/p1_du_phong/experiments/model_eval/evaluate_chain_awareness.py
+        # (evaluate_structural_correction/fit_final_correction) ve nguon goc
+        # cong thuc va so lieu kiem chung.
+        gw_col = f'{self.default_injection}_workload' if self.default_injection else None
+        self.rho: Dict[str, float] = {}
+        if gw_col and gw_col in self.df_baseline.columns:
+            gw = self.df_baseline[gw_col]
+            denom = float((gw * gw).sum())
+            if denom > 0:
+                for s in self.services:
+                    col = f'{s}_workload'
+                    if col in self.df_baseline.columns:
+                        self.rho[s] = float((self.df_baseline[col] * gw).sum() / denom)
 
         # Đảm bảo g_sub là một Causal DAG nghiêm ngặt (không có chu trình)
         while not nx.is_directed_acyclic_graph(g_sub):
@@ -1604,6 +1635,44 @@ class CapacityAgent:
         return worst, sorted(lines)
 
     # ----------------------------------------------------------
+    def _apply_chain_correction(self, sim_result: Dict[str, Any], chain: set) -> Dict[str, Any]:
+        """Sua hau qua da do duoc (papers/p1_du_phong/experiments/model_eval/evaluate_chain_awareness.py,
+        994 diem tu SS-LIMITS/SS-LIMITS-CLEAN): simulate_intervention() lan Delta
+        theo ty le workload LICH SU (rho_s), khong gioi han vao chain cua archetype
+        -- du bao THAP hon thuc te o node TRONG chain (rui ro false-feasible) va
+        THUA ra o node NGOAI chain.
+
+        CHI sua truong 'cpu_predicted'/'cpu_change_pct' -- mem/latency/socket GIU
+        NGUYEN vi correction chi duoc kiem chung cho CPU. Khong sua gi neu
+        self._chain_correction rong (thieu file calibration) hoac `chain` rong.
+        """
+        if not self._chain_correction or not chain:
+            return sim_result
+        log_a, b = self._chain_correction['log_a'], self._chain_correction['b']
+        out = {}
+        for svc, entry in (sim_result or {}).items():
+            e = dict(entry)
+            base, pred = e.get('cpu_baseline'), e.get('cpu_predicted')
+            if base is None or pred is None or pred == float('inf'):
+                out[svc] = e
+                continue
+            if svc not in chain:
+                # Ngoai chain: tinh nang nay khong lan tai toi day -- giu CPU = baseline.
+                e['cpu_predicted'] = base
+                e['cpu_change_pct'] = 0.0
+                e['chain_corrected'] = True
+            else:
+                rho_s = self.rho.get(svc)
+                if rho_s and rho_s > 0:
+                    ratio = float(np.exp(log_a + b * np.log(1.0 / rho_s)))
+                    delta_cpu = (pred - base) * ratio
+                    e['cpu_predicted'] = base + delta_cpu
+                    e['cpu_change_pct'] = round((delta_cpu / abs(base)) * 100.0, 1) if base else e.get('cpu_change_pct')
+                    e['chain_corrected'] = True
+            out[svc] = e
+        return out
+
+    # ----------------------------------------------------------
     def assess_capacity(
         self,
         parsed_requirement: Dict[str, Any],
@@ -1635,6 +1704,7 @@ class CapacityAgent:
                 fast_metrics[srv] = m
 
         sim_result = self.simulate_intervention(inj_svc, delta)
+        sim_result = self._apply_chain_correction(sim_result, affected)
 
         # --- 2. OBSERVE: quy doi sang BIEN DU PHONG ---
         # Truoc day buoc nay dung nguong tuyet doi (`cpu_pred > 70.0`) gia dinh

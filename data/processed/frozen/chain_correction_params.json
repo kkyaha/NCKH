@@ -1,0 +1,9 @@
+{
+  "log_a": 0.3535214987496496,
+  "b": 0.6713788550757527,
+  "fit_n_features": 8,
+  "fit_n_rows": 28,
+  "metric": "cpu",
+  "source": "SS-LIMITS + SS-LIMITS-CLEAN (data/raw)",
+  "note": "Chi ap dung cho CPU trong-chain. Da kiem bang leave-one-feature-out truoc khi fit ban cuoi nay (xem evaluate_structural_correction() trong evaluate_chain_awareness.py): MAE giam 25.2%, Wilcoxon p=0.0234, rank-biserial r=0.889, n=8 tinh nang. Ban nay fit tren CA 8 tinh nang (khong giu lai tinh nang nao) vi la ban dung cho san pham, khong phai ban kiem dinh."
+}

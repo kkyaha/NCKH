@@ -196,14 +196,23 @@ _SCOPE_GATE_CONFORMAL_TAU_REFUSE = 0.6907318736523925  # beta=0.05,  n_neg=60
 
 
 def _scope_gate_conformal_score(keyword_similarity_score: float, llm_pick_similarity: float,
-                                 rb_similarity: float, llm_is_customer_facing: bool) -> float:
-    """P(out-of-scope) under the fitted logistic score. Higher = more suspicious."""
+                                 rb_similarity: float, llm_is_customer_facing: bool,
+                                 coef: dict = None,
+                                 intercept: float = _SCOPE_GATE_LR_INTERCEPT) -> float:
+    """P(out-of-scope) under the fitted logistic score. Higher = more suspicious.
+
+    `coef`/`intercept` mac dinh la bo he so module-level fit tren 61 prompt
+    SockShop (xem docstring cac hang so _SCOPE_GATE_LR_* o tren) -- truyen
+    rieng khi ParserAgent duoc hieu chinh lai cho mot he thong/domain khac
+    (xem ParserAgent.__init__ tham so scope_gate_lr_coef/scope_gate_lr_intercept).
+    """
+    coef = coef if coef is not None else _SCOPE_GATE_LR_COEF
     z = (
-        _SCOPE_GATE_LR_INTERCEPT
-        + _SCOPE_GATE_LR_COEF['keyword_similarity_score'] * keyword_similarity_score
-        + _SCOPE_GATE_LR_COEF['llm_pick_similarity'] * llm_pick_similarity
-        + _SCOPE_GATE_LR_COEF['rb_similarity'] * rb_similarity
-        + _SCOPE_GATE_LR_COEF['llm_is_customer_facing'] * (1.0 if llm_is_customer_facing else 0.0)
+        intercept
+        + coef['keyword_similarity_score'] * keyword_similarity_score
+        + coef['llm_pick_similarity'] * llm_pick_similarity
+        + coef['rb_similarity'] * rb_similarity
+        + coef['llm_is_customer_facing'] * (1.0 if llm_is_customer_facing else 0.0)
     )
     return 1.0 / (1.0 + pow(2.718281828459045, -z))
 
@@ -257,14 +266,22 @@ def _guard_injection_service(service: str, gateways: set,
     return fallback, False
 
 
-def _guard_delta(delta: float, template_delta: float) -> tuple:
+def _guard_delta(delta: float, template_delta: float,
+                 min_delta_pct: float = MIN_DELTA_PCT,
+                 max_delta_pct: float = MAX_DELTA_PCT,
+                 max_adjustment_pct: float = MAX_ADJUSTMENT_PCT) -> tuple:
     """
     G2 + G3: Clamp delta va kiem tra adjustment.
     Tra ve (delta_clamped, adjustment_clamped, was_clamped).
+
+    3 nguong nay mac dinh la hang so module-level (fit tren calibration cua
+    SockShop, xem experiments/parser/g_threshold_sensitivity.py) -- truyen
+    tham so rieng khi ParserAgent duoc hieu chinh cho mot he thong khac co
+    nguong vat ly rieng (xem ParserAgent.__init__).
     """
     # G3: adjustment vuot nguong -> fallback ve anchor
     actual_adj = delta - template_delta
-    if abs(actual_adj) > MAX_ADJUSTMENT_PCT:
+    if abs(actual_adj) > max_adjustment_pct:
         delta      = template_delta
         actual_adj = 0.0
         clamped    = True
@@ -272,7 +289,7 @@ def _guard_delta(delta: float, template_delta: float) -> tuple:
         clamped = False
 
     # G2: clamp vao khoang vat ly hop ly
-    delta = max(MIN_DELTA_PCT, min(MAX_DELTA_PCT, delta))
+    delta = max(min_delta_pct, min(max_delta_pct, delta))
     return delta, actual_adj, clamped
 
 
@@ -331,7 +348,15 @@ class ParserAgent:
     def __init__(self, llm, arch_agent, system_name: str = "SockShop",
                  domain_description: str = "an online sock e-commerce store",
                  call_chains: dict = None, default_gateway: str = None,
-                 default_request_type: str = None):
+                 default_request_type: str = None,
+                 min_delta_pct: float = MIN_DELTA_PCT,
+                 max_delta_pct: float = MAX_DELTA_PCT,
+                 max_adjustment_pct: float = MAX_ADJUSTMENT_PCT,
+                 similarity_threshold: float = SIMILARITY_THRESHOLD,
+                 scope_gate_lr_coef: dict = None,
+                 scope_gate_lr_intercept: float = _SCOPE_GATE_LR_INTERCEPT,
+                 scope_gate_tau_pass: float = _SCOPE_GATE_CONFORMAL_TAU_PASS,
+                 scope_gate_tau_refuse: float = _SCOPE_GATE_CONFORMAL_TAU_REFUSE):
         """
         system_name / domain_description: tham so hoa de Layer 1 (Scope Gate)
         khong con viet cung "SockShop" trong prompt -- xuat phat tu cau hoi
@@ -367,6 +392,25 @@ class ParserAgent:
         nhieu kha nang khong doi, nhung outcome NEEDS_HUMAN_REVIEW la nhom
         thu 3 chua co cot rieng trong bang RQ3 hien tai va chua duoc do lai
         bang live-LLM o dung quy mo 50-prompt x 3-lan-lap cua RQ3.
+
+        min_delta_pct/max_delta_pct/max_adjustment_pct/similarity_threshold
+        va scope_gate_lr_coef/scope_gate_lr_intercept/scope_gate_tau_pass/
+        scope_gate_tau_refuse: TAT CA deu mac dinh la hang so module-level
+        o dau file, fit/hieu chinh rieng tren SockShop (xem docstring cua
+        tung hang so). Truoc ban sua nay, 2 nhom nguong nay (Layer 2 bien do
+        va Layer 1 Scope Gate) la hang so toan cuc dung THANG trong parse(),
+        bat doi xung voi known_services/call_chains/default_gateway da
+        tham so hoa o tren -- doi he thong (vd Train Ticket) se doi duoc
+        service/gateway nhung Scope Gate va bien do vat ly van LANG LE dung
+        so cua SockShop ma khong canh bao gi. Gio moi nguong deu la tham so
+        constructor + thuoc tinh instance, de goi ParserAgent cho mot he
+        thong/domain da hieu chinh rieng (hoac dang thu nghiem nguong khac)
+        khong con phai sua truc tiep hang so module-level (anh huong moi
+        instance dang chay) nua. KHONG tu suy ra bo so rieng cho he thong
+        moi tu con so SockShop -- day van la cong viec hieu chinh thong ke
+        rieng (xem experiments/parser/scope_gate_conformal_calibration.py
+        va g_threshold_sensitivity.py cho quy trinh goc), tham so hoa nay
+        chi mo duong, khong tu lam ho buoc hieu chinh do.
         """
         self.llm        = llm
         self.arch_agent = arch_agent
@@ -385,6 +429,33 @@ class ParserAgent:
         # Archetype dung khi khong tu khoa nao khop. None -> classify_request tu
         # quyet dinh (SockShop giu GET_CATALOGUE de tuong thich nguoc).
         self.default_request_type = default_request_type
+
+        # G2/G3 (bien do vat ly) + G6/Scope Gate (Layer 1): tham so hoa theo
+        # instance, mac dinh la hang so module-level fit tren SockShop (xem
+        # docstring tham so tuong ung o __init__ phia tren). Truoc ban sua
+        # nay day la hang so toan cuc dung thang trong parse(), nen doi
+        # system_name/call_chains/default_gateway KHONG keo theo doi Scope
+        # Gate/bien do -- hai nhom nguong nay lang le van la cua SockShop.
+        self.min_delta_pct           = min_delta_pct
+        self.max_delta_pct           = max_delta_pct
+        self.max_adjustment_pct      = max_adjustment_pct
+        self.similarity_threshold    = similarity_threshold
+        self.scope_gate_lr_coef      = (dict(scope_gate_lr_coef) if scope_gate_lr_coef is not None
+                                        else dict(_SCOPE_GATE_LR_COEF))
+        self.scope_gate_lr_intercept = scope_gate_lr_intercept
+        self.scope_gate_tau_pass     = scope_gate_tau_pass
+        self.scope_gate_tau_refuse   = scope_gate_tau_refuse
+        # Bao ve dung chieu: mot ban truoc day tung so sai thu tu 2 nguong
+        # nay khi dan xuat (xem docstring _SCOPE_GATE_CONFORMAL_TAU_PASS/
+        # _REFUSE o tren) -- se tao vung HITL rong hoac dao nguoc logic
+        # refuse/pass ma khong loi runtime nao bao. Chan som o day neu lam
+        # lai qua constructor voi 2 gia tri sai chieu.
+        assert self.scope_gate_tau_pass <= self.scope_gate_tau_refuse, (
+            f"scope_gate_tau_pass ({self.scope_gate_tau_pass}) phai <= "
+            f"scope_gate_tau_refuse ({self.scope_gate_tau_refuse}) -- nguoc "
+            "lai se tao vung NEEDS_HUMAN_REVIEW rong hoac dao nguoc logic "
+            "refuse/pass."
+        )
 
         # Build services context cho prompt, VA known_services (Layer 2 / G4)
         # tu CHINH graph duoc truyen vao thay vi doc module-level KNOWN_SERVICES
@@ -469,19 +540,21 @@ class ParserAgent:
         core_svcs = _guard_core_services(core_svcs, self.known_services, _fallback_svc)
 
         # G5: low similarity -> siet adjustment ve 0
-        if similarity_score < SIMILARITY_THRESHOLD:
+        if similarity_score < self.similarity_threshold:
             adjustment = 0.0
             llm_conf   = "LOW"
             llm_reasoning += " [LOW SIMILARITY: siet ve anchor, khong dieu chinh]"
 
         # G2 + G3: clamp delta
         raw_delta = template_delta + adjustment
-        delta_clamped, adj_clamped, was_clamped = _guard_delta(raw_delta, template_delta)
+        delta_clamped, adj_clamped, was_clamped = _guard_delta(
+            raw_delta, template_delta,
+            self.min_delta_pct, self.max_delta_pct, self.max_adjustment_pct)
         if was_clamped:
             llm_conf      = "LOW"
             llm_reasoning += (
                 f" [CLAMPED: adj={adjustment:+.1f}% vuot nguong "
-                f"{MAX_ADJUSTMENT_PCT}%, fallback ve anchor {template_delta}%]"
+                f"{self.max_adjustment_pct}%, fallback ve anchor {template_delta}%]"
             )
 
         # G1: validate injection_service (gateway). `raw_inj_svc` is now a genuine
@@ -521,6 +594,8 @@ class ParserAgent:
             llm_pick_similarity=llm_pick_similarity,
             rb_similarity=rb_similarity,
             llm_is_customer_facing=llm_is_customer_facing,
+            coef=self.scope_gate_lr_coef,
+            intercept=self.scope_gate_lr_intercept,
         )
         scope_gate_raw_features = {
             'rb_similarity': rb_similarity,
@@ -529,14 +604,14 @@ class ParserAgent:
             'llm_is_customer_facing': llm_is_customer_facing,
         }
 
-        hard_refuse = scope_gate_score >= _SCOPE_GATE_CONFORMAL_TAU_REFUSE
-        needs_human_review = (not hard_refuse) and (scope_gate_score >= _SCOPE_GATE_CONFORMAL_TAU_PASS)
+        hard_refuse = scope_gate_score >= self.scope_gate_tau_refuse
+        needs_human_review = (not hard_refuse) and (scope_gate_score >= self.scope_gate_tau_pass)
         is_out_of_scope = hard_refuse
         if hard_refuse:
             llm_conf      = "REFUSED"
             llm_reasoning += (
                 f" [SCOPE GATE / conformal: score={scope_gate_score:.3f} >= "
-                f"tau_refuse={_SCOPE_GATE_CONFORMAL_TAU_REFUSE:.3f} (split-conformal, "
+                f"tau_refuse={self.scope_gate_tau_refuse:.3f} (split-conformal, "
                 "beta=0.05, calibrated on 60 labeled legitimate examples).]"
             )
             llm_reasoning += (
@@ -548,8 +623,8 @@ class ParserAgent:
             llm_conf = "NEEDS_HUMAN_REVIEW"
             llm_reasoning += (
                 f" [SCOPE GATE / conformal HITL: score={scope_gate_score:.3f} nam giua "
-                f"tau_pass={_SCOPE_GATE_CONFORMAL_TAU_PASS:.3f} va "
-                f"tau_refuse={_SCOPE_GATE_CONFORMAL_TAU_REFUSE:.3f} -- khong du tin cay theo "
+                f"tau_pass={self.scope_gate_tau_pass:.3f} va "
+                f"tau_refuse={self.scope_gate_tau_refuse:.3f} -- khong du tin cay theo "
                 "CA HAI bao dam thong ke de tu dong cho qua HOAC tu dong refuse, can nguoi "
                 "xem lai truoc khi dua ra phan quyet dinh luong."
             )

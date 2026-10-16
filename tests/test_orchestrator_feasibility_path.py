@@ -10,6 +10,14 @@ duong CU (`CapacityAgent` + StateGraph, dung cho RQ1-RQ4):
 Cach giai quyet KHONG phai va lai `CapacityAgent` (se pha cac so RQ1-RQ4 da bao cao) ma la: co che
 dung khung duoc cai thanh mot thanh phan RIENG (`feasibility_predictor` + `NewFeatureFeasibilityAgent`)
 va duong vao cau hoi kha thi tro toi do. Test nay chot dieu do de no khong am tham quay lai duong cu.
+
+CAP NHAT (sau khi doi pham vi nghien cuu sang chi He A): rieng diem "chain chi la mat na chon pham vi"
+da duoc va CO KIEM SOAT trong `CapacityAgent._apply_chain_correction()`, chi goi tu `assess_capacity()`
+-- KHONG dung trong `simulate_intervention()` nen khong cham so RQ1-RQ4 (da xac minh evaluation_suite.py/
+model_comparison.py khong bao gio goi assess_capacity()). Xem DATA_FRAMEWORK.md muc (d) va
+papers/p1_du_phong/experiments/model_eval/evaluate_chain_awareness.py. Test o file nay van dung: duong
+`assess_new_feature_requirement` (He B) van KHONG goi assess_capacity, chi la He A gio co them 1 lop sua
+rieng cua chinh no.
 """
 
 import os

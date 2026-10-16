@@ -1,0 +1,18 @@
+\begin{table*}[t]
+\centering
+\caption{Ablation Study and Reliability Evaluation of LLM Parser Configurations across 50 Requirements (RQ3).
+Rates are mean$\pm$std over 3 independent repeat(s). Backend: LIVE\_openai/gpt-oss-120b.}
+\label{tab:parser_ablation}
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Parser Configuration} & \textbf{PBVR (\%)} $\downarrow$ & \textbf{SHR (\%)} $\downarrow$ & \textbf{GMR (\%)} $\downarrow$ & \textbf{MAE (\%)} $\downarrow$ & \textbf{Adv. Fail (\%)} $\downarrow$ & \textbf{Latency (ms)} $\downarrow$ \\
+\midrule
+Unguarded\_ZeroShot\_LLM & 12.67$\pm$3.06\% & 92.00$\pm$0.00\% & 95.33$\pm$1.15\% & 34.55$\pm$1.49\% & 46.67$\pm$5.77\% & 1151.96$\pm$115.96 ms \\
+Unguarded\_FewShot\_LLM & 34.00$\pm$7.21\% & 10.00$\pm$5.29\% & 78.67$\pm$5.03\% & 16.43$\pm$1.45\% & 40.00$\pm$0.00\% & 1414.42$\pm$106.40 ms \\
+Rule\_Only & 0.00$\pm$0.00\% & 0.00$\pm$0.00\% & 0.00$\pm$0.00\% & 2.80$\pm$0.00\% & 0.00$\pm$0.00\% & 0.38$\pm$0.03 ms \\
+\textbf{Guarded\_Hybrid\_Parser (Ours)} & \textbf{0.00$\pm$0.00\%} & \textbf{0.00$\pm$0.00\%} & \textbf{0.00$\pm$0.00\%} & \textbf{2.40$\pm$0.08\%} & \textbf{0.00$\pm$0.00\%} & \textbf{18308.80$\pm$6852.94 ms} \\
+\bottomrule
+\multicolumn{7}{l}{\footnotesize \textit{Notes:} PBVR = Physical Boundary Violation Rate ($\Delta \notin [5\%, 50\%]$); SHR = Service Hallucination Rate;} \\
+\multicolumn{7}{l}{\footnotesize GMR = Gateway Misdirection Rate; MAE = Mean Absolute Error vs. Calibration Anchor; Adv. Fail = Adversarial-subset Violation Rate.}
+\end{tabular}
+\end{table*}

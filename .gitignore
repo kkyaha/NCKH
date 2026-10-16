@@ -26,7 +26,29 @@ __pycache__/
 # Jupyter
 .ipynb_checkpoints/
 
-# macOS
+# macOS / Windows
 .DS_Store
 */.DS_Store
 .pytest_cache/
+Thumbs.db
+
+# IDE/editor (chua co ai dung, phong ngua)
+.vscode/
+.idea/
+
+# LaTeX build artifact (*.log da co o tren; cac duoi con lai cua pdflatex)
+*.aux
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+
+# Ket qua CSV qua lon de track thang (xem DATA.md "File lon, xac minh bang sha256"
+# -- quy uoc GIONG het sha256 cua data/processed/frozen/*.json, chi khac la file
+# nay trong data/processed/scm_results/ thay vi frozen/). Tai lap: run_all_experiments.py
+# -> evaluation_suite.py (xem README.md bang "claim <-> script <-> data").
+data/processed/scm_results/ground_truth_direct_match.csv
+data/processed/scm_results/01_system_telemetry_train_test.csv

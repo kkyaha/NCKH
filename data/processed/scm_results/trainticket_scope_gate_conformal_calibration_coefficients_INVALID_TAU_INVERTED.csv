@@ -1,0 +1,2 @@
+keyword_similarity_score,llm_pick_similarity,rb_similarity,llm_is_customer_facing,intercept,tau_pass,tau_refuse,alpha,beta,n_pos,n_neg,thresholds_valid,note
+0.2344463465261241,0.0705507181769388,0.2344463465261241,-3.429234295200963,1.409378894506764,0.7896809344892715,0.207189131355648,0.1,0.1,16,30,False,INVALID: tau_pass > tau_refuse (nghich chieu) do n=46 qua nho + tach lop qua sach (xem docstring trainticket_scope_gate_conformal_calibration.py). KHONG dung 2 nguong nay lam scope_gate_tau_pass/tau_refuse trong ParserAgent.

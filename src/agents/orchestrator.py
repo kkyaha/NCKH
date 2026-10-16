@@ -100,14 +100,20 @@ else:
 # 2. KHOI TAO CAC AGENT
 # ==========================================
 _GRAPH_PATH = os.path.join(PROJECT_ROOT, 'src', 'graph', 'sockshop_agent_graph.json')
-_DATA_DIR   = os.path.join(PROJECT_ROOT, 'data', 'raw')
+# Du lieu tai THAT do nhom tu do (khong phai fault-injection gia lap) -- xem
+# papers/p1_du_phong/experiments/model_eval/evaluate_sstrain.py: giu nguyen co che cua
+# CapacityAgent (LinearRegression(positive=True)), chi doi nguon du lieu tu
+# RE2-SS (RCAEval) sang SS-TRAIN, MAPE CPU giam tu 1,65-43,22% xuong 2,11-6,02%
+# tren 5 service. RQ1-4 da cong bo dung evaluation_suite.py (RAW_DATA_DIR rieng,
+# van RE2-SS) nen khong bi anh huong boi doi nay.
+_SSTRAIN_DIR = os.path.join(PROJECT_ROOT, 'data', 'raw', 'SS-TRAIN')
 
 arch_agent = ArchitectureAgent(_GRAPH_PATH)
 
 # CapacityAgent hop nhat ca 2 che do SCM va tich hop buoc ReAct Reasoning
 capacity_agent = CapacityAgent(
     llm        = llm,
-    data_dir   = _DATA_DIR,
+    data_dir   = _SSTRAIN_DIR,
     graph_path = _GRAPH_PATH,
     auto_train = True
 )

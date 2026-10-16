@@ -435,6 +435,16 @@ trỏ thẳng tới đó. `tests/test_orchestrator_feasibility_path.py` (4 test)
 quay lại đường cũ: trả `FeasibilityVerdict` của P2/P3, **không** gọi `CapacityAgent.assess_capacity`, tôn trọng
 Δ riêng của yêu cầu thay vì anchor của archetype, và từ chối rõ ràng khi archetype ngoài taxonomy.
 
+> **Cập nhật (sau khi đổi phạm vi nghiên cứu sang chỉ Hệ A)**: riêng điểm (d) ("chain chỉ là mặt nạ chọn
+> phạm vi") giờ **đã được vá có kiểm soát** — nhưng trong `CapacityAgent.assess_capacity()`
+> (`_apply_chain_correction()`), **không phải** `simulate_intervention()`. Lý do cũ ("vá không giúp gì cho
+> phán quyết khả thi") không còn đúng vì phán quyết khả thi sống giờ dùng Hệ A, không còn trỏ tới
+> `NewFeatureFeasibilityAgent`. Phần còn lại của lý do cũ ("vá sẽ phá số RQ1–RQ4") vẫn được tôn trọng: đã
+> xác minh `evaluation_suite.py`/`model_comparison.py` chỉ gọi `simulate_intervention()` trực tiếp, không
+> bao giờ gọi `assess_capacity()`, nên correction này không chạm tới số RQ1–RQ4 đã công bố. Chi tiết số
+> liệu: `papers/p1_du_phong/experiments/model_eval/evaluate_chain_awareness.py` (MAE trong-chain giảm
+> 25,2%, Wilcoxon p=0,0234, r=0,889, n=8 tính năng, hồi cứu trên `SS-LIMITS`/`SS-LIMITS-CLEAN`).
+
 ### (e) Test bị hỏng từ trước — đã sửa
 
 `tests/test_capacity_agent.py` không thu thập được vì `dowhy 0.8` trên máy này không có `dowhy.graph`

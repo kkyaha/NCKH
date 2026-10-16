@@ -473,3 +473,84 @@ def sha256_files(paths):
         h.update(os.path.basename(os.path.dirname(os.path.dirname(p))).encode())
         h.update(open(p, 'rb').read())
     return h.hexdigest()
+
+
+# ============================================================
+# KET HOP He A + He B (phuong an 1: trong so nghich-phuong-sai CO DINH)
+# ============================================================
+# Muc dich: tan dung CA HAI he du bao CPU_s cho CUNG mot dich vu, thay vi chi dung
+# mot he. KHONG duoc hop nhat ben trong FeasibilityPredictor (He B) hay CapacityAgent
+# (He A) -- lam vay se lam hong tinh tien cuu cua 8 ket qua da dong bang (xem
+# papers/p1_du_phong/docs/bao_cao_giao_vien.tex, Muc~\ref{sec:hainganxep}: "hop nhat la
+# thiet ke muc tieu nhung chua ap -- ap bay gio la doi bo du doan SAU KHI DA XEM DAP AN,
+# lam moi so moi thanh hoi cuu"). Vi vay day la mot lop KET HOP O NGOAI, nhan CPU_s da
+# tinh san tu moi he lam dau vao, khong doc/sua trang thai noi bo cua he nao ca.
+#
+# Trong so NGHICH-PHUONG-SAI, CO DINH truoc, KHONG fit tren 8 tinh nang tien cuu:
+#   w_B(s) = MAPE_A(s)^2 / (MAPE_A(s)^2 + MAPE_B(s)^2)
+#   w_A(s) = 1 - w_B(s)
+# Dung MAPE^2 lam dai dien cho phuong sai (quy uoc pha bien khi chi co diem RMSE/MAPE
+# da cong bo, khong co phuong sai that). Hai bang MAPE duoi day deu da duoc CONG BO
+# TRUOC o noi khac trong du an -- KHONG tinh lai/tinh moi cho muc dich ket hop nay, va
+# KHONG bao gio duoc fit lai bang cach nhin vao 8 ket qua tien cuu da biet dap an (lam
+# vay se bien quy tac ket hop thanh hoi cuu, dung loai loi giao thuc dong bang duoc
+# thiet ke de tranh).
+#   He A: data/processed/scm_results/test_f1_rmse_evaluation.csv, protocol
+#         "OOD_Gold_Standard (Train Low -> Test High)" (ngoai suy tai thap -> tai cao,
+#         CUNG triet ly do voi Tier A cua cross_validation.py ben duoi), cot mape_pct.
+#   He B: data/processed/scm_results/cross_validation.csv KHONG co cot nay (chi luu
+#         tang B) -- so lay tu Tier [A] cua
+#         papers/p1_du_phong/experiments/model_eval/cross_validation.py (chay lai
+#         2026-10-13), cot MAPE_ngoai_suy (ngoai suy THAT: fit tai thap, du doan tai
+#         cao -- cung mot dinh nghia "ngoai suy" voi bang cua He A o tren, nen so sanh
+#         duoc voi nhau, khong lech don vi).
+PUBLISHED_OOD_MAPE_PCT = {
+    # service      He A (test_f1_rmse_evaluation.csv)   He B (cross_validation.py Tier A)
+    'front-end':   {'A': 1.65,  'B': 5.25},
+    'catalogue':   {'A': 43.22, 'B': 2.54},
+    'user':        {'A': 12.27, 'B': 4.31},
+    'carts':       {'A': 11.73, 'B': 3.63},
+    'orders':      {'A': 21.40, 'B': 7.04},
+}
+
+
+def inverse_variance_weight_B(mape_pct_A: float, mape_pct_B: float) -> float:
+    """w_B = MAPE_A^2 / (MAPE_A^2 + MAPE_B^2) -- trong so cua He B trong tong hop.
+
+    MAPE_A, MAPE_B >= 0. Neu ca hai bang 0 (khong co thong tin phan biet) tra ve 0.5
+    (chia deu) thay vi 0/0.
+    """
+    a2, b2 = mape_pct_A ** 2, mape_pct_B ** 2
+    if a2 + b2 <= 0:
+        return 0.5
+    return a2 / (a2 + b2)
+
+
+def default_AB_weights(mape_table: dict = None) -> dict:
+    """{service: w_B} suy tu PUBLISHED_OOD_MAPE_PCT (hoac bang truyen vao de kiem thu/
+    thay bang so moi hon sau nay). KHONG fit tren du lieu tien cuu -- xem docstring
+    module o tren."""
+    mape_table = mape_table if mape_table is not None else PUBLISHED_OOD_MAPE_PCT
+    return {s: inverse_variance_weight_B(v['A'], v['B']) for s, v in mape_table.items()}
+
+
+def combine_AB_cpu(cpu_s_A: dict, cpu_s_B: dict, weight_B: dict = None) -> dict:
+    """Ket hop CPU_s cua He A va He B theo trong so nghich-phuong-sai CO DINH.
+
+    cpu_s_A / cpu_s_B: {service: CPU_s} -- vd tu
+      CapacityAgent.simulate_intervention(...)['<service>']['cpu_predicted']  (He A)
+      FeasibilityPredictor.cpu(FeasibilityPredictor.workloads(L, ...))        (He B)
+    Chi ket hop o nhung service CA HAI he deu co gia tri; service chi co o mot he
+    duoc giu nguyen (khong co gi de ket hop).
+    weight_B: {service: w_B trong [0,1]}, mac dinh lay tu default_AB_weights().
+    Tra ve {service: CPU_s_ket_hop}.
+    """
+    weight_B = weight_B if weight_B is not None else default_AB_weights()
+    out = {}
+    for s in set(cpu_s_A) | set(cpu_s_B):
+        if s in cpu_s_A and s in cpu_s_B:
+            wb = weight_B.get(s, 0.5)
+            out[s] = (1.0 - wb) * cpu_s_A[s] + wb * cpu_s_B[s]
+        else:
+            out[s] = cpu_s_A.get(s, cpu_s_B.get(s))
+    return out
