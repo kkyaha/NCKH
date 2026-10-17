@@ -6,6 +6,18 @@
 Loại bài: **dự phóng** (trước khi xảy ra). Khác hẳn [bài 2](../p2_khop_tang/), là định vị
 hậu nghiệm.
 
+> **Lưu ý khi đọc repo này từ bản push lên git**: thư mục `tests/`, sáu nhóm script
+> sinh kết quả trong `experiments/` (`collect/`, `feasibility/`, `edges/`, `model_eval/`,
+> `parser/`, `datasets/`), máy sinh ảnh (`docs/figures/puml/`), và các tài liệu tham
+> khảo phụ trong `docs/` (`HE_THONG.md`, `CO_CHE_KHA_THI.md`, `DATA_FRAMEWORK.md`,
+> `GIAO_THUC_VONG_2.md`, v.v. -- xem mục "Tài liệu" dưới) không nằm trong bản push --
+> giữ gọn repo, chỉ còn trên máy tác giả. `docs/` chỉ còn hai file chính:
+> `paper_draft.tex` và `bao_cao_giao_vien.tex`, kèm 5 ảnh PNG đã render sẵn để compile
+> được ngay. Các link bên dưới trỏ tới đường dẫn đúng của những file đã gỡ để biết
+> *claim nào đo bằng script nào*, nhưng sẽ không mở được nếu bạn clone repo này. Số liệu
+> đã công bố vẫn kiểm chứng được qua `data/processed/frozen/` + sha256 kèm theo (xem
+> `../../data/DATA.md`).
+
 ## Bắt đầu từ đâu
 
 | notebook | nội dung |
@@ -118,8 +130,14 @@ python papers/p1_du_phong/experiments/model_eval/make_figures.py
 
 ## Tài liệu
 
+**Hai file chính (push lên git):**
+- `docs/paper_draft.tex` — bài báo
+- `docs/bao_cao_giao_vien.tex` — báo cáo tiến độ gửi giáo viên
+
+**Tài liệu tham khảo phụ (chỉ còn trên máy tác giả, xem lưu ý đầu trang):**
 - `docs/HE_THONG.md` — mô tả hệ thống đầy đủ
-- `docs/khungtoanhoc.tex` / `.pdf` — khung toán
 - `docs/CO_CHE_KHA_THI.md` — cơ chế dung lượng / throttling
 - `docs/DATA_FRAMEWORK.md`, `docs/GIAO_THUC_VONG_2.md` — khung dữ liệu, giao thức đo
-- `docs/paper_draft.tex` — bản nháp
+- `docs/khungtoanhoc.tex` / `.pdf` — **lưu ý**: nội dung thực ra thuộc chủ đề
+  Future RCA (`experiments/chua_phan_loai/future_rca.py`), có vẻ để nhầm thư mục
+  chứ không phải tài liệu của bài 1 -- chưa dọn vì ngoài phạm vi đợt dọn này

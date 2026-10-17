@@ -4,6 +4,19 @@ Giữ **nguyên văn**, không xoá. Lý do giữ: các script này đã sinh ra
 được dùng để chọn thiết kế mô hình; nếu phản biện hỏi "các anh đã thử gì rồi" thì
 phải tái lập được chính bản đã chạy, không phải bản viết lại.
 
+## `extract_graph__superseded_by_extract_graph_generic.py`
+
+Trước ở `src/graph/extract_graph.py`. Không còn được import ở đâu (kiểm 0 kết quả
+toàn repo) -- đã bị `extract_graph_generic.py` (cùng thư mục) thay thế hoàn toàn,
+6 nơi khác đang tham chiếu bản generic. Dời vào đây (10/2026) thay vì xoá hẳn vì
+`src/` chỉ nên chứa code đang chạy.
+
+Cùng đợt, 4 file ở `papers/p1_du_phong/docs/figures/` (`fig1_pipeline.puml`,
+`fig_breakpoint.pdf`, `fig_extrapolation.pdf`, `fig_signal_gate.pdf`) và
+`docs/table_rq3_parser_ablation__gpt-oss-120b.tex` cũng được dời sang
+`papers/p1_du_phong/docs/archive/` -- không còn `\includegraphics`/`\input` nào
+trỏ tới (thay bằng bộ sơ đồ `00`–`20_*.puml` mới hơn).
+
 ## Gộp vào `edges/dang_co_che_doi_chung.py`
 
 Ba script là **cùng một khung đo** — cùng protocol, cùng 21 cặp service × metric,

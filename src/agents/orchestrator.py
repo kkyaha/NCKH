@@ -2,51 +2,49 @@
 """
 Orchestrator — DIEM VAO DUY NHAT cua he thong
 ===============================================
-MOT DIEM VAO. Khong co gi de chon:
+MOT DIEM VAO, MOT CO CHE (He A -- Global Causal DAG). Khong co gi de chon:
 
     from agents.orchestrator import assess
-    assess("them tinh nang ap ma giam gia", L_peak=150)
+    assess("them tinh nang ap ma giam gia")
 
-Ben trong co HAI TANG, nhung nguoi goi khong can biet:
+Ben trong CHI con MOT tang tinh toan, nguoi goi khong can biet chi tiet:
 
     NL -> ParserAgent -> (archetype, Delta, chain)
                               |
-        TANG 1  DU BAO    W_s , CPU_s tung service
+        CapacityAgent   DU BAO   W_s, CPU_s tung service (Global DAG + correction theo tang)
                               |
-        TANG 2  PHAN QUYET u_s vs u*, cong SLO  ->  FEASIBLE/MARGINAL/INFEASIBLE + R*
+        CapacityAgent   QUET DIEM GAY R*  (find_breakpoint -- bisection tren CHINH co che tren)
 
-Bo L_peak thi dung o tang 1 (chi du bao tai nguyen, CHUA phan quyet). Hai ham
-forecast_resource_impact() / assess_feasibility_at_peak() la TUNG TANG RIENG LE, giu cong
-khai cho truong hop dac biet -- binh thuong dung assess().
+Tra ve CA HAI: `verdict` (SAFE/WARNING/CRITICAL tai DUNG delta parser doc duoc tu
+yeu cau) va `breakpoint` (R* -- tai nao thi gay, kem khoang optimistic/conservative
+suy tu bootstrap CI co san cua tran P99, xem compute_headroom/_ceiling_ci).
 
-VI SAO BEN TRONG VAN LA HAI NGAN XEP
-  Hai cau hoi nay la HAI TANG cua cung mot viec: phan quyet SLO doi phai co du bao tai
-  nguyen truoc. Hien tai hai tang dang nam trong hai ngan xep rieng vi ly do LICH SU:
-  CapacityAgent hoc tu RCAEval fault-injection va da sinh ra cac so lieu DA CONG BO,
-  nen duong kha thi duoc viet tach ra de khong cham vao no.
+TRUOC DAY co hai tang/hai ngan xep (Tang 2 la mot mo hinh graph-free RIENG --
+NewFeatureFeasibilityAgent, "He B" -- phan quyet SLO so voi mot L_peak nguoi
+dung PHAI cung cap truoc). Da bo L_peak lam dieu kien bat buoc: CapacityAgent.
+find_breakpoint() tra loi cau hoi tuong duong (he con chiu tai duoc bao nhieu)
+MA KHONG CAN nguoi dung biet truoc tai dinh ky vong, dung lai toan bo bootstrap
+CI da co cua chinh He A (khong them co che bat dinh moi).
 
-  Do KHONG phai mot khac biet ve mo hinh -- nhung phai phat bieu dung MUC NAO. Da do
-  (papers/p1_du_phong/experiments/feasibility/doi_chieu_hai_he.py, 456 hang SS-TRAIN):
-  `rho_s` cua bo du doan kha thi tai tao lan truyen Tier-1 cua CapacityAgent voi
-      lech <= 0,30% tren MUC SU DUNG u_s cua 5 node cham diem  <- dai luong vao PHAN QUYET
-      lech 0,00% tai nut nghen (front-end, goc cua ca hai cach tinh) -> phan quyet KHONG doi
-  O muc WORKLOAD thi lech lon hon nhieu (user 13,25%, payment/shipping 18,89%) vi chung co
-  cha Tier-1 khac gateway; nhung beta nho va u thap nen khong dich u. BAN TRUOC cua chu thich
-  nay ghi "lech <= 0,5% tren moi service" -- kiem duoc va SAI; da sua.
-  Hop nhat thanh hai tang la THIET KE MUC TIEU (papers/p1_du_phong/docs/HE_THONG.md muc 2);
-  chua ap vi se doi bo du doan sau khi da xem dap an.
+HE B (CU) -- GIU LAI DE TAI LAP BANG CHUNG TIEN CUU DA CONG BO, KHONG CON LA
+DUONG MAC DINH
+  `assess_feasibility_at_peak(text, L_peak)` / `assess_new_feature_requirement()`
+  van con nguyen (18-feature/5-round bang chung tien cuu, papers/p1_du_phong/docs/DATA_FRAMEWORK.md)
+  nhung `assess()` KHONG con goi chung -- muon duong cu (nguoi dung tu cung
+  cap L_peak, so sanh voi NewFeatureFeasibilityAgent) phai goi ham do TRUC TIEP.
 
 TU VUNG PHAN QUYET
-  Ben trong, hai agent dung hai bo nhan khac nhau (`SAFE/WARNING/CRITICAL` va
-  `FEASIBLE/MARGINAL/INFEASIBLE`) -- KHONG doi duoc vi cac script sinh so da in phu
-  thuoc vao chung. Bat ky ham cong khai nao o day cung tra ve them truong `verdict`
-  da CHUAN HOA ve mot bo duy nhat: FEASIBLE | MARGINAL | INFEASIBLE.
+  CapacityAgent dung nhan `SAFE/WARNING/CRITICAL` (compute_headroom/summarize_headroom)
+  -- KHONG doi duoc vi cac script sinh so da cong bo phu thuoc vao chung. Ham
+  cong khai o day tra ve them truong `verdict` da CHUAN HOA ve mot bo duy nhat:
+  FEASIBLE | MARGINAL | INFEASIBLE.
 
-LUONG 4 BUOC cua forecast_resource_impact()
+LUONG 4 BUOC cua forecast_resource_impact() (assess() dung lai luong nay, roi
+quet them R* o ngoai graph)
   [parse_requirement] -> [map_impact] -> [simulate] -> [generate_report]
     ParserAgent          ArchAgent      CapacityAgent      LLM report
-    (LLM + rule)         (BFS graph)    fast: bivariate
-                                        accurate: DAG 28-node
+    (LLM + rule)         (BFS graph)    Global DAG 28-node
+                                         + correction theo tang
 """
 
 import os
@@ -173,8 +171,7 @@ class RequirementState(TypedDict):
     parsed_requirement:  dict   # Output cua ParserAgent (ParsedRequirement)
     core_services:       list   # Services can sua code
     impact_graph:        dict   # So do tac dong API
-    performance_metrics: dict   # Fast Path: bivariate predictions
-    simulation_result:   dict   # Accurate Path: multi-hop cascade predictions
+    simulation_result:   dict   # Global DAG multi-hop cascade predictions (co che duy nhat)
     capacity_assessment: dict   # ReAct Output: expert analysis & Devil's Advocate
     feasibility_report:  str    # Bao cao kha thi cuoi cung
 
@@ -226,7 +223,7 @@ def map_impact_node(state: RequirementState) -> dict:
 def simulate_node(state: RequirementState) -> dict:
     """
     Node 3: CapacityAgent thuc thi chu trinh ReAct (Act -> Observe -> Reason).
-      - ACT: Chay ca Fast Path (Bivariate) va Accurate Path (Global DAG).
+      - ACT: Chay Accurate Path (Global DAG, co che tinh toan duy nhat).
       - OBSERVE: Sang loc cac service vuot nguong an toan (>70%).
       - REASON: Phan tich diem nghen va tu phan bien Devil's Advocate.
     """
@@ -242,7 +239,6 @@ def simulate_node(state: RequirementState) -> dict:
     print(f"  -> Khuyen nghi ky thuat: {len(assessment.recommendations)} muc")
 
     return {
-        "performance_metrics": assessment.fast_metrics,
         "simulation_result":   assessment.simulation_result,
         "capacity_assessment": asdict(assessment),
     }
@@ -341,8 +337,7 @@ Dua vao ket qua phan tich chuyen gia tu CapacityAgent va so do tac dong kien tru
   [Cac khuyen nghi ky thuat]:
   {recs}
 
-=== DU LIEU DINH LUONG SCM (Fast Path & Accurate Path) ===
-Fast Path (Bivariate): {state['performance_metrics']}
+=== DU LIEU DINH LUONG SCM (Global Causal DAG) ===
 Accurate Path (Global DAG): {state['simulation_result']}
 
 === G7: DO TIN CAY NGOAI SUY (OOD-confidence, doc lap voi confidence taxonomy) ===
@@ -422,36 +417,34 @@ _VERDICT = {'SAFE': 'FEASIBLE', 'WARNING': 'MARGINAL', 'CRITICAL': 'INFEASIBLE',
             'FEASIBLE': 'FEASIBLE', 'MARGINAL': 'MARGINAL', 'INFEASIBLE': 'INFEASIBLE'}
 
 
-def assess(text: str, L_peak: float = None, k: dict = None) -> dict:
+def assess(text: str) -> dict:
     """DIEM VAO DUY NHAT. Dua yeu cau bang tieng Viet/Anh vao, nhan phan quyet ra.
 
-        assess("them tinh nang ap ma giam gia", L_peak=150)
+        assess("them tinh nang ap ma giam gia")
 
-    Khong co gi de CHON. Ben trong co hai tang -- du bao tai nguyen, roi phan quyet SLO
-    dat len tren no -- nhung do la chuyen ben trong; nguoi goi chi thay mot ham.
-
-      L_peak = None  -> chi chay tang DU BAO, tra ve tai nguyen du kien tung service.
-                        Dung khi chua biet tai dinh ky vong.
-      L_peak = <so>  -> chay CA hai tang, tra ve them phan quyet SLO va diem gay R*.
-      k              -> boi so goi DO DUOC (papers/p1_du_phong/experiments/collect/probe_feature_chain.py).
-                        Co thi dung P3; khong co thi P2 (gia dinh k=1, it lac quan hon).
+    Khong co gi de CHON, khong can biet truoc tai dinh (L_peak) -- CapacityAgent
+    (He A) tu quet tim diem gay R* cua chinh no (find_breakpoint()), dung lai
+    toan bo bootstrap CI co san cua tran P99 (khong them co che bat dinh moi).
 
     Tra ve dict luon co:
-      verdict   FEASIBLE | MARGINAL | INFEASIBLE   (mot bo nhan duy nhat)
-      forecast  tai nguyen du kien tung service    (dau ra tang 1)
-      slo       phan quyet + R* + khoang tin cay   (dau ra tang 2; None neu thieu L_peak)
+      verdict      FEASIBLE | MARGINAL | INFEASIBLE  (tai DUNG delta ParserAgent doc duoc)
+      forecast     tai nguyen du kien tung service    (dau ra CapacityAgent, xem forecast_resource_impact())
+      breakpoint   {'R_star': {'mid','optimistic','conservative'}, 'read', 'found', ...}
+                   -- tai nao thi he thong gay (CRITICAL), KHONG phai tai hien tai
+
+    Duong CU (He B, nguoi dung tu cung cap L_peak -- xem docstring dau file):
+    goi assess_feasibility_at_peak(text, L_peak) / assess_new_feature_requirement()
+    TRUC TIEP; assess() khong con goi chung.
     """
     fc = forecast_resource_impact(text)
-    out = {'verdict': fc['verdict'], 'forecast': fc, 'slo': None,
-           'requirement': text, 'L_peak': L_peak}
-    if L_peak is None:
-        out['note'] = ('chua co L_peak nen CHUA phan quyet SLO -- con so o `forecast` la '
-                       'du bao tai nguyen, khong phai ket luan kha thi')
-        return out
-    sl = assess_feasibility_at_peak(text, L_peak, k=k)
-    out['slo'] = sl
-    out['verdict'] = sl['verdict']          # tang phan quyet noi tieng noi cuoi
-    return out
+    parsed = fc.get('parsed_requirement') or {}
+    if parsed.get('is_out_of_scope'):
+        bp = {'R_star': {'mid': None, 'optimistic': None, 'conservative': None},
+              'read': 'lenient', 'delta_scaled_pct': None, 'found': False,
+              'note': 'bo qua: requirement ngoai pham vi taxonomy (G6, xem parsed_requirement.reasoning)'}
+    else:
+        bp = capacity_agent.find_breakpoint(parsed, fc.get('impact_graph'))
+    return {'verdict': fc['verdict'], 'forecast': fc, 'breakpoint': bp, 'requirement': text}
 
 
 def forecast_resource_impact(text: str) -> dict:
@@ -503,8 +496,8 @@ __all__ = ['assess',                      # <- dung cai nay
 # ==========================================
 if __name__ == "__main__":
     print("=" * 70)
-    print("  MAS FEASIBILITY ANALYZER — Dual-Path SCM (v4)")
-    print("  Fast Path: Bivariate | Accurate Path: Global DAG 28-node")
+    print("  MAS FEASIBILITY ANALYZER — Global Causal DAG SCM (v5)")
+    print("  Accurate Path: Global DAG 28-node + correction theo tang")
     print("=" * 70)
 
     initial_state = {

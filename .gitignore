@@ -35,6 +35,10 @@ Thumbs.db
 # IDE/editor (chua co ai dung, phong ngua)
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+.directory
 
 # LaTeX build artifact (*.log da co o tren; cac duoi con lai cua pdflatex)
 *.aux
@@ -52,3 +56,31 @@ Thumbs.db
 # -> evaluation_suite.py (xem README.md bang "claim <-> script <-> data").
 data/processed/scm_results/ground_truth_direct_match.csv
 data/processed/scm_results/01_system_telemetry_train_test.csv
+
+# Test + script sinh ket qua -- KHONG push len git de repo gon (10/2026, theo yeu
+# cau "chi push nhung gi can thiet"). Van con tren may tac gia, KHONG bi xoa --
+# chi gia khoi git index (git rm --cached). Repo ngoai (giao vien/nguoi doc) se
+# KHONG thay cac file nay; xem papers/p1_du_phong/README.md muc dau ve ly do va
+# cach lay lai (git log, hoac xin tac gia). Neu can CI/kiem thu lai, bo cac dong
+# duoi day di la du.
+tests/
+papers/p1_du_phong/experiments/collect/
+papers/p1_du_phong/experiments/feasibility/
+papers/p1_du_phong/experiments/edges/
+papers/p1_du_phong/experiments/model_eval/
+papers/p1_du_phong/experiments/parser/
+papers/p1_du_phong/experiments/datasets/
+
+# docs/: chi giu 2 file chinh (paper_draft.tex, bao_cao_giao_vien.tex) + anh PNG
+# da render (can de .tex compile). May sinh anh (.puml + lam_lien_ket.py) va cac
+# doc tham khao phu (khong duoc .tex nao \input) khong push -- van con tren may
+# tac gia. Xem papers/p1_du_phong/README.md.
+papers/p1_du_phong/docs/figures/puml/
+papers/p1_du_phong/docs/CO_CHE_KHA_THI.md
+papers/p1_du_phong/docs/DATA_FRAMEWORK.md
+papers/p1_du_phong/docs/GIAO_THUC_VONG_2.md
+papers/p1_du_phong/docs/HE_THONG.md
+papers/p1_du_phong/docs/RQ3_LLM_PARSER_BENCHMARK_REPORT__LIVE-openai-gpt-oss-120b.md
+papers/p1_du_phong/docs/table_rq3_parser_ablation__LIVE-openai-gpt-oss-120b.tex
+papers/p1_du_phong/docs/khungtoanhoc.tex
+papers/p1_du_phong/docs/khungtoanhoc.pdf

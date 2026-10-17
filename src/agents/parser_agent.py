@@ -66,10 +66,10 @@ SIMILARITY_THRESHOLD = 0.6   # nguong match keyword: duoi nay -> siet adjustment
 @dataclass
 class ParsedRequirement:
     """
-    Output chuan cua ParserAgent. Duoc CapacityAgent.get_metrics_for_service()
-    va CapacityAgent.simulate_intervention() tieu thu (Fast/Accurate path).
+    Output chuan cua ParserAgent. Duoc CapacityAgent.simulate_intervention() va
+    CapacityAgent.find_breakpoint() tieu thu (Global DAG, co che duy nhat).
     """
-    # Core fields — dung cho ca 2 path
+    # Core fields
     request_type:         str         # "APPLY_PROMO_CODE" | "UNKNOWN"
     injection_service:    str         # gateway: node in-degree=0 tu do thi
     injection_delta_pct:  float       # da qua guard, san sang cho SCM

@@ -385,7 +385,7 @@ We evaluate on RCAEval \cite{pham2024rcaeval}, a public microservice benchmark p
 \textbf{Notation.} Let $\mathcal{G} = (V, E)$ denote the dependency graph, where $V = V_W \cup V_R$ partitions into workload and resource nodes. For node $j$, $PA_j$ denotes its parent set in $\mathcal{G}$ and $N_j$ its exogenous noise term.
 
 \subsection{System Architecture Overview}
-The system is a four-node LangGraph state machine, executed sequentially per requirement. The \emph{Parser Agent} (Section~\ref{sec:parser-agent}) turns text into a bounded intervention $do(X{=}x)$. The \emph{Architecture Agent} performs a breadth-first traversal from the injection gateway to determine the blast radius of affected services. The \emph{Capacity Agent} projects downstream resource consumption along two paths: a fast per-service bivariate SCM, and an accurate topology-adaptive global DAG propagating through both the cross-service workload tier and the local resource-consumption tier (Section~\ref{sec:workload-propagation}). Finally, an LLM synthesizes the projected metrics and a self-critique pass into a natural-language \texttt{FeasibilityReport}. Section~\ref{sec:results} evaluates nodes one and three, which carry the causal and LLM machinery; node two is a deterministic graph traversal, and node four is not evaluated quantitatively.
+The system is a four-node LangGraph state machine, executed sequentially per requirement. The \emph{Parser Agent} (Section~\ref{sec:parser-agent}) turns text into a bounded intervention $do(X{=}x)$. The \emph{Architecture Agent} performs a breadth-first traversal from the injection gateway to determine the blast radius of affected services. The \emph{Capacity Agent} projects downstream resource consumption through a topology-adaptive global DAG propagating through both the cross-service workload tier and the local resource-consumption tier (Section~\ref{sec:workload-propagation}). Finally, an LLM synthesizes the projected metrics and a self-critique pass into a natural-language \texttt{FeasibilityReport}. Section~\ref{sec:results} evaluates nodes one and three, which carry the causal and LLM machinery; node two is a deterministic graph traversal, and node four is not evaluated quantitatively.
 
 \subsection{Parser Agent: Semantic Bridge and Three-Layer Verification}
 \label{sec:parser-agent}
@@ -1335,8 +1335,9 @@ data, median over services. Load range is $(\max-\min)/\mathrm{mean}$.}
 \toprule
  & RCAEval (Sock Shop) & Alibaba v2021 \\
 \midrule
-$R^2$ median, CPU     & $0.0034$ & $\mathbf{0.3009}$ \\
-$R^2$ median, Memory  & $0.0034$ & $0.0113$ \\
+$R^2$ median, CPU     & $0.0150$ & $\mathbf{0.3009}$ \\
+$R^2$ median, Memory  & $0.0000$ & $0.0113$ \\
+$R^2$ median, Socket  & $0.0000$ & --- \\
 services with $R^2>0.3$ & --- & $\mathbf{50.1\%}$ \\
 load range (median)   & $1.70$ & $1.08$ \\
 $n$ services          & $7$ & $1{,}293$ \\
@@ -1344,8 +1345,8 @@ $n$ services          & $7$ & $1{,}293$ \\
 \end{tabular}
 \end{table}
 
-On RCAEval, workload explains $0.34\%$ of the variance in CPU, memory, and socket
-count alike (Table~\ref{tab:signal-gate}). This is not a property of any model:
+On RCAEval, workload explains at most $1.5\%$ of the variance in CPU, and none
+measurably in memory or socket count (Table~\ref{tab:signal-gate}). This is not a property of any model:
 no estimator can recover a relationship the data does not contain. It explains,
 in one diagnosis, every negative result we report in Section~\ref{sec:rq5} ---
 the fitted causal mechanisms coinciding with linear regression, the negative
@@ -2135,8 +2136,8 @@ Feature & Scored chain & Max divergence & Tighter than global \\
 An earlier version of this work read the per-service spread in Sock Shop CPU
 error as three distinct failure mechanisms, and memory's $2$--$4\%$ MAPE as
 evidence that the difficulty was specific to CPU. The signal gate of
-Section~\ref{sec:rq4-gate} supersedes both readings: workload explains
-$R^2 = 0.0034$ of the variance in CPU, memory, and socket count alike, so there
+Section~\ref{sec:rq4-gate} supersedes both readings: median $R^2$ is $0.015$ for
+CPU and $0.000$ for memory and socket count alike, so there
 was no relationship for any mechanism to capture, and memory's low error reflects
 its near-invariance rather than an easier target.
 
@@ -2530,7 +2531,7 @@ exposed an implementation that inserts a non-existent service, violating the ver
 proposition it enforces. A scale-dependent error cannot separate a learned
 mechanism from a target that barely moves; our $2$--$4\%$ memory result is a MAPE
 a constant predictor also attains, and the benchmark it was measured on carries
-no load signal to learn from at all ($R^2 = 0.003$). And held-out accuracy,
+no load signal to learn from at all (median $R^2 = 0.000$). And held-out accuracy,
 however carefully split, cannot expose a mechanism that fails only outside the
 range where its parent was observed; an extension improving held-out error on
 $23$ of $23$ nodes degrades by $365$ MAPE points under real intervention.

@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-CapacityAgent — Unified SCM Performance & Capacity Reasoner
-===========================================================
-Hợp nhất PerformanceAgent (Fast Path Bivariate) và SimulationAgent (Accurate Global DAG)
-thành một Agent duy nhất tuân thủ mô hình ReAct (Yao et al., 2022):
+CapacityAgent — SCM Capacity & Breakpoint Reasoner (Hệ A, cơ chế DUY NHẤT)
+===========================================================================
+Một Agent duy nhất tuân thủ mô hình ReAct (Yao et al., 2022), dùng MỘT cơ chế
+tính toán (Global Causal DAG) cho mọi đầu ra -- không còn mô hình bivariate
+rời chạy song song (đã bỏ, xem lịch sử git):
 
   1. ACT (Hành động qua Tool):
-     - Chạy Dual-Path SCM Simulation:
-       + Fast Path: 21 mô hình Bivariate độc lập (đánh giá trực tiếp per-service).
-       + Accurate Path: Siêu đồ thị 28-node Causal DAG (mô phỏng lan truyền suy giảm cascade).
+     - Siêu đồ thị 28-node Causal DAG (mô phỏng lan truyền suy giảm cascade)
+       + "correction theo tầng" (chain-aware scaling, _apply_chain_correction).
 
   2. OBSERVE (Quan sát định lượng):
      - Tổng hợp độ lệch tài nguyên (CPU, Memory, Latency, Socket).
-     - Quét ngưỡng bão hòa (>70% baseline hoặc bùng nổ độ trễ phi tuyến).
+     - Quét biên dự phòng so với trần P99 huấn luyện (compute_headroom/summarize_headroom).
+     - find_breakpoint(): quét tải tìm điểm gãy R* (SAFE->CRITICAL), không cần
+       biết trước tải đỉnh kỳ vọng (L_peak) -- tự báo cáo R* của chính nó.
 
   3. REASON & CRITIQUE (Suy luận chuyên gia & Tự phản biện Devil's Advocate):
      - Phân tích nguyên nhân điểm nghẽn (Bottleneck Attribution).
@@ -49,13 +51,11 @@ BASE_DIR   = os.path.dirname(_SRC_DIR)
 sys.path.insert(0, os.path.join(_SRC_DIR, 'scm'))
 
 from data_processor import (
-    load_normal_data,
     load_multi_service_data,
     split_quantile,
     SERVICES,
     TRAINTICKET_SERVICES,
     ONLINEBOUTIQUE_SERVICES,
-    METRICS
 )
 from queueing_regressor import QueueingLatencyRegressor
 from deterministic_forward import deterministic_forward
@@ -66,51 +66,6 @@ from node_impact import (
     evaluate_node_stability as _evaluate_node_stability,
     select_key_nodes as _select_key_nodes,
 )
-
-N_PROJ = 500
-
-
-def _mape(y_true, y_pred):
-    yt, yp = np.array(y_true), np.array(y_pred)
-    m = yt != 0
-    return np.mean(np.abs((yt[m] - yp[m]) / yt[m])) * 100 if m.sum() > 0 else float('nan')
-
-
-def _load_normal_data(service: str, metric_col: str, data_dir: str) -> pd.DataFrame:
-    """Load normal-period [Workload, Target] từ tất cả các run."""
-    dfs = []
-    wlc = f'{service}_workload'
-    tgc = f'{service}_{metric_col}'
-
-    target_dir = os.path.join(data_dir, 'RE2-SS') if os.path.isdir(os.path.join(data_dir, 'RE2-SS')) else data_dir
-
-    for scenario in os.listdir(target_dir):
-        sp = os.path.join(target_dir, scenario)
-        if not os.path.isdir(sp):
-            continue
-        for run_id in os.listdir(sp):
-            rp = os.path.join(sp, run_id)
-            if not os.path.isdir(rp):
-                continue
-            mp = os.path.join(rp, 'simple_metrics.csv')
-            ip = os.path.join(rp, 'inject_time.txt')
-            if not (os.path.exists(mp) and os.path.exists(ip)):
-                continue
-            try:
-                with open(ip) as f:
-                    it = int(f.read().strip())
-                cols = pd.read_csv(mp, nrows=0).columns
-                tc = 'imte' if 'imte' in cols else ('time' if 'time' in cols else None)
-                if tc is None or wlc not in cols or tgc not in cols:
-                    continue
-                df_raw = pd.read_csv(mp, usecols=[tc, wlc, tgc])
-                df = df_raw[[tc, wlc, tgc]].copy()
-                df.columns = [tc, 'Workload', 'Target']
-                dfs.append(df[df[tc] < it].drop(columns=[tc]).dropna())
-            except Exception:
-                continue
-
-    return pd.concat(dfs, ignore_index=True) if dfs else None
 
 
 # ============================================================
@@ -131,8 +86,7 @@ class CapacityAssessment:
     Kết quả đánh giá năng lực toàn diện của CapacityAgent (ReAct Pattern).
     """
     status: str                         # "SAFE" | "WARNING" | "CRITICAL"
-    fast_metrics: Dict[str, Any]        # Fast Path: Bivariate predictions
-    simulation_result: Dict[str, Any]   # Accurate Path: Global DAG multi-hop cascade
+    simulation_result: Dict[str, Any]   # Global DAG multi-hop cascade (cơ chế DUY NHẤT)
     saturated_services: List[str]       # Danh sách service vượt ngưỡng an toàn (>70%)
     expert_assessment: str              # Phân tích nguyên nhân điểm nghẽn từ LLM / Rule
     risk_critique: str                  # Tự phản biện Devil's Advocate (rủi ro tiềm ẩn)
@@ -151,11 +105,11 @@ class CapacityAssessment:
 class CapacityAgent:
     """
     Agent Đánh Giá Năng Lực & Hiệu Năng Hệ Thống (ReAct Agent).
-    
+
     Tích hợp:
-      - Tool 1 (Fast Path): 21 mô hình Bivariate SCM độc lập.
-      - Tool 2 (Accurate Path): Siêu đồ thị 28-node Causal DAG phản ánh cascade attenuation.
-      - ReAct Loop: Act (chạy 2 chế độ SCM) -> Observe (tổng hợp delta) -> Reason & Critique (LLM/Expert logic).
+      - Siêu đồ thị 28-node Causal DAG phản ánh cascade attenuation (cơ chế tính toán DUY NHẤT).
+      - find_breakpoint(): quét nhị phân trên DAG trên để tìm điểm gãy R*.
+      - ReAct Loop: Act (chạy SCM) -> Observe (tổng hợp delta) -> Reason & Critique (LLM/Expert logic).
     """
 
     def __init__(
@@ -222,12 +176,7 @@ class CapacityAgent:
             self.gateways = []
             self.default_injection = self.services[0] if self.services else None
 
-        # State của Tool Fast Path (Bivariate)
-        self.trained_models: Dict[Tuple[str, str], Any] = {}
-        self.bivariate_models = self.trained_models
-        self.accuracy_df: pd.DataFrame = None
-
-        # State của Tool Accurate Path (Global DAG)
+        # State của Tool Accurate Path (Global DAG, cơ chế DUY NHẤT)
         self.global_dag_model = None
         self.global_model     = None
         self.global_df_baseline: pd.DataFrame = None
@@ -273,138 +222,12 @@ class CapacityAgent:
     # HUẤN LUYỆN SCM TOOLS (CẢ 2 CHẾ ĐỘ)
     # ----------------------------------------------------------
     def train(self):
-        """Huấn luyện đồng thời cả Fast Path (Bivariate) và Accurate Path (Global DAG)."""
-        self.train_fast_path()
+        """Huấn luyện Siêu Đồ Thị Nhân Quả (Global 2-Tier Causal DAG) -- cơ chế
+        tính toán DUY NHẤT của Hệ A, không còn mô hình bivariate rời chạy song song."""
         self.train_accurate_path()
-        self._is_trained = bool(self.trained_models and self.global_dag_model)
+        self._is_trained = bool(self.global_dag_model)
         self._key_nodes_cache = None  # DAG moi -> bo cache select_key_nodes() cu
         self._stability_cache = None  # DAG moi -> bo cache evaluate_node_stability() cu
-
-    def train_fast_path(self):
-        """Huấn luyện mô hình SCM Bivariate (N services x 3 metrics)."""
-        print("\n" + "=" * 70)
-        print(f"  [CapacityAgent: Tool 1] HUẤN LUYỆN BIVARIATE SCM ({self.system_type.upper()})")
-        print("  Phương pháp: Train(LOW workload 67%) -> Test(HIGH workload 33%)")
-        print("=" * 70)
-
-        if not os.path.isdir(self.data_dir):
-            print(f"[WARNING] Thư mục dữ liệu không tồn tại: {self.data_dir}")
-            return
-
-        try:
-            df_multi = load_multi_service_data(self.data_dir, system_type=self.system_type, services=self.services)
-        except Exception:
-            df_multi = None
-
-        all_rows = []
-
-        for metric_name, metric_col, unit, scale in METRICS:
-            print(f"\n  [{metric_name} | don vi: {unit}]")
-            for svc in self.services:
-                wlc, tgc = f'{svc}_workload', f'{svc}_{metric_col}'
-                if df_multi is not None and wlc in df_multi.columns and tgc in df_multi.columns:
-                    df = df_multi[[wlc, tgc]].dropna()
-                    df.columns = ['Workload', 'Target']
-                else:
-                    df = _load_normal_data(svc, metric_col, self.data_dir)
-
-                if df is None or len(df) < 200:
-                    print(f"    {svc:<14}: khong du du lieu (can >=200 mau)")
-                    continue
-
-                if len(df) > 2000:
-                    df = df.sample(2000, random_state=42)
-
-                df = df.sort_values('Workload').reset_index(drop=True)
-                split = int(len(df) * 0.67)
-                df_train = df.iloc[:split]
-                df_test  = df.iloc[split:].copy()
-
-                g = nx.DiGraph()
-                g.add_edge('Workload', 'Target')
-                model = gcm.InvertibleStructuralCausalModel(g)
-
-                # Ép dùng LinearRegression(positive=True) thay vì gcm.auto
-                # tự chọn — đồng bộ với Global DAG (train_accurate_path).
-                # Bằng chứng: papers/p1_du_phong/experiments/archive/nonlinear_mechanism_trial.py
-                # (nay: edges/dang_co_che_doi_chung.py --co-che auto_gcm,linear_pos,hgbr_mono) cho
-                # thấy linear_pos thắng auto_gcm rõ rệt ở protocol quantile
-                # (MAPE 12.9% vs 20.8%, win 10/21 vs 4/21 cặp), đúng chế
-                # độ agent thực sự gọi model (new_wl = base*(1+delta%) —
-                # luôn ngoại suy nhẹ so với baseline huấn luyện).
-                model.set_causal_mechanism(
-                    'Workload', EmpiricalDistribution())
-                model.set_causal_mechanism(
-                    'Target',
-                    AdditiveNoiseModel(SklearnRegressionModel(
-                        LinearRegression(positive=True))))
-                gcm.fit(model, df_train)
-
-                df_test['bkt'] = pd.qcut(
-                    df_test['Workload'],
-                    q=min(8, df_test['Workload'].nunique()),
-                    duplicates='drop'
-                )
-                bkts = df_test.groupby('bkt', observed=True)[['Workload', 'Target']].mean()
-
-                y_true, y_pred = [], []
-                for _, row in bkts.iterrows():
-                    wl_val = row['Workload']
-                    dp = gcm.interventional_samples(
-                        model,
-                        interventions={'Workload': lambda x, w=wl_val: w},
-                        num_samples_to_draw=N_PROJ
-                    )
-                    y_true.append(row['Target'])
-                    y_pred.append(dp['Target'].mean())
-
-                yt, yp = np.array(y_true), np.array(y_pred)
-                mape_v = _mape(yt, yp)
-                mae_v  = mean_absolute_error(yt, yp) * scale
-                rmse_v = np.sqrt(mean_squared_error(yt, yp)) * scale
-                r2_v   = r2_score(yt, yp)
-
-                thresh = df_train['Target'].mean() + 0.5 * df_train['Target'].std()
-                yt_bin = (yt >= thresh).astype(int)
-                yp_bin = (yp >= thresh).astype(int)
-                f1_v   = f1_score(yt_bin, yp_bin, average='binary', zero_division=1)
-
-                tag = 'EXCELLENT' if mape_v < 10 else ('FAIR' if mape_v < 25 else 'POOR')
-                print(f"    {svc:<14}: MAPE={mape_v:>5.1f}%  "
-                      f"RMSE={rmse_v:>8.4f}  F1={f1_v:>5.3f}  R2={r2_v:>5.3f}  [{tag}]")
-
-                self.trained_models[(svc, metric_name)] = {
-                    'model':        model,
-                    'baseline_wl':  df_train['Workload'].mean(),
-                    'baseline_val': df_train['Target'].mean() * scale,
-                    'wl_train_max': df_train['Workload'].max(),
-                    'wl_test_max':  df_test['Workload'].max(),
-                    'unit':         unit,
-                    'scale':        scale,
-                    'mape':         mape_v,
-                    'f1':           f1_v,
-                    'r2':           r2_v,
-                    'rmse':         rmse_v,
-                    'thresh':       thresh,
-                }
-
-                all_rows.append({
-                    'service':      svc,
-                    'metric':       metric_name,
-                    'unit':         unit,
-                    'mape_pct':     round(mape_v, 2),
-                    'rmse':         round(rmse_v, 4),
-                    'mae':          round(mae_v, 4),
-                    'r2':           round(r2_v, 3),
-                    'f1_score':     round(f1_v, 3),
-                    'tag':          tag,
-                    'baseline_val': round(df_train['Target'].mean() * scale, 4),
-                    'n_train':      len(df_train),
-                    'n_test':       len(df_test),
-                })
-
-        self.accuracy_df = pd.DataFrame(all_rows)
-        print(f"\n[OK] Đã huấn luyện {len(self.trained_models)} mô hình Bivariate SCM.")
 
     def train_accurate_path(self):
         """Huấn luyện Siêu Đồ Thị Nhân Quả (Global 2-Tier Causal DAG)."""
@@ -625,59 +448,6 @@ class CapacityAgent:
             else:
                 hops[svc] = -1
         return hops
-
-    # ----------------------------------------------------------
-    # BACKWARD COMPATIBILITY INTERFACES (Cho các script cũ)
-    # ----------------------------------------------------------
-    def train_scm_models(self):
-        """Tương thích PerformanceAgent.train_scm_models()."""
-        self.train_fast_path()
-
-    def get_metrics_for_service(
-        self,
-        service_name: str,
-        workload_delta_pct: float = 20.0,
-        scenario: str = None
-    ) -> Dict[str, Any]:
-        """Tương thích PerformanceAgent.get_metrics_for_service()."""
-        if not self.trained_models:
-            return {}
-
-        result = {}
-        for metric_name, metric_col, unit, scale in METRICS:
-            key = (service_name, metric_name)
-            if key not in self.trained_models:
-                continue
-
-            m_info  = self.trained_models[key]
-            model   = m_info['model']
-            base_wl = m_info['baseline_wl']
-            base_v  = m_info['baseline_val']
-            new_wl  = base_wl * (1 + workload_delta_pct / 100)
-
-            dp = gcm.interventional_samples(
-                model,
-                interventions={'Workload': lambda x, w=new_wl: w},
-                num_samples_to_draw=N_PROJ
-            )
-            pred_v = dp['Target'].mean() * scale
-            chg    = (pred_v - base_v) / abs(base_v) * 100 if base_v != 0 else 0.0
-
-            result[f'{metric_name}_baseline_{unit}']  = round(base_v, 4)
-            result[f'{metric_name}_predicted_{unit}'] = round(pred_v, 4)
-            result[f'{metric_name}_change_pct']       = round(chg, 2)
-            # Do tin cay cua CHINH node nay trong Global DAG (_node_confidence(),
-            # dua tren evaluate_node_stability() -- KHONG loc qua top-impact
-            # toan cuc, xem docstring _get_key_nodes()) -- Fast Path (Bivariate)
-            # va Accurate Path
-            # (DAG) la 2 mo hinh khac nhau tren CUNG mot node ten, nhung day
-            # la tin hieu duy nhat co san ve do on dinh cua node do trong toan
-            # do thi (Fast Path khong tu danh gia rieng cho tung service; xem
-            # accuracy_df/get_accuracy_report() cho do chinh xac RIENG cua
-            # CHINH mo hinh Bivariate nay neu can phan biet 2 nguon).
-            result[f'{metric_name}_confidence'] = self._node_confidence(f'{service_name}_{metric_col}')
-
-        return result
 
     # ----------------------------------------------------------
     # G7: OOD-CONFIDENCE GUARD (magnitude-of-extrapolation check)
@@ -1263,30 +1033,6 @@ class CapacityAgent:
             out[node] = {'joint': j, 'naive_sum': n, 'gap': j - n}
         return out
 
-    def get_accuracy_report(self) -> pd.DataFrame:
-        if self.accuracy_df is None or self.accuracy_df.empty:
-            return pd.DataFrame()
-        return self.accuracy_df.copy()
-
-    def get_accuracy_summary(self) -> Dict[str, Any]:
-        if self.accuracy_df is None or self.accuracy_df.empty:
-            return {}
-
-        summary = {}
-        for metric_name, _, _, _ in METRICS:
-            sub = self.accuracy_df[self.accuracy_df['metric'] == metric_name]
-            if sub.empty:
-                continue
-            n_good = int((sub['mape_pct'] < 10).sum())
-            summary[metric_name] = {
-                'avg_mape_pct':       round(float(sub['mape_pct'].mean()), 2),
-                'avg_f1':             round(float(sub['f1_score'].mean()), 3),
-                'avg_r2':             round(float(sub['r2'].mean()), 3),
-                'excellent_services': n_good,
-                'total_services':     len(sub),
-            }
-        return summary
-
     def get_dag_summary(self) -> Dict[str, Any]:
         if self.dag_graph is None:
             return {'n_nodes': 0, 'n_edges': 0}
@@ -1673,6 +1419,147 @@ class CapacityAgent:
         return out
 
     # ----------------------------------------------------------
+    def _status_at_L(self, L: float, inj_svc: str, delta_scaled_pct: float,
+                      affected: set, base_wl: float) -> Dict[str, Any]:
+        """Dung CHINH co che cua assess_capacity() (simulate_intervention +
+        _apply_chain_correction + compute_headroom), tai MOT tai dinh L --
+        KHONG goi LLM (khac assess_capacity(), bo qua buoc REASON de quet
+        duoc nhieu diem). Cong thuc bac cau GIONG HET
+        evaluate_verdict_level_heA.py (da kiem khop 10/10 phan quyet do
+        truoc khi dung trong file do):
+            delta_pct_eff(L) = (L*(1+delta_scaled_pct/100)/base_wl - 1) * 100
+        Tra ve {'status_mid','status_lo','status_hi','headroom'} -- lo/hi suy
+        TRUC TIEP tu consumed_ci_pct da co san trong compute_headroom() (CI
+        bootstrap cua tran P99), khong tao co che bat dinh moi."""
+        delta_pct_eff = (L * (1.0 + delta_scaled_pct / 100.0) / base_wl - 1.0) * 100.0
+        sim = self.simulate_intervention(inj_svc, delta_pct_eff)
+        sim = self._apply_chain_correction(sim, affected)
+        headroom = self.compute_headroom(sim)
+
+        def _classify_frac(c):
+            if c is None:
+                return None
+            if c > self.HEADROOM_CRITICAL_FRAC:
+                return 'BEYOND_ENVELOPE'
+            if c > self.HEADROOM_WARNING_FRAC:
+                return 'TIGHT'
+            return 'OK'
+
+        def _worst(bound: str) -> str:
+            worst = 'SAFE'
+            for metrics in (headroom or {}).values():
+                for h in metrics.values():
+                    if bound == 'mid':
+                        st = h.get('status')
+                        hit = st == 'BEYOND_ENVELOPE', st == 'TIGHT'
+                    else:
+                        ci = h.get('consumed_ci_pct')
+                        if not ci or None in ci:
+                            continue  # NO_OBSERVED_RANGE/not_forecastable/unavailable -- khong tinh
+                        c = (ci[0] if bound == 'lo' else ci[1]) / 100.0
+                        cls = _classify_frac(c)
+                        hit = cls == 'BEYOND_ENVELOPE', cls == 'TIGHT'
+                    if hit[0]:
+                        worst = 'CRITICAL'
+                    elif hit[1] and worst != 'CRITICAL':
+                        worst = 'WARNING'
+            return worst
+
+        return {'status_mid': _worst('mid'), 'status_lo': _worst('lo'),
+                'status_hi': _worst('hi'), 'delta_pct_eff': round(delta_pct_eff, 4)}
+
+    def find_breakpoint(
+        self,
+        parsed_requirement: Dict[str, Any],
+        impact_graph: Dict[str, Any] = None,
+        L_floor: float = 1.0,
+        L_cap: float = 2.0e5,
+        read: str = 'lenient',
+    ) -> Dict[str, Any]:
+        """Quet tai dinh L (truoc khi co tinh nang) tim diem gay R* -- tai NHO
+        NHAT ma trang thai tong KHONG con an toan.
+
+        MOI, chua co o ban nao truoc: He A tu no (assess_capacity) chi tung
+        bao trang thai TAI MOT diem co dinh (delta neo cua archetype, khong
+        lien quan toi mot tai dinh L cu the nao) -- khong tung du bao duoc
+        "gay o dau". Ham nay lap day dung khoang trong do, dung lai NGUYEN
+        co che cua assess_capacity() (sim + chain correction + headroom),
+        KHONG goi LLM trong luc quet (chi goi nhieu lan ham so, re).
+
+        `read`: 'lenient' (mac dinh) -- chi CRITICAL tinh la gay (WARNING van
+        coi la con dung duoc, chi la can luu y); 'strict' -- CRITICAL hoac
+        WARNING deu tinh la gay. Hai cach doc nay cho ra R* khac nhau ro ret
+        (da do o evaluate_verdict_level_heA.py) -- KHONG co cach "dung" duy
+        nhat, goi ro rang trong ket qua tra ve de khong lan.
+
+        GIA DINH DON DIEU (tai tang thi trang thai khong giam): cung co so
+        voi _check_evidence_sanity/Phan A trong evaluate_verdict_level_heA.py
+        -- moi co che CPU trong DAG la LinearRegression(positive=True).
+        KHONG tu kiem lai gia dinh nay o day (da kiem 1 lan o script danh
+        gia, tren luoi 288 diem, 0 vi pham -- xem bao_cao_giao_vien.tex).
+        Neu gia dinh sai cho mot he/metric cu the, bisection co the tra ve
+        sai -- day la dieu kien tien quyet CHUA duoc kiem lai moi lan goi.
+
+        Tra ve {'R_star': {'mid','optimistic','conservative'}, 'read',
+        'delta_scaled_pct', 'found': bool}. 'optimistic' suy tu dau CI LAC
+        QUAN cua tran (it tieu tai nguyen hon) -- CHO RA SO LON HON ('mid'),
+        vi he tro nen an toan lau hon. 'conservative' suy tu dau CI BI QUAN
+        -- CHO RA SO NHO HON, nen dung lam can cu ke hoach dung luong (truong
+        hop xau nhat con trong CI da do). KHONG dat ten 'lo'/'hi' (de lan voi
+        huong cua R* thay vi huong cua CI) -- da tu bat loi nay khi viet, doi
+        lai truoc khi dung. R_star[x] la None neu khong tim duoc trong
+        [L_floor, L_cap] (an toan xuyen suot toan khoang, hoac da khong-an-
+        toan ngay tu L_floor -- ca hai truong hop deu KHONG doan, bao ro
+        bang None + ghi trong 'note')."""
+        inj_svc = parsed_requirement.get('injection_service', self.default_injection)
+        affected = set(parsed_requirement.get('affected_services', []))
+        if impact_graph:
+            for srv, deps in impact_graph.items():
+                affected.update(deps.get('api_consumers_to_notify', []))
+                affected.update(deps.get('downstream_services_to_check', []))
+        delta_scaled_pct = float(parsed_requirement.get('injection_delta_pct', 20.0))
+
+        gw_col = f'{inj_svc}_workload'
+        if self.df_baseline is None or gw_col not in self.df_baseline.columns:
+            return {'R_star': {'mid': None, 'lo': None, 'hi': None}, 'read': read,
+                    'delta_scaled_pct': delta_scaled_pct, 'found': False,
+                    'note': f"khong co cot '{gw_col}' trong du lieu baseline -- khong quet duoc"}
+        base_wl = float(self.df_baseline[gw_col].mean())
+
+        def _is_broken(status_dict, bound):
+            st = status_dict[f'status_{bound}']
+            return st == 'CRITICAL' if read == 'lenient' else st != 'SAFE'
+
+        def _bisect(bound):
+            lo_L, hi_L = L_floor, L_cap
+            s_lo = self._status_at_L(lo_L, inj_svc, delta_scaled_pct, affected, base_wl)
+            if _is_broken(s_lo, bound):
+                return lo_L  # da gay ngay tu san -- khong bisect duoc, bao ro L_floor
+            s_hi = self._status_at_L(hi_L, inj_svc, delta_scaled_pct, affected, base_wl)
+            if not _is_broken(s_hi, bound):
+                return None  # an toan xuyen suot toi L_cap -- khong tim thay trong khoang
+            for _ in range(40):  # du de hoi tu voi L_cap=2e5, L_floor=1
+                mid_L = (lo_L + hi_L) / 2.0
+                s_mid = self._status_at_L(mid_L, inj_svc, delta_scaled_pct, affected, base_wl)
+                if _is_broken(s_mid, bound):
+                    hi_L = mid_L
+                else:
+                    lo_L = mid_L
+            return round(hi_L, 2)
+
+        # luu y: _bisect('lo')/_bisect('hi') dung dung ten khoa 'status_lo'/'status_hi'
+        # cua _status_at_L() (huong CI tieu thu THAP/CAO) -- 'lo' (tieu it hon) cho ra
+        # R* LON hon (optimistic); 'hi' (tieu nhieu hon) cho ra R* NHO hon (conservative).
+        r_mid, r_optimistic, r_conservative = _bisect('mid'), _bisect('lo'), _bisect('hi')
+        return {
+            'R_star': {'mid': r_mid, 'optimistic': r_optimistic, 'conservative': r_conservative},
+            'read': read, 'delta_scaled_pct': delta_scaled_pct,
+            'found': r_mid is not None,
+            'note': ('khong tim thay diem gay trong khoang quet' if r_mid is None
+                     and r_conservative is None else None),
+        }
+
+    # ----------------------------------------------------------
     def assess_capacity(
         self,
         parsed_requirement: Dict[str, Any],
@@ -1680,29 +1567,16 @@ class CapacityAgent:
     ) -> CapacityAssessment:
         """
         Thực thi chu trình ReAct hoàn chỉnh:
-          1. ACT: Gọi 2 chế độ SCM Tool (Bivariate Fast Path + Multi-hop Accurate Path).
+          1. ACT: Gọi SCM Tool (Multi-hop Accurate Path -- Global DAG).
           2. OBSERVE: Tổng hợp delta, nhận diện điểm nghẽn tiệm cận ngưỡng an toàn.
           3. REASON & CRITIQUE: LLM hoặc Domain Expert Logic phân tích nguyên nhân & phản biện rủi ro.
         """
         delta = float(parsed_requirement.get('injection_delta_pct', 20.0))
         inj_svc = parsed_requirement.get('injection_service', self.default_injection)
         affected = set(parsed_requirement.get('affected_services', []))
-        core_svcs = set(parsed_requirement.get('core_services', []))
 
-        services_to_check = affected | core_svcs
-        if impact_graph:
-            for srv, deps in impact_graph.items():
-                services_to_check.update(deps.get('api_consumers_to_notify', []))
-                services_to_check.update(deps.get('downstream_services_to_check', []))
-
-        # --- 1. ACT (Chạy SCM Tools) ---
-        print(f"\n[CapacityAgent: Act] Chạy Dual-Path SCM cho delta=+{delta}% tại '{inj_svc}'...")
-        fast_metrics = {}
-        for srv in services_to_check:
-            m = self.get_metrics_for_service(srv, workload_delta_pct=delta)
-            if m:
-                fast_metrics[srv] = m
-
+        # --- 1. ACT (Chạy SCM Tool) ---
+        print(f"\n[CapacityAgent: Act] Chạy Accurate-Path SCM cho delta=+{delta}% tại '{inj_svc}'...")
         sim_result = self.simulate_intervention(inj_svc, delta)
         sim_result = self._apply_chain_correction(sim_result, affected)
 
@@ -1720,7 +1594,6 @@ class CapacityAgent:
         print(f"[CapacityAgent: Reason] Phân tích điểm nghẽn & Tự phản biện rủi ro...")
         expert_assessment, risk_critique, recommendations = self._reason_and_critique(
             parsed_requirement,
-            fast_metrics,
             sim_result,
             saturated_services,
             status
@@ -1728,7 +1601,6 @@ class CapacityAgent:
 
         return CapacityAssessment(
             status             = status,
-            fast_metrics       = fast_metrics,
             simulation_result  = sim_result,
             saturated_services = saturated_services,
             expert_assessment  = expert_assessment,
@@ -1746,7 +1618,6 @@ class CapacityAgent:
     def _reason_and_critique(
         self,
         parsed_req: Dict[str, Any],
-        fast_metrics: Dict[str, Any],
         sim_result: Dict[str, Any],
         saturated_services: List[str],
         status: str
@@ -1757,7 +1628,7 @@ class CapacityAgent:
         if self.llm is None:
             expert_txt = (
                 f"Phân tích tải: Hệ thống ở trạng thái {status}. "
-                f"Đã kiểm tra {len(fast_metrics)} dịch vụ. "
+                f"Đã kiểm tra {len(sim_result)} dịch vụ. "
                 f"Điểm nghẽn tiềm ẩn: {', '.join(saturated_services) if saturated_services else 'Không có dịch vụ nào vượt ngưỡng'}. "
                 "Cascade Attenuation diễn ra ổn định qua đồ thị vết gọi."
             )
@@ -1773,7 +1644,7 @@ class CapacityAgent:
             return expert_txt, risk_critique, recs
 
         prompt = f"""Bạn là Capacity & Performance Engineer chuyên gia vi dịch vụ SockShop.
-Dưới đây là kết quả đo lường định lượng từ 2 bộ công cụ nhân quả SCM (Dual-Path):
+Dưới đây là kết quả đo lường định lượng từ bộ công cụ nhân quả SCM (Global Causal DAG):
 
 [YÊU CẦU TÍNH NĂNG MỚI]
 - Loại: {parsed_req.get('request_type')}
@@ -1781,14 +1652,11 @@ Dưới đây là kết quả đo lường định lượng từ 2 bộ công c�
 - Core Services (sửa code): {parsed_req.get('core_services')}
 - Affected Services (blast radius): {parsed_req.get('affected_services')}
 
-[DỮ LIỆU ĐO LƯỜNG SCM (Tool Outputs)]
-1. Fast Path (Bivariate predictions):
-{json.dumps(fast_metrics, indent=2)}
-
-2. Accurate Path (Multi-hop Cascade Global DAG):
+[DỮ LIỆU ĐO LƯỜNG SCM (Tool Output)]
+1. Multi-hop Cascade (Global DAG):
 {json.dumps(sim_result, indent=2)}
 
-3. Dịch vụ cảnh báo bão hòa sơ bộ: {saturated_services if saturated_services else 'None'}
+2. Dịch vụ cảnh báo bão hòa sơ bộ: {saturated_services if saturated_services else 'None'}
 
 [NHIỆM VỤ REASONING (Suy Luận & Phản Biện Chuyên Sâu)]:
 1. "expert_assessment": Giải thích ngắn gọn (3-4 câu) tại sao các dịch vụ bị tăng tải, và tại sao có hiệu ứng suy giảm (cascade attenuation) từ gateway đến các tầng sâu (như orders/payment).

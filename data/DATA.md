@@ -103,6 +103,20 @@ có thể nằm ở hai bộ. Mọi ô nhập nhằng đều được ghi rõ �
 | `SS-PROSP2/SS-PROSP4-OF` | `RE2_P2_prosp4.json`, `RE2_P3_prosp_orderfull.json` | orderfullx1 |
 | `SS-PROSP2/SS-PROSP4-RE` | `RE2_P2_prosp4.json`, `RE2_P3_prosp_reorder.json` | reorderx1 |
 
+## Hai CSV kết quả không track trong git (quá lớn), xác minh bằng sha256
+
+`data/processed/scm_results/ground_truth_direct_match.csv` (36MB, 544K dòng --- bằng
+chứng chính của §V RQ1, xem `README.md` bảng "claim ↔ script ↔ data") và
+`01_system_telemetry_train_test.csv` (18MB, 64K dòng) chiếm hơn 60% dung lượng toàn bộ
+mã nguồn+kết quả đang track nếu commit thẳng --- gitignore kể từ 2026-10-16, mỗi file
+có sidecar `<tên file>.csv.sha256` (đúng quy ước `.sha256` của `data/processed/frozen/`)
+để xác minh tính toàn vẹn mà không cần commit 54MB.
+
+**Tái lập**: `python run_all_experiments.py` (cần `.env` có `GOOGLE_API_KEY`) →
+`evaluation_suite.py` ghi lại cả hai file, đúng vị trí trên. Clone mới sẽ KHÔNG có hai
+file này cho tới khi chạy lại --- so hash với file `.sha256` tương ứng để xác nhận bản
+chạy lại khớp đúng bản gốc đã dùng cho số liệu trong paper.
+
 ## Dữ liệu của bài 2 — nối với CSV kết quả, không với file đóng băng
 
 Các file đóng băng là của **bài 1**; không file nào trỏ đến dữ liệu bài 2. Ánh xạ

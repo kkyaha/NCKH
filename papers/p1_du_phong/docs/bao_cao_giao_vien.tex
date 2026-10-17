@@ -9,13 +9,16 @@
 %   roi chay:  xelatex bao_cao_giao_vien.tex
 %
 % TODO TRUOC KHI GUI: dien ten + lop/khoa o \author
+%
+% CAU TRUC: than bai 4 phan ngan (Van de -> Kien truc -> Ket qua -> Ke hoach),
+% moi chi tiet ky thuat/so lieu day du dua xuong Phu luc A-E o cuoi file.
 % =========================================================
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T5]{fontenc}
 \usepackage{amsmath}\usepackage{amssymb}\usepackage{booktabs}
 \usepackage{array}\usepackage{geometry}\usepackage{hyperref}
-\usepackage{xcolor}\usepackage{enumitem}
+\usepackage{xcolor}\usepackage{enumitem}\usepackage{graphicx}
 \geometry{margin=1in}
 \hypersetup{colorlinks=true,linkcolor=blue,citecolor=red,urlcolor=teal}
 \makeatletter\def\UTFviii@undefined@err#1{\relax}\makeatother
@@ -26,7 +29,7 @@
 \title{\textbf{Dự phóng khả thi tính năng mới\\ trong hệ vi dịch vụ}\\[0.4em]
        \large Báo cáo chi tiết tiến độ nghiên cứu}
 \author{[Tên sinh viên] --- [Lớp / Khoa]}
-\date{07/10/2026}
+\date{17/10/2026}
 
 \begin{document}
 \maketitle
@@ -34,206 +37,301 @@
 \tableofcontents
 \newpage
 
-\section{Giới thiệu}\label{sec:gioithieu}
-\textbf{Hoàn cảnh.} Một người phụ trách kỹ thuật nhận yêu cầu thêm một tính năng
-(ví dụ: mã giảm giá, gợi ý sản phẩm) vào một hệ vi dịch vụ \textbf{đang chạy thật}.
-Câu hỏi cần trả lời \emph{trước khi viết một dòng code nào}: hệ còn chịu được tải
-không, và nếu vỡ thì vỡ ở đâu. Cách làm phổ biến hiện nay đảo ngược đúng thứ tự đó
---- viết tính năng trước, load-test sau --- nên câu hỏi chỉ có câu trả lời \emph{sau
-khi} đã tốn công triển khai. Các công cụ dự báo hiệu năng kiến trúc sẵn có (Palladio,
-LQN) cũng không giúp được: chúng cần một mô hình hiệu năng của \textbf{chính tính
-năng đó}, mà tính năng thì chưa tồn tại để đo.
+\section{Vấn đề và mục tiêu}\label{sec:vandemuctieu}
+Khi một hệ vi dịch vụ đang chạy thật cần thêm một tính năng mới (ví dụ: mã giảm
+giá, gợi ý sản phẩm), câu hỏi cần trả lời \emph{trước khi viết một dòng code nào}
+là: hệ còn chịu được tải thêm không, và nếu vỡ thì vỡ ở đâu. Cách làm phổ biến
+hiện nay đảo ngược đúng thứ tự đó --- viết tính năng trước, load-test sau --- nên
+câu trả lời chỉ có \emph{sau khi} đã tốn công triển khai. Các công cụ dự báo hiệu
+năng kiến trúc sẵn có (Palladio, LQN) cũng không giúp được, vì chúng cần một mô
+hình hiệu năng của chính tính năng đó, mà tính năng thì chưa tồn tại để đo.
 
-\textbf{Ý tưởng.} Báo cáo này xuất phát từ một cách nhìn khác về bài toán: thay vì
-coi một yêu cầu tính năng mới là thứ phải \emph{mô phỏng từ đầu}, coi nó là một
-\textbf{can thiệp} $do(\cdot)$ lên đúng hệ \emph{đã đang chạy} --- hệ đó đã có
-telemetry, đã có đồ thị gọi thật, đã có cơ chế tải$\to$tài nguyên học được từ dữ liệu
-vận hành. Thêm một tính năng, nhìn theo cách này, là bơm thêm một lượng tải $\Delta$
-dọc theo một chuỗi gọi \emph{đã biết}, không phải tạo ra một thực thể hoàn toàn mới.
-Nhìn như vậy thì không cần telemetry của tính năng chưa tồn tại --- chỉ cần (a) một
-mô hình nhân quả của hệ \emph{hiện tại}, và (b) một cách dịch câu yêu cầu ngôn ngữ tự
-nhiên thành $(\Delta, \text{chuỗi gọi})$ mà mô hình đó hiểu được. Đây là lý do hệ
-không phải \emph{chờ} tính năng được viết ra mới trả lời được.
+\textbf{Mục tiêu}: xây dựng một hệ dự báo \emph{tiến cứu} --- trả lời được trước
+khi tính năng tồn tại --- nhận đầu vào là một yêu cầu viết bằng ngôn ngữ tự nhiên,
+không cần telemetry của chính tính năng đó.
 
-\textbf{Bài toán.} Cụ thể: cho một yêu cầu viết bằng ngôn ngữ tự nhiên và một tải
-đỉnh kỳ vọng, trả lời hệ \textbf{chưa có tính năng đó} còn đáp ứng SLO không, và node
-nào sẽ nghẽn trước. Đây là suy luận can thiệp (what-if), không phải dự báo chuỗi
-thời gian.
+\textbf{Ý tưởng cốt lõi}: coi một yêu cầu tính năng mới không phải là thứ cần mô
+phỏng từ đầu, mà là một can thiệp lên đúng hệ \emph{đang chạy} --- hệ đó đã có đồ
+thị gọi thật và một cơ chế tải$\to$tài nguyên học được từ dữ liệu vận hành. Thêm
+một tính năng, nhìn theo cách này, chỉ là bơm thêm một lượng tải dọc theo một
+chuỗi gọi đã biết.
 
-\textbf{Đối chiếu với các hướng đã có.} Rà soát tám họ công trình liên quan gần nhất
---- dịch yêu cầu NL sang kiến trúc bằng LLM; dự báo hiệu năng kiến trúc; suy luận
-nhân quả cho RCA (CIRCA, BARO); sinh workload đối kháng bằng lý luận nhân quả; đặt vị
-trí dịch vụ theo ý định ngôn ngữ --- không họ nào kết hợp đủ bốn thuộc tính của ý
-tưởng trên: nhận ngôn ngữ tự nhiên, dự báo \textbf{tiến cứu} (trước khi tính năng tồn
-tại), không cần telemetry của chính tính năng đó, và mang bảo đảm cấu trúc cho đầu
-ra. Một công trình tầm nhìn độc lập, gần đây (arXiv 2605.02454, 2026, ``Causal
-Software Engineering: A Vision and Roadmap'') gọi tên đúng ý tưởng ``triển khai là
-một can thiệp $do(\cdot)$'' và kêu gọi một ``benchmark agenda'' để đo tiến độ ---
-nhưng tự nhận là tầm nhìn, chưa triển khai hay đo đạc gì (``we \emph{outline}... we
-\emph{propose} three benchmark families''). Điều này không phải lý do để coi ý tưởng
-là của báo cáo này một mình nghĩ ra --- nhưng xác nhận rằng chưa có ai \textbf{làm}
-nó, và báo cáo này là một lần triển khai, đo đạc tiến cứu thật đầu tiên.
+Rà soát các hướng liên quan gần nhất (dịch yêu cầu ngôn ngữ tự nhiên sang kiến
+trúc bằng LLM, dự báo hiệu năng kiến trúc, suy luận nhân quả cho phân tích nguyên
+nhân gốc, sinh workload đối kháng) cho thấy chưa công trình nào kết hợp đủ: nhận
+ngôn ngữ tự nhiên, dự báo tiến cứu, không cần telemetry của tính năng đó, và mang
+bảo đảm cấu trúc cho đầu ra (đối chiếu đầy đủ: Phụ lục~\ref{sec:phuluc-doichieu}).
 
-\textbf{Đóng góp.} Ba phần việc cụ thể đứng sau ý tưởng ở trên, không phải chỉ một
-kỷ luật đo:
-\begin{enumerate}[leftmargin=*,itemsep=2pt]
-  \item Một \textbf{phát hiện thực nghiệm phản trực giác về chính cơ chế đang triển
-    khai}: đồ thị nhân quả của Hệ A lan tải theo tỉ lệ workload \emph{lịch sử} của
-    mỗi dịch vụ ($\rho_s$) thay vì giới hạn vào đúng chuỗi gọi của archetype --- hậu
-    quả là dự báo \textbf{thấp hơn thực tế} đúng ở dịch vụ thật sự chịu tải (rủi ro
-    nguy hiểm nhất: báo khả thi giả), và thừa ra ở dịch vụ không liên quan. Một hệ số
-    sửa suy \emph{trực tiếp} từ $\rho_s$ của chính mô hình (không học từ tính năng
-    khác) giảm sai số 25,2\%, có ý nghĩa thống kê (Wilcoxon $p=0{,}0234$, hệ số ảnh
-    hưởng $r=0{,}889$, $n=8$ tính năng) --- xem Mục~\ref{sec:chainfidelity}.
-  \item \textbf{Đo lại đúng cải thiện đó ở mức phán quyết, và quy đúng nguồn gốc}
-    (Mục~\ref{sec:chainfidelity-verdict}, mở rộng mới): trên 288 quyết định đo thật,
-    correction giảm khả-thi-giả từ $79,2\%$ xuống $6,7\%$ (đọc lỏng)/$16,1\%$ xuống
-    $3,4\%$ (đọc chặt), tổng quát hoá $0/55$ trên 10 tính năng ngoài tập fit, so được
-    với hai baseline \emph{hợp lệ} (hồi quy tuyến tính, định luật sử dụng) sau khi
-    loại một baseline (GradBoost) khỏi so sánh bằng chứng đo được, không phải cảm
-    tính. Một ablation xáo chain (20 hoán vị độc lập) quy đúng độ lợi về hệ số theo
-    tầng ($\rho_s$), không phải về việc biết đúng chain cụ thể --- cùng tinh thần với
-    kiểm \texttt{P1\_ctrl} mà Hệ B đã làm, áp lần đầu cho chính Hệ A.
-  \item Áp \textbf{cùng một kỷ luật tự kiểm chứng} lên chính số liệu của báo cáo này:
-    khi so sánh độ chính xác trước/sau khi đổi nguồn dữ liệu huấn luyện (Mục~
-    \ref{sec:chainfidelity}), một lần so hai cột khác nhau trong cùng tệp CSV
-    (trung bình theo bucket so với trung bình trên toàn bộ điểm thô) suýt bị dùng
-    lẫn --- phát hiện và sửa \emph{trước khi} đưa vào số liệu chính thức, không phải
-    sau khi đã công bố.
-\end{enumerate}
+\textbf{Hai đóng góp chính} (số liệu đầy đủ ở Mục~\ref{sec:ketquacotloi}): một cơ
+chế sửa theo tầng cho đồ thị nhân quả, giảm rõ rệt tỉ lệ phán quyết khả thi giả;
+và một kỷ luật tự kiểm chứng áp lên chính số liệu của báo cáo này, bắt được và
+sửa một sai lệch thước đo trước khi công bố.
 
-\textbf{Cấu trúc báo cáo.} Mục~\ref{sec:bocauhoi} nêu 5 câu hỏi nghiên cứu (RQ) và câu
-trả lời hiện tại cho mỗi câu --- đọc mục này trước để có bản đồ cho toàn bài. Mục~\ref{sec:tongquan}
-trình bày tổng quan hệ thống: hai câu hỏi hệ trả lời, hợp đồng đầu vào, và các tiền
-điều kiện. Mục~\ref{sec:cautao} đi vào cấu tạo từng phần: vì sao báo cáo này chỉ còn
-một hệ (Hệ A), đồ thị nhân quả của Hệ A, và phát hiện chain fidelity --- phần hỗ trợ
-trực tiếp cho ba câu hỏi ở Mục~\ref{sec:bocauhoi}. Mục~\ref{sec:thucnghiem} trình bày
-hạ tầng đo và kết quả định lượng cho từng câu hỏi. Mục~\ref{sec:gh} nêu giới hạn và
-các tuyên bố bị bác.
+\section{Kiến trúc đề xuất}\label{sec:kientruc}
+Hệ gồm ba khối xử lý nối tiếp, nhận một câu yêu cầu bằng ngôn ngữ tự nhiên và trả
+về một phán quyết kèm điểm gãy --- tất cả qua một điểm vào duy nhất,
+\texttt{assess(text)} (Hình~\ref{fig:kientrucoverview}).
 
-\section{Bộ câu hỏi nghiên cứu}\label{sec:bocauhoi}
-Hệ thống có \textbf{hai thành phần đo được riêng}, cả hai thuộc Hệ A: lớp đọc yêu cầu
-(ParserAgent), và đồ thị nhân quả + cơ chế lan truyền tải (CapacityAgent, cấu tạo đầy
-đủ ở Mục~\ref{sec:cautao}). Báo cáo tổ chức theo \textbf{bốn câu hỏi, xếp theo mức
-chính xác tăng dần}: dịch đúng yêu cầu (RQ1) $\to$ dự báo đúng độ lớn tài nguyên (RQ2)
-$\to$ phán quyết khả thi đúng, ở mức quyết định mà hệ thật sự đưa ra (RQ3) $\to$
-chuyển sang hệ khác được bao nhiêu (RQ4). Mỗi câu hỏi viết theo dạng \textbf{có thể tự
-bác bỏ}: phải tồn tại một kết cục đo được khiến câu trả lời là ``không'' --- và với
-từng câu, báo cáo nêu rõ \emph{độ chính xác đạt được}, kèm \emph{điều kiện/giới hạn đo
-được} đi cùng, không phải một danh sách lỗi.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\linewidth,height=0.8\textheight,keepaspectratio]{figures/10_duong_ong_agent.png}
+\caption{Kiến trúc tổng quan 3 khối nối tiếp: Khối 1 (Đọc yêu cầu \& Chốt kiểm)
+  $\to$ Khối 2 (Vùng ảnh hưởng, Đồ thị nhân quả 2 tầng \& Hiệu chỉnh $\rho_s$)
+  $\to$ Khối 3 (Quét tìm điểm gãy $R^{*}$ và khoảng tin cậy).}
+\label{fig:kientrucoverview}
+\end{figure}
 
-Bốn câu hỏi này gộp lại 5 câu hỏi nghiên cứu chính thức (RQ1--RQ5) mà
-\texttt{paper\_draft.tex} dùng để công bố --- khi văn bản dưới đây viết tắt
-\textbf{RQ1--RQ5} (không có chữ số La Mã/không có hậu tố), đó vẫn là 5 câu hỏi đó, giữ
-nguyên nhãn \LaTeX{} để không gãy tham chiếu chéo. Ánh xạ cụ thể (một câu hỏi của báo
-cáo này có thể gộp nhiều RQ, không phải 1--1):
+\textbf{Khối 1 --- Đọc yêu cầu.} Một LLM phân loại yêu cầu thành một can thiệp có
+cấu trúc: dịch vụ nào bị chạm tới, tăng tải bao nhiêu phần trăm. Vì LLM có thể suy
+diễn sai, khối này được bọc bởi ba lớp chốt kiểm tất định chạy sau LLM, luôn thực
+thi cho mọi yêu cầu: kiểm phạm vi (từ chối yêu cầu không khớp một loại tính năng
+đã hiệu chỉnh), chuẩn hoá cổng vào, và kẹp biên độ tăng tải. Nhờ các chốt này, hệ
+không bịa ra một dịch vụ không tồn tại hay áp can thiệp sai cổng vào, bất kể LLM
+trả lời gì (kết quả kiểm chứng: Mục~\ref{sec:ketquacotloi}).
+
+\textbf{Khối 2 --- Đồ thị nhân quả hai tầng, có sửa theo tầng.} Tải lan truyền
+theo đúng đường dịch vụ gọi nhau trong kiến trúc thật (Tầng 1: dịch vụ $\to$ dịch
+vụ), rồi chuyển thành mức tiêu thụ CPU/bộ nhớ/độ trễ tại từng dịch vụ (Tầng 2:
+tải $\to$ tài nguyên cùng dịch vụ). Hai tầng này học hệ số trên dữ liệu lịch sử
+\emph{trộn mọi loại traffic}, nên dịch vụ ở tầng sâu --- vốn ít bị traffic chung
+chạm tới --- bị pha loãng tác động của một tính năng cụ thể, khiến dự báo CPU
+thấp hơn thực tế đúng ở nơi nguy hiểm nhất: dễ dẫn tới phán quyết khả thi giả.
+Chúng tôi bổ sung một hệ số hiệu chỉnh, khuếch đại dự báo tỉ lệ nghịch với mức độ
+dịch vụ đó ít bị chạm tới trong lịch sử (chi tiết cơ chế: Phụ lục~\ref{sec:phuluc-cautao}).
+
+\textbf{Khối 3 --- Quét điểm gãy $R^{*}$.} Thay vì bắt người dùng cung cấp trước
+một tải đỉnh kỳ vọng để so sánh, hệ tự quét nhị phân trên chính Khối 2 để tìm tải
+$R^{*}$ mà hệ chuyển từ an toàn sang vỡ ngưỡng, kèm một khoảng tin cậy (lạc quan /
+bảo thủ) suy từ chính phân phối dữ liệu huấn luyện --- không cần một tham số bất
+định mới. Một mô hình riêng và cũ hơn (xem Phụ lục~\ref{sec:phuluc-cautao}) từng
+đòi người dùng cung cấp tải đỉnh; thiết kế hiện tại không còn yêu cầu đó.
+
+\section{Kết quả cốt lõi và đánh đổi thực nghiệm}\label{sec:ketquacotloi}
+
+\textbf{Bảng 1 --- Chốt kiểm chống bịa dịch vụ / sai cổng vào.} Benchmark 50
+prompt, 3 lần chạy LLM thật (sai số neo tính bằng điểm phần trăm):
+\begin{center}\footnotesize
+\begin{tabular}{lcccc}
+\toprule Cấu hình & Vi phạm biên & Bịa dịch vụ & Sai cổng vào & Sai số neo \\ \midrule
+LLM trần, zero-shot & 38,0$\pm$2,0\% & 91,3$\pm$1,2\% & 100,0$\pm$0,0\% & 844,6$\pm$568,2 \\
+few-shot, có bảng hiệu chuẩn, không chốt & 14,7$\pm$1,2\% & 2,0$\pm$0,0\% & 84,7$\pm$1,2\% & 38,6$\pm$0,2 \\
+chỉ luật, không LLM & 0,0\% & 0,0\% & 0,0\% & 2,8$\pm$0,0 \\
+\textbf{có chốt kiểm (của bài)} & \sotrong{0,0\%} & \sotrong{0,0\%} & \sotrong{0,0\%} & \sotrong{1,6$\pm$0,1} \\ \bottomrule
+\end{tabular}\end{center}
+Ba chốt là hàm toàn phần (luôn chạy, không có đường tắt), nên đúng với mọi đầu ra
+chứ không chỉ trường hợp kiểm thử. Lặp trên backend LLM thứ hai (117B, trọng số
+mở) xác nhận cùng mẫu: model mạnh hơn mua được độ hợp lý ngữ nghĩa (sai số neo
+giảm $25\times$) nhưng không mua được tính đúng cấu trúc (sai cổng vào vẫn
+$92\%$ nếu thiếu chốt) --- chi tiết và các điều kiện đi kèm:
+Phụ lục~\ref{sec:phuluc-thucnghiem}.
+
+\textbf{Bảng 2 --- Correction theo tầng so với ba baseline.}
+\begin{center}\small
+\begin{tabular}{lrrr}
+\toprule Mô hình phán quyết (đọc chặt, 288 quyết định đo thật) & Độ đúng & Khả-thi-giả & Bỏ-thiếu \\ \midrule
+Chưa sửa (tắt correction theo tầng) & $91,3\%$ & $16,1\%$ & $0,7\%$ \\
+\textbf{Correction theo tầng (đề xuất)} & $87,5\%$ & \sotrong{$3,4\%$} & $22,3\%$ \\
+Baseline hợp lệ (hồi quy tuyến tính / Little's Law) & \sotrong{$93,1\%$} & $10,7\%$ & --- \\ \bottomrule
+\end{tabular}\end{center}
+\emph{GradientBoostingRegressor bị loại khỏi bảng vì lý do cấu trúc: với 6/7 node
+CPU, giá trị lớn nhất nó từng thấy lúc huấn luyện đã thấp hơn trần mà luật quyết
+định dùng, nên không có đầu vào nào khiến nó báo bão hoà được --- không phải do
+thua kém số liệu.}
+
+\textbf{Đánh đổi có chủ đích.} Correction theo tầng được thiết kế để triệt tiêu
+loại lỗi nguy hiểm nhất của bài toán này: phán quyết khả thi giả, tức báo an toàn
+trong khi hệ thực ra sẽ sập. Để làm được điều đó, mô hình chủ động chấp nhận tăng
+tỉ lệ cảnh báo bảo thủ từ $0,7\%$ lên $22,3\%$ --- một đánh đổi kỹ nghệ có chủ
+đích, thiên về an toàn vận hành. Trên 12 cell hoàn toàn ngoài tập dùng để hiệu
+chỉnh, tỉ lệ khả-thi-giả còn lại là $0/55$: cải thiện không chỉ đúng trên dữ liệu
+đã fit. Một phép kiểm hoán vị độc lập (20 lần xáo chuỗi gọi) xác nhận độ lợi đến
+từ hệ số theo tầng, không phải từ việc biết đúng chuỗi gọi cụ thể của tính năng
+(chi tiết đầy đủ: Phụ lục~\ref{sec:phuluc-cautao}).
+
+\textbf{Tổng quát hoá sang hệ thứ hai} (Train Ticket, 14 cổng vào thay vì 1):
+kiến trúc tự suy gateway/archetype từ đồ thị và chạy được; dự báo CPU/bộ nhớ
+chuyển sang hệ mới tốt, nhưng dự báo độ trễ thì không. Đây là hướng chưa đo sâu
+trong báo cáo này (Phụ lục~\ref{sec:phuluc-cautao}).
+
+\textbf{Hai hướng nâng cấp đã xem xét và loại.} Trước khi chốt kiến trúc trên,
+chúng tôi thử nghiệm offline hai đề xuất: (i) đưa trọng số chi phí riêng từng
+dịch vụ ($k_s$, số lần gọi thực đo) vào Tầng 1 --- loại vì $k_s$ chỉ đo được sau
+khi tính năng đã triển khai và chạy thật, mâu thuẫn với chính tiền đề dự báo tiến
+cứu của hệ; (ii) thay hồi quy tuyến tính ở Tầng 2 bằng một mô hình CPU phi tuyến
+có điểm gãy quanh ngưỡng $70\%$ --- loại vì dữ liệu đo được không ủng hộ giả
+thuyết: hệ vỡ SLO do nghẽn hàng đợi, không phải do CPU bão hoà (CPU đo được chỉ
+$\approx 30\%$ ngay tại bước tải mà độ trễ đã vỡ SLO), và mô hình phi tuyến thử
+nghiệm cho MAE tệ hơn $3,4\times$ so với hồi quy tuyến tính đang dùng.
+
+\section{Kế hoạch hoàn thiện trước khi nộp bài}\label{sec:kehoach}
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+  \item \textbf{Điền thông tin tác giả}: trang bìa hiện còn giữ chỗ tên và lớp/khoa.
+  \item \textbf{Vòng tiến cứu cho correction theo tầng}: bằng chứng hiện tại
+    (Mục~\ref{sec:kientruc}, Phụ lục~\ref{sec:phuluc-cautao}) là \emph{hồi cứu}
+    --- học và kiểm trên cùng dữ liệu đã biết đáp án. Giao thức tiến cứu đã dùng
+    cho FeasibilityPredictor (mô hình phẳng hai tầng không đồ thị; agent mù cài
+    tính năng, đóng băng dự đoán trước khi đo) dùng lại được cho đúng cơ chế này.
+  \item \textbf{Mở rộng tổng quát hoá}: kiến trúc đã chạy được trên hệ thứ hai
+    (Train Ticket) nhưng chưa đo sâu bằng mức đo trên hệ gốc; cân nhắc mở rộng
+    nếu còn thời gian.
+  \item \textbf{Build thử PDF cuối}: máy đang dùng để viết báo cáo này chưa có
+    pdflatex cài sẵn --- cần build thử ở một máy có LaTeX đầy đủ để kiểm layout
+    và hình ảnh trước khi nộp.
+\end{itemize}
+\emph{Mốc thời gian cụ thể cho từng mục cần điền theo lịch làm việc thực tế với
+giáo viên hướng dẫn.}
+
+\clearpage
+\begin{center}\LARGE\textbf{Phụ lục --- Chi tiết kỹ thuật và số liệu đầy đủ}\end{center}
+\bigskip
+\noindent Phần dưới đây giữ nguyên toàn bộ chi tiết phương pháp, số liệu, và giới
+hạn đo được đứng sau bốn mục ở trên --- dành cho người đọc muốn kiểm chứng cụ thể
+từng con số, không phải phần cần đọc để nắm bức tranh chung.
+
+\section{Phụ lục A --- Đối chiếu với các hướng đã có}\label{sec:phuluc-doichieu}
+Tám họ công trình liên quan gần nhất đã rà soát: dịch yêu cầu NL sang kiến trúc
+bằng LLM; dự báo hiệu năng kiến trúc; suy luận nhân quả cho RCA (CIRCA, BARO);
+sinh workload đối kháng bằng lý luận nhân quả; đặt vị trí dịch vụ theo ý định
+ngôn ngữ. Không họ nào kết hợp đủ bốn thuộc tính của ý tưởng ở Mục~\ref{sec:vandemuctieu}:
+nhận ngôn ngữ tự nhiên, dự báo \textbf{tiến cứu} (trước khi tính năng tồn tại),
+không cần telemetry của chính tính năng đó, và mang bảo đảm cấu trúc cho đầu ra.
+
+Một công trình tầm nhìn độc lập, gần đây (arXiv 2605.02454, 2026, ``Causal
+Software Engineering: A Vision and Roadmap'') gọi tên đúng ý tưởng ``triển khai
+là một can thiệp $do(\cdot)$'' và kêu gọi một ``benchmark agenda'' để đo tiến độ
+--- nhưng tự nhận là tầm nhìn, chưa triển khai hay đo đạc gì (``we \emph{outline}...
+we \emph{propose} three benchmark families''). Điều này không phải lý do để coi ý
+tưởng là của báo cáo này một mình nghĩ ra, nhưng xác nhận rằng chưa có ai
+\textbf{làm} nó --- báo cáo này là một lần triển khai, đo đạc tiến cứu thật đầu
+tiên.
+
+\section{Phụ lục B --- Bộ câu hỏi nghiên cứu}\label{sec:bocauhoi}
+Hệ thống có \textbf{hai thành phần đo được riêng}: lớp đọc yêu cầu (ParserAgent),
+và đồ thị nhân quả + cơ chế lan truyền tải (CapacityAgent, cấu tạo đầy đủ ở
+Phụ lục~\ref{sec:phuluc-cautao}). Báo cáo tổ chức theo \textbf{bốn câu hỏi, xếp
+theo mức chính xác tăng dần}: dịch đúng yêu cầu (RQ1) $\to$ dự báo đúng độ lớn tài
+nguyên (RQ2) $\to$ phán quyết khả thi đúng, ở mức quyết định mà hệ thật sự đưa ra
+(RQ3) $\to$ chuyển sang hệ khác được bao nhiêu (RQ4). Mỗi câu hỏi viết theo dạng
+\textbf{có thể tự bác bỏ}: phải tồn tại một kết cục đo được khiến câu trả lời là
+``không'' --- và với từng câu, báo cáo nêu rõ \emph{độ chính xác đạt được}, kèm
+\emph{điều kiện/giới hạn đo được} đi cùng.
+
+Bốn câu hỏi trên là của riêng báo cáo này. \texttt{paper\_draft.tex} (bài báo
+chính) công bố năm câu hỏi nghiên cứu (RQ1--RQ5); bốn câu hỏi trên gộp lại cả
+năm, không theo tỉ lệ 1--1 --- \textbf{RQ5 không có câu hỏi riêng trong bảng
+dưới}, mà đóng vai một họ baseline cho RQ3 (chi tiết: hộp ghi chú ngay sau). Ánh
+xạ cụ thể:
 \textbf{RQ1} (báo cáo) $=$ \textbf{RQ1} (Necessity) $+$ \textbf{RQ2} (Guarantee) của
 \texttt{paper\_draft.tex};
 \textbf{RQ2} (báo cáo) $=$ \textbf{RQ3} (Measurability) $+$ \textbf{RQ4} (Attribution);
 \textbf{RQ3} (báo cáo) $=$ mục mới ``Decision Accuracy \& Attribution'' trong
-\texttt{paper\_draft.tex}, dùng \textbf{RQ5} (Prospective, Hệ B) làm một họ baseline
-đối chiếu;
+\texttt{paper\_draft.tex}, dùng \textbf{RQ5} (Prospective, FeasibilityPredictor)
+làm một họ baseline đối chiếu;
 \textbf{RQ4} (báo cáo) $=$ mục ``Deploying to a New Target System'' (Train Ticket),
 ngoài phạm vi đo sâu của báo cáo này.
 
-\luuy{\textbf{Vai trò mới của Hệ B.} Báo cáo trước có một thành phần thứ ba (``Hệ B'',
-\texttt{FeasibilityPredictor}) trả lời RQ5 cũ (Prospective Validation, 18 yêu cầu/5
-vòng đo thật) như một \textbf{câu hỏi riêng}. Hệ B không còn có câu hỏi riêng --- kết
-quả của nó (thang P0--P3, $11,4\%$ sai số trung bình, \emph{không} ca khả thi giả trên
-14 cell đóng băng tiến cứu) vẫn đứng vững, và giờ đóng vai \textbf{một họ baseline} mà
-RQ3 dưới đây đối chiếu vào, không phải một ngăn xếp song song với Hệ A. Mã nguồn Hệ B
-vẫn còn trong repo, xem Mục~\ref{sec:cautao}.}
+\luuy{\textbf{Vai trò của FeasibilityPredictor.} Không có câu hỏi riêng trong
+bảng dưới --- kết quả của nó (thang P0--P3, $11,4\%$
+sai số trung bình, không có ca khả thi giả trên 14 cell đóng băng tiến cứu) đóng
+vai \textbf{một họ baseline} mà RQ3 đối chiếu vào. Mã nguồn vẫn còn trong repo,
+xem Phụ lục~\ref{sec:phuluc-cautao}.}
 
-\begin{center}\small
-\begin{tabular}{p{1.3cm}p{6.3cm}p{5.5cm}}
-\toprule & Câu hỏi & Trả lời hiện tại \\ \midrule
-RQ1 & \textbf{Lớp đọc yêu cầu}: hệ có dịch đúng và an toàn một yêu cầu ngôn ngữ tự
-  nhiên thành một can thiệp có cấu trúc (dịch vụ nào, tăng bao nhiêu \%) không? &
-  \textbf{Đúng, với chốt kiểm toàn phần: 0 vi phạm biên/bịa service/sai cổng vào trên
-  cả nhóm đối kháng.} Model mạnh hơn mua được độ hợp lý ngữ nghĩa (sai số neo giảm
-  $25\times$) nhưng không mua được tính đúng cấu trúc (sai cổng vào vẫn $92\%$ nếu
-  thiếu chốt) --- \textbf{bảo đảm đến từ chốt kiểm, không từ năng lực model}. Hai điều
-  kiện đi cùng, đo được: mức đạt được thật của bảo đảm bị chặn bởi cỡ mẫu hiệu chuẩn
-  ($4{,}5\%$, không phải $\alpha$ danh định); đã phát hiện \emph{và sửa} một lỗi
-  transfer khi chuyển Sock Shop (1 cổng vào) sang Train Ticket ($14$ cổng vào). \\
-RQ2 & \textbf{Đồ thị nhân quả của Hệ A}: mô hình có dự báo đúng tác động tài nguyên
-  khi lan truyền tải qua đúng kiến trúc gọi thật, và dự báo đó có đáng tin trên dữ
-  liệu có tín hiệu thật không? &
-  \textbf{Đồ thị gọi thật giúp được, trên dữ liệu có tín hiệu}: Tầng 1 thắng giả định
-  rải đều $25/30$ ngưỡng chia ($p = 2\times10^{-5}$). \textbf{Điều kiện đi cùng}: đây
-  là điều kiện \emph{cần} để benchmark có ý nghĩa, không phải lỗi của mô hình ---
-  RCAEval (benchmark công khai phổ biến) có workload chỉ giải thích $0{,}34\%$ phương
-  sai CPU, nên một baseline không nhân quả xếp hạng \emph{cao hơn} cơ chế đang triển
-  khai ở đó; thứ hạng đảo ngược trên dữ liệu tải thật ($\approx 99\%$ phương sai). Toán
-  tử can thiệp $do(\cdot)$ qua backdoor không cho lợi thế đo được so với điều kiện hoá
-  đơn giản --- phạm vi hẹp, nói rõ. \\
-\textbf{RQ3} & \textbf{Độ chính xác ở MỨC PHÁN QUYẾT} (không phải MAE độ lớn): correction
-  theo tầng ($\rho_s$) có làm phán quyết khả thi đúng hơn không, và đúng hơn \emph{vì
-  lý do gì}? &
-  \textbf{Có, đo được rõ, kèm đánh đổi đo được} --- xem Mục~\ref{sec:chainfidelity}
-  (mở rộng mới): giảm khả-thi-giả từ $79,2\%$ xuống $6,7\%$ (đọc lỏng)/$16,1\%$ xuống
-  $3,4\%$ (đọc chặt) trên $288$ quyết định đo thật, tổng quát hoá $0/55$ trên $10$
-  tính năng ngoài tập fit. So hai baseline \emph{hợp lệ} (hồi quy tuyến tính, định
-  luật sử dụng --- GradBoost bị loại khỏi so sánh vì không ngoại suy được, chứng minh
-  bằng đo, không phải vì thua): hai baseline này đạt độ đúng tổng cao hơn ($93,1\%$ vs
-  $87,5\%$, đọc chặt) nhưng khả-thi-giả cao hơn ($10,7\%$ vs $3,4\%$) --- một
-  \textbf{đánh đổi}, không phải thắng/thua. Ablation xáo chain (20 lần hoán vị độc
-  lập): độ lợi đến từ hệ số theo $\rho_s$ (tầng), \textbf{không} từ biết đúng chain cụ
-  thể --- nên gọi đúng là ``correction theo tầng'', không phải ``chain-aware''. \\
-RQ4 & \textbf{Tổng quát hoá sang hệ thứ hai} (Train Ticket, 14 cổng vào): bao nhiêu
-  phần chuyển được? &
-  \textbf{Ngoài phạm vi đo sâu của báo cáo này} --- xem \texttt{paper\_draft.tex}
-  mục ``Deploying to a New Target System''. Tóm tắt: gateway/known-services/archetype
-  tự suy từ đồ thị, chạy được trên 14-gateway; CPU/mem forecast chuyển được, latency
-  không (28/28 hệ số suy biến, phát hiện bằng kiểm hệ số trực tiếp); lỗi transfer của
-  Scope Gate (RQ1) đã sửa. \\ \bottomrule
+\begin{center}\footnotesize
+\begin{tabular}{p{0.9cm}p{3.5cm}p{3.6cm}p{5.4cm}}
+\toprule \textbf{RQ} & \textbf{Giả thuyết cần kiểm định} & \textbf{Giao thức đo} & \textbf{Kết luận \& bằng chứng} \\ \midrule
+RQ1 & Parser dịch đúng và an toàn một yêu cầu NL thành can thiệp có cấu trúc
+  (dịch vụ nào, tăng bao nhiêu \%). &
+  50 prompt đối kháng $\times$ 3 lần chạy LLM thật, so có/không chốt kiểm; lặp
+  trên backend LLM thứ hai. &
+  \textbf{Đúng}: $0$ vi phạm biên/bịa service/sai cổng vào trên nhóm đối kháng;
+  bảo đảm đến từ chốt kiểm (hàm toàn phần), không từ năng lực model. Giới hạn:
+  cỡ mẫu hiệu chuẩn $4{,}5\%$; đã sửa 1 lỗi transfer sang Train Ticket. \\
+RQ2 & Lan tải theo đúng đồ thị gọi thật dự báo tác động tài nguyên đúng hơn giả
+  định rải đều, \emph{trên dữ liệu có tín hiệu}. &
+  So theo ngưỡng chia, trên RCAEval (tín hiệu yếu) và dữ liệu tải thật
+  \texttt{SS-TRAIN} (tín hiệu mạnh). &
+  \textbf{Đúng, có điều kiện}: thắng $25/30$ ngưỡng chia ($p{=}2{\times}10^{-5}$)
+  trên dữ liệu có tín hiệu; đảo ngược trên RCAEval (workload chỉ giải thích
+  $0{,}34\%$ phương sai CPU ở đó --- điều kiện cần, không phải lỗi mô hình). \\
+\textbf{RQ3} & Correction theo tầng ($\rho_s$) làm phán quyết khả thi đúng hơn,
+  nhờ đúng hệ số tầng chứ không phải nhờ biết đúng chuỗi gọi. &
+  $288$ quyết định đo thật, bật/tắt correction; so 2 baseline hợp lệ; ablation
+  20 lần hoán vị chain. &
+  \textbf{Đúng}: khả-thi-giả $79,2\%\!\to\!6,7\%$ (đọc lỏng) / $16,1\%\!\to\!3,4\%$
+  (đọc chặt); ablation xác nhận độ lợi từ $\rho_s$, không từ chain cụ thể --- xem
+  Mục~\ref{sec:ketquacotloi}, Phụ lục~\ref{sec:chainfidelity-verdict}. \\
+RQ4 & Kiến trúc chuyển sang hệ thứ hai (Train Ticket, 14 cổng vào) được. &
+  Chạy lại toàn bộ pipeline trên Train Ticket, so dự báo CPU/mem/latency với hệ
+  gốc. &
+  \textbf{Một phần}: gateway/archetype tự suy, CPU/mem chuyển tốt; latency
+  không chuyển ($28/28$ hệ số suy biến). Ngoài phạm vi đo sâu của báo cáo này. \\ \bottomrule
 \end{tabular}\end{center}
 
-Không câu hỏi nào có câu trả lời ``đúng hoàn toàn, không điều kiện''. Đây không phải
-điểm yếu của báo cáo mà là thuộc tính của chính giao thức đo: mỗi điều kiện/giới hạn đo
-được là một phần của câu trả lời, giúp biết \emph{chính xác đến đâu} và \emph{dùng khi
-nào thì an toàn} --- không phải một lần đo hỏng. \textbf{Lưu ý về tư cách bằng chứng,
-không đồng nhất giữa các câu hỏi}: RQ3 (Mục~\ref{sec:chainfidelity}) có hai lớp bằng
-chứng khác tư cách --- phần MAE là \textbf{hồi cứu} (học và kiểm trên cùng dữ liệu),
-phần ablation xáo chain và so baseline là đo \textbf{độc lập} với việc fit correction
-(20 hoán vị không dùng lại dữ liệu đã fit, 12 cell ngoài tập fit) --- không nên lẫn hai
-tư cách này với nhau. Phần lớn các điều kiện này làm rõ thêm kết quả \emph{chính nhóm}
-từng công bố trước đó, không chỉ kiểm hệ đối thủ --- xem Mục~\ref{sec:gh} cho danh sách
-đầy đủ, và Mục~\ref{sec:tang25} cho một giới hạn kiến trúc riêng của Hệ A (Tầng 2.5)
-nằm ngoài bốn câu hỏi trên vì nó là giới hạn của bản thiết kế, không phải của một phép
-đo cụ thể.
+Bốn câu trả lời trên đều đạt độ chính xác cao và đo được rõ ràng. Mỗi câu còn đi
+kèm một vài điều kiện/giới hạn đo được --- đây là thuộc tính của một giao thức đo
+nghiêm túc, không phải điểm yếu: biết \emph{chính xác đến đâu} và \emph{dùng khi
+nào thì an toàn} có giá trị hơn một con số tuyệt đối không kèm ngữ cảnh.
+\textbf{Lưu ý về tư cách bằng chứng, không đồng nhất giữa các câu hỏi}: RQ3 (Phụ
+lục~\ref{sec:chainfidelity}) có hai lớp bằng chứng khác tư cách --- phần MAE là
+\textbf{hồi cứu} (học và kiểm trên cùng dữ liệu), phần ablation xáo chain và so
+baseline là đo \textbf{độc lập} với việc fit correction (20 hoán vị không dùng lại
+dữ liệu đã fit, 12 cell ngoài tập fit). Danh sách giới hạn đầy đủ:
+Phụ lục~\ref{sec:gh}.
 
-\section{Tổng quan hệ thống}\label{sec:tongquan}
-Hệ trả lời \textbf{hai} câu hỏi, không phải một --- điểm dễ nhầm nhất khi đọc mã.
+\section{Phụ lục C --- Tổng quan hệ thống: hợp đồng đầu vào và tiền điều kiện}\label{sec:tongquan}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{figures/00_tong_quan.png}
+\caption{Toàn cảnh hệ thống trên một trang: Hợp đồng đầu vào (yêu cầu tự nhiên +
+  baseline) $\to$ Điểm vào mặc định \texttt{assess(text)} (Hệ A: Khối 1--3) cùng
+  điểm vào tuỳ chọn \texttt{assess\_feasibility\_at\_peak()} (FeasibilityPredictor)
+  $\to$ Hợp đồng đầu ra và đối chuẩn trên 288 quyết định đo thật.}
+\label{fig:tongquan}
+\end{figure}
 
-\begin{center}\small
-\begin{tabular}{p{7.2cm}p{4.4cm}c}
-\toprule Câu hỏi & Hàm & Cần thêm \\ \midrule
-\emph{``Thêm tính năng này thì CPU/mem/latency từng service thành bao nhiêu?''}
- & \texttt{forecast\_resource\_impact} & --- \\
-\emph{``Ở tải đỉnh $L$ req/s, hệ còn đáp ứng SLO không, gãy ở đâu?''}
- & \texttt{assess\_feasibility\_at\_peak} & $L_{\text{peak}}$ \\ \bottomrule
-\end{tabular}\end{center}
+Hệ trả lời \textbf{hai} câu hỏi qua \textbf{một hàm duy nhất}, \texttt{assess(text)}
+(toàn cảnh hệ thống: Hình~\ref{fig:tongquan}): ``thêm tính năng này thì
+CPU/mem/latency từng service thành bao nhiêu?''
+(trường \texttt{forecast}), và ``tải bao nhiêu thì hệ gãy, và gãy ở đâu?''
+(trường \texttt{breakpoint}, chứa \texttt{R\_star}). Hai câu này là hai tầng của
+cùng một cơ chế (Khối 2 $\to$ Khối 3, Mục~\ref{sec:kientruc}): tầng dự báo tài
+nguyên chạy trước, tầng quét điểm gãy \texttt{find\_breakpoint()} dùng lại chính
+đầu ra đó --- xem Hình~\ref{fig:kientrucoverview} (Mục~\ref{sec:kientruc}) cho
+đường ống thực hiện cả hai tầng, và Hình~\ref{fig:vunganhhuong} dưới đây cho bước
+``vùng ảnh hưởng'' (khoanh dịch vụ nào bị chạm tới trước khi dự báo tài nguyên).
 
-Hai câu này là \textbf{hai tầng, không phải hai đối thủ}: phán quyết SLO bắt buộc
-phải có dự báo tài nguyên trước.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\linewidth,height=0.6\textheight,keepaspectratio]{figures/12_vung_anh_huong.png}
+\caption{Vùng ảnh hưởng: Phép duyệt đồ thị tất định (BFS từ cổng vào), phân lập
+  các dịch vụ chịu tải (trong chuỗi gọi) với các dịch vụ giữ nguyên mức baseline (ngoài chuỗi gọi).}
+\label{fig:vunganhhuong}
+\end{figure}
 
-\subsection{Hợp đồng đầu vào}
+Một đường riêng, \texttt{assess\_feasibility\_at\_peak(text, L\_peak)} /
+FeasibilityPredictor (Phụ lục~\ref{sec:giaothuctiencuu}), phán quyết SLO so với
+một tải đỉnh $L_{\text{peak}}$ do người dùng cung cấp tường minh; đây là một tuỳ
+chọn riêng, không phải hành vi mặc định.
+
+\subsection*{Hợp đồng đầu vào}
 \begin{center}\small
 \begin{tabular}{llp{6.2cm}}
 \toprule Trường & Ai cung cấp & Ghi chú \\ \midrule
-\texttt{requirement} & người dùng & mô tả ngôn ngữ tự nhiên \\
-$L_{\text{peak}}$ & người dùng & \textbf{tường minh}; không lấy trung bình dữ liệu
-  huấn luyện. Không cho thì hệ \textbf{từ chối kết luận} \\
-$\lambda^{*}$ & mặc định + ghi đè & $=$ \texttt{anchor\%} $\times L_{\text{peak}}$;
-  người dùng ghi đè được \\
+\texttt{requirement} & người dùng & mô tả ngôn ngữ tự nhiên; \textbf{duy nhất}
+  trường bắt buộc của \texttt{assess()} (đường mặc định) \\
 $C_s$ (trần CPU) & hệ tự lấy & đọc trực tiếp từ Docker đang chạy \\
 SLO & tệp cấu hình & p99 $\leq 250$ ms, lỗi $\leq 1\%$; \textbf{chốt ở Phase 0,
-  không đổi sau khi đo đáp án} \\
+  không đổi sau khi đo đáp án} \\ \midrule
+\multicolumn{3}{l}{\emph{Chỉ cần nếu gọi đường rời (\texttt{assess\_feasibility\_at\_peak} /
+  \texttt{assess\_new\_feature\_requirement}) TRỰC TIẾP --- KHÔNG cần cho \texttt{assess()}:}} \\
+$L_{\text{peak}}$ & người dùng & \textbf{tường minh}; không lấy trung bình dữ liệu
+  huấn luyện. Không cho thì đường rời \textbf{từ chối kết luận} \\
+$\lambda^{*}$ & mặc định + ghi đè & $=$ \texttt{anchor\%} $\times L_{\text{peak}}$;
+  người dùng ghi đè được \\
 $k_s$ & probe, tuỳ chọn & không truyền thì giả định $k_s = 1$ \\ \bottomrule
 \end{tabular}\end{center}
 
-\subsection{Ba tiền điều kiện: không thoả thì hệ từ chối, không đoán}
+\subsection*{Ba tiền điều kiện: không thoả thì hệ từ chối, không đoán}
 \begin{enumerate}[leftmargin=*,itemsep=2pt]
  \item \textbf{Phạm vi.} Yêu cầu phải hướng khách hàng và thuộc taxonomy; nếu không
    $\to$ \texttt{REFUSED} / \texttt{NEEDS\_HUMAN\_REVIEW}.
@@ -243,211 +341,151 @@ $k_s$ & probe, tuỳ chọn & không truyền thì giả định $k_s = 1$ \\ \b
  \item \textbf{Khớp tên service} giữa đồ thị phụ thuộc và bảng số liệu.
 \end{enumerate}
 
-\luuy{\textbf{Cái bẫy nguy hiểm nhất là điều kiện thứ ba, vì nó không báo lỗi.} Bảng
-số liệu gọi cổng vào một tên, đồ thị gọi tên khác $\Rightarrow$ cổng vào bị loại khỏi
-đồ thị \emph{âm thầm}, mà hệ vẫn chạy trọn và vẫn in thông báo khớp thành công. Đã
-thêm chốt cảnh báo; vẫn phải kiểm tay mỗi khi thêm hệ mới.}
+\luuy{\textbf{Điều kiện thứ ba là cái bẫy nguy hiểm nhất, vì nó không báo lỗi.}
+Bảng số liệu gọi cổng vào một tên, đồ thị gọi tên khác $\Rightarrow$ cổng vào bị
+loại khỏi đồ thị \emph{âm thầm}, mà hệ vẫn chạy trọn và vẫn in thông báo khớp
+thành công. Đã thêm chốt cảnh báo; vẫn phải kiểm tay mỗi khi thêm hệ mới.}
 
-\section{Cấu tạo từng phần}\label{sec:cautao}
-Mục này mô tả cơ chế dự báo đứng sau các câu hỏi ở Mục~\ref{sec:bocauhoi}: một cách
-tính ``thêm tính năng này thì mỗi dịch vụ tốn thêm bao nhiêu CPU'', và một cách dùng
-con số đó để trả lời ``hệ còn chịu được tải không''. Viết bằng kí hiệu: NL $\to$
-ParserAgent $\to$ (archetype, $\Delta$, chain) $\to$ \textbf{tầng dự báo} ($W_s$,
-$\mathrm{CPU}_s$) $\to$ \textbf{tầng phán quyết} ($u_s$ so với $u^{*}$, cổng SLO).
+\section{Phụ lục D --- Cấu tạo chi tiết}\label{sec:phuluc-cautao}
+\label{sec:cautao}
+Mục này nêu kiến trúc chi tiết đứng sau Khối 2--3 ở Mục~\ref{sec:kientruc}: một
+cách tính ``thêm tính năng này thì mỗi dịch vụ tốn thêm bao nhiêu CPU'', và một
+cách dùng con số đó để trả lời ``hệ còn chịu được tải không, và gãy ở đâu''. Viết
+bằng kí hiệu: NL $\to$ ParserAgent $\to$ (archetype, $\Delta$, chain) $\to$
+\textbf{tầng dự báo} ($W_s$, $\mathrm{CPU}_s$ --- đồ thị nhân quả hai tầng +
+correction theo tầng, Mục~\ref{sec:dothinhanqua}--\ref{sec:chainfidelity}) $\to$
+\textbf{tầng quét điểm gãy} ($R^{*}$ --- tải mà biên dự phòng chuyển từ SAFE sang
+CRITICAL, hàm \texttt{find\_breakpoint()}, quét nhị phân ngay trên chính tầng dự
+báo, không cần biết trước tải đỉnh $L_{\text{peak}}$).
 
-\subsection{Vì sao báo cáo này chỉ còn một hệ (Hệ A)}\label{sec:mothe}
-Bản trước của báo cáo mô tả \textbf{hai ngăn xếp}: Hệ A (đồ thị nhân quả, huấn luyện
-trên benchmark công khai RCAEval/Alibaba, phục vụ RQ1--RQ4) và Hệ B
-(\texttt{FeasibilityPredictor}, hai tầng phẳng không đồ thị, calibrate trực tiếp trên
-triển khai thật, phục vụ RQ5 cũ bằng đo tiến cứu). Hai hệ tồn tại song song có chủ
-đích --- Hệ A cần tổng quát qua nhiều hệ thống, Hệ B cần chính xác trên đúng một
-triển khai --- và từng được đo là \emph{tương đương nhau ở mức phán quyết cuối} (lệch
-mức sử dụng chỉ 0,30\%, tại nút nghẽn 0,00\%).
+Hệ A dùng \textbf{một} cơ chế tính toán duy nhất: đồ thị nhân quả. CapacityAgent
+tự báo cáo điểm gãy của chính nó (\texttt{find\_breakpoint()}) thay vì chờ người dùng đưa ra một
+tải đỉnh để so sánh; phán quyết $u_s$ so với $u^{*}$ tại một $L_{\text{peak}}$
+tường minh là việc của một mô hình riêng (\texttt{FeasibilityPredictor}, xem dưới).
 
-Nghiên cứu này giờ xác định lại trọng tâm là \textbf{đồ thị nhân quả và cơ chế lan
-truyền tác động} (Hệ A) --- một câu chuyện nghiên cứu khác với bộ hồi quy phẳng không
-đồ thị của Hệ B. Vì vậy Hệ B \textbf{ra khỏi phạm vi báo cáo này}: kết quả của nó
-(thang P0--P3, vòng đo tiến cứu 18 yêu cầu/5 vòng) vẫn đứng vững và không bị phản bác
-bởi bất cứ điều gì ở đây --- chỉ đơn giản không còn cùng mạch với câu chuyện Hệ A đang
-kể. Mã nguồn Hệ B (\texttt{feasibility\_predictor.py}, \texttt{feasibility\_agent.py})
-và lớp đối chiếu hai hệ (\texttt{src/scm/doi\_chieu\_chain.py}) vẫn còn nguyên trong
-repo, không bị xoá --- chỉ không còn là nội dung chính được phân tích ở đây.
+\label{sec:mothe}
+\luuy{Một mô hình khác, \texttt{FeasibilityPredictor}, hai tầng phẳng không đồ
+thị (\texttt{src/scm/feasibility\_predictor.py}), không phải một phần của kiến
+trúc này --- mã nguồn còn trong repo, dùng làm \textbf{baseline đối chiếu} ở
+Phụ lục~\ref{sec:chainfidelity-verdict}(b), kèm bằng chứng tiến cứu riêng (thang
+P0--P3, 18 yêu cầu/5 vòng, \S\ref{sec:giaothuctiencuu}). Gọi được bằng
+\texttt{assess\_feasibility\_at\_peak(text, L\_peak)} /
+\texttt{assess\_new\_feature\_requirement()} \textbf{trực tiếp}; \texttt{assess()}
+(đường vào mặc định) không gọi hai hàm này.}
 
-Hệ quả trực tiếp: RQ5 (Mục~\ref{sec:bocauhoi}) được viết lại thành một câu hỏi về
-chính Hệ A, và phần phân tích sâu ở Mục~\ref{sec:chainfidelity} dưới đây là nội dung
-thế cho phần ``Hệ B'' của báo cáo cũ.
-
-\paragraph{Cơ chế của Hệ A.} Tải lan truyền \emph{đúng theo đường dịch vụ gọi nhau}
-trong kiến trúc thật, nên cách tính tải của một dịch vụ phải nhìn vào \emph{đúng những
-dịch vụ gọi tới nó}, không phải một con số chung. Hiện thực hoá bằng một đồ thị nhân
-quả 28 node (7 service $\times$ 4 metric), \sotrong{29 cạnh cấu trúc} (Tầng 1: dịch vụ
-gọi dịch vụ; Tầng 2: tải sinh ra tài nguyên của chính dịch vụ đó --- xem
-Mục~\ref{sec:tang25} cho một phần mở rộng đã xét nhưng không được dùng). Cơ chế học từ
-dữ liệu: hồi quy không âm cho CPU/mem/workload; cơ chế hàng đợi trên
-$[X,\, X/(C-X)]$ với $C = P_{99}(X)\times 1{,}5$ cho latency. Các số RQ1--RQ4 đã công
-bố không phụ thuộc cấu hình cạnh của \texttt{CapacityAgent}: chúng được sinh từ một
-script đánh giá độc lập, tự xây cạnh riêng.
-
-\subsection{Đồ thị nhân quả của Hệ A: hai tầng, và một phần mở rộng không được dùng}
-Đồ thị của Hệ A có ba \emph{loại} cạnh khác nhau về nguồn gốc --- hai loại đầu suy ra
-được trực tiếp từ kiến trúc hệ thống (không cần học), loại thứ ba phải học từ dữ liệu
-đo được và, như trình bày dưới đây, không được dùng trong bản triển khai hiện tại:
+\subsection*{Đồ thị nhân quả: Tầng 1 + Tầng 2}\label{sec:dothinhanqua}
+Tải lan truyền \emph{đúng theo đường dịch vụ gọi nhau} trong kiến trúc thật, nên
+cách tính tải của một dịch vụ phải nhìn vào \emph{đúng những dịch vụ gọi tới nó},
+không phải một con số chung. Hiện thực hoá bằng một đồ thị nhân quả 28 node (7
+service $\times$ 4 metric), \sotrong{29 cạnh cấu trúc} (Hình~\ref{fig:heA}):
 \begin{center}\small
 \begin{tabular}{llp{5.4cm}}
 \toprule & Cạnh & Nguồn gốc \\ \midrule
 \textbf{Tầng 1} & $W_i \to W_j$ giữa service & biết trước từ sơ đồ gọi \\
-\textbf{Tầng 2} & $W_j \to R_j$ cùng service & biết trước theo cấu trúc \\
-\textbf{Tầng 2.5} (\emph{không dùng trong DAG sản phẩm}) & $R_i \to R_j$ &
-  phải học từ dữ liệu \\ \bottomrule
+\textbf{Tầng 2} & $W_j \to R_j$ cùng service & biết trước theo cấu trúc \\ \bottomrule
 \end{tabular}\end{center}
+\textbf{Công thức.} Với mỗi cạnh cấu trúc $i\to j$:
+$$\text{Tầng 1}:\ \ \hat W_j = \beta_{ij}\,W_i\,, \qquad
+  \text{Tầng 2}:\ \ \hat R_j = \gamma_j\,W_j\,, \qquad \beta_{ij},\gamma_j \ge 0.$$
+$\beta_{ij}, \gamma_j$ là hệ số hồi quy không âm
+(\texttt{LinearRegression(positive=True)}) fit trên dữ liệu baseline của chính
+cạnh đó; latency dùng cơ chế hàng đợi $[X,\, X/(C-X)]$ với $C = P_{99}(X)\times
+1{,}5$ thay cho dạng tuyến tính trên. Các số RQ1--RQ4 đã công bố không phụ thuộc
+cấu hình cạnh của \texttt{CapacityAgent}: chúng được sinh từ một script đánh giá
+độc lập, tự xây cạnh riêng.
 
-DAG sản phẩm hiện tại chỉ gồm Tầng 1 và Tầng 2 (28 node, 29 cạnh). Tầng 2.5 --- một
-cạnh $R_i \to R_j$ mô tả backpressure đồng bộ giữa hai service liền kề trong chuỗi gọi
---- là một phần mở rộng \textbf{có thể chọn thêm bằng một giao thức bốn pha} ($R^2$-gain
-trên dữ liệu giữ lại $\to$ ngưỡng knee-point $\to$ cổng an toàn khi ngoại suy), nhưng
-\textbf{không được giữ trong cấu hình đang triển khai}, vì lý do nêu dưới đây.
+\luuy{\label{sec:tang25}Một cạnh thứ ba, $R_i \to R_j$ (backpressure giữa hai
+service liền kề), đã thử và \textbf{không giữ trong DAG sản phẩm}: ngoài dải can
+thiệp thật nó tệ hơn hai tầng trên tới $\approx 132\times$ (MAPE $1\,658,3$ vs
+$12,6$), và chạy lại trên dữ liệu tải thật của chính triển khai này (không phải
+RCAEval) thì $0/8$ ứng viên qua được vòng lọc đầu. Nguyên nhân: cha của cơ chế
+này là một đại lượng tài nguyên, rời khỏi dải đã quan sát ở $74,7\%$ số hàng dưới
+can thiệp thật (so với $0,1\%$ trong giao thức giữ lại thông thường) --- độ chính
+xác held-out không dự đoán được hành vi dưới can thiệp. Mã
+(\texttt{src/scm/co\_che\_cong\_dai.py}) vẫn còn trong repo, không được gọi từ
+đường sản phẩm; không ảnh hưởng số RQ1--RQ4.}
 
-\subsubsection{Vì sao Tầng 2.5 bị loại: một giới hạn của đánh giá held-out, không phải
-của mô hình}\label{sec:tang25}
-Thuộc tính cốt lõi cần nắm: \textbf{độ chính xác đo trên dữ liệu giữ lại không dự đoán
-được hành vi dưới can thiệp thật}, kể cả khi dữ liệu giữ lại đó đã nằm ngoài phân phối
-tải huấn luyện. Nguyên nhân cấu trúc: cha của cơ chế Tầng 2.5 là một \emph{đại lượng
-tài nguyên}, và dưới can thiệp thật đại lượng đó rời khỏi dải đã quan sát ở
-\sotrong{74,7\%} số hàng --- còn trong giao thức giữ lại thông thường, điều đó chỉ xảy
-ra ở \sotrong{0,1\%} số hàng. Trong dải, hai cơ chế (có và không có Tầng 2.5)
-\emph{không phân biệt được}; ngoài dải, chúng lệch nhau: suy giảm MAPE trung bình dưới
-can thiệp thật là \sotrong{12,6} cho hai tầng và \sotrong{1\,658,3} cho Tầng 2.5 thô
-($\approx 132\times$ tệ hơn).
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=0.6\textheight,keepaspectratio]{figures/20_he_A_hai_tang.png}
+\caption{Đồ thị nhân quả hai tầng và cơ chế sửa tầng: Tầng 1 (lan tải liên dịch
+  vụ theo sơ đồ gọi) $\to$ Tầng 2 (tải sinh tài nguyên nội dịch vụ) $\to$ hiệu chỉnh
+  theo tầng ($\rho_s$). Cạnh thứ ba (backpressure $R_i \to R_j$) bị loại bỏ do suy
+  giảm MAPE $132\times$ ngoài phân phối quan sát.}
+\label{fig:heA}
+\end{figure}
 
-Một cơ chế kẹp dải (giữ cha tài nguyên trong biên đã thấy lúc khớp mô hình, không kẹp
-cha workload) phục hồi được trung vị suy giảm về ngang hai tầng, nhưng trung bình vẫn
-cao hơn hai tầng khoảng $2{,}4\times$ và còn phần dư tập trung ở vài cặp (service, loại
-lỗi) cực trị. Đây là \textbf{giới hạn đặc trưng của một phép xấp xỉ tuyến tính từng
-phần gần biên can thiệp}, không phải một lỗi lập trình: kẹp khôi phục được hành vi
-điển hình, nhưng không loại bỏ hoàn toàn rủi ro đuôi dài.
+\subsection*{Correction theo tầng ($\rho_s$)}\label{sec:chainfidelity}
+Hai tầng trên lan $\Delta$ theo đúng cạnh đã học, nhưng hệ số học trên \emph{lịch
+sử trộn mọi loại traffic} --- dịch vụ ít bị traffic chung chạm tới ($\rho_s$ nhỏ,
+tỉ lệ workload$/$gateway) bị cơ chế này pha loãng tác động của một tính năng cụ
+thể nhắm đúng vào nó.
 
-Bằng chứng thứ hai, độc lập, cũng chỉ về một hướng: chạy lại đúng giao thức chọn cạnh
-bốn pha trên dữ liệu tải \textbf{thật của chính triển khai này} (\texttt{SS-TRAIN},
-không phải RCAEval), \sotrong{0/8} ứng viên Tầng 2.5 sống qua được vòng lọc đầu tiên.
-Lý do: trên \texttt{SS-TRAIN}, hai tầng đã giải thích được $0{,}74$--$0{,}9972$ phương
-sai của mỗi node tài nguyên, so với chỉ $\approx 0{,}015$ trên RCAEval --- không còn
-phần phương sai nào để Tầng 2.5 giải thích thêm một cách có ý nghĩa.
+\textbf{Công thức hiệu chỉnh.} Với service $s$ \textbf{trong} chain của archetype
+đang xét:
+$$\text{hệ\_số}(\rho_s) = \exp\!\big(\log a + b\cdot\log(1/\rho_s)\big)\,,\qquad
+  \widehat{CPU}_s = CPU_s^{\text{baseline}} + \big(CPU_s^{\text{pred}} -
+  CPU_s^{\text{baseline}}\big)\cdot\text{hệ\_số}(\rho_s)\,.$$
+$(\log a, b)$ fit bằng hồi quy log-log trên 7 tính năng đã biết đáp án (tương
+quan $0{,}969$ với hệ số cần sửa). Service \textbf{ngoài} chain: $\widehat{CPU}_s
+= CPU_s^{\text{baseline}}$ (ép về baseline, không đổi). Áp dụng trong hàm
+\texttt{\_apply\_chain\_correction}, chỉ bên trong \texttt{assess\_capacity()}
+(\textbf{không sửa} \texttt{simulate\_intervention()}, nên không chạm số
+RQ1--RQ4 đã công bố).
 
-\textbf{Kết luận kiến trúc.} DAG sản phẩm (\texttt{capacity\_agent.py}) chỉ dùng Tầng
-1 + Tầng 2; cơ chế kẹp (\texttt{src/scm/co\_che\_cong\_dai.py}) vẫn tồn tại trong mã
-nguồn nhưng không được gọi từ đường sản phẩm. Lựa chọn này \textbf{không ảnh hưởng}
-các số RQ1--RQ4: chúng được sinh từ \texttt{evaluation\_suite.py} và các script RQ độc
-lập, tự xây cạnh backpressure riêng, không đọc lại DAG của \texttt{CapacityAgent}.
-
-\textbf{Bài học phương pháp tổng quát.} Thuộc tính phân biệt Tầng 1--2 với Tầng 2.5 là
-\emph{cha workload ra ngoài dải quan sát ít hơn hẳn cha tài nguyên} --- một prior về
-độ bền của loại cha, không phải một lập luận nhận dạng nhân quả. Và: một cơ chế có thể
-có cơ sở thống kê trên một nguồn dữ liệu (RCAEval) mà vô nghĩa trên nguồn khác (chính
-hệ đang vận hành), nếu nguồn đó đã có một cơ chế đơn giản hơn chiếm hết phần phương
-sai cần giải thích. Cải thiện held-out, một mình, không phải điều kiện đủ để giữ một
-cạnh trong DAG sản phẩm của một triển khai cụ thể.
-
-\subsection{Chain fidelity: một giới hạn cấu trúc thứ hai, đo và sửa được}\label{sec:chainfidelity}
-Mục~\ref{sec:tang25} đã chỉ ra Tầng 2.5 không giúp gì khi can thiệp thật. Câu hỏi tiếp
-theo, chưa được hỏi ở bản báo cáo trước: \textbf{đúng hai tầng còn lại (Tầng 1--2) có
-lan $\Delta$ đúng theo chuỗi gọi của archetype không}, hay chỉ lan theo một quy tắc
-chung không phân biệt tính năng nào đang được hỏi?
-
-\paragraph{Phát hiện.} \texttt{simulate\_intervention()} --- hàm sản phẩm thật sự dùng
---- can thiệp bằng cách đặt lại workload của gateway rồi lan qua \textbf{đúng các cạnh
-Tầng 1 đã học}, với hệ số học trên \emph{lịch sử trộn mọi loại traffic}. Hệ quả: dịch
-vụ nào hiếm khi bị traffic chung chạm tới (tỉ lệ workload$/$gateway, $\rho_s$, nhỏ) sẽ
-bị cơ chế này pha loãng nặng tác động của một tính năng \emph{cụ thể} nhắm đúng vào nó
---- không phải vì mô hình sai số học, mà vì nó không có khái niệm ``đúng chain của yêu
-cầu này''.
-
-\paragraph{Đo bằng dữ liệu thật.} Dùng đúng hạ tầng ở Mục~\ref{sec:donghohoa} (tiền
-thân là chiến dịch \texttt{SS-LIMITS}/\texttt{SS-LIMITS-CLEAN}, 8 tính năng, 994 điểm
-đo an toàn --- không vi phạm SLO): so \texttt{cpu\_predicted} với CPU thật đo được, trừ
-hiệu với ramp nền cùng mức tải.
+\textbf{Độ chính xác đo được} (MAE CPU, 994 điểm an toàn \texttt{SS-LIMITS}):
 \begin{center}\small
 \begin{tabular}{lrr}
 \toprule & MAE trước sửa & MAE sau sửa \\ \midrule
 Trong chain (node thực chịu tải) & 2,60 & \sotrong{1,94} ($-25{,}2\%$) \\
 Ngoài chain (node không liên quan) & 0,56 & \sotrong{0,44} ($-22\%$) \\ \bottomrule
 \end{tabular}\end{center}
-Sai số \textbf{trong chain} luôn \emph{thấp hơn} CPU thật đo được --- chiều nguy hiểm
-nhất, vì dễ dẫn tới phán quyết khả thi giả ở đúng node sẽ nghẽn.
+Kiểm bằng leave-one-feature-out (hệ số fit trên 7 tính năng, áp cho tính năng thứ
+8 chưa thấy): Wilcoxon $p=0{,}0234$, hệ số ảnh hưởng $r=0{,}889$ ($n=8$),
+\sotrong{7/8} tính năng cải thiện --- \texttt{browse} là ngoại lệ duy nhất, không
+giấu (bảng đầy đủ theo từng tính năng: Phụ lục~\ref{sec:ketquahea}).
 
-\paragraph{Sửa: suy trực tiếp từ cấu trúc mô hình, không học từ tính năng khác.} Thử
-học hệ số sửa từ \emph{các tính năng khác} (kiểm leave-one-feature-out) cho kết quả
-không ổn định giữa các tính năng (độ lệch chuẩn hệ số giữa tính năng, trên một số node
-như \texttt{orders}/\texttt{payment}, lớn gấp 3--6 lần trung bình). Thay vào đó, hệ số
-sửa suy \textbf{trực tiếp từ $\rho_s$ mà chính mô hình đã fit} --- tương quan log-log
-giữa $1/\rho_s$ và hệ số cần sửa đo được là $\sotrong{0{,}969}$, gần như hoàn hảo: dịch
-vụ có $\rho_s$ nhỏ (ít bị traffic chung chạm tới) cần hệ số sửa lớn, theo đúng một quy
-luật luỹ thừa duy nhất, không cần biết gì về tính năng cụ thể.
+\luuy{\textbf{Tư cách bằng chứng.} Bằng chứng MAE trên là \textbf{hồi cứu} (học và
+kiểm trên cùng dữ liệu \texttt{SS-LIMITS} đã biết đáp án) --- phần đo \emph{độc
+lập} với việc fit nằm ở (a)(b)(c) dưới đây. Sai số tương đối còn lại sau sửa
+($\approx 44\%$ so với độ lớn trung bình trong chain) là dư địa cải thiện cho
+vòng hiệu chỉnh tiếp theo. Với $n=8$ tính năng, hướng mở rộng tự nhiên là nạp
+thêm tính năng vào tập fit trước khi siết thêm hệ số.}
 
-Kiểm bằng leave-one-feature-out (hệ số fit trên 7 tính năng, áp cho tính năng thứ 8
-chưa thấy): MAE trong chain giảm $25{,}2\%$ ($2{,}60 \to 1{,}94$), \textbf{Wilcoxon
-$p=0{,}0234$, hệ số ảnh hưởng $r=0{,}889$} ($n=8$), \sotrong{7/8} tính năng cải thiện
---- \texttt{browse} là ngoại lệ duy nhất, không giấu. Đã đưa vào sản phẩm
-(\texttt{capacity\_agent.py}, hàm \texttt{\_apply\_chain\_correction}), chỉ áp dụng
-trong \texttt{assess\_capacity()} --- \textbf{không sửa} \texttt{simulate\_intervention()}
-nên không chạm số RQ1--RQ4 đã công bố (đã xác minh \texttt{evaluation\_suite.py}/
-\texttt{model\_comparison.py} không bao giờ gọi \texttt{assess\_capacity()}).
+\subsubsection*{Đo ở mức phán quyết, so với baseline hợp lệ, và quy đúng nguồn gốc
+của độ chính xác}\label{sec:chainfidelity-verdict}
+MAE ở trên đo \textbf{độ lớn CPU} --- hệ thống thật phát ra một \textbf{phán
+quyết} SAFE/WARNING/CRITICAL, không phải MAE. Ba phép đo dưới đây (offline, không
+gọi LLM, không sửa \texttt{src/}) đo đúng mức đó, dùng chung một lưới \textbf{288
+quyết định} (27 cell $\times$ mức tải, đối chiếu điểm gãy đo thật của
+FeasibilityPredictor) và một công thức bắc cầu từ tải đỉnh $L$ sang \texttt{delta\_pct}
+mà \texttt{simulate\_intervention()} nhận, đã kiểm khớp $10/10$ phán quyết đo
+trước khi dùng.
 
-\luuy{\textbf{Giới hạn, không tô hồng.} Đây là bằng chứng \textbf{hồi cứu} (học và
-kiểm trên cùng dữ liệu \texttt{SS-LIMITS} đã biết đáp án), khác hẳn tư cách tiến cứu
-mà RQ5 \emph{cũ} (Hệ B) từng có. Sai số tương đối còn lại sau sửa vẫn $\approx 44\%$
-so với độ lớn trung bình thực đo trong chain --- cải thiện thật, chưa phải giải quyết
-xong. $n=8$ tính năng là nhỏ; $p=0{,}0234$ vừa qua ngưỡng $0{,}05$, không phải bằng
-chứng rất mạnh.}
+\paragraph{(a) Số liệu đầy đủ ở mức phán quyết.} Bảng và đánh đổi có chủ đích:
+xem Bảng 2, Mục~\ref{sec:ketquacotloi}. Bổ sung ở \textbf{đọc lỏng} (WARNING vẫn
+tính khả thi): khả-thi-giả $79,2\%\to6,7\%$. Trên \textbf{12 cell hoàn toàn
+ngoài tập 8 tính năng dùng để fit}: khả-thi-giả $\mathbf{0/55}$ ở cả hai cách
+đọc --- cải thiện không chỉ đúng trên dữ liệu đã fit.
 
-\subsubsection{Mở rộng mới: đo ở mức phán quyết, so đúng baseline, và quy đúng nguồn
-gốc của cải thiện}\label{sec:chainfidelity-verdict}
-Phần trên đo \textbf{MAE của CPU} --- nhưng hệ thống thật không phát ra MAE, nó phát
-ra một \textbf{phán quyết} SAFE/WARNING/CRITICAL. ``MAE giảm'' không tự động chứng
-minh ``phán quyết tốt hơn''. Ba phép đo dưới đây (offline, không gọi LLM, không sửa
-\texttt{src/}) lấp đúng khoảng trống này, dùng chung một lưới \textbf{288 quyết định}
-(27 cell $\times$ mức tải, đối chiếu điểm gãy đo thật của chính Hệ B) và một công thức
-bắc cầu từ tải đỉnh $L$ sang \texttt{delta\_pct} mà \texttt{simulate\_intervention()}
-nhận, đã kiểm khớp $10/10$ phán quyết đo trước khi dùng.
-
-\paragraph{(a) Correction giảm khả-thi-giả rõ, kèm giá bảo thủ đo được.}
-\begin{center}\small
-\begin{tabular}{lrrr}
-\toprule Cấu hình & Độ đúng & Khả-thi-giả & Bỏ-thiếu \\ \midrule
-Chưa sửa (tắt correction) & $91,3\%$ & $16,1\%$ & $0,7\%$ \\
-\textbf{Đã sửa (bật correction)} & $87,5\%$ & \sotrong{$3,4\%$} & $22,3\%$ \\ \bottomrule
-\end{tabular}\end{center}
-(đọc chặt: SAFE $=$ khả thi; đọc lỏng --- WARNING vẫn tính khả thi --- cho $79,2\%\to
-6{,}7\%$). Trên \textbf{12 cell ngoài tập 8 tính năng dùng để fit} correction: khả-thi-
-giả $\mathbf{0/55}$ ở cả hai cách đọc --- cải thiện \textbf{không phải hiện tượng chỉ
-đúng trên dữ liệu đã fit}. Giá phải trả: bỏ-thiếu (quá bảo thủ) tăng từ $0,7\%$ lên
-$22,3\%$ --- một \textbf{đánh đổi đo được}, không phải cải thiện miễn phí.
-
-\paragraph{(b) Loại một baseline khỏi so sánh bằng chứng, không bằng cảm tính --- giữ
-hai baseline hợp lệ.} GradientBoostingRegressor (3 biến thể, cùng thông tin lan truyền
-với Hệ A, một biến thể có cả cờ chain) báo khả-thi-giả $99$--$100\%$ ở \textbf{mọi}
-biến thể, mọi cách đọc. Đo trực tiếp (không đoán): với $6/7$ node CPU, giá trị CPU lớn
-nhất mà cây \emph{từng thấy lúc fit} đã \textbf{thấp hơn} trần P99 mà luật quyết định
-dùng --- tức \textbf{không có đầu vào nào} khiến GradBoost báo bão hoà được. Theo đúng
-định nghĩa admissible evaluation (một phép đánh giá phải có kết cục bác bỏ được): phép
-so này \textbf{vô nghĩa (vacuous)} với GradBoost, loại nó khỏi bảng xếp hạng vì lý do
-cấu trúc, không phải vì nó thua.
-
-Hồi quy tuyến tính và một \textbf{định luật sử dụng đã công bố} (Little's law, áp ở
-mức CPU/request từng service, fit trên cùng tập) không mắc lỗi đó --- cả hai đạt độ
-đúng tổng \textbf{cao hơn} correction ở đọc chặt ($93,1\%$ vs $87,5\%$), đổi lại
-khả-thi-giả cao hơn ($10,7\%$ vs $3,4\%$). McNemar ghép đôi trên 288 quyết định:
+\paragraph{(b) Vì sao loại GradBoost, và McNemar giữa correction với baseline hợp
+lệ.} Lý do loại GradBoost: xem Mục~\ref{sec:ketquacotloi}. Theo đúng định nghĩa
+admissible evaluation (một phép đánh giá phải có kết cục bác bỏ được): phép so
+với GradBoost \textbf{vô nghĩa (vacuous)}, vì không tồn tại đầu vào nào khiến nó
+báo bão hoà được trên $6/7$ node CPU --- loại vì lý do cấu trúc, không phải vì
+thua. McNemar ghép đôi trên 288 quyết định, giữa correction và baseline hợp lệ:
 $p=0{,}0139$ nghiêng về baseline (độ đúng thô, đọc chặt), $p<10^{-4}$ nghiêng về
-correction (đọc lỏng) --- báo cáo cả hai, vì chúng trả lời hai câu khác nhau: mô hình
-nào đúng nhiều hơn, và mô hình nào sai theo chiều rẻ hơn.
+correction (đọc lỏng) --- hai p-value trả lời hai câu khác nhau: mô hình nào
+đúng nhiều hơn, và mô hình nào sai theo chiều rẻ hơn.
 
 \paragraph{(c) Ablation xáo chain: độ lợi đến từ đâu?}\label{sec:ablation-xao-chain}
 Hệ số sửa chỉ phụ thuộc $\rho_s$ --- một hằng số \emph{theo service}, không theo
-archetype. Phần duy nhất phụ thuộc archetype là \textbf{mặt nạ} chọn service nào bị
-sửa. Câu hỏi: độ lợi đến từ việc mặt nạ biết \emph{đúng} chain của archetype đang xét,
-hay chỉ từ việc hệ số $\rho_s$ luôn khuếch đại tầng sâu bất kể chain nào được gán?
-Kiểm bằng hoán vị: gán cho mỗi archetype chain của \textbf{một archetype khác} (giữ
-nguyên \texttt{front-end} vì đó là cổng vào duy nhất của hệ, xem Mục~\ref{sec:tongquan}),
-lặp 20 lần hoán vị độc lập.
+archetype. Phần duy nhất phụ thuộc archetype là \textbf{mặt nạ} chọn service nào
+bị sửa. Câu hỏi: độ lợi đến từ việc mặt nạ biết \emph{đúng} chain của archetype
+đang xét, hay chỉ từ việc hệ số $\rho_s$ luôn khuếch đại tầng sâu bất kể chain nào
+được gán? Kiểm bằng hoán vị: gán cho mỗi archetype chain của \textbf{một archetype
+khác} (giữ nguyên \texttt{front-end} vì đó là cổng vào duy nhất của hệ), lặp 20
+lần hoán vị độc lập.
 \begin{center}\small
 \begin{tabular}{lrr}
 \toprule Cấu hình (đọc chặt) & Khả-thi-giả & Bỏ-thiếu \\ \midrule
@@ -455,149 +493,143 @@ Chain ĐÚNG (A1 thật) & $3,4\%$ & $22,3\%$ \\
 Chain SAI, TB 20 lần hoán vị & $3,8\%$ \; $[2,0$--$4,7]\%$ & $26,2\%$ \\
 Không mặt nạ (sửa cả 7 service) & $2,0\%$ & $38,8\%$ \\ \bottomrule
 \end{tabular}\end{center}
-Khoảng $[2,0$--$4,7]\%$ của 20 lần hoán vị \textbf{bao trùm} giá trị $3,4\%$ của chain
-đúng --- \textbf{không phân biệt được}. Kết luận: độ lợi đến từ \textbf{hệ số theo
-tầng ($\rho_s$)}, đã được ablation này xác nhận là phần làm việc chính; mặt nạ biết
-đúng chain của archetype góp một phần tinh chỉnh đo được nhưng phụ (đánh đổi
-khả-thi-giả/bỏ-thiếu), không phải nguồn chính của độ chính xác. \textbf{Gọi tên đúng
-cho cơ chế này, từ đây về sau: ``correction theo tầng'', không phải ``chain-aware''.}
+Khoảng $[2,0$--$4,7]\%$ của 20 lần hoán vị \textbf{bao trùm} giá trị $3,4\%$ của
+chain đúng --- \textbf{không phân biệt được}. Kết luận: độ lợi đến từ \textbf{hệ
+số theo tầng ($\rho_s$)}, đã được ablation này xác nhận là phần làm việc chính;
+mặt nạ biết đúng chain của archetype góp một phần tinh chỉnh đo được nhưng phụ,
+không phải nguồn chính của độ chính xác. \textbf{Gọi tên đúng cho cơ chế này, từ
+đây về sau: ``correction theo tầng'', không phải ``chain-aware''.}
 
-\luuy{\textbf{Đây là làm rõ thêm phát hiện, không phải phủ nhận nó.} Số MAE giảm
-$25,2\%$ ở trên vẫn đúng và vẫn đo được. Điều mới là: biết \textbf{chính xác} cơ chế
-nào tạo ra cải thiện đó (hệ số theo $\rho_s$, không phải nhận diện đúng chain) --- một
-phép quy nguyên nhân (ablation) đúng chuẩn, cùng tinh thần với kiểm \texttt{P1\_ctrl}
-(chain hoán vị trùng P0 trên 288/288) mà Hệ B đã từng làm. Tư cách bằng chứng của (b)
-và (c) \textbf{không hồi cứu} như phần MAE ở trên: 12 cell ở (a) chưa dùng để fit
-correction, và 20 lần hoán vị ở (c) không đọc lại dữ liệu đã fit.}
+\luuy{Tư cách bằng chứng của (a)(b)(c) \textbf{không hồi cứu}: 12 cell ở (a) chưa
+dùng để fit correction, 20 lần hoán vị ở (c) không đọc lại dữ liệu đã fit. Phép
+quy nguyên nhân ở (c) cùng dạng với kiểm \texttt{P1\_ctrl} mà FeasibilityPredictor
+đã từng làm (chain hoán vị trùng P0 trên 288/288 quyết định).}
 
-\section{Thực nghiệm và phương pháp thực nghiệm}\label{sec:thucnghiem}
-Mục này trình bày \textbf{cách} mỗi câu hỏi ở Mục~\ref{sec:bocauhoi} được đo: các chốt
-kiểm đang hoạt động trong lớp đọc yêu cầu (Câu hỏi 1), hạ tầng đo thật (dùng cho Câu
-hỏi 3), rồi kết quả định lượng đầy đủ cho cả ba câu hỏi.
+\section{Phụ lục E --- Phương pháp thực nghiệm và số liệu đầy đủ}\label{sec:phuluc-thucnghiem}
+\label{sec:thucnghiem}
+Mục này trình bày \textbf{cách} mỗi câu hỏi ở Phụ lục~\ref{sec:bocauhoi} được đo:
+các chốt kiểm đang hoạt động trong lớp đọc yêu cầu, hạ tầng đo thật, rồi kết quả
+định lượng đầy đủ (toàn cảnh hệ thống: Hình~\ref{fig:tongquan}, Phụ lục~\ref{sec:tongquan}).
 
-\subsection{Các chốt kiểm đang hoạt động trong lớp đọc yêu cầu (Câu hỏi 1)}
-Lớp đọc yêu cầu (ParserAgent) có ba cơ chế toàn phần, luôn được thực thi cho mọi yêu
-cầu, không có đường tắt bỏ qua: \textbf{cổng phạm vi} (yêu cầu phải khớp một archetype
-hợp lệ, không chỉ khớp từ khoá), \textbf{chuẩn hoá cổng vào} ($do(\cdot)$ luôn áp tại
-một node vào đồ thị có bậc vào $0$), và \textbf{kẹp biên} ($\Delta$ bị ép vào $[5,50]$
-bất kể LLM trả gì). Vì là hàm toàn phần, tỉ lệ lọt qua đo được là $0/11$ trên $61$
-lần gọi LLM thật đối với một tập prompt đối kháng được thiết kế để khớp sai archetype.
-Mục~\ref{sec:ketquadinhluong} trình bày đầy đủ benchmark so với không có các chốt này.
+\subsection*{Các chốt kiểm đang hoạt động trong lớp đọc yêu cầu}
+Lớp đọc yêu cầu (ParserAgent) có ba cơ chế toàn phần, luôn được thực thi cho mọi
+yêu cầu, không có đường tắt bỏ qua: \textbf{cổng phạm vi} (yêu cầu phải khớp một
+archetype hợp lệ, không chỉ khớp từ khoá), \textbf{chuẩn hoá cổng vào} ($do(\cdot)$
+luôn áp tại một node vào đồ thị có bậc vào $0$), và \textbf{kẹp biên} ($\Delta$ bị
+ép vào $[5,50]$ bất kể LLM trả gì). Vì là hàm toàn phần, tỉ lệ lọt qua đo được là
+$0/11$ trên $61$ lần gọi LLM thật đối với một tập prompt đối kháng được thiết kế
+để khớp sai archetype (Hình~\ref{fig:parser}).
 
-\subsection{Giao thức đo tiến cứu (lịch sử, ngoài phạm vi hiện tại)}\label{sec:giaothuctiencuu}
-RQ5 \emph{cũ} (Hệ B, §\ref{sec:mothe}) dùng một giao thức tiến cứu chặt: agent mù cài
-tính năng (không thấy taxonomy/tài liệu hệ thống), đóng băng + hash dự đoán, commit
-git \emph{trước khi} đo, rồi mới chạy ramp. Giao thức này không còn là nội dung chính
-của báo cáo (Hệ B ngoài phạm vi), nhưng vẫn là một \textbf{tài sản phương pháp luận
-thật}, đáng dùng lại nếu sau này làm một vòng đo tiến cứu cho chính Hệ A (phát hiện
-chain fidelity ở Mục~\ref{sec:chainfidelity} hiện mới chỉ là hồi cứu) --- xem Mục~
-\ref{sec:gh} cho việc còn lại liên quan.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth,height=0.85\textheight,keepaspectratio]{figures/11_parser_va_chot_kiem.png}
+\caption{Quy trình tiền xử lý yêu cầu: Cổng phạm vi 3 kết cục (chặn sớm yêu cầu
+  ngoài phạm vi) $\to$ LLM trích xuất tham số thô $\to$ 3 lớp chốt kiểm tất định
+  (hàm toàn phần) siết chặt can thiệp $do(W)$.}
+\label{fig:parser}
+\end{figure}
 
-\subsection{Hạ tầng đo và định nghĩa điểm gãy}\label{sec:donghohoa}
-14 container, \textbf{không} có bộ mô phỏng người dùng. Bộ thu chạy \emph{cùng mạng
-Docker}, lấy CPU từ bộ đếm cgroup và workload/latency từ endpoint số liệu \emph{thật}
-của từng service; xuất 4 dòng ra đúng khuôn bộ dữ liệu chuẩn. Bộ sinh tải \textbf{mở
-(Poisson), chạy trên HOST} --- để CPU của chính nó không lẫn vào CPU đang được đo.
+\subsection*{Giao thức tiến cứu của FeasibilityPredictor}\label{sec:giaothuctiencuu}
+Bằng chứng tiến cứu của FeasibilityPredictor (§\ref{sec:mothe}): agent mù cài
+tính năng (không thấy taxonomy/tài liệu hệ thống), đóng băng + hash dự đoán,
+commit git \emph{trước khi} đo, rồi mới chạy ramp --- dùng lại được cho một vòng
+tiến cứu của chính Hệ A (correction theo tầng ở Phụ lục~\ref{sec:chainfidelity}
+hiện mới chỉ có bằng chứng hồi cứu, xem Phụ lục~\ref{sec:gh}).
 
-\luuy{\textbf{Hai ràng buộc đo cần giữ.} (i) Bộ sinh tải phải chạy \emph{ngoài} mạng
-Docker đang đo: đặt nó vào trong làm CPU của chính bộ sinh tải lẫn vào CPU đang được
-đo, tạo điểm gãy thấp hơn giả tạo --- lỗi của harness, dễ đọc nhầm thành lỗi của hệ.
-(ii) Mức tải không lấy từ \texttt{docker stats} hay đếm dòng log: service Java/Go
-không ghi log từng request, nên cách đếm đó thiếu. Mức tải phải lấy từ endpoint số
-liệu do chính service công bố.}
+\subsection*{Hạ tầng đo và định nghĩa điểm gãy}\label{sec:donghohoa}
+14 container, \textbf{không} có bộ mô phỏng người dùng. Bộ thu chạy \emph{cùng
+mạng Docker}, lấy CPU từ bộ đếm cgroup và workload/latency từ endpoint số liệu
+\emph{thật} của từng service; xuất 4 dòng ra đúng khuôn bộ dữ liệu chuẩn. Bộ sinh
+tải \textbf{mở (Poisson), chạy trên HOST} --- để CPU của chính nó không lẫn vào
+CPU đang được đo.
 
-\textbf{Lưới tải hình học} $40, 50, 65, 80, 100, 125, 155, 195, 240$ req/s (bậc nhân
-khoảng 1,25). Lưới cộng 20 req/s cho độ phân giải tương đối 10\% ở điểm gãy 200 nhưng
-\sotrong{50\%} ở điểm gãy 40, nên sai số tương đối \textbf{không so sánh được giữa các
-ô}. Mỗi bậc giữ tải một khoảng, \textbf{bỏ 40\% đầu} làm khởi động nóng, rồi chấm
-$p_{99}$ và tỉ lệ lỗi trên phần ổn định.
+\luuy{\textbf{Hai ràng buộc đo cần giữ.} (i) Bộ sinh tải phải chạy \emph{ngoài}
+mạng Docker đang đo: đặt nó vào trong làm CPU của chính bộ sinh tải lẫn vào CPU
+đang được đo, tạo điểm gãy thấp hơn giả tạo. (ii) Mức tải không lấy từ
+\texttt{docker stats} hay đếm dòng log: service Java/Go không ghi log từng
+request, nên cách đếm đó thiếu. Mức tải phải lấy từ endpoint số liệu do chính
+service công bố.}
 
-\textbf{Điểm gãy} là \textbf{bậc đầu của chuỗi vi phạm liên tiếp cuối cùng}. Một bậc
-vi phạm rồi hồi lại (dọn rác, nhiễu) ghi riêng là \emph{transient}, \textbf{không}
+\textbf{Lưới tải hình học} $40, 50, 65, 80, 100, 125, 155, 195, 240$ req/s (bậc
+nhân khoảng 1,25). Lưới cộng 20 req/s cho độ phân giải tương đối 10\% ở điểm gãy
+200 nhưng \sotrong{50\%} ở điểm gãy 40, nên sai số tương đối \textbf{không so
+sánh được giữa các ô}. Mỗi bậc giữ tải một khoảng, \textbf{bỏ 40\% đầu} làm khởi
+động nóng, rồi chấm $p_{99}$ và tỉ lệ lỗi trên phần ổn định.
+
+\textbf{Điểm gãy} là \textbf{bậc đầu của chuỗi vi phạm liên tiếp cuối cùng}. Một
+bậc vi phạm rồi hồi lại (dọn rác, nhiễu) ghi riêng là \emph{transient}, \textbf{không}
 phải điểm gãy. Kết quả là một \textbf{khoảng}, không phải một số.
 
-\textbf{Tiền đăng ký ở cấp phép đo.} Manifest ghi \textbf{trước khi đo}: SLO, cấu hình
-trần, danh sách bậc tải, kế hoạch đầy đủ, mọi tham số, và \textbf{SHA-256 của chính
-script đo}. Thứ tự ramp bị \emph{xáo ngẫu nhiên} để mức tải không lẫn với trôi theo
-thời gian.
+\textbf{Tiền đăng ký ở cấp phép đo.} Manifest ghi \textbf{trước khi đo}: SLO, cấu
+hình trần, danh sách bậc tải, kế hoạch đầy đủ, mọi tham số, và \textbf{SHA-256 của
+chính script đo}. Thứ tự ramp bị \emph{xáo ngẫu nhiên} để mức tải không lẫn với
+trôi theo thời gian.
 
-\subsubsection{Ba nguồn nhiễm trạng thái được kiểm soát bằng mã, không bằng quy ước}
+\subsubsection*{Ba nguồn nhiễm trạng thái được kiểm soát bằng mã, không bằng quy ước}
 \begin{enumerate}[leftmargin=*,itemsep=3pt]
  \item \textbf{Nhiễm trạng thái giữa các ramp.} Pool tài khoản dùng chung giữa các
-   ramp có thể làm điểm gãy đo được phản ánh \emph{thứ tự chạy} (vd tính năng đọc
-   lịch sử đơn chậm dần khi đơn tích luỹ từ ramp trước), không phải tính năng đang
-   kiểm. Chốt: một hàm \textbf{từ chối chạy} khi thư mục ramp đã có dữ liệu tồn dư.
- \item \textbf{Cờ lặp lại không có tác dụng} ở chế độ ramp, và mỗi lần chạy đánh số
-   lượt lại từ 1, nên chạy vào thư mục cũ sẽ \textbf{ghi đè} dữ liệu --- cần kiểm thư
-   mục đích rỗng trước khi chạy.
+   ramp có thể làm điểm gãy đo được phản ánh \emph{thứ tự chạy}, không phải tính
+   năng đang kiểm. Chốt: một hàm \textbf{từ chối chạy} khi thư mục ramp đã có dữ
+   liệu tồn dư.
+ \item \textbf{Cờ lặp lại không có tác dụng} ở chế độ ramp, và mỗi lần chạy đánh
+   số lượt lại từ 1, nên chạy vào thư mục cũ sẽ \textbf{ghi đè} dữ liệu --- cần
+   kiểm thư mục đích rỗng trước khi chạy.
  \item \textbf{Volume cơ sở dữ liệu tích luỹ} qua nhiều lần khởi động lại làm điểm
-   gãy nền của hệ trôi theo thời gian (biên độ trôi đo được: §\ref{sec:gh}), không
-   phải nhiễu đo. Một chiến dịch ramp phải đối chiếu điểm gãy nền ngay trước và sau
-   để phát hiện trôi, và loại bỏ nếu phát hiện được.
+   gãy nền của hệ trôi theo thời gian (biên độ trôi đo được: Phụ lục~\ref{sec:gh}),
+   không phải nhiễu đo. Một chiến dịch ramp phải đối chiếu điểm gãy nền ngay
+   trước và sau để phát hiện trôi, và loại bỏ nếu phát hiện được.
 \end{enumerate}
 
-\textbf{Hợp đồng dữ liệu được cưỡng chế bằng mã}, thoát mã khác 0 nếu FAIL: cột bắt
-buộc; đơn vị CPU hợp lý (bắt lỗi 100$\times$); tập huấn luyện \emph{không} được có
-dòng tính năng / trần / khối bão hoà; mỗi ramp phải có điểm gãy và manifest tiền đăng
-ký; liệt kê các ramp thuộc \textbf{tập khoá} không được dùng khi chỉnh mô hình.
+\textbf{Hợp đồng dữ liệu được cưỡng chế bằng mã}, thoát mã khác 0 nếu FAIL: cột
+bắt buộc; đơn vị CPU hợp lý (bắt lỗi 100$\times$); tập huấn luyện \emph{không}
+được có dòng tính năng / trần / khối bão hoà; mỗi ramp phải có điểm gãy và
+manifest tiền đăng ký; liệt kê các ramp thuộc \textbf{tập khoá} không được dùng
+khi chỉnh mô hình.
 
-\subsection{Kết quả định lượng}\label{sec:ketquadinhluong}
+\subsection*{Kết quả định lượng đầy đủ}\label{sec:ketquadinhluong}
 
-\subsubsection{Lớp đọc yêu cầu (parser)}
+\subsubsection*{Lớp đọc yêu cầu (parser)}
 $\Delta$ \textbf{không} do LLM ước lượng tự do: $\Delta = \text{neo(archetype)} +
-\text{điều chỉnh}$, với ba chốt theo thứ tự --- độ khớp thấp $\Rightarrow$ điều chỉnh
-$:= 0$; $|\text{điều chỉnh}| > 10$ điểm $\Rightarrow$ \textbf{lùi hẳn về neo}; cuối
-cùng kẹp $\Delta \in [5,50]$. Vì vậy $\Delta \in [5,50]$ \emph{bất kể} LLM trả gì.
+\text{điều chỉnh}$, với ba chốt theo thứ tự --- độ khớp thấp $\Rightarrow$ điều
+chỉnh $:= 0$; $|\text{điều chỉnh}| > 10$ điểm $\Rightarrow$ \textbf{lùi hẳn về
+neo}; cuối cùng kẹp $\Delta \in [5,50]$. Bảng số liệu đầy đủ (4 cấu hình, sai số
+$\pm$): Bảng 1, Mục~\ref{sec:ketquacotloi}.
 
-Benchmark 50 prompt, 3 lần chạy LLM thật (Anchor MAE bằng \emph{điểm phần trăm}):
-\begin{center}\footnotesize
-\begin{tabular}{lcccc}
-\toprule Cấu hình & Vi phạm biên & Bịa service & Sai cổng vào & Anchor MAE \\ \midrule
-LLM trần, zero-shot & 38,0$\pm$2,0\% & 91,3$\pm$1,2\% & 100,0$\pm$0,0\% & 844,6$\pm$568,2 \\
-few-shot, có bảng hiệu chuẩn, không chốt & 14,7$\pm$1,2\% & 2,0$\pm$0,0\% & 84,7$\pm$1,2\% & 38,6$\pm$0,2 \\
-chỉ luật, không LLM & 0,0\% & 0,0\% & 0,0\% & 2,8$\pm$0,0 \\
-\textbf{có chốt kiểm (của bài)} & \sotrong{0,0\%} & \sotrong{0,0\%} & \sotrong{0,0\%}
- & \sotrong{1,6$\pm$0,1} \\ \bottomrule
-\end{tabular}\end{center}
-
-Lặp trên backend thứ hai (117B, trọng số mở) tách được hai thứ mà một backend gộp lại.
-\textbf{Năng lực model mua được độ hợp lý ngữ nghĩa}: Anchor MAE của LLM trần giảm
-\sotrong{25$\times$} ($844{,}6 \to 33{,}6$). \textbf{Không mua được tính đúng cấu
-trúc}: sai cổng vào vẫn \sotrong{92,0\%}, bịa service vẫn \sotrong{86,0\%}, và không
-tập trung ở nhóm đối kháng (90\%, 100\%, 100\%, 80\% theo nhóm) --- vi phạm ràng buộc
+Lặp trên backend thứ hai (117B, trọng số mở) tách được hai thứ mà một backend
+gộp lại: năng lực model mua được độ hợp lý ngữ nghĩa (Anchor MAE của LLM trần
+giảm $25\times$, $844{,}6\to33{,}6$), nhưng \textbf{không} mua được tính đúng
+cấu trúc --- sai cổng vào vẫn $92,0\%$, bịa service vẫn $86,0\%$, và không tập
+trung ở nhóm đối kháng ($90\%, 100\%, 100\%, 80\%$ theo nhóm): vi phạm ràng buộc
 topo một cách \emph{hệ thống}, không do prompt khó.
 
 \luuy{\textbf{Hai điều phải nói kèm.} (a) Ba cột $0\%$ là \emph{do cấu trúc}: chốt
-kiểm là hàm toàn phần nên tỉ lệ vi phạm bằng 0 theo định nghĩa. Vì vậy phép so với
-baseline \emph{không} chứng minh chốt kiểm gánh việc; nó chỉ xác lập tiền đề rằng một
-generator không bị chặn vi phạm những ràng buộc đó ở tỉ lệ cao \emph{dù được cho đúng
-cùng ngữ cảnh}. Do đó bài báo \textbf{tỉ lệ kích hoạt} thay thế: 18/18 lần sửa cổng
-vào, 33/36 lần kẹp biên. (b) Con số $1{,}6$ tính trên \sotrong{121/150} lời gọi: cổng
-phạm vi trả 18 ($12{,}0\%$) cần người xem lại, 11 ($7{,}3\%$) từ chối. (c) Benchmark
-tách lời gọi LLM ra khỏi khối bắt lỗi của việc phân tích JSON: một lỗi hạ tầng (vd hết
-hạn ngạch API) phải dừng benchmark và báo rõ, không được rơi vào khối bắt lỗi rồi trả
-về một kết quả tình cờ an toàn theo các chỉ số đang đo --- nếu không, benchmark có thể
-báo ``LLM an toàn tuyệt đối'' trong khi phần lớn số dòng thực chất là lỗi hạ tầng.}
+kiểm là hàm toàn phần nên tỉ lệ vi phạm bằng 0 theo định nghĩa; phép so với
+baseline không chứng minh chốt kiểm gánh việc, nó chỉ xác lập tiền đề rằng một
+generator không bị chặn vi phạm những ràng buộc đó ở tỉ lệ cao dù được cho đúng
+cùng ngữ cảnh. Bài báo dùng \textbf{tỉ lệ kích hoạt} thay thế: 18/18 lần sửa cổng
+vào, 33/36 lần kẹp biên. (b) Con số $1{,}6$ tính trên \sotrong{121/150} lời gọi:
+cổng phạm vi trả 18 ($12{,}0\%$) cần người xem lại, 11 ($7{,}3\%$) từ chối. (c)
+Benchmark tách lời gọi LLM ra khỏi khối bắt lỗi của việc phân tích JSON: một lỗi
+hạ tầng (vd hết hạn ngạch API) phải dừng benchmark và báo rõ, không được rơi vào
+khối bắt lỗi rồi trả về một kết quả tình cờ an toàn theo các chỉ số đang đo.}
 
-\paragraph{Vì sao không có đường tắt bỏ qua LLM.} Lớp kiểm phạm vi chỉ bảo đảm $0/11$
-lọt qua (Mục~\ref{sec:thucnghiem}) khi \textbf{mọi} yêu cầu đều đi qua LLM rồi qua
-chốt, không có nhánh tắt nào tự khai báo ``đã khớp đủ'' và bỏ qua chốt. Một thiết kế
-có đường tắt (bỏ qua LLM khi độ khớp từ khoá đủ cao) đo được tỉ lệ lọt $72{,}7\%$ trên
-cùng tập prompt đối kháng, vì đường tắt gán cứng cờ ``đúng'' vô điều kiện và không bao
-giờ gọi tới lớp kiểm. Đây là lý do lớp kiểm phạm vi trong hệ hiện tại là hàm toàn
-phần: nó phải chạy cho \emph{mọi} đầu ra của bước phân loại, không chỉ những đầu ra
-đi qua một nhánh cụ thể.
+\paragraph{Vì sao không có đường tắt bỏ qua LLM.} Lớp kiểm phạm vi chỉ bảo đảm
+$0/11$ lọt qua khi \textbf{mọi} yêu cầu đều đi qua LLM rồi qua chốt, không có
+nhánh tắt nào tự khai báo ``đã khớp đủ'' và bỏ qua chốt. Một thiết kế có đường tắt
+(bỏ qua LLM khi độ khớp từ khoá đủ cao) đo được tỉ lệ lọt $72{,}7\%$ trên cùng tập
+prompt đối kháng, vì đường tắt gán cứng cờ ``đúng'' vô điều kiện và không bao giờ
+gọi tới lớp kiểm.
 
-\subsubsection{Chain fidelity của Hệ A --- số liệu đầy đủ}\label{sec:ketquahea}
-Hai bảng dưới đây là số liệu chi tiết đứng sau các con số tóm tắt ở Mục~
-\ref{sec:chainfidelity}.
+\subsubsection*{Chain fidelity --- số liệu đầy đủ}\label{sec:ketquahea}
+Hai bảng dưới đây là số liệu chi tiết đứng sau các con số tóm tắt ở
+Phụ lục~\ref{sec:chainfidelity}.
 
-\paragraph{(a) Đổi nguồn dữ liệu calibrate.} MAPE CPU, tính trên \emph{toàn bộ điểm
-thô} (không trung bình theo bucket --- thước đo chặt hơn, không bị làm mượt), giao
-thức train-tải-thấp/test-tải-cao, 7 service:
+\paragraph{(a) Đổi nguồn dữ liệu calibrate.} MAPE CPU, tính trên \emph{toàn bộ
+điểm thô} (không trung bình theo bucket --- thước đo chặt hơn, không bị làm
+mượt), giao thức train-tải-thấp/test-tải-cao, 7 service:
 \begin{center}\small
 \begin{tabular}{lrr}
-\toprule Service & RCAEval (cũ) & \texttt{SS-TRAIN} (mới) \\ \midrule
+\toprule Service & RCAEval (nguồn cũ) & \texttt{SS-TRAIN} (nguồn hiện tại) \\ \midrule
 front-end & 10,16\% & \sotrong{4,87\%} \\
 catalogue & 51,11\% & \sotrong{2,11\%} \\
 user & 20,37\% & \sotrong{2,67\%} \\
@@ -608,7 +640,7 @@ shipping & 81,97\% & \sotrong{10,45\%} \\ \bottomrule
 \end{tabular}\end{center}
 Cải thiện nhất quán trên \textbf{7/7} service, không có ngoại lệ --- khác cột
 \texttt{mape\_pct} (trung bình theo bucket) vốn hay bị trích dẫn, nơi \texttt{front-end}
-và \texttt{shipping} không cải thiện rõ (xem ghi chú ở Mục~\ref{sec:gh} về lý do dùng
+và \texttt{shipping} không cải thiện rõ (xem Phụ lục~\ref{sec:gh} về lý do dùng
 đúng một thước đo cho cả hai phía).
 
 \paragraph{(b) Chain correction --- theo từng tính năng (leave-one-feature-out).}
@@ -624,119 +656,39 @@ promo     & 2,796 & \sotrong{2,264} \\
 review    & 1,009 & \sotrong{0,741} \\
 \texttt{browse} & 1,192 & 1,509 \emph{(tệ hơn)} \\ \bottomrule
 \end{tabular}\end{center}
-Gộp: $2{,}60 \to 1{,}94$ ($-25{,}2\%$), Wilcoxon $p=0{,}0234$, $r=0{,}889$, $7/8$ tính
-năng cải thiện. Chi tiết diễn giải nhân quả và giới hạn: Mục~\ref{sec:chainfidelity}.
+Gộp: $2{,}60 \to 1{,}94$ ($-25{,}2\%$), Wilcoxon $p=0{,}0234$, $r=0{,}889$, $7/8$
+tính năng cải thiện.
 
-\subsubsection{Bài 2 --- định vị nguyên nhân (mục ngắn)}
-Mệnh đề: độ chính xác định vị do \textbf{tầng metric được soi} quyết định, không do
-thuật toán xếp hạng. Dữ liệu: 270 ca tiêm lỗi thật, 3 hệ thống. Một hệ, nhóm lỗi
-\emph{mạng}, tập ứng viên mức ứng dụng:
-\begin{center}\small
-\begin{tabular}{lccc}
-\toprule Tầng soi & Thuật toán A & Thuật toán B & Sàn ngẫu nhiên \\ \midrule
-chỉ \texttt{cpu} & 13,3\% & 26,7\% & 9,1\% \\
-chỉ \texttt{latency} & 60,0\% & 70,0\% & 10,0\% \\
-mọi cột & 76,7\% & 80,0\% & 9,1\% \\ \bottomrule
-\end{tabular}\end{center}
-Đổi \emph{thuật toán} được $+3$ đến $+13$ điểm; đổi \emph{tầng} được \sotrong{$+47$
-điểm} với cùng thuật toán. Với nhóm lỗi \emph{tài nguyên} thì \texttt{cpu} lại là tầng
-đúng (83,3\% và 96,7\%). Đối chứng âm (không đọc dữ liệu) nằm \textbf{đúng trên sàn}.
-
-\luuy{\textbf{Cần kiểm lại trước khi đưa vào bài.} Hai con số hay được nhắc --- 91,5\%
-độ chính xác hạng nhất, và một baseline đã xuất bản được nâng từ 24,4\% lên 85,9\% ---
-hiện \emph{chỉ có trong thông điệp commit}, và hai tài liệu của bài 2 \emph{tự đánh
-dấu là lỗi thời}. Phải tính lại từ dữ liệu kết quả.}
-
-\section{Giới hạn và các tuyên bố bị bác}\label{sec:gh}
-\begin{enumerate}[leftmargin=*,itemsep=5pt]
-\item \textbf{Chain fidelity (Mục~\ref{sec:chainfidelity}) là bằng chứng hồi cứu, không
-phải tiến cứu.} Hệ số sửa học và kiểm trên cùng dữ liệu \texttt{SS-LIMITS} đã biết đáp
-án (leave-one-feature-out giảm được rủi ro hồi cứu \emph{giữa các tính năng}, nhưng
-không biến nó thành tiến cứu \emph{theo thời gian} --- dự đoán không hề được niêm
-phong trước khi đo như RQ5 cũ từng làm).
-
-\item \textbf{$n=8$ tính năng, $p$ vừa qua ngưỡng.} Wilcoxon $p=0{,}0234$ là có ý
-nghĩa thống kê nhưng không phải bằng chứng rất mạnh ở $n$ nhỏ này; \texttt{browse} là
-1/8 trường hợp hệ số sửa làm \textbf{tệ hơn}, không giấu.
-
-\item \textbf{Sai số tương đối còn lại $\approx 44\%$ sau sửa.} MAE trong chain giảm
-$25{,}2\%$ là cải thiện thật, nhưng so với độ lớn trung bình thực đo (CPU) vẫn còn một
-sai số tương đối lớn --- \textbf{chưa phải giải quyết xong}, chỉ là thu hẹp đáng kể.
-
-\item \textbf{So sánh trước/sau phải cùng một thước đo.} Bảng ở Mục~\ref{sec:ketquahea}(a)
-dùng \texttt{mape\_full\_res\_pct} (toàn bộ điểm thô) cho \emph{cả hai} phía; cột
-\texttt{mape\_pct} (trung bình theo bucket) cho kết luận yếu hơn (\texttt{front-end}
-tệ đi, \texttt{shipping} không đổi) --- hai cột này đo hai thứ khác nhau trong cùng
-tệp CSV, dễ lẫn nếu không cẩn thận (đã tự phát hiện và sửa trước khi đưa vào báo cáo,
-xem Mục~\ref{sec:gioithieu} ``Đóng góp''). Mọi so sánh trước/sau trong báo cáo này
-\textbf{đều} đã kiểm lại dùng đúng một cột.
-
-\item \textbf{Một hệ, một máy, một topology.} Gateway (\texttt{front-end}) luôn nghẽn
-trước trong mọi phép đo đã có --- \emph{không kiểm được} câu ``node nào nghẽn'' tổng
-quát trên một topology khác.
-
-\item \textbf{Một con số trong Abstract chưa tái lập được.} $R^2 = 0{,}0034$ là
-\emph{hằng số viết cứng}, không script nào tính ra nó. Tính lại cho $0{,}0150$ /
-$0{,}0010$ / $0{,}0204$. \textbf{Kết luận không đổi} (mọi giá trị $\leq 0{,}02$, nhỏ
-hơn hẳn $0{,}3009$) nhưng \textbf{con số phải được làm lại trước khi nộp}.
-
-\item \textbf{Mở rộng mới ở mức phán quyết (Mục~\ref{sec:chainfidelity-verdict}) không
-giải quyết hết các giới hạn ở trên, chỉ thêm bằng chứng ở một mức khác.} 286/288 điểm
-quyết định rơi vào vùng chính G7 (guard OOD của agent) tự nhận là ngoại suy
-(\texttt{low}/\texttt{very\_low}) --- toàn bộ so sánh (a)--(c) ở
-Mục~\ref{sec:chainfidelity-verdict} diễn ra ở nơi hệ tự cảnh báo là không chắc chắn, và
-đây \textbf{cũng} là bằng chứng cho thấy G7 hiện bắn cờ quá rộng để dùng làm tín hiệu
-quyết định (khớp giới hạn đã biết \#4 trong README gốc của repo: G7 bắn cờ $80\%$ ca
-bình thường trên Sock Shop). Phép hoán vị chain
-ở (c) không giữ cố định kích thước chain khi hoán vị (archetype 2 service có thể nhận
-chain 7 service và ngược lại) --- phép hoán vị ``thô'' nhất, chưa phải phép kiểm duy
-nhất khả dĩ. Và 10 ca khả-thi-giả còn sót của correction (đọc lỏng) tập trung ở đúng
-\texttt{quickadd}/\texttt{express} (\texttt{ADD\_TO\_CART}/\texttt{PLACE\_ORDER}) ---
-điểm mù chưa sửa được, không giấu.
-\end{enumerate}
-
-\section{Việc còn lại trước khi nộp}
-Xếp theo mức đe doạ việc được nhận:
-\begin{enumerate}[leftmargin=*,itemsep=2pt]
- \item \textbf{Làm lại $R^2 = 0{,}0034$} cho có nguồn gốc --- số này nằm trong Abstract.
- \item \textbf{Viết RQ5 mới (chain fidelity) vào \texttt{paper\_draft.tex}} --- bản báo
-   cáo này đã viết; bài nộp chính thức đang chờ, giữ nguyên label \texttt{sec:rq6} để
-   không gãy $\sim$12 chỗ tham chiếu chéo khác trong bài.
- \item \textbf{Cập nhật Abstract/Introduction của \texttt{paper\_draft.tex}} để khớp
-   RQ5 mới --- phần mô tả 18 yêu cầu/5 vòng/11,4\% sai số hiện vẫn là của Hệ B, chưa
-   sửa.
- \item \textbf{Quyết định có làm một vòng đo tiến cứu mới cho chain fidelity của Hệ A
-   hay không} --- giao thức ở Mục~\ref{sec:giaothuctiencuu} (đóng băng trước khi đo)
-   vẫn dùng lại được, nhưng cần tính năng mới chưa biết đáp án, không dùng lại
-   \texttt{SS-LIMITS} cũ.
- \item \textbf{Tính lại các số của bài 2} từ dữ liệu kết quả; cập nhật hai tài liệu
-   đang lỗi thời.
- \item \textbf{Thêm baseline của chính tác giả benchmark} cho bài 2.
- \item \textbf{Gỡ thư mục dữ liệu thô về layout phẳng} và \textbf{phát hành bộ dữ liệu}.
-\end{enumerate}
-
-\appendix
-\section{Tái lập từng con số}
-\begin{footnotesize}
-\begin{verbatim}
-# doi nguon du lieu calibrate He A (RCAEval -> SS-TRAIN) + Fast/Accurate Path
-python papers/p1_du_phong/experiments/model_eval/evaluate_sstrain.py
-# chain fidelity: do + sua bang he so suy tu rho_s
-python papers/p1_du_phong/experiments/model_eval/evaluate_chain_awareness.py
-# phep kiem can thiep cho Tang 2.5
-python experiments/chua_phan_loai/rq7_interventional_validity.py
-# (lich su, ngoai pham vi hien tai -- xem Muc 3.1)
-# tuong duong hai ngan xep A/B
-python papers/p1_du_phong/experiments/feasibility/doi_chieu_hai_he.py
-# hop dong du lieu -- phai 0 FAIL
-python papers/p1_du_phong/experiments/collect/data_contract_check.py \
-    --dir data/raw/SS-PROSP2/SS-PROSP2 --role limits
-\end{verbatim}
-\end{footnotesize}
-
-\luuy{\textbf{Lưu ý đường dẫn dữ liệu.} Trên máy hiện tại thư mục dữ liệu thô
-\emph{lồng thêm một cấp}: thư mục thật là \texttt{data/raw/SS-PROSP2/SS-PROSP2}. Hàm
-đọc dữ liệu quét theo mẫu hai cấp, nên lệnh như trong runbook
-(\texttt{-{}-dir data/raw/SS-PROSP2}) sẽ tìm thấy \emph{0} lượt đo.}
+\section{Phụ lục F --- Giới hạn đã đo được}\label{sec:gh}
+Danh sách tổng hợp các giới hạn/điều kiện đo được, gom lại từ các mục trên để dễ
+tra cứu một lần:
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+  \item \textbf{Correction theo tầng (Phụ lục~\ref{sec:chainfidelity})} là hồi
+    cứu ở phần MAE (học và kiểm trên cùng dữ liệu), độc lập với fit ở phần (a)(b)(c)
+    (Phụ lục~\ref{sec:chainfidelity-verdict}); chưa có vòng tiến cứu riêng (kế
+    hoạch: Mục~\ref{sec:kehoach}). $n=8$ tính năng dùng để fit là nhỏ; $p=0{,}0234$
+    vừa qua ngưỡng $0{,}05$, không phải bằng chứng rất mạnh. Sai số tương đối còn
+    lại sau sửa $\approx 44\%$ so với độ lớn trung bình trong chain.
+  \item \textbf{Tầng 2.5} (cạnh backpressure $R_i\to R_j$) đã thử và loại khỏi DAG
+    sản phẩm vì ngoại suy ngoài dải quan sát dưới can thiệp thật (Phụ
+    lục~\ref{sec:tang25}).
+  \item \textbf{RQ4} (tổng quát hoá Train Ticket): dự báo CPU/bộ nhớ chuyển được,
+    dự báo độ trễ thì không (28/28 hệ số suy biến) --- xem Phụ lục~\ref{sec:bocauhoi}.
+  \item \textbf{Thước đo MAPE CPU} đổi nguồn dữ liệu (RCAEval $\to$ \texttt{SS-TRAIN})
+    cải thiện nhất quán khi tính trên toàn bộ điểm thô (Phụ lục~\ref{sec:ketquahea}(a)),
+    nhưng cột trung bình theo bucket hay bị trích dẫn lại cho hai service không
+    cải thiện rõ --- hai thước đo không tương đương, cần nói rõ dùng thước nào
+    khi trích dẫn.
+  \item \textbf{Mức đạt được thật của bảo đảm chốt kiểm} (RQ1) bị chặn bởi cỡ mẫu
+    hiệu chuẩn $4{,}5\%$, không phải $\alpha$ danh định.
+  \item \textbf{Volume cơ sở dữ liệu tích luỹ} làm điểm gãy nền trôi theo thời
+    gian qua nhiều lần khởi động lại (Phụ lục~\ref{sec:donghohoa}); mỗi chiến
+    dịch ramp phải tự đối chiếu trước/sau.
+  \item \textbf{Hạn ngạch CPU tối thiểu} $0{,}5$ core: dưới mức này SLO vỡ do CFS
+    throttling chứ không do bão hoà CPU, hệ trả \texttt{UNDECIDED} thay vì đoán
+    (Phụ lục~\ref{sec:tongquan}).
+  \item \textbf{Hai hướng nâng cấp đã xem xét và loại} ($k_s$ vào Tầng 1, CPU phi
+    tuyến ở Tầng 2) --- xem Mục~\ref{sec:ketquacotloi}.
+\end{itemize}
 
 \end{document}
