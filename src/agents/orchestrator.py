@@ -286,6 +286,26 @@ gia tri fallback khong co co so thuc nghiem, khong phai du bao dang tin cay.
 """
         return {"feasibility_report": refusal_report}
 
+    # G3/G6 HITL: needs_human_review co the bat boi HAI nguyen nhan doc lap --
+    # do tin cay CHU DE khong du (G6, scope_gate_score nam giua hai nguong)
+    # HOAC workload delta LLM doc duoc lech qua xa neo hieu chinh (G3,
+    # was_clamped, xem parser_agent.py). Khac G6 hard-refuse (is_out_of_scope):
+    # request VAN hop le, nen KHONG chan toan bo bao cao -- chi chen banner
+    # canh bao o DAU bao cao (truoc khi nguoi doc thay phan tong hop LLM nghe
+    # co ve chac chan), con lai van tong hop day du de giu du lieu tham khao.
+    needs_review_banner = None
+    if parsed.get('needs_human_review'):
+        print("  [Phase 4] G3/G6 TRIGGERED: can nguoi xem lai truoc khi chot phan quyet.")
+        needs_review_banner = f"""### [CAN NGUOI XEM LAI TRUOC KHI CHOT -- NEEDS_HUMAN_REVIEW]
+Ly do (tu ParserAgent): {parsed['reasoning']}
+
+Phan phan tich dinh luong duoi day van duoc tong hop day du de tham khao,
+nhung KHONG nen xem la ket luan cuoi cung cho den khi mot nguoi xac nhan lai
+dau vao (archetype va/hoac workload delta) cua yeu cau nay.
+
+---
+"""
+
     delta         = parsed['injection_delta_pct']
     cap_eval      = state.get('capacity_assessment', {})
     expert_assess = cap_eval.get('expert_assessment', 'Danh gia nang luc tai hoan tat.')
@@ -382,6 +402,9 @@ hop le nhung day muc do tac dong toi ria (hoac vuot ria) vung du lieu da
 tung quan sat. Khuyen nghi: doi chieu voi load-test thuc te truoc khi xem
 ket luan phia tren la bao chung cuoi cung.
 """
+
+    if needs_review_banner:
+        report = needs_review_banner + report
 
     return {"feasibility_report": report}
 

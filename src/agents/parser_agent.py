@@ -29,6 +29,14 @@ Guards (bat buoc, kiem tra TRUOC khi tra ket qua):
       OR hai-tin-hieu truoc do (xem papers/p1_du_phong/docs/paper_draft.tex, "Behavior at the
       Edge of the Declared Scope" de biet qua trinh dan den thiet ke nay).
 
+  needs_human_review=True con bat boi CA G3 (xem _guard_delta/was_clamped):
+      Δ ma LLM doc duoc lech qua xa neo hieu chinh (vuot MAX_ADJUSTMENT_PCT)
+      la mot ly do can nguoi xem lai DOC LAP voi do tin cay ve chu de/archetype
+      cua G6 -- hai truc khac nhau, gop bang OR (xem khoi G6 ben duoi). Day la
+      co che: "neu con so LLM dua ra qua vo ly thi dua human vao thay vi am
+      tham dung lai neo roi van ra phan quyet dinh luong nhu khong co gi xay
+      ra" (10/2026).
+
 Phu hop Q1 paper: "Grounded LLM Estimation anchored to empirical calibration table"
 """
 
@@ -288,8 +296,14 @@ def _guard_delta(delta: float, template_delta: float,
     else:
         clamped = False
 
-    # G2: clamp vao khoang vat ly hop ly
+    # G2: clamp vao khoang vat ly hop ly -- CO THE tu no doi delta o truong
+    # hop bien (vd neo thap + dieu chinh am gan toi da, raw delta < min_delta_pct
+    # du KHONG vuot nguong G3 o tren), nen phai kiem RIENG thay vi de bien
+    # 'clamped' cua G3 danh lua la da bao quat het moi truong hop kep.
+    delta_before_floor = delta
     delta = max(min_delta_pct, min(max_delta_pct, delta))
+    if delta != delta_before_floor:
+        clamped = True
     return delta, actual_adj, clamped
 
 
@@ -605,7 +619,12 @@ class ParserAgent:
         }
 
         hard_refuse = scope_gate_score >= self.scope_gate_tau_refuse
-        needs_human_review = (not hard_refuse) and (scope_gate_score >= self.scope_gate_tau_pass)
+        scope_needs_review = (not hard_refuse) and (scope_gate_score >= self.scope_gate_tau_pass)
+        # G3 (Δ lech qua xa neo, da ghi nhan o was_clamped khi G2+G3 chay phia
+        # tren) la mot ly do can nguoi xem lai DOC LAP voi do tin cay ve CHU DE
+        # (scope_gate_score) -- hai truc khac nhau, gop bang OR. Khong gop vao
+        # nhanh hard_refuse: Δ bat thuong khong co nghia request sai pham vi.
+        needs_human_review = scope_needs_review or (was_clamped and not hard_refuse)
         is_out_of_scope = hard_refuse
         if hard_refuse:
             llm_conf      = "REFUSED"
@@ -621,13 +640,20 @@ class ParserAgent:
             )
         elif needs_human_review:
             llm_conf = "NEEDS_HUMAN_REVIEW"
-            llm_reasoning += (
-                f" [SCOPE GATE / conformal HITL: score={scope_gate_score:.3f} nam giua "
-                f"tau_pass={self.scope_gate_tau_pass:.3f} va "
-                f"tau_refuse={self.scope_gate_tau_refuse:.3f} -- khong du tin cay theo "
-                "CA HAI bao dam thong ke de tu dong cho qua HOAC tu dong refuse, can nguoi "
-                "xem lai truoc khi dua ra phan quyet dinh luong."
-            )
+            if scope_needs_review:
+                llm_reasoning += (
+                    f" [SCOPE GATE / conformal HITL: score={scope_gate_score:.3f} nam giua "
+                    f"tau_pass={self.scope_gate_tau_pass:.3f} va "
+                    f"tau_refuse={self.scope_gate_tau_refuse:.3f} -- khong du tin cay theo "
+                    "CA HAI bao dam thong ke de tu dong cho qua HOAC tu dong refuse, can nguoi "
+                    "xem lai truoc khi dua ra phan quyet dinh luong."
+                )
+            if was_clamped and not scope_needs_review:
+                llm_reasoning += (
+                    " [G3 HITL: workload delta LLM doc duoc lech qua xa neo hieu chinh "
+                    "(xem CLAMPED o tren) -- can nguoi xac nhan lai dung Δ truoc khi dung "
+                    "phan quyet dinh luong lam can cu.]"
+                )
 
         result = ParsedRequirement(
             request_type        = request_type,
