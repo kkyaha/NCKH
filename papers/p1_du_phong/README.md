@@ -9,66 +9,53 @@ hậu nghiệm.
 > **Lưu ý khi đọc repo này từ bản push lên git**: thư mục `tests/`, sáu nhóm script
 > sinh kết quả trong `experiments/` (`collect/`, `feasibility/`, `edges/`, `model_eval/`,
 > `parser/`, `datasets/`), máy sinh ảnh (`docs/figures/puml/`), và các tài liệu tham
-> khảo phụ trong `docs/` (`HE_THONG.md`, `CO_CHE_KHA_THI.md`, `DATA_FRAMEWORK.md`,
-> `GIAO_THUC_VONG_2.md`, v.v. -- xem mục "Tài liệu" dưới) không nằm trong bản push --
-> giữ gọn repo, chỉ còn trên máy tác giả. `docs/` chỉ còn hai file chính:
-> `paper_draft.tex` và `bao_cao_giao_vien.tex`, kèm 5 ảnh PNG đã render sẵn để compile
-> được ngay. Các link bên dưới trỏ tới đường dẫn đúng của những file đã gỡ để biết
-> *claim nào đo bằng script nào*, nhưng sẽ không mở được nếu bạn clone repo này. Số liệu
-> đã công bố vẫn kiểm chứng được qua `data/processed/frozen/` + sha256 kèm theo (xem
+> khảo phụ trong `docs/` (xem mục "Tài liệu" dưới) không nằm trong bản push -- giữ gọn
+> repo, chỉ còn trên máy tác giả. `docs/` chỉ còn hai file chính (`paper_draft.tex`,
+> `bao_cao_giao_vien.tex`) kèm 5 ảnh PNG đã render sẵn để compile ngay. Số liệu đã công
+> bố vẫn kiểm chứng được qua `data/processed/frozen/` + sha256 kèm theo (xem
 > `../../data/DATA.md`).
+
+## Hai hệ, đừng lẫn
+
+| | **Hệ A** `CapacityAgent` (kiến trúc chính) | **Hệ B** `FeasibilityPredictor` (baseline) |
+|---|---|---|
+| cấu trúc | đồ thị nhân quả 28 node, liên dịch vụ | thang P0--P3, không có cạnh liên dịch vụ |
+| điểm vào | `assess(text)` -- chỉ cần mô tả yêu cầu | `assess_feasibility_at_peak(text, L_peak)` -- cần tải đỉnh tường minh |
+| vai trò | kiến trúc đề xuất, toàn bộ số liệu chính | baseline đối chiếu mức phán quyết, kèm bằng chứng tiến cứu riêng (18 tính năng/5 vòng) |
+| `freeze_predictions.py` | 0 tham chiếu | dùng cái này để đóng băng dự đoán |
+
+Hệ A tự quét tìm điểm gãy (`find_breakpoint()`), không cần biết trước tải đỉnh. Hệ B
+phán quyết tại một tải đỉnh `L_peak` do người dùng cung cấp. Số liệu đầy đủ cho cả hai:
+[`docs/bao_cao_giao_vien.tex`](docs/bao_cao_giao_vien.tex).
 
 ## Bắt đầu từ đâu
 
 | notebook | nội dung |
 |---|---|
-| **[`notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb`](notebooks/)** | làm sạch dữ liệu tự đo → dựng đồ thị nhân quả → bốn mô hình dự phóng → kết quả tiến cứu → **B8: đánh giá mức phán quyết**, **B1.5: các tính năng thêm vào + sàn phân giải** (98 ô, chạy sạch 0 lỗi, có output) |
-| **[`notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb`](notebooks/)** | quy trình hệ thống chạy từng bước, chỉnh được, E0–E5, **6b: sàn nhiễu thật**, **6c: Δ do Parser dự đoán → phán quyết** (46 ô, chạy sạch 0 lỗi, có output) |
+| **[`notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb`](notebooks/)** | làm sạch dữ liệu tự đo → dựng đồ thị nhân quả → bốn mô hình dự phóng → kết quả tiến cứu (98 ô, chạy sạch 0 lỗi, có output) |
+| **[`notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb`](notebooks/)** | quy trình hệ thống chạy từng bước, chỉnh được, E0--E5 (46 ô, chạy sạch 0 lỗi, có output) |
 
-> **Đọc hai mục này trước khi viện dẫn bất kỳ con số nào:**
-> [nb02 §6b](notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb) — năng lực *cơ sở* của cùng một
-> hệ thống trải **120–240 req/s** qua 16 phiên đo, và sàn nhiễu là 45,2% (qua phiên) chứ không phải
-> 21,4% (trong một phiên). [nb01 §B8](notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb) — ở mức
-> phán quyết, bậc thang bốn mức sập xuống **hai** nhóm: chỉ P1 → P2 có bằng chứng (9–0, p = 0,004);
-> `P1_ctrl` trùng P0 trên **288/288** quyết định và P3 không thắng P2 (p = 1,0).
-> [nb01 §B1.5](notebooks/01_du_lieu_do_thi_nhan_qua_va_du_doan.ipynb) — **14/18 tính năng** nằm trong
-> nhóm có khai báo giống hệt nhau, nên mô hình dựa trên khai báo *buộc* phải dự đoán giống nhau cho
-> chúng; năng lực thật lệch tới **1,79 lần** bên trong một nhóm (`quickadd` 70 vs `wishlist` 125 req/s).
-> Probe cũng không cứu: `k` đo được khác **ngược chiều** (nhiều lời gọi hơn lại đi với năng lực cao hơn),
-> nên mọi mô hình đơn điệu theo số lời gọi — P2 hay P3 — xếp sai thứ tự hai cặp chặt nhất.
-> [nb02 §6c](notebooks/02_quy_trinh_he_thong_va_thuc_nghiem.ipynb) — truyền **phân bố sai số thật**
-> của Parser (600 lượt) vào phán quyết: bản có guard mất **0,63 điểm** độ đúng so với Δ hoàn hảo và
-> chỉ 0,16% ca nguy hiểm, trong khi cùng LLM **không guard** cho MAE **844 điểm %**, 91% ảo tên dịch
-> vụ. Guard là phần đóng góp, không phải LLM; LLM hơn luật thuần 0,52 điểm độ đúng nhưng giảm ca
-> nguy hiểm **4 lần**. Δ vẫn chưa được thẩm định so với thực tế (hạn chế M5).
->
-> Cả ba notebook chạy được bằng `nbclient` không cần Jupyter:
-> `python3 -c "import nbformat;from nbclient import NotebookClient;nb=nbformat.read(F,as_version=4);NotebookClient(nb,kernel_name='python3',resources={'metadata':{'path':D}}).execute()"`
-> Ô gọi LLM thật trong nb02 tự bỏ qua nếu thiếu `python-dotenv` / `GOOGLE_API_KEY`; phần còn lại không cần LLM.
+Ba điều cần biết trước khi trích số từ hai notebook này (chi tiết đầy đủ nằm trong chính
+notebook, không lặp lại ở đây):
+- **Sàn nhiễu** đo qua nhiều phiên (45,2%) cao hơn nhiều so với trong một phiên (21,4%) --
+  đổi cách đọc "khác biệt có ý nghĩa" của mọi so sánh P1--P3 (nb02 §6b).
+- Ở mức phán quyết, 4 nấc P0--P3 thực chất chỉ tách được **hai** nhóm; 14/18 tính năng có
+  khai báo giống hệt nhau nên P2/P3 buộc dự đoán giống nhau dù năng lực thật lệch tới
+  1,79 lần (nb01 §B8/§B1.5).
+- Truyền đúng phân bố sai số thật của Parser vào phán quyết: có chốt kiểm chỉ mất 0,63
+  điểm độ đúng so với Δ hoàn hảo; không chốt kiểm thì MAE 844 điểm%, 91% ảo tên dịch vụ
+  (nb02 §6c) -- khớp đúng số liệu benchmark trong báo cáo giáo viên.
 
-## Phạm vi — giả định một gateway (G0)
+Chạy cả ba notebook không cần Jupyter, bằng `nbclient` (lệnh đầy đủ ở đầu mỗi file). Ô
+gọi LLM thật tự bỏ qua nếu thiếu `python-dotenv` / `GOOGLE_API_KEY`.
 
-Toàn bộ P0–P3 được xây **theo công thức** cho hệ có đúng một điểm vào (`GATEWAY = 'front-end'`,
-`src/scm/feasibility_predictor.py:44,111`) — chưa từng chạy trên hệ nào khác. ParserAgent và
-CapacityAgent (các lớp phía trên) đã tổng quát hoá sang đa gateway, kể cả một lỗi thật đã bắt
-và sửa; giới hạn chỉ nằm ở tầng dự đoán khả thi. Chi tiết: nb01 mục C1 (bảng G0–G4), sơ đồ
-[`00_tong_quan.puml`](docs/figures/puml/README.md) (hình tổng quan toàn hệ; từ đó
-đi sâu vào từng khối).
+## Phạm vi của Hệ B -- giả định một gateway
 
-## Hai ngăn xếp — đọc trước khi trích số
-
-Bài 1 có **hai** mô hình, đừng lẫn:
-
-| | **hệ A** `CapacityAgent` | **hệ B** `FeasibilityPredictor` (P0–P3) |
-|---|---|---|
-| cấu trúc | DAG 28 node, 32 cạnh (sơ đồ `03a`) | nan hoa 3 bước, **0 cạnh service→service** (sơ đồ `03b`) |
-| dùng cho | RQ1–RQ4 | RQ5 — **mọi con số công bố** |
-| chạy thật `assess()` | **luôn** đi qua | chỉ khi có `L_peak` |
-| `freeze_predictions.py` | **0 tham chiếu** | chỉ dùng cái này |
-
-Hai hệ tương đương **ở mức `u`** (lệch ≤ 0,30%, **0,00%** tại nút nghẽn) nhưng **không** ở mức
-workload (`user` 13,25%) — đo bằng
-[`feasibility/doi_chieu_hai_he.py`](experiments/feasibility/doi_chieu_hai_he.py).
+Thang P0--P3 xây **theo công thức** cho hệ có đúng một điểm vào (`GATEWAY='front-end'`,
+`src/scm/feasibility_predictor.py:44,111`) -- chưa từng chạy trên hệ khác. Hệ A (ParserAgent
++ CapacityAgent) đã tổng quát hoá sang đa gateway, kể cả một lỗi thật đã bắt và sửa khi
+chuyển sang Train Ticket (14 gateway); giới hạn một-gateway chỉ còn ở Hệ B. Chi tiết: nb01
+mục C1 (bảng G0--G4).
 
 ## Dữ liệu
 
@@ -76,12 +63,17 @@ workload (`user` 13,25%) — đo bằng
 đi qua **một cổng duy nhất** là `src/scm/measured_data.py` (chỉ đọc, không bao giờ sửa dữ
 liệu thô; mỗi lý do loại bỏ đều tra được).
 
-Kết quả đóng băng: `results_frozen/` (symlink tới `data/processed/frozen/`, 48 file có SHA-256).
+Kết quả đóng băng: `results_frozen/` (symlink tới `data/processed/frozen/`, có SHA-256).
 
 ## Kết quả hiện có
 
-Sai số tuyệt đối trung bình của điểm gãy, bốn mô hình xếp theo thang tăng dần thông tin
-(nguồn: `data/processed/frozen/p3_evaluation.csv`):
+**Hệ A** (số liệu đầy đủ: [báo cáo giáo viên Mục 3](docs/bao_cao_giao_vien.tex)):
+- Chốt kiểm parser: 0% vi phạm biên/bịa service/sai cổng vào trên nhóm prompt đối kháng.
+- Correction theo tầng: giảm tỉ lệ khả-thi-giả từ 79,2% xuống 6,7% (đọc lỏng) /
+  từ 16,1% xuống 3,4% (đọc chặt), trên 288 quyết định đo thật.
+
+**Hệ B** (baseline, sai số tuyệt đối trung bình của điểm gãy, bốn mô hình xếp theo thang
+tăng dần thông tin; nguồn: `data/processed/frozen/p3_evaluation.csv`):
 
 | tập | n | P1 (k=1) | P2 (c,x) | P3 (k đo được) | **P3+chain** |
 |---|---|---|---|---|---|
@@ -92,19 +84,19 @@ Sai số tuyệt đối trung bình của điểm gãy, bốn mô hình xếp th
 
 Thang **đơn điệu** trên mọi tập: mỗi mẩu thông tin thêm vào thì sai số giảm.
 
-**Điểm yếu chưa khắc phục:** tập ĐỘC LẬP có ca thảm hoạ (`expressx1`, 216,6%); n nhỏ;
-16 tính năng đều nhỏ và an toàn; sàn nhiễu chưa cho phép tách các mô hình ở chênh lệch nhỏ.
-Cả ba việc cần **đo thêm**, không cần phân tích thêm — và cần máy chạy Docker.
+**Điểm yếu chưa khắc phục** (Hệ B): tập ĐỘC LẬP có ca thảm hoạ (`expressx1`, 216,6%); n
+nhỏ; 16 tính năng đều nhỏ và an toàn; sàn nhiễu chưa cho phép tách các mô hình ở chênh
+lệch nhỏ. Cả ba việc cần **đo thêm**, không cần phân tích thêm -- và cần máy chạy Docker.
 
 ## Nhóm script
 
 | nhóm | nội dung |
 |---|---|
-| `experiments/collect/` | harness đo (`load_sweep_collect.py`), probe `k`, kiểm hợp đồng dữ liệu, **và** hai bộ tải RE2 (`download_*_data.py` — bài 2 cũng dùng) |
+| `experiments/collect/` | harness đo (`load_sweep_collect.py`), probe `k`, kiểm hợp đồng dữ liệu, **và** hai bộ tải RE2 (`download_*_data.py` -- bài 2 cũng dùng) |
 | `experiments/feasibility/` | fit chi phí tính năng, đóng băng dự đoán, đánh giá P2/P3, kiểm throttling gate |
 | `experiments/edges/` | chọn và kiểm chứng cạnh học của Global Causal DAG (tranh chấp CPU, lan truyền độ trễ), kiểm an toàn OOD |
 | `experiments/model_eval/` | bộ đánh giá, cross-validation, nghiêm ngặt thống kê, sinh hình |
-| `experiments/parser/` | ParserAgent + sáu guard, cổng phạm vi, hiệu chỉnh conformal, benchmark LLM |
+| `experiments/parser/` | ParserAgent + chốt kiểm, cổng phạm vi, hiệu chỉnh conformal, benchmark LLM |
 | `experiments/datasets/` | đánh giá trên hệ thứ hai (Train Ticket), chuyển giao độ co giãn LOSO |
 
 ## Chạy lại (từ gốc repo)
@@ -121,23 +113,23 @@ python papers/p1_du_phong/experiments/model_eval/make_figures.py
 
 | module | vai trò | bài 2 có dùng? |
 |---|---|---|
-| `src/agents/capacity_agent.py` | huấn luyện Global Causal DAG | **có** (E4b, E8 v3) |
+| `src/agents/capacity_agent.py` | huấn luyện đồ thị nhân quả (Hệ A, cơ chế tính toán duy nhất) | **có** (E4b, E8 v3) |
 | `src/scm/scm_graph_builder.py`, `scm_edge_selector.py` | bảng mẫu cạnh, chọn cạnh học | có (qua DAG) |
 | `src/scm/data_processor.py`, `measured_data.py` | nạp dữ liệu | có |
 | `src/scm/queueing_regressor.py`, `deterministic_forward.py`, `node_impact.py` | cơ chế hàng đợi, lan truyền tất định | không |
-| `src/scm/feasibility_predictor.py` | **bộ dự phóng — chỉ bài này** | không |
-| `src/agents/{feasibility,parser,architecture}_agent.py`, `orchestrator.py` | chuỗi agent — **chỉ bài này** | không |
+| `src/scm/feasibility_predictor.py` | Hệ B -- chỉ bài này | không |
+| `src/agents/{feasibility,parser,architecture}_agent.py`, `orchestrator.py` | chuỗi agent (Hệ A) -- chỉ bài này | không |
 
 ## Tài liệu
 
 **Hai file chính (push lên git):**
-- `docs/paper_draft.tex` — bài báo
-- `docs/bao_cao_giao_vien.tex` — báo cáo tiến độ gửi giáo viên
+- `docs/paper_draft.tex` -- bài báo
+- `docs/bao_cao_giao_vien.tex` -- báo cáo tiến độ gửi giáo viên
 
 **Tài liệu tham khảo phụ (chỉ còn trên máy tác giả, xem lưu ý đầu trang):**
-- `docs/HE_THONG.md` — mô tả hệ thống đầy đủ
-- `docs/CO_CHE_KHA_THI.md` — cơ chế dung lượng / throttling
-- `docs/DATA_FRAMEWORK.md`, `docs/GIAO_THUC_VONG_2.md` — khung dữ liệu, giao thức đo
-- `docs/khungtoanhoc.tex` / `.pdf` — **lưu ý**: nội dung thực ra thuộc chủ đề
+- `docs/HE_THONG.md` -- mô tả hệ thống đầy đủ
+- `docs/CO_CHE_KHA_THI.md` -- cơ chế dung lượng / throttling
+- `docs/DATA_FRAMEWORK.md`, `docs/GIAO_THUC_VONG_2.md` -- khung dữ liệu, giao thức đo
+- `docs/khungtoanhoc.tex` / `.pdf` -- **lưu ý**: nội dung thực ra thuộc chủ đề
   Future RCA (`experiments/chua_phan_loai/future_rca.py`), có vẻ để nhầm thư mục
   chứ không phải tài liệu của bài 1 -- chưa dọn vì ngoài phạm vi đợt dọn này
